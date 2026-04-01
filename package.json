@@ -2,12 +2,15 @@
   "name": "icarus-football-schools",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
@@ -26,5 +29,22 @@
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+  },
+  "build": {
+    "appId": "com.icarus.footballschools",
+    "productName": "Icarus App",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dir",
+      "icon": "electron/icon.png",
+      "category": "public.app-category.sports"
+    }
   }
 }
