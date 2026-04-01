@@ -1,0 +1,198 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: username, role, linkedPlayerId, photoUrl, email
+    //
+    // Collection: players
+    // Fields: memberId, fullName, dateOfBirth, parentName, contactNumber, 
+    //         address, venue, batch, photoUrl, position, registeredAt, 
+    //         evaluation, evaluationHistory
+    //
+    // Collection: attendance
+    // Fields: playerId, date, status, notes
+    //
+    // Collection: matches
+    // Fields: date, opponent, result, scoreFor, scoreAgainst, playerStats, highlightsUrl
+    //
+    // Collection: settings
+    // Fields: name, logoUrl, primaryColor, secondaryColor, fontFamily
+    //
+    // Collection: schedule
+    // Fields: title, date, time, type, location, leadCoachId, rsvps, drillIds
+    //
+    // Collection: notices
+    // Fields: title, content, date, author, priority, imageUrl, qrCodeUrl
+    //
+    // Collection: fees
+    // Fields: playerId, month, status, amount, datePaid, invoice
+    //
+    // Collection: venues
+    // Fields: name
+    //
+    // Collection: batches
+    // Fields: name
+    //
+    // Collection: drills
+    // Fields: title, category, difficulty, duration, minPlayers, description, equipment, instructions, coachingPoints
+    //
+    // Collection: potm
+    // Fields: playerId, timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        (request.auth.token.email == "negidevender19@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isCoach() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['username', 'role']) &&
+             data.username is string && data.username.size() > 0 &&
+             data.role in ['admin', 'coach', 'player'];
+    }
+
+    function isValidPlayer(data) {
+      return hasRequiredFields(['memberId', 'fullName', 'dateOfBirth', 'parentName', 'contactNumber', 'photoUrl', 'position', 'registeredAt']) &&
+             data.fullName is string && data.fullName.size() > 0 &&
+             data.memberId is string && data.memberId.size() > 0;
+    }
+
+    function isValidAttendance(data) {
+      return hasRequiredFields(['playerId', 'date', 'status']) &&
+             data.status in ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'];
+    }
+
+    function isValidMatch(data) {
+      return hasRequiredFields(['date', 'opponent', 'result', 'scoreFor', 'scoreAgainst', 'playerStats']);
+    }
+
+    function isValidEvent(data) {
+      return hasRequiredFields(['title', 'date', 'time', 'type', 'location']) &&
+             data.type in ['training', 'match', 'social'];
+    }
+
+    function isValidNotice(data) {
+      return hasRequiredFields(['title', 'content', 'date', 'author', 'priority']) &&
+             data.priority in ['normal', 'high'];
+    }
+
+    function isValidFee(data) {
+      return hasRequiredFields(['playerId', 'month', 'status', 'amount']) &&
+             data.status in ['PAID', 'PENDING', 'OVERDUE'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role == 'player' || isAdmin());
+      allow update: if (isOwner(userId) || isAdmin()) && isValidUser(request.resource.data) &&
+                      (request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /players/{playerId} {
+      allow read: if isAuthenticated();
+      allow create, update: if (isAdmin() || isCoach()) && isValidPlayer(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /attendance/{recordId} {
+      allow read: if isAuthenticated();
+      allow create, update: if (isAdmin() || isCoach()) && isValidAttendance(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /matches/{matchId} {
+      allow read: if isAuthenticated();
+      allow create, update: if (isAdmin() || isCoach()) && isValidMatch(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /schedule/{eventId} {
+      allow read: if isAuthenticated();
+      allow create, update: if (isAdmin() || isCoach()) && isValidEvent(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if isAuthenticated();
+      allow create, update: if (isAdmin() || isCoach()) && isValidNotice(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /fees/{feeId} {
+      allow read: if isAuthenticated() && (isAdmin() || isCoach() || 
+                    (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linkedPlayerId == resource.data.playerId));
+      allow create, update: if isAdmin() && isValidFee(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /venues/{venueId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /batches/{batchId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /drills/{drillId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isCoach();
+    }
+
+    match /potm/{monthId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isCoach();
+    }
+  }
+}

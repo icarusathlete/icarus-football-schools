@@ -1,0 +1,170 @@
+
+export type Role = 'admin' | 'coach' | 'player';
+
+export interface User {
+  id: string;
+  username: string;
+  password: string; // Stored as plain text for this demo environment only
+  role: Role;
+  linkedPlayerId?: string; // For student accounts
+  photoUrl?: string; // Coach/Admin Profile Photo
+  // For Coaches
+  assignedVenues?: string[];
+  assignedBatches?: string[];
+}
+
+export interface PlayerEvaluation {
+  level: number;
+  overallRating: number;
+  height: number; // CMS
+  weight: number; // KGS
+  metrics: {
+    passing: number;
+    juggling: number;
+    shooting: number;
+    beepTest: number;
+    weakFoot: number;
+    longPass: number;
+  };
+  timeTrials: {
+    dribbling: number; // seconds
+    speed: number;    // seconds
+    agility: number;  // seconds
+  };
+  developmentAreas: string[];
+  coachName: string;
+  evaluationDate: string;
+}
+
+export interface Venue {
+  id: string;
+  name: string;
+}
+
+export interface Batch {
+  id: string;
+  name: string;
+}
+
+export interface Player {
+  id: string;
+  memberId: string; // Human readable ID like ICR-0001
+  fullName: string;
+  dateOfBirth: string;
+  parentName: string;
+  contactNumber: string;
+  address?: string; 
+  venue?: string; // Storing venue name
+  batch?: string; // Storing batch name
+  photoUrl: string;
+  position: string;
+  registeredAt: string;
+  evaluation?: PlayerEvaluation;
+  evaluationHistory?: PlayerEvaluation[]; // Store past reports
+}
+
+export enum AttendanceStatus {
+  PRESENT = 'PRESENT',
+  ABSENT = 'ABSENT',
+  LATE = 'LATE',
+  EXCUSED = 'EXCUSED'
+}
+
+export interface AttendanceRecord {
+  id: string;
+  playerId: string;
+  date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+  notes?: string;
+}
+
+export interface MatchStats {
+  playerId: string;
+  goals: number;
+  assists: number;
+  rating: number; // 1-10
+  minutesPlayed: number;
+  isStarter?: boolean; // New field to track Starting XI
+}
+
+export interface Match {
+  id: string;
+  date: string;
+  opponent: string;
+  result: 'W' | 'L' | 'D';
+  scoreFor: number;
+  scoreAgainst: number;
+  playerStats: MatchStats[];
+  highlightsUrl?: string; // Optional YouTube link
+  scheduledEventId?: string; // Link to schedule
+}
+
+export interface AcademySettings {
+  name: string;
+  logoUrl: string;
+  primaryColor: string;
+  secondaryColor: string;
+  fontFamily: string;
+}
+
+export type EventType = 'training' | 'match' | 'social';
+
+export interface ScheduleEvent {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  type: EventType;
+  location: string;
+  leadCoachId?: string; // ID of the coach leading the session
+  rsvps?: Record<string, 'attending' | 'declined'>; // playerId -> status
+  drillIds?: string[]; // IDs of drills attached to this session
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  author: string;
+  priority: 'normal' | 'high';
+  imageUrl?: string; // Added field for brochure images
+  qrCodeUrl?: string; // Optional QR code for brochure
+}
+
+export interface InvoiceDetails {
+  invoiceNo: string;
+  date: string;
+  amount: number;
+  paymentMode: string;
+  validTill: string;
+}
+
+export interface FeeRecord {
+  id: string;
+  playerId: string;
+  month: string; // YYYY-MM
+  status: 'PAID' | 'PENDING' | 'OVERDUE';
+  amount: number;
+  datePaid?: string;
+  invoice?: InvoiceDetails;
+}
+
+// --- NEW DRILL TYPES ---
+export type DrillCategory = 'Technical' | 'Tactical' | 'Physical' | 'Psychosocial' | 'Set Pieces';
+export type DrillDifficulty = 'Beginner' | 'Intermediate' | 'Advanced';
+
+export interface Drill {
+  id: string;
+  title: string;
+  category: DrillCategory;
+  difficulty: DrillDifficulty;
+  duration: number; // minutes
+  minPlayers: number;
+  description: string;
+  equipment: string[];
+  instructions: string[];
+  coachingPoints: string[];
+  imageUrl?: string; 
+  videoUrl?: string; // YouTube link for demonstration
+}

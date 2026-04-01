@@ -1,0 +1,222 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile for authentication and roles",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "coach", "player"] },
+        "linkedPlayerId": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "assignedVenues": { "type": "array", "items": { "type": "string" } },
+        "assignedBatches": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["username", "role"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Academy player information",
+      "type": "object",
+      "properties": {
+        "memberId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "dateOfBirth": { "type": "string" },
+        "parentName": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "venue": { "type": "string" },
+        "batch": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "position": { "type": "string" },
+        "registeredAt": { "type": "string" },
+        "evaluation": { "type": "object" },
+        "evaluationHistory": { "type": "array" }
+      },
+      "required": ["memberId", "fullName", "dateOfBirth", "parentName", "contactNumber", "photoUrl", "position", "registeredAt"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Player attendance record",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["PRESENT", "ABSENT", "LATE", "EXCUSED"] },
+        "notes": { "type": "string" }
+      },
+      "required": ["playerId", "date", "status"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Match result and stats",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "opponent": { "type": "string" },
+        "result": { "type": "string", "enum": ["W", "L", "D"] },
+        "scoreFor": { "type": "number" },
+        "scoreAgainst": { "type": "number" },
+        "playerStats": { "type": "array" },
+        "highlightsUrl": { "type": "string" },
+        "scheduledEventId": { "type": "string" }
+      },
+      "required": ["date", "opponent", "result", "scoreFor", "scoreAgainst", "playerStats"]
+    },
+    "AcademySettings": {
+      "title": "AcademySettings",
+      "description": "Global academy settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "primaryColor": { "type": "string" },
+        "secondaryColor": { "type": "string" },
+        "fontFamily": { "type": "string" }
+      },
+      "required": ["name", "primaryColor", "secondaryColor", "fontFamily"]
+    },
+    "ScheduleEvent": {
+      "title": "ScheduleEvent",
+      "description": "Scheduled event",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "type": { "type": "string", "enum": ["training", "match", "social"] },
+        "location": { "type": "string" },
+        "leadCoachId": { "type": "string" },
+        "rsvps": { "type": "object" },
+        "drillIds": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["title", "date", "time", "type", "location"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Notice board announcement",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string" },
+        "priority": { "type": "string", "enum": ["normal", "high"] },
+        "imageUrl": { "type": "string" },
+        "qrCodeUrl": { "type": "string" }
+      },
+      "required": ["title", "content", "date", "author", "priority"]
+    },
+    "FeeRecord": {
+      "title": "FeeRecord",
+      "description": "Player fee record",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "month": { "type": "string" },
+        "status": { "type": "string", "enum": ["PAID", "PENDING", "OVERDUE"] },
+        "amount": { "type": "number" },
+        "datePaid": { "type": "string" },
+        "invoice": { "type": "object" }
+      },
+      "required": ["playerId", "month", "status", "amount"]
+    },
+    "Venue": {
+      "title": "Venue",
+      "description": "Training venue",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Batch": {
+      "title": "Batch",
+      "description": "Training batch",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Drill": {
+      "title": "Drill",
+      "description": "Training drill",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "difficulty": { "type": "string" },
+        "duration": { "type": "number" },
+        "minPlayers": { "type": "number" },
+        "description": { "type": "string" },
+        "equipment": { "type": "array", "items": { "type": "string" } },
+        "instructions": { "type": "array", "items": { "type": "string" } },
+        "coachingPoints": { "type": "array", "items": { "type": "string" } },
+        "imageUrl": { "type": "string" },
+        "videoUrl": { "type": "string" }
+      },
+      "required": ["title", "category", "difficulty", "duration", "minPlayers", "description", "equipment", "instructions", "coachingPoints"]
+    },
+    "POTM": {
+      "title": "POTM",
+      "description": "Player of the month",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["playerId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profiles"
+    },
+    "players/{playerId}": {
+      "schema": { "$ref": "Player" },
+      "description": "Academy players"
+    },
+    "attendance/{recordId}": {
+      "schema": { "$ref": "AttendanceRecord" },
+      "description": "Attendance records"
+    },
+    "matches/{matchId}": {
+      "schema": { "$ref": "Match" },
+      "description": "Matches"
+    },
+    "settings/{settingId}": {
+      "schema": { "$ref": "AcademySettings" },
+      "description": "Academy settings"
+    },
+    "schedule/{eventId}": {
+      "schema": { "$ref": "ScheduleEvent" },
+      "description": "Schedule events"
+    },
+    "notices/{noticeId}": {
+      "schema": { "$ref": "Announcement" },
+      "description": "Announcements"
+    },
+    "fees/{feeId}": {
+      "schema": { "$ref": "FeeRecord" },
+      "description": "Fee records"
+    },
+    "venues/{venueId}": {
+      "schema": { "$ref": "Venue" },
+      "description": "Venues"
+    },
+    "batches/{batchId}": {
+      "schema": { "$ref": "Batch" },
+      "description": "Batches"
+    },
+    "drills/{drillId}": {
+      "schema": { "$ref": "Drill" },
+      "description": "Drills"
+    },
+    "potm/{monthId}": {
+      "schema": { "$ref": "POTM" },
+      "description": "Player of the month"
+    }
+  }
+}

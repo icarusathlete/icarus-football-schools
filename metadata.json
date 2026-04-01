@@ -1,0 +1,7 @@
+{
+  "name": "Icarus Football Schools",
+  "description": "A comprehensive attendance and player management system for Icarus Football Schools, featuring AI-powered insights.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
