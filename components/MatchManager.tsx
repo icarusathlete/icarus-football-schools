@@ -6,7 +6,7 @@ import {
     PlayCircle, Filter, MonitorPlay, FileJson, UploadCloud, 
     AlertCircle, Check, Users, Shirt, Activity, Clock, 
     MessageSquare, Award, PieChart, TrendingUp, History,
-    Flame, Zap, Target
+    Flame, Zap, Target, MapPin
 } from 'lucide-react';
 
 export const MatchManager: React.FC = () => {
@@ -22,6 +22,22 @@ export const MatchManager: React.FC = () => {
     const [jsonInput, setJsonInput] = useState('');
     const [importStatus, setImportStatus] = useState<{msg: string, type: 'success' | 'error' | 'neutral'}>({ msg: '', type: 'neutral' });
     const [settings, setSettings] = useState(StorageService.getSettings());
+    const [activeTab, setActiveTab] = useState<'results' | 'fixtures'>('results');
+
+    // Time helper
+    const getRelativeTime = (dateStr: string) => {
+        const target = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        target.setHours(0,0,0,0);
+        
+        const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Tomorrow';
+        if (diffDays < 7) return `In ${diffDays} days`;
+        return target.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    };
 
     // New Match Form State
     const [newMatch, setNewMatch] = useState({
@@ -317,108 +333,157 @@ export const MatchManager: React.FC = () => {
                 </div>
             )}
 
+            {/* View Toggle Tabs */}
+            <div className="relative flex p-1.5 bg-brand-800 rounded-2xl w-full md:w-fit border border-white/5 overflow-hidden">
+                <div 
+                    className="absolute top-1.5 bottom-1.5 bg-gold rounded-xl transition-all duration-300 ease-out z-0"
+                    style={{ 
+                        left: activeTab === 'results' ? '0.375rem' : 'calc(50% + 0.1875rem)',
+                        width: 'calc(50% - 0.5625rem)'
+                    }}
+                />
+                <button 
+                    onClick={() => setActiveTab('results')}
+                    className={`relative z-10 flex-1 md:px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${activeTab === 'results' ? 'text-brand-950' : 'text-brand-500 hover:text-white'}`}
+                >
+                    <History size={14} />
+                    Results
+                </button>
+                <button 
+                    onClick={() => setActiveTab('fixtures')}
+                    className={`relative z-10 flex-1 md:px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${activeTab === 'fixtures' ? 'text-brand-950' : 'text-brand-500 hover:text-white'}`}
+                >
+                    <Calendar size={14} />
+                    Fixtures
+                </button>
+            </div>
+
             {/* Previous Matches Stream */}
             <div className="space-y-6">
                 <div className="flex items-center gap-4 text-brand-400 text-xs font-black uppercase tracking-widest">
-                    <span>Recent Fixtures</span>
+                    <span>{activeTab === 'results' ? 'Recent Fixtures' : 'Upcoming Deployments'}</span>
                     <div className="h-px bg-white/5 flex-1" />
                     <Filter size={14} className="hover:text-gold cursor-pointer" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
-                    {matches.map(m => (
-                        <div key={m.id} className="group relative bg-brand-800 rounded-2xl border border-white/5 hover:border-white/10 hover:shadow-2xl hover:shadow-black transition-all overflow-hidden p-6">
-                            {/* Color Stripe based on result */}
-                            <div className={`absolute left-0 top-0 bottom-0 w-1 flex flex-col ${m.isLive ? 'bg-red-500' : m.result === 'W' ? 'bg-gold' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-500'}`} />
+                    {activeTab === 'results' ? (
+                        matches.map(m => (
+                            <div key={m.id} className="group relative bg-brand-800 rounded-2xl border border-white/5 hover:border-white/10 hover:shadow-2xl hover:shadow-black transition-all overflow-hidden p-6 md:p-8">
+                                <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.isLive ? 'bg-red-500' : m.result === 'W' ? 'bg-gold shadow-[2px_0_10px_rgba(251,191,36,0.5)]' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-500'}`} />
 
-                            <div className="flex flex-col md:flex-row items-center gap-8">
-                                {/* Match Header Info */}
-                                <div className="text-center md:text-left min-w-[120px]">
-                                    <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                <div className="flex flex-col md:flex-row items-center gap-10">
+                                    {/* Date Column */}
+                                    <div className="flex flex-col items-center md:items-start min-w-[100px]">
+                                        <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1">{new Date(m.date).getFullYear()}</p>
+                                        <div className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none mb-1">
+                                            {new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        </div>
                                         {m.isLive ? (
-                                            <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded flex items-center gap-1 animate-pulse">
-                                                <Zap size={8} fill="white" /> LIVE
-                                            </span>
+                                            <span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded animate-pulse tracking-widest uppercase">Live Now</span>
                                         ) : (
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${m.result === 'W' ? 'text-gold' : m.result === 'L' ? 'text-red-500' : 'text-brand-400'}`}>
-                                                {m.result === 'W' ? 'Success' : m.result === 'L' ? 'Defeat' : 'Neutral'}
+                                            <span className={`text-[9px] font-black uppercase tracking-widest ${m.result === 'W' ? 'text-gold' : m.result === 'L' ? 'text-red-500' : 'text-brand-400'}`}>
+                                                {m.result === 'W' ? 'VICTORY' : m.result === 'L' ? 'DEFEAT' : 'STALEMATE'}
                                             </span>
                                         )}
                                     </div>
-                                    <div className="text-lg font-black text-white leading-tight">
-                                        {new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                    </div>
-                                    <div className="text-xs font-bold text-brand-500 uppercase tracking-wider">{new Date(m.date).toLocaleDateString(undefined, { year: 'numeric' })}</div>
-                                </div>
 
-                                {/* Score Center */}
-                                <div className="flex-1 flex items-center justify-center gap-4 md:gap-12 w-full py-4 md:py-0 border-y md:border-none border-white/5">
-                                    <div className="flex-1 text-right">
-                                        <p className="text-xs font-bold text-brand-500 uppercase tracking-widest mb-1 truncate">Academy</p>
-                                        <h3 className="text-lg md:text-2xl font-black text-white italic">{settings.name}</h3>
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-center">
-                                        <div className="bg-brand-950 px-6 py-2 rounded-xl border border-white/5 font-mono text-3xl font-black text-white shadow-inner flex items-center gap-4">
+                                    {/* Score Dossier */}
+                                    <div className="flex-1 flex items-center justify-between w-full py-6 md:py-0 border-y md:border-none border-white/5">
+                                        <div className="flex-1 text-right pr-6 space-y-1">
+                                            <p className="text-[9px] font-black text-brand-600 uppercase tracking-[0.2em]">HOME (ACADEMY)</p>
+                                            <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tight">{settings.name}</h3>
+                                        </div>
+                                        
+                                        <div className="bg-brand-950 px-6 py-4 rounded-[1.25rem] border border-white/10 font-mono text-4xl font-black text-white shadow-2xl flex items-center gap-6 relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-full h-[2px] bg-white text-brand-950 px-3 py-1 rounded-full text-xs font-black shadow-lg" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)' }}></div>
                                             <span className={m.isLive ? 'text-white' : m.result === 'W' ? 'text-gold' : 'text-white'}>{m.scoreFor}</span>
-                                            <span className="text-brand-800 text-xl">-</span>
+                                            <span className="text-brand-800 opacity-30">:</span>
                                             <span className="text-brand-400">{m.scoreAgainst}</span>
                                         </div>
-                                    </div>
 
-                                    <div className="flex-1 text-left">
-                                        <p className="text-xs font-bold text-brand-500 uppercase tracking-widest mb-1 truncate">Opponent</p>
-                                        <h3 className="text-lg md:text-2xl font-black text-brand-400 italic opacity-80">{m.opponent}</h3>
-                                    </div>
-                                </div>
-
-                                {/* Stats & Actions */}
-                                <div className="flex items-center gap-6 md:pl-8 md:border-l border-white/5">
-                                    <div className="hidden lg:flex gap-6">
-                                        <div className="text-center">
-                                            <PieChart className="w-4 h-4 text-brand-500 mx-auto mb-1" />
-                                            <p className="text-[9px] font-bold text-brand-500 uppercase">Goals</p>
-                                            <p className="text-sm font-black text-white">{m.playerStats.reduce((s, p) => s + p.goals, 0)}</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <TrendingUp className="w-4 h-4 text-brand-500 mx-auto mb-1" />
-                                            <p className="text-[9px] font-bold text-brand-500 uppercase">Avg Rtg</p>
-                                            <p className="text-sm font-black text-white">{(m.playerStats.reduce((s, p) => s + p.rating, 0) / (m.playerStats.length || 1)).toFixed(1)}</p>
+                                        <div className="flex-1 text-left pl-6 space-y-1">
+                                            <p className="text-[9px] font-black text-brand-600 uppercase tracking-[0.2em]">AWAY (OPPONENT)</p>
+                                            <h3 className="text-xl md:text-2xl font-black text-brand-400 italic uppercase tracking-tight opacity-70 group-hover:opacity-100 transition-opacity">{m.opponent}</h3>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-2">
-                                        {m.isLive ? (
-                                            <button 
-                                                onClick={() => setActiveMatchId(m.id)}
-                                                className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-brand-950 transition-all flex items-center gap-2"
-                                            >
-                                                <MonitorPlay size={14} /> MANAGE
-                                            </button>
-                                        ) : (
-                                            <>
-                                                {m.highlightsUrl && (
-                                                    <button onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} className="p-3 bg-brand-900 border border-white/10 text-gold rounded-xl hover:bg-gold hover:text-brand-950 transition-all shadow-lg active:scale-90">
-                                                        <PlayCircle size={18} />
-                                                    </button>
-                                                )}
-                                                <button onClick={() => { setActiveMatchId(m.id); /* Open report / detail */ }} className="p-3 bg-brand-900 border border-white/10 text-white rounded-xl hover:border-gold/50 transition-all active:scale-90 opacity-60 hover:opacity-100">
-                                                    <MessageSquare size={18} />
-                                                </button>
-                                            </>
-                                        )}
+                                    {/* Action Hub */}
+                                    <div className="flex items-center gap-4">
+                                        <div className="hidden lg:flex flex-col items-end pr-6 border-r border-white/5 space-y-1">
+                                            <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest leading-none">Scout Index</p>
+                                            <p className="text-lg font-black text-white italic leading-none">{(m.playerStats.reduce((s, p) => s + p.rating, 0) / (m.playerStats.length || 1)).toFixed(1)} <span className="text-brand-700 text-xs">AVG</span></p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {m.isLive ? (
+                                                <button onClick={() => setActiveMatchId(m.id)} className="bg-red-600 text-white px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-brand-950 transition-all shadow-lg active:scale-95">Live Console</button>
+                                            ) : (
+                                                <>
+                                                    {m.highlightsUrl && (
+                                                        <button onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} className="p-3.5 bg-brand-900 border border-white/10 text-gold rounded-xl hover:bg-gold hover:text-brand-950 transition-all shadow-lg active:scale-90"><PlayCircle size={20} /></button>
+                                                    )}
+                                                    <button onClick={() => setActiveMatchId(m.id)} className="p-3.5 bg-brand-900 border border-white/10 text-white rounded-xl hover:border-gold/50 transition-all active:scale-90 opacity-40 hover:opacity-100"><MessageSquare size={20} /></button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        scheduleEvents.sort((a,b) => a.date.localeCompare(b.date)).map(ev => {
+                            const isSoon = Math.abs(new Date(ev.date).getTime() - new Date().getTime()) < (7 * 24 * 60 * 60 * 1000);
+                            return (
+                                <div key={ev.id} className="bg-brand-800 rounded-3xl border border-white/5 p-8 flex flex-col md:flex-row items-center justify-between hover:border-gold/20 transition-all group relative overflow-hidden">
+                                     {isSoon && <div className="absolute top-0 right-0 px-4 py-1 bg-gold text-brand-950 text-[8px] font-black uppercase tracking-[0.2em] rounded-bl-xl shadow-lg">Deployment Imminent</div>}
+                                    
+                                    <div className="flex items-center gap-8">
+                                        <div className="w-16 h-16 bg-brand-950 rounded-[1.25rem] flex flex-col items-center justify-center border border-white/5 group-hover:border-gold/20 transition-colors">
+                                            <p className="text-[10px] font-black text-brand-500 uppercase tracking-tighter">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>
+                                            <p className="text-2xl font-black text-white leading-none">{new Date(ev.date).getDate()}</p>
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <span className="px-2.5 py-1 bg-white/5 text-brand-300 text-[9px] font-black uppercase tracking-widest rounded-lg border border-white/5">{getRelativeTime(ev.date)}</span>
+                                                <div className="flex items-center gap-1.5 text-brand-600 font-black text-[10px] uppercase tracking-widest"><Clock size={12} /> {ev.time}</div>
+                                            </div>
+                                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tight group-hover:text-gold transition-colors">{ev.title}</h3>
+                                            <div className="flex items-center gap-2 text-brand-500 font-medium text-xs mt-1.5"><MapPin size={12} className="text-brand-700" /> {ev.location}</div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-6 md:mt-0 flex flex-col items-end gap-3 w-full md:w-auto">
+                                        <button 
+                                            onClick={() => {
+                                                let opp = ev.title;
+                                                if (opp.toLowerCase().includes(' vs ')) opp = opp.split(' vs ')[1];
+                                                else if (opp.toLowerCase().includes('against')) opp = opp.split('against')[1];
+                                                setNewMatch({ ...newMatch, scheduledEventId: ev.id, date: ev.date, opponent: opp.trim(), isLive: true });
+                                                setShowForm(true);
+                                            }}
+                                            className={`w-full md:w-auto px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${isSoon ? 'bg-gold text-brand-950 shadow-xl shadow-gold/20 hover:scale-[1.03]' : 'bg-brand-900 border border-white/10 text-brand-400 opacity-60 hover:opacity-100 hover:border-gold/30'}`}
+                                        >
+                                            <Zap size={14} fill="currentColor" /> {isSoon ? 'GO LIVE NOW' : 'MANUAL PREPARATION'}
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
 
-                {matches.length === 0 && (
+                {activeTab === 'results' && matches.length === 0 && (
                      <div className="bg-brand-800 rounded-3xl p-20 text-center border-2 border-dashed border-white/5">
                         <Activity className="w-16 h-16 text-brand-500 mx-auto mb-6 opacity-20" />
                         <h3 className="text-xl font-bold text-white">Awaiting Season Kickoff</h3>
                         <p className="text-brand-500 mt-2 max-w-sm mx-auto text-sm">No matches recorded yet. Create fixtures and log results to see season-long analytics here.</p>
+                     </div>
+                )}
+                
+                {activeTab === 'fixtures' && scheduleEvents.length === 0 && (
+                     <div className="bg-brand-800 rounded-3xl p-20 text-center border-2 border-dashed border-white/5">
+                        <Calendar className="w-16 h-16 text-brand-500 mx-auto mb-6 opacity-20" />
+                        <h3 className="text-xl font-bold text-white">Clear Schedule</h3>
+                        <p className="text-brand-500 mt-2 max-w-sm mx-auto text-sm">No upcoming matches found in the academy schedule. Plan your fixtures in the Schedule tab.</p>
                      </div>
                 )}
             </div>

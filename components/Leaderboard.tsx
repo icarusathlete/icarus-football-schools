@@ -343,7 +343,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
             )}
 
             <ConfirmModal
-                isOpen={potmModalOpen} onClose={() => setPotmModalOpen(false)}
+                isOpen={potmModalOpen} onCancel={() => setPotmModalOpen(false)}
                 onConfirm={confirmAwardPOTM}
                 title="Redline Protocol: POTM"
                 message={`Authorize official communication for ${potmAction?.playerName} as Player of the Month? This signal will be broadcasted to all academy nodes.`}

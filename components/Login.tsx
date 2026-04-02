@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Trophy, ArrowRight, AlertTriangle, Shield, Database, Sparkles } from 'lucide-react';
 import { User, AcademySettings } from '../types';
 import { loginWithGoogle, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -79,67 +79,90 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-700" 
-             style={{ backgroundColor: settings.secondaryColor }}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-brand-950">
             
-            {/* Background elements with theme primary color */}
-            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 rounded-full blur-3xl opacity-20" 
-                 style={{ backgroundColor: settings.primaryColor }} />
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 rounded-full blur-3xl opacity-10" 
-                 style={{ backgroundColor: settings.primaryColor }} />
+            {/* Tactical Grid Overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+            
+            {/* Orbital Gradients */}
+            <div className="absolute top-0 right-0 -mt-40 -mr-40 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[120px] animate-pulse duration-[10s]" />
+            <div className="absolute bottom-0 left-0 -mb-40 -ml-40 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse duration-[8s]" />
 
-            <div className="mb-8 text-center text-white relative z-10">
-                <div className="p-6 bg-white/10 backdrop-blur-xl rounded-[2.5rem] inline-block border border-white/20 mb-6 shadow-2xl animate-in zoom-in duration-500">
+            <div className="mb-12 text-center relative z-10">
+                <div className="w-24 h-24 bg-brand-900 p-5 rounded-[2.5rem] inline-flex items-center justify-center border border-white/10 mb-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in duration-700 relative group overflow-hidden">
+                    <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {settings.logoUrl ? (
-                        <img src={settings.logoUrl} className="w-20 h-20 object-contain" alt="Logo" />
+                        <img src={settings.logoUrl} className="w-16 h-16 object-contain relative z-10" alt="Logo" />
                     ) : (
-                        <Trophy className="w-16 h-16 text-yellow-400" />
+                        <Trophy className="w-14 h-14 text-gold relative z-10" />
                     )}
                 </div>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase" 
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter italic uppercase text-white" 
                     style={{ fontFamily: settings.fontFamily }}>
-                    {settings.name.split(' ')[0]} <span className="font-normal opacity-70" style={{ color: settings.primaryColor }}>{settings.name.split(' ').slice(1).join(' ')}</span>
+                    {settings.name.split(' ')[0]} <span className="text-gold">{settings.name.split(' ').slice(1).join(' ')}</span>
                 </h1>
-                <p className="text-white/40 uppercase tracking-[0.4em] text-[10px] font-bold mt-4">Football Management Portal</p>
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <div className="h-px w-8 bg-white/10" />
+                    <p className="text-brand-500 uppercase tracking-[0.4em] text-[10px] font-black">Tactical Command Interface</p>
+                    <div className="h-px w-8 bg-white/10" />
+                </div>
             </div>
 
-            <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 border border-white/20 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="p-10 text-center">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-                    <p className="text-gray-400 text-sm mb-8">Sign in to access your dashboard.</p>
+            <div className="w-full max-w-md bg-brand-900 rounded-[3.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] overflow-hidden relative z-10 border border-white/5 animate-in fade-in slide-in-from-bottom-12 duration-1000 p-1">
+                <div className="bg-brand-950/50 p-12 text-center rounded-[3.2rem]">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-800 border border-white/5 mb-8">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                        <span className="text-[10px] font-black text-brand-500 uppercase tracking-widest leading-none">Terminal Secure</span>
+                    </div>
+
+                    <h2 className="text-2xl font-black text-white mb-3 italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Authorized <span className="text-gold">Access</span></h2>
+                    <p className="text-brand-600 text-[11px] font-bold uppercase tracking-widest mb-10 leading-relaxed">Establish secure uplink via encrypted Google authentication protocol</p>
                     
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-2xl flex items-center gap-3 animate-in fade-in zoom-in text-left">
-                            <AlertTriangle size={18} className="shrink-0" />
-                            <span className="font-medium">{error}</span>
+                        <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-bold rounded-2xl flex items-center gap-4 animate-in fade-in zoom-in text-left leading-relaxed">
+                            <AlertTriangle size={20} className="shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
 
                     <button 
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="w-full text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center space-x-3 shadow-xl active:scale-95 italic disabled:opacity-70 disabled:cursor-not-allowed group"
-                        style={{ 
-                            fontFamily: settings.fontFamily,
-                            backgroundColor: settings.primaryColor,
-                            boxShadow: `0 20px 25px -5px ${settings.primaryColor}33`
-                        }}
+                        className="w-full bg-gold text-brand-950 font-black py-5 rounded-[2rem] transition-all flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(251,191,36,0.15)] active:scale-95 group disabled:opacity-50 disabled:grayscale uppercase tracking-[0.2em] text-xs"
+                        style={{ fontFamily: 'Orbitron' }}
                     >
                         {isLoading ? (
-                            <span>SIGNING IN...</span>
+                            <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 border-2 border-brand-950 border-t-transparent rounded-full animate-spin" />
+                                <span>AUTHENTICATING...</span>
+                            </div>
                         ) : (
                             <>
-                                <span>SIGN IN WITH GOOGLE</span>
+                                <span>INITIALIZE LOGIN</span>
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
                     </button>
+
+                    <div className="mt-10 flex flex-col gap-4">
+                        <p className="text-[9px] font-black text-brand-700 uppercase tracking-[0.25em]">End-to-End Encryption Enabled</p>
+                        <div className="flex justify-center gap-1">
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-1 h-1 rounded-full bg-brand-800" />)}
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <p className="mt-8 text-white/20 text-[10px] font-bold uppercase tracking-[0.3em] relative z-10">
-                &copy; 2025 {settings.name} SYSTEMS
-            </p>
+            <div className="mt-12 flex flex-col items-center gap-4 relative z-10">
+                <p className="text-brand-800 text-[10px] font-black uppercase tracking-[0.4em]">
+                    &copy; 2025 {settings.name} OPS
+                </p>
+                <div className="flex items-center gap-3 opacity-20">
+                    <Shield size={16} className="text-white" />
+                    <Database size={16} className="text-white" />
+                    <Sparkles size={16} className="text-white" />
+                </div>
+            </div>
         </div>
     );
 };

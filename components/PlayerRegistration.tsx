@@ -394,10 +394,10 @@ export const PlayerRegistration: React.FC = () => {
   };
 
   const getInputClass = (field: string) => `
-    w-full rounded-xl border-2 p-3.5 text-sm outline-none transition-all duration-300 font-medium 
+    w-full rounded-2xl border p-4 text-sm outline-none transition-all duration-300 font-bold shadow-inner
     ${errors[field] 
-        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 bg-red-50 text-red-900 placeholder:text-red-300 animate-shake' 
-        : 'border-gray-200 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 text-gray-800 placeholder:text-gray-300 bg-white'
+        ? 'border-red-500/50 bg-red-500/5 text-red-200 placeholder:text-red-500/30' 
+        : 'border-white/10 bg-brand-800 text-white placeholder:text-brand-700 focus:border-gold'
     }
   `;
 
@@ -405,101 +405,93 @@ export const PlayerRegistration: React.FC = () => {
     <div className="max-w-5xl mx-auto pb-12 space-y-8">
         
         {/* Mode Switcher */}
-        <div className="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-2">
+        <div className="bg-brand-800 p-2 rounded-[2.5rem] shadow-2xl border border-white/5 flex flex-col sm:flex-row gap-2">
             <button 
                 onClick={() => setMode('player')}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl transition-all duration-300 ${mode === 'player' ? 'bg-brand-900 text-white shadow-md' : 'hover:bg-gray-50 text-gray-500'}`}
+                className={`flex-1 flex items-center justify-center gap-4 py-5 rounded-[2rem] transition-all duration-500 ${mode === 'player' ? 'bg-gold text-brand-950 shadow-xl shadow-gold/20 scale-[1.02]' : 'hover:bg-white/5 text-brand-500 hover:text-white'}`}
             >
-                <User size={20} />
+                <div className={`p-3 rounded-xl ${mode === 'player' ? 'bg-brand-950/10' : 'bg-brand-950/30'}`}>
+                    <User size={24} />
+                </div>
                 <div className="text-left">
-                    <div className="font-black uppercase tracking-wider text-xs">Student Athlete</div>
-                    <div className="text-[10px] opacity-70">New Player Registration</div>
+                    <div className="font-black uppercase tracking-[0.2em] text-[11px]" style={{ fontFamily: 'Orbitron' }}>Athlete Enrollment</div>
+                    <div className={`text-[9px] font-bold uppercase tracking-widest mt-1 ${mode === 'player' ? 'text-brand-950/60' : 'text-brand-600'}`}>New Commissioning Node</div>
                 </div>
             </button>
             <button 
                 onClick={() => setMode('coach')}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl transition-all duration-300 ${mode === 'coach' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-gray-50 text-gray-500'}`}
+                className={`flex-1 flex items-center justify-center gap-4 py-5 rounded-[2rem] transition-all duration-500 ${mode === 'coach' ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20 scale-[1.02]' : 'hover:bg-white/5 text-brand-500 hover:text-white'}`}
             >
-                <UserCheck size={20} />
+                <div className={`p-3 rounded-xl ${mode === 'coach' ? 'bg-white/10' : 'bg-brand-950/30'}`}>
+                    <UserCheck size={24} />
+                </div>
                 <div className="text-left">
-                    <div className="font-black uppercase tracking-wider text-xs">Coaching Staff</div>
-                    <div className="text-[10px] opacity-70">Staff Onboarding & Access</div>
+                    <div className="font-black uppercase tracking-[0.2em] text-[11px]" style={{ fontFamily: 'Orbitron' }}>Staff Onboarding</div>
+                    <div className={`text-[9px] font-bold uppercase tracking-widest mt-1 ${mode === 'coach' ? 'text-white/60' : 'text-brand-600'}`}>Authorize Access Protocol</div>
                 </div>
             </button>
         </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden relative">
+      <div className="bg-brand-900 rounded-[4rem] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden relative">
         
-        {/* Status Notification Overlay */}
-        {(status === 'success' || status === 'error') && (
-             <div className={`
-                absolute top-0 left-0 right-0 z-50 p-4 text-center font-bold tracking-wide shadow-lg flex items-center justify-center gap-3 animate-in slide-in-from-top duration-500
-                ${status === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}
-             `}>
-                 {status === 'success' ? (
-                     <Check size={20} className="bg-white text-green-500 rounded-full p-0.5" />
-                 ) : (
-                     <AlertCircle size={20} className="bg-white text-red-500 rounded-full p-0.5" />
-                 )}
-                 {statusMsg}
-             </div>
-        )}
-
         {/* Header Section */}
-        <div className={`relative px-8 py-10 md:py-14 text-white overflow-hidden transition-colors duration-500 ${mode === 'coach' ? 'bg-blue-900' : 'bg-brand-900'}`}>
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
+        <div className={`relative px-12 py-16 text-white overflow-hidden transition-all duration-1000 ${mode === 'coach' ? 'bg-blue-950/30' : 'bg-brand-950/40'} border-b border-white/5`}>
+          <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.08),transparent_70%)]" />
           
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2 text-cyan-400 font-bold uppercase tracking-widest text-xs">
-                <Shield size={14} /> Official Registration
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-6 text-gold font-black uppercase tracking-[0.4em] text-[10px] bg-brand-950/80 w-fit px-5 py-2.5 rounded-full border border-gold/20 shadow-[0_0_20px_rgba(251,191,36,0.1)]">
+                <Shield size={12} className="animate-pulse" /> DATABASE INTAKE ACTIVE
               </div>
-              <h2 className="text-4xl font-black italic tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-                {mode === 'player' ? 'ATHLETE ' : 'COACH '} 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-                    {mode === 'player' ? 'ENROLLMENT' : 'ONBOARDING'}
+              <h2 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase leading-[0.9]" style={{ fontFamily: 'Orbitron' }}>
+                {mode === 'player' ? 'ATHLETE ' : 'OFFICER '} <br/>
+                <span className="text-gold">
+                    {mode === 'player' ? 'REGISTRATION' : 'ONBOARDING'}
                 </span>
               </h2>
-              <p className="text-white/70 text-sm mt-2 font-medium max-w-lg">
+              <p className="text-brand-500 text-[11px] mt-6 font-bold uppercase tracking-[0.2em] max-w-xl leading-relaxed italic border-l-2 border-gold/20 pl-6">
                   {mode === 'player' 
-                    ? 'Register a new player to the Icarus database. Updates rosters instantly.' 
-                    : 'Create access credentials for coaching staff and assign their squads.'}
+                    ? 'Initialize new player profile in the Icarus tactical ecosystem. Immediate roster synchronization across all coaching stations.' 
+                    : 'Establish high-level access credentials for staff deployments and operational scope assignment.'}
               </p>
             </div>
             
-            <div className="flex flex-col items-end gap-3">
+            <div className="flex flex-col items-end gap-6 min-w-[280px]">
                 {mode === 'player' && (
-                    <div className="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 flex flex-col items-end shadow-xl">
-                        <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest mb-1">Assigned Member ID</span>
-                        <span className="text-3xl font-black tracking-tighter text-white font-mono">{nextId}</span>
+                    <div className="bg-brand-950/80 backdrop-blur-2xl px-12 py-8 rounded-[2.5rem] border border-white/10 flex flex-col items-center shadow-3xl relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] mb-3 relative z-10">ASSIGNED MEMBER ID</span>
+                        <span className="text-5xl font-black tracking-tighter text-gold font-mono relative z-10 shadow-gold/20">{nextId}</span>
                     </div>
                 )}
-                <button 
-                    onClick={() => setShowConfigModal(true)}
-                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl transition-colors text-gray-300 hover:text-white"
-                >
-                    <Settings size={14} /> Manage Venues & Batches
-                </button>
-                
-                {mode === 'player' && (
-                    <>
-                        <input 
-                            type="file" 
-                            accept=".csv" 
-                            className="hidden" 
-                            ref={csvInputRef}
-                            onChange={handleCsvUpload}
-                        />
-                        <button 
-                            onClick={() => csvInputRef.current?.click()}
-                            disabled={status === 'submitting'}
-                            className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 hover:bg-cyan-500/30 px-4 py-2 rounded-xl transition-colors text-cyan-100 border border-cyan-500/30 disabled:opacity-50"
-                        >
-                            <FileText size={14} /> Bulk Upload CSV
-                        </button>
-                    </>
-                )}
+                <div className="flex gap-4 flex-wrap justify-end">
+                    <button 
+                        onClick={() => setShowConfigModal(true)}
+                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] bg-brand-950 border border-white/10 hover:border-gold/50 hover:text-gold px-8 py-4 rounded-2xl transition-all shadow-xl group"
+                    >
+                        <Settings size={14} className="group-hover:rotate-90 transition-transform" /> TAXONOMY
+                    </button>
+                    
+                    {mode === 'player' && (
+                        <>
+                            <input 
+                                type="file" 
+                                accept=".csv" 
+                                className="hidden" 
+                                ref={csvInputRef}
+                                onChange={handleCsvUpload}
+                            />
+                            <button 
+                                onClick={() => csvInputRef.current?.click()}
+                                disabled={status === 'submitting'}
+                                className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-600/10 hover:bg-blue-600/20 px-8 py-4 rounded-2xl transition-all text-blue-400 border border-blue-600/30 disabled:opacity-50 shadow-xl"
+                            >
+                                <FileText size={16} /> DATA INGESTION
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
           </div>
         </div>
@@ -512,50 +504,50 @@ export const PlayerRegistration: React.FC = () => {
                 <form onSubmit={handlePlayerSubmit} className="space-y-10">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                         {/* Left Column: Photo Upload */}
-                        <div className="lg:col-span-4 flex flex-col items-center gap-6">
+                        <div className="lg:col-span-4 flex flex-col items-center gap-8">
                         <div className="relative group">
                             <div className={`
-                                w-56 h-56 rounded-[2.5rem] bg-gray-50 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-300 
-                                ${previewUrl ? 'border-transparent shadow-2xl' : 'border-gray-200 group-hover:border-cyan-400'}
+                                w-64 h-64 rounded-[3rem] bg-brand-800 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-500 
+                                ${previewUrl ? 'border-transparent shadow-2xl scale-[1.02]' : 'border-white/5 group-hover:border-gold/50 group-hover:bg-gold/5'}
                             `}>
                                 {previewUrl ? (
                                     <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="flex flex-col items-center gap-3 text-gray-300 group-hover:text-cyan-500 transition-colors">
-                                    <div className="p-4 bg-white rounded-full shadow-sm">
-                                        <Camera size={32} strokeWidth={1.5} />
+                                    <div className="flex flex-col items-center gap-4 text-brand-700 group-hover:text-gold transition-colors">
+                                    <div className="p-6 bg-brand-950/50 rounded-full shadow-inner border border-white/5">
+                                        <Camera size={40} strokeWidth={1} />
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Upload Photo</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Initialize Avatar</span>
                                     </div>
                                 )}
                             </div>
-                            <label className="absolute -bottom-4 -right-4 cursor-pointer bg-brand-900 text-white p-4 rounded-2xl shadow-xl hover:bg-black transition-all hover:scale-110 active:scale-95 group-hover:animate-bounce">
-                                <Upload size={20} />
+                            <label className="absolute -bottom-4 -right-4 cursor-pointer bg-gold text-brand-950 p-5 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all z-20">
+                                <Upload size={24} />
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                             </label>
                         </div>
                         <div className="text-center">
-                            <h4 className="font-bold text-gray-900 text-sm">Profile Picture</h4>
-                            <p className="text-xs text-gray-400 mt-1 max-w-[180px]">Required for ID cards and scout reports.</p>
+                            <h4 className="font-black text-white italic uppercase tracking-tight text-sm">Tactical <span className="text-gold">ID Profile</span></h4>
+                            <p className="text-[10px] text-brand-500 font-bold uppercase tracking-widest mt-2 max-w-[200px]">Required for identification and battlefield reports.</p>
                         </div>
                         </div>
 
                         {/* Right Column: Details */}
-                        <div className="lg:col-span-8 space-y-10">
+                        <div className="lg:col-span-8 space-y-12">
                         {/* Section: Student Athlete */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600"><User size={18} /></div>
-                            <h3 className="text-sm font-black uppercase tracking-widest text-gray-500">Athlete Information</h3>
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4 border-b border-white/5 pb-3">
+                            <div className="w-10 h-10 rounded-xl bg-brand-950/50 flex items-center justify-center text-gold border border-white/5 shadow-inner"><User size={20} /></div>
+                            <h3 className="text-xs font-black uppercase tracking-[0.25em] text-brand-400 italic">Athlete <span className="text-white">Credentials</span></h3>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2 group">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-cyan-600 transition-colors ml-1 uppercase tracking-wider">
-                                    Full Name {errors.fullName && <span className="text-red-500 normal-case tracking-normal ml-auto text-[10px] bg-red-50 px-2 py-0.5 rounded-full">{errors.fullName}</span>}
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-gold transition-colors ml-1 uppercase tracking-[0.2em]">
+                                    Full Name {errors.fullName && <span className="text-red-400 normal-case tracking-normal ml-auto text-[9px] bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">{errors.fullName}</span>}
                                 </label>
                                 <div className="relative">
-                                    <User size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.fullName ? 'text-red-400' : 'text-gray-400 group-focus-within:text-cyan-500'}`} />
+                                    <User size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.fullName ? 'text-red-500' : 'text-brand-600 group-focus-within:text-gold'}`} />
                                     <input
                                         type="text"
                                         className={`${getInputClass('fullName')} pl-11`}
@@ -570,11 +562,11 @@ export const PlayerRegistration: React.FC = () => {
                             </div>
 
                             <div className="space-y-2 group">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-cyan-600 transition-colors ml-1 uppercase tracking-wider">
-                                    Date of Birth {errors.dateOfBirth && <span className="text-red-500 normal-case tracking-normal ml-auto text-[10px] bg-red-50 px-2 py-0.5 rounded-full">{errors.dateOfBirth}</span>}
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-gold transition-colors ml-1 uppercase tracking-[0.2em]">
+                                    Date of Birth {errors.dateOfBirth && <span className="text-red-400 normal-case tracking-normal ml-auto text-[9px] bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">{errors.dateOfBirth}</span>}
                                 </label>
                                 <div className="relative">
-                                    <Calendar size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.dateOfBirth ? 'text-red-400' : 'text-gray-400 group-focus-within:text-cyan-500'}`} />
+                                    <Calendar size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.dateOfBirth ? 'text-red-500' : 'text-brand-600 group-focus-within:text-gold'}`} />
                                     <input
                                         type="date"
                                         className={`${getInputClass('dateOfBirth')} pl-11`}
@@ -587,25 +579,25 @@ export const PlayerRegistration: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2 md:col-span-2">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 ml-1 uppercase tracking-wider mb-2">
-                                    Primary Position
+                            <div className="space-y-4 md:col-span-2">
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 ml-1 uppercase tracking-[0.2em]">
+                                    Primary Tactical Assignment
                                 </label>
-                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                <div className="flex flex-wrap gap-3">
                                 {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
                                     <button
                                     key={pos}
                                     type="button"
                                     onClick={() => setFormData({...formData, position: pos as any})}
                                     className={`
-                                        py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider border-2 transition-all duration-200 flex flex-col items-center gap-1
+                                        py-3 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-300 flex items-center gap-3
                                         ${formData.position === pos 
-                                        ? 'bg-brand-900 border-brand-900 text-white shadow-lg shadow-brand-900/20 scale-105' 
-                                        : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50'
+                                        ? 'bg-gold border-gold text-brand-950 shadow-xl shadow-gold/20 scale-[1.05]' 
+                                        : 'bg-brand-800 border-white/5 text-brand-600 hover:border-white/20 hover:text-white'
                                         }
                                     `}
                                     >
-                                    <Briefcase size={14} className={formData.position === pos ? 'text-cyan-400' : 'text-gray-300'} />
+                                    <Briefcase size={14} />
                                     {pos}
                                     </button>
                                 ))}
@@ -615,42 +607,42 @@ export const PlayerRegistration: React.FC = () => {
                         </div>
 
                         {/* Section: Training Assignment */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-                            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600"><Layers size={18} /></div>
-                            <h3 className="text-sm font-black uppercase tracking-widest text-gray-500">Training Assignment</h3>
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4 border-b border-white/5 pb-3">
+                            <div className="w-10 h-10 rounded-xl bg-brand-950/50 flex items-center justify-center text-purple-400 border border-white/5 shadow-inner"><Layers size={20} /></div>
+                            <h3 className="text-sm font-black uppercase tracking-[0.25em] text-brand-400 italic">Operational <span className="text-white">Deployment</span></h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-2 group">
-                                    <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-purple-600 transition-colors ml-1 uppercase tracking-wider">
-                                        Training Venue
+                                    <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-purple-400 transition-colors ml-1 uppercase tracking-[0.2em]">
+                                        Assigned Venue
                                     </label>
                                     <div className="relative">
-                                        <Map size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                                        <Map size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-600 group-focus-within:text-purple-400 transition-colors" />
                                         <select 
                                             value={formData.venue}
                                             onChange={e => setFormData({...formData, venue: e.target.value})}
-                                            className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-800 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none"
+                                            className="w-full pl-11 pr-4 py-4 rounded-2xl border border-white/10 bg-brand-800 text-sm font-bold text-white outline-none focus:border-purple-400 shadow-inner transition-all appearance-none"
                                         >
-                                            <option value="" disabled>Select Venue</option>
+                                            <option value="" disabled>Select Sector</option>
                                             {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
                                         </select>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2 group">
-                                    <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-purple-600 transition-colors ml-1 uppercase tracking-wider">
-                                        Assigned Batch
+                                    <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-purple-400 transition-colors ml-1 uppercase tracking-[0.2em]">
+                                        Designated Batch
                                     </label>
                                     <div className="relative">
-                                        <Layers size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                                        <Layers size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-600 group-focus-within:text-purple-400 transition-colors" />
                                         <select 
                                             value={formData.batch}
                                             onChange={e => setFormData({...formData, batch: e.target.value})}
-                                            className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-800 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none"
+                                            className="w-full pl-11 pr-4 py-4 rounded-2xl border border-white/10 bg-brand-800 text-sm font-bold text-white outline-none focus:border-purple-400 shadow-inner transition-all appearance-none"
                                         >
-                                            <option value="" disabled>Select Batch</option>
+                                            <option value="" disabled>Select Division</option>
                                             {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
                                         </select>
                                     </div>
@@ -659,41 +651,41 @@ export const PlayerRegistration: React.FC = () => {
                         </div>
 
                         {/* Section: Guardian Contact */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-                            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600"><Phone size={18} /></div>
-                            <h3 className="text-sm font-black uppercase tracking-widest text-gray-500">Guardian Contact</h3>
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4 border-b border-white/5 pb-3">
+                            <div className="w-10 h-10 rounded-xl bg-brand-950/50 flex items-center justify-center text-green-400 border border-white/5 shadow-inner"><Phone size={20} /></div>
+                            <h3 className="text-sm font-black uppercase tracking-[0.25em] text-brand-400 italic">Guardian <span className="text-white">Liaison</span></h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2 group">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-green-600 transition-colors ml-1 uppercase tracking-wider">
-                                    Guardian Name {errors.parentName && <span className="text-red-500 normal-case tracking-normal ml-auto text-[10px] bg-red-50 px-2 py-0.5 rounded-full">{errors.parentName}</span>}
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-green-400 transition-colors ml-1 uppercase tracking-[0.2em]">
+                                    Primary Liaison {errors.parentName && <span className="text-red-400 normal-case tracking-normal ml-auto text-[9px] bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">{errors.parentName}</span>}
                                 </label>
                                 <div className="relative">
-                                    <User size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.parentName ? 'text-red-400' : 'text-gray-400 group-focus-within:text-green-500'}`} />
+                                    <User size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.parentName ? 'text-red-500' : 'text-brand-600 group-focus-within:text-green-500'}`} />
                                     <input
                                         type="text"
-                                        className={`${getInputClass('parentName')} pl-11 focus:border-green-500 focus:ring-green-500/10`}
+                                        className={`${getInputClass('parentName')} pl-11 focus:border-green-500`}
                                         value={formData.parentName}
                                         onChange={e => {
                                             setFormData({...formData, parentName: e.target.value});
                                             if (errors.parentName) setErrors({...errors, parentName: ''});
                                         }}
-                                        placeholder="Name of parent"
+                                        placeholder="Full name of parent/guardian"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2 group">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-green-600 transition-colors ml-1 uppercase tracking-wider">
-                                    Mobile Number {errors.contactNumber && <span className="text-red-500 normal-case tracking-normal ml-auto text-[10px] bg-red-50 px-2 py-0.5 rounded-full">{errors.contactNumber}</span>}
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-green-400 transition-colors ml-1 uppercase tracking-[0.2em]">
+                                    Comms Frequency {errors.contactNumber && <span className="text-red-400 normal-case tracking-normal ml-auto text-[9px] bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">{errors.contactNumber}</span>}
                                 </label>
                                 <div className="relative">
-                                <Phone size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.contactNumber ? 'text-red-400' : 'text-gray-400 group-focus-within:text-green-500'}`} />
+                                <Phone size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.contactNumber ? 'text-red-500' : 'text-brand-600 group-focus-within:text-green-500'}`} />
                                 <input
                                     type="tel"
-                                    className={`${getInputClass('contactNumber')} pl-11 focus:border-green-500 focus:ring-green-500/10`}
+                                    className={`${getInputClass('contactNumber')} pl-11 focus:border-green-500`}
                                     value={formData.contactNumber}
                                     onChange={e => {
                                         setFormData({...formData, contactNumber: e.target.value});
@@ -705,17 +697,17 @@ export const PlayerRegistration: React.FC = () => {
                             </div>
 
                             <div className="space-y-2 group md:col-span-2">
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 group-focus-within:text-green-600 transition-colors ml-1 uppercase tracking-wider">
-                                    Address
+                                <label className="flex items-center gap-2 text-[10px] font-black text-brand-500 group-focus-within:text-green-400 transition-colors ml-1 uppercase tracking-[0.2em]">
+                                    Geospatial Residence (Address)
                                 </label>
                                 <div className="relative">
-                                <MapPin size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors text-gray-400 group-focus-within:text-green-500`} />
+                                <MapPin size={16} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors text-brand-600 group-focus-within:text-green-500`} />
                                 <input
                                     type="text"
-                                    className={`${getInputClass('address')} pl-11 focus:border-green-500 focus:ring-green-500/10`}
+                                    className={`${getInputClass('address')} pl-11 focus:border-green-500`}
                                     value={formData.address}
                                     onChange={e => setFormData({...formData, address: e.target.value})}
-                                    placeholder="House No, Street, City"
+                                    placeholder="Full address for logistical records"
                                 />
                                 </div>
                             </div>
@@ -724,25 +716,25 @@ export const PlayerRegistration: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="pt-8 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <p className="text-xs text-gray-400 flex items-center gap-2 italic">
-                        <Shield size={12} /> Data is securely stored locally on this device.
+                    <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+                        <p className="text-[10px] text-brand-600 font-black uppercase tracking-[0.15em] flex items-center gap-3">
+                        <Shield size={16} className="text-gold" /> Encrypted datastore • Local terminal persistence
                         </p>
                         <button
                         type="submit"
                         disabled={status === 'submitting'}
-                        className="w-full md:w-auto bg-gradient-to-r from-brand-900 to-blue-900 hover:from-black hover:to-black text-white font-black py-4 px-12 rounded-2xl shadow-xl shadow-brand-900/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 uppercase tracking-widest text-xs disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                        className="w-full md:w-auto bg-gold text-brand-950 font-black py-5 px-16 rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-[10px] disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ fontFamily: 'Orbitron' }}
                         >
                         {status === 'submitting' ? (
                             <>
-                                <RefreshCw size={18} className="animate-spin" />
+                                <RefreshCw size={20} className="animate-spin" />
                                 <span>Processing...</span>
                             </>
                         ) : (
                             <>
-                                <Save size={18} />
-                                <span>Confirm Registration</span>
+                                <Save size={20} />
+                                <span>Authorize Enrollment</span>
                             </>
                         )}
                         </button>
@@ -750,61 +742,61 @@ export const PlayerRegistration: React.FC = () => {
                 </form>
             ) : (
                 /* COACH ONBOARDING FORM */
-                <form onSubmit={handleCoachSubmit} className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-sm">
-                            <UserCheck size={32} />
+                <form onSubmit={handleCoachSubmit} className="max-w-2xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    <div className="text-center mb-12">
+                        <div className="w-20 h-20 bg-brand-950 border border-white/10 text-gold rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                            <UserCheck size={40} strokeWidth={1.5} />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900">Staff Credentials</h3>
-                        <p className="text-gray-500 text-sm mt-1">Create login and assign permissions</p>
+                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Officer <span className="text-gold">Credentials</span></h3>
+                        <p className="text-brand-500 text-[10px] font-black uppercase tracking-[0.2em] mt-3">Establish secure terminal access & operational scope</p>
                     </div>
 
                     {/* Coach Profile Image Upload */}
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-6">
                         <div className="relative group">
                             <div className={`
-                                w-32 h-32 rounded-full bg-gray-50 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-300 
-                                ${coachPreviewUrl ? 'border-transparent shadow-xl' : 'border-gray-200 group-hover:border-blue-400'}
+                                w-40 h-40 rounded-[2.5rem] bg-brand-800 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-500 
+                                ${coachPreviewUrl ? 'border-transparent shadow-2xl scale-[1.02]' : 'border-white/5 group-hover:border-gold/50 group-hover:bg-gold/5'}
                             `}>
                                 {coachPreviewUrl ? (
                                     <img src={coachPreviewUrl} alt="Coach Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <Camera size={24} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                    <Camera size={28} className="text-brand-700 group-hover:text-gold transition-colors" />
                                 )}
                             </div>
-                            <label className="absolute bottom-0 right-0 cursor-pointer bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all hover:scale-110 active:scale-95">
-                                <Upload size={16} />
+                            <label className="absolute -bottom-2 -right-2 cursor-pointer bg-gold text-brand-950 p-4 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all">
+                                <Upload size={18} />
                                 <input type="file" accept="image/*" className="hidden" onChange={handleCoachFileChange} />
                             </label>
                         </div>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Coach Profile Photo</span>
+                        <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em]">Operational Profile Photo</span>
                     </div>
 
-                    <div className="space-y-6 bg-gray-50 p-8 rounded-3xl border border-gray-100">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Coach Name / Username</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-brand-950/30 p-10 rounded-[2.5rem] border border-white/5 shadow-inner">
+                        <div className="space-y-2 group">
+                            <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-gold transition-colors">Officer Username</label>
                             <div className="relative">
-                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-600 group-focus-within:text-gold transition-colors" />
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-bold text-gray-800"
-                                    placeholder="e.g. Coach David"
+                                    className={`${getInputClass('username')} pl-12 pr-4 py-4`}
+                                    placeholder="e.g. Commandant David"
                                     value={coachForm.username}
                                     onChange={e => setCoachForm({...coachForm, username: e.target.value})}
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Password</label>
+                        <div className="space-y-2 group">
+                            <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1 group-focus-within:text-gold transition-colors">Access Password</label>
                             <div className="relative">
-                                <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-600 group-focus-within:text-gold transition-colors" />
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-mono text-sm"
-                                    placeholder="Set temporary password..."
+                                    className={`${getInputClass('password')} pl-12 pr-4 py-4 font-mono`}
+                                    placeholder="Secure key..."
                                     value={coachForm.password}
                                     onChange={e => setCoachForm({...coachForm, password: e.target.value})}
                                 />
@@ -812,10 +804,10 @@ export const PlayerRegistration: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
-                                <MapPin size={14} className="text-blue-500" /> Venue Assignment
+                    <div className="space-y-10 bg-brand-950/30 p-10 rounded-[2.5rem] border border-white/5 shadow-inner">
+                        <div className="space-y-4">
+                            <label className="flex items-center gap-3 text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">
+                                <MapPin size={14} className="text-gold" /> Sector Assignment (Venues)
                             </label>
                             <div className="flex flex-wrap gap-2">
                                 {venues.map(v => (
@@ -823,23 +815,23 @@ export const PlayerRegistration: React.FC = () => {
                                         key={v.id}
                                         type="button"
                                         onClick={() => toggleCoachAssignment('venue', v.name)}
-                                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                        className={`px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all duration-300 ${
                                             coachForm.assignedVenues.includes(v.name)
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
-                                            : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                                            ? 'bg-gold text-brand-950 border-gold shadow-lg shadow-gold/10'
+                                            : 'bg-brand-800 text-brand-500 border-white/5 hover:border-white/20 hover:text-white'
                                         }`}
                                     >
                                         {v.name}
-                                        {coachForm.assignedVenues.includes(v.name) && <Check size={12} className="inline ml-1.5" />}
+                                        {coachForm.assignedVenues.includes(v.name) && <Check size={12} className="inline ml-2" />}
                                     </button>
                                 ))}
-                                {venues.length === 0 && <span className="text-xs text-gray-400 italic">No venues configured.</span>}
+                                {venues.length === 0 && <span className="text-[10px] text-brand-700 italic border border-white/5 px-4 py-2 rounded-lg">Tactical map empty.</span>}
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
-                                <Layers size={14} className="text-purple-500" /> Batch Assignment
+                        <div className="space-y-4">
+                            <label className="flex items-center gap-3 text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">
+                                <Layers size={14} className="text-blue-400" /> Division Assignment (Batches)
                             </label>
                             <div className="flex flex-wrap gap-2">
                                 {batches.map(b => (
@@ -847,29 +839,33 @@ export const PlayerRegistration: React.FC = () => {
                                         key={b.id}
                                         type="button"
                                         onClick={() => toggleCoachAssignment('batch', b.name)}
-                                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                        className={`px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all duration-300 ${
                                             coachForm.assignedBatches.includes(b.name)
-                                            ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200'
-                                            : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/10'
+                                            : 'bg-brand-800 text-brand-500 border-white/5 hover:border-white/20 hover:text-white'
                                         }`}
                                     >
                                         {b.name}
-                                        {coachForm.assignedBatches.includes(b.name) && <Check size={12} className="inline ml-1.5" />}
+                                        {coachForm.assignedBatches.includes(b.name) && <Check size={12} className="inline ml-2" />}
                                     </button>
                                 ))}
-                                {batches.length === 0 && <span className="text-xs text-gray-400 italic">No batches configured.</span>}
+                                {batches.length === 0 && <span className="text-[10px] text-brand-700 italic border border-white/5 px-4 py-2 rounded-lg">No active divisions.</span>}
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-100">
+                    <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+                        <p className="text-[10px] text-brand-600 font-black uppercase tracking-[0.15em] flex items-center gap-3">
+                        <Shield size={16} className="text-blue-500" /> Administrative bypass • High-level clearing
+                        </p>
                         <button
                             type="submit"
                             disabled={status === 'submitting'}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-600/20 transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-xs flex items-center justify-center gap-3 disabled:opacity-70 disabled:transform-none"
+                            className="w-full md:w-auto bg-blue-600 text-white font-black py-5 px-16 rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-[10px] disabled:opacity-50 disabled:transform-none"
+                            style={{ fontFamily: 'Orbitron' }}
                         >
-                            {status === 'submitting' ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
-                            {status === 'submitting' ? 'Creating Account...' : 'Complete Onboarding'}
+                            {status === 'submitting' ? <RefreshCw size={20} className="animate-spin" /> : <Save size={20} />}
+                            {status === 'submitting' ? 'Initializing Account...' : 'Confirm Commissioning'}
                         </button>
                     </div>
                 </form>
@@ -879,40 +875,52 @@ export const PlayerRegistration: React.FC = () => {
 
       {/* Registered Squad List (Only visible in Player Mode) */}
       {mode === 'player' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                <h3 className="font-bold text-gray-800">Registered Squad</h3>
-                <span className="text-xs font-bold bg-white border px-3 py-1 rounded-full text-gray-600 shadow-sm">{players.length} Players</span>
+        <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden mt-12">
+            <div className="px-10 py-8 border-b border-white/5 bg-brand-950/50 flex justify-between items-center">
+                <div>
+                    <h3 className="font-black text-white italic uppercase tracking-tight text-xl" style={{ fontFamily: 'Orbitron' }}>Active <span className="text-gold">Roster</span></h3>
+                    <p className="text-[10px] text-brand-500 font-bold uppercase tracking-widest mt-1">Live database of commissioned athletes</p>
+                </div>
+                <div className="bg-brand-950 px-6 py-3 rounded-2xl border border-white/5 shadow-inner">
+                    <span className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">{players.length} Operatives</span>
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-brand-950/80 border-b border-white/5">
                         <tr>
-                            <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Player</th>
-                            <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">ID</th>
-                            <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Venue / Batch</th>
-                            <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Position</th>
-                            <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider text-right">Actions</th>
+                            <th className="px-8 py-5 font-black text-brand-500 uppercase text-[10px] tracking-[0.2em]">Asset Profile</th>
+                            <th className="px-8 py-5 font-black text-brand-500 uppercase text-[10px] tracking-[0.2em]">Clearance ID</th>
+                            <th className="px-8 py-5 font-black text-brand-500 uppercase text-[10px] tracking-[0.2em]">Sector / Division</th>
+                            <th className="px-8 py-5 font-black text-brand-500 uppercase text-[10px] tracking-[0.2em]">Tactical Role</th>
+                            <th className="px-8 py-5 font-black text-brand-500 uppercase text-[10px] tracking-[0.2em] text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-white/5">
                         {players.map(p => (
-                            <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
-                                <td className="px-6 py-4 flex items-center gap-3">
-                                    <img src={p.photoUrl} className="w-8 h-8 rounded-full bg-gray-100 object-cover" />
-                                    <span className="font-bold text-gray-900">{p.fullName}</span>
+                            <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
+                                <td className="px-8 py-5 flex items-center gap-4">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-gold/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <img src={p.photoUrl} className="w-10 h-10 rounded-full border border-white/10 relative z-10 bg-brand-800 object-cover" />
+                                    </div>
+                                    <span className="font-black text-white uppercase tracking-tight text-sm">{p.fullName}</span>
                                 </td>
-                                <td className="px-6 py-4 font-mono text-xs text-gray-500">{p.memberId}</td>
-                                <td className="px-6 py-4">
-                                    <div className="text-xs text-gray-800 font-bold">{p.venue || '-'}</div>
-                                    <div className="text-[10px] text-gray-400 uppercase">{p.batch || '-'}</div>
+                                <td className="px-8 py-5 font-mono text-[11px] text-brand-500">{p.memberId}</td>
+                                <td className="px-8 py-5">
+                                    <div className="text-[11px] text-white font-black uppercase tracking-widest">{p.venue || '-'}</div>
+                                    <div className="text-[9px] text-gold font-bold uppercase tracking-[0.15em] mt-1">{p.batch || '-'}</div>
                                 </td>
-                                <td className="px-6 py-4 text-xs font-bold uppercase text-gray-400">{p.position}</td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-8 py-5">
+                                    <span className="px-3 py-1 rounded-lg bg-brand-800 text-brand-400 text-[9px] font-black uppercase tracking-widest border border-white/5">
+                                        {p.position}
+                                    </span>
+                                </td>
+                                <td className="px-8 py-5 text-right">
                                     <button 
                                         onClick={() => handleSecureDelete('player', p.id, p.fullName)}
-                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                        title="Delete Player"
+                                        className="p-3 text-brand-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-red-500/20"
+                                        title="Revoke Commission"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -921,7 +929,12 @@ export const PlayerRegistration: React.FC = () => {
                         ))}
                         {players.length === 0 && (
                             <tr>
-                                <td colSpan={5} className="text-center py-8 text-gray-400">No players registered yet.</td>
+                                <td colSpan={5} className="text-center py-20">
+                                    <div className="flex flex-col items-center gap-4 opacity-30">
+                                        <Shield size={48} className="text-brand-700" />
+                                        <p className="font-black text-brand-600 uppercase tracking-[0.3em] text-xs">No active rosters detected.</p>
+                                    </div>
+                                </td>
                             </tr>
                         )}
                     </tbody>
@@ -932,56 +945,56 @@ export const PlayerRegistration: React.FC = () => {
 
       {/* Configuration Modal */}
       {showConfigModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-              <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                  <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-md animate-in fade-in">
+              <div className="bg-brand-900 w-full max-w-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden animate-in zoom-in-95 duration-200">
+                  <div className="bg-brand-950/50 px-10 py-8 border-b border-white/5 flex justify-between items-center">
                       <div>
-                          <h3 className="font-bold text-xl text-gray-900">Manage Configurations</h3>
-                          <p className="text-xs text-gray-500">Add or remove training locations and batches</p>
+                          <h3 className="text-xl font-black text-white italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Global <span className="text-gold">Taxonomy</span></h3>
+                          <p className="text-[10px] text-brand-500 font-bold uppercase tracking-[0.2em] mt-1">Configure operational sectors & divisions</p>
                       </div>
-                      <button onClick={() => setShowConfigModal(false)} className="p-2 hover:bg-gray-200 rounded-full text-gray-400 transition-colors">
+                      <button onClick={() => setShowConfigModal(false)} className="p-3 hover:bg-white/5 rounded-2xl text-brand-600 hover:text-white transition-all">
                           <X size={24} />
                       </button>
                   </div>
                   
-                  <div className="flex border-b border-gray-100">
+                  <div className="flex bg-brand-950/30 p-2">
                       <button 
                         onClick={() => setConfigTab('venues')}
-                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'venues' ? 'text-brand-600 border-b-2 border-brand-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
+                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-2xl ${configTab === 'venues' ? 'bg-gold text-brand-950 shadow-lg' : 'text-brand-500 hover:text-white hover:bg-white/5'}`}
                       >
-                          Venues
+                          Sectors (Venues)
                       </button>
                       <button 
                         onClick={() => setConfigTab('batches')}
-                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'batches' ? 'text-brand-600 border-b-2 border-brand-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
+                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-2xl ${configTab === 'batches' ? 'bg-gold text-brand-950 shadow-lg' : 'text-brand-500 hover:text-white hover:bg-white/5'}`}
                       >
-                          Batches
+                          Divisions (Batches)
                       </button>
                   </div>
 
-                  <div className="p-8 h-96 overflow-y-auto custom-scrollbar">
+                  <div className="p-10 h-96 overflow-y-auto custom-scrollbar space-y-8">
                       {/* Add New Section */}
-                      <div className="flex gap-2 mb-6">
+                      <div className="flex gap-3">
                           <input 
                             type="text" 
-                            placeholder={`New ${configTab === 'venues' ? 'Venue Name' : 'Batch Name'}...`}
+                            placeholder={`Define new ${configTab === 'venues' ? 'Sector' : 'Division'}...`}
                             value={newItemName}
                             onChange={(e) => setNewItemName(e.target.value)}
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-medium"
+                            className="flex-1 bg-brand-800 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold text-white placeholder:text-brand-700 outline-none focus:border-gold transition-all"
                           />
                           <button 
                             onClick={handleAddItem}
                             disabled={!newItemName.trim()}
-                            className="bg-brand-900 text-white px-6 rounded-xl font-bold uppercase text-xs tracking-wider hover:bg-black transition-colors disabled:opacity-50"
+                            className="bg-gold text-brand-950 px-8 rounded-2xl font-black uppercase text-[10px] tracking-[0.15em] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
                           >
-                              Add
+                              Deploy
                           </button>
                       </div>
 
                       {/* List Section */}
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-1 gap-3">
                           {(configTab === 'venues' ? venues : batches).map(item => (
-                              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 group hover:border-gray-300 transition-colors">
+                              <div key={item.id} className="flex items-center justify-between p-5 bg-brand-950/30 rounded-[1.5rem] border border-white/5 group hover:border-gold/30 hover:bg-gold/5 transition-all">
                                   {editingItem?.id === item.id ? (
                                       <div className="flex-1 flex gap-2 mr-2">
                                           <input 
@@ -989,26 +1002,26 @@ export const PlayerRegistration: React.FC = () => {
                                             type="text" 
                                             value={editingItem.name} 
                                             onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                                            className="flex-1 px-3 py-1.5 border border-brand-300 rounded-lg text-sm font-bold outline-none"
+                                            className="flex-1 bg-brand-800 border border-gold/50 rounded-xl px-4 py-2 text-sm font-black text-white outline-none"
                                           />
-                                          <button onClick={handleUpdateItem} className="p-1.5 bg-green-500 text-white rounded-lg"><Check size={16} /></button>
-                                          <button onClick={() => setEditingItem(null)} className="p-1.5 bg-gray-300 text-gray-700 rounded-lg"><X size={16} /></button>
+                                          <button onClick={handleUpdateItem} className="p-2 bg-green-500/20 text-green-500 rounded-xl hover:bg-green-500 hover:text-white transition-all"><Check size={18} /></button>
+                                          <button onClick={() => setEditingItem(null)} className="p-2 bg-white/5 text-brand-500 rounded-xl hover:bg-white/10 hover:text-white transition-all"><X size={18} /></button>
                                       </div>
                                   ) : (
-                                      <span className="font-bold text-gray-700 text-sm">{item.name}</span>
+                                      <span className="font-black text-brand-200 text-xs uppercase tracking-widest">{item.name}</span>
                                   )}
                                   
                                   {editingItem?.id !== item.id && (
-                                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                                           <button 
                                             onClick={() => setEditingItem(item)}
-                                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-2.5 text-brand-500 hover:text-blue-400 hover:bg-blue-400/10 rounded-xl transition-all border border-transparent hover:border-blue-400/20"
                                           >
                                               <Edit2 size={16} />
                                           </button>
                                           <button 
                                             onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="p-2.5 text-brand-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-500/20"
                                           >
                                               <Trash2 size={16} />
                                           </button>
@@ -1017,7 +1030,10 @@ export const PlayerRegistration: React.FC = () => {
                               </div>
                           ))}
                           {(configTab === 'venues' ? venues : batches).length === 0 && (
-                              <p className="text-center text-gray-400 text-sm py-8">No items found.</p>
+                              <div className="flex flex-col items-center py-10 opacity-20">
+                                  <Layers size={40} className="text-brand-600 mb-4" />
+                                  <p className="font-black text-brand-500 uppercase tracking-[0.2em] text-[10px]">No classifications found.</p>
+                              </div>
                           )}
                       </div>
                   </div>

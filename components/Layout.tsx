@@ -28,26 +28,29 @@ interface NavItemComponentProps {
 const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabChange }) => (
   <button
     onClick={() => onTabChange(item.id)}
-    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+    className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden ${
       activeTab === item.id 
-        ? 'bg-white/10 text-white shadow-md border border-white/10' 
-        : 'text-white/60 hover:bg-white/5 hover:text-white'
+        ? 'bg-gold/10 text-gold shadow-[0_0_30px_rgba(255,215,0,0.05)] border border-gold/10' 
+        : 'text-brand-500 hover:bg-white/5 hover:text-white'
     }`}
   >
-    <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
-    <span className="font-medium">{item.label}</span>
+    {activeTab === item.id && (
+      <div className="absolute left-0 top-3 bottom-3 w-1 bg-gold rounded-r-full shadow-[0_0_15px_#FFD700]" />
+    )}
+    <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-gold scale-110' : 'text-brand-600 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className={`text-[11px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
   </button>
 );
 
 const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabChange }) => (
   <button
     onClick={() => onTabChange(item.id)}
-    className={`flex flex-col items-center justify-center py-2 px-1 flex-1 transition-colors ${
-      activeTab === item.id ? 'text-white' : 'text-white/40 hover:text-white'
+    className={`flex flex-col items-center justify-center py-2 px-1 flex-1 transition-all duration-500 ${
+      activeTab === item.id ? 'text-gold scale-105' : 'text-brand-600 opacity-70 hover:opacity-100 hover:text-white'
     }`}
   >
-    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-current' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className="text-[10px] font-medium truncate w-full text-center">{item.label}</span>
+    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-gold/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
+    <span className="text-[8px] font-black uppercase tracking-[0.2em] truncate w-full text-center">{item.label}</span>
   </button>
 );
 
@@ -69,8 +72,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     };
   }, []);
 
-  const getNavItems = (): NavItem[] => {
-    const common = [
+  const getNavSections = () => {
+    const sections: { title: string; items: NavItem[] }[] = [];
+    
+    const core = [
       { id: 'leaderboard', label: 'Rankings', icon: Medal },
       { id: 'team', label: 'Team', icon: Shirt }, 
       { id: 'schedule', label: 'Schedule', icon: Calendar },
@@ -78,36 +83,46 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     ];
 
     if (currentUser.role === 'player') {
-      return [{ id: 'player-dashboard', label: 'Portal', icon: LayoutDashboard }, ...common];
+      sections.push({ title: 'ACADEMY CORE', items: [{ id: 'player-dashboard', label: 'Portal', icon: LayoutDashboard }, ...core] });
+      return sections;
     }
 
-    const manage = [
+    const operations = [
       { id: 'coach', label: 'Attendance', icon: ClipboardCheck },
       { id: 'matches', label: 'Match Center', icon: Trophy },
-      { id: 'squad-comparison', label: 'Pro Analytics', icon: BarChart3 },
-      { id: 'head-to-head', label: 'Head to Head', icon: Swords },
-      { id: 'evaluations', label: 'Scout Reports', icon: Gauge },
       { id: 'training', label: 'Training', icon: Dumbbell },
     ];
 
-    if (currentUser.role === 'coach') return [...common, ...manage];
+    const intelligence = [
+      { id: 'squad-comparison', label: 'Pro Analytics', icon: BarChart3 },
+      { id: 'head-to-head', label: 'Head to Head', icon: Swords },
+      { id: 'evaluations', label: 'Scout Reports', icon: Gauge },
+    ];
+
+    const management = [
+      { id: 'admin', label: 'HQ Dashboard', icon: LayoutDashboard },
+      { id: 'players', label: 'Squad Management', icon: UserCog },
+      { id: 'register', label: 'New Athlete', icon: Users },
+      { id: 'finance', label: 'Finance Hub', icon: DollarSign },
+      { id: 'users', label: 'Access Control', icon: Shield },
+    ];
 
     if (currentUser.role === 'admin') {
-      return [
-        { id: 'admin', label: 'Analytics', icon: BarChart3 },
-        { id: 'players', label: 'Squad', icon: UserCog },
-        { id: 'register', label: 'Register', icon: Users },
-        { id: 'finance', label: 'Finance', icon: DollarSign },
-        { id: 'users', label: 'Access', icon: Shield },
-        ...common,
-        ...manage
-      ];
+      sections.push({ title: 'COMMAND', items: management.slice(0, 5) });
+      sections.push({ title: 'OPERATIONS', items: operations });
+      sections.push({ title: 'INTELLIGENCE', items: intelligence });
+      sections.push({ title: 'ACADEMY CORE', items: core });
+    } else if (currentUser.role === 'coach') {
+      sections.push({ title: 'OPERATIONS', items: operations });
+      sections.push({ title: 'INTELLIGENCE', items: intelligence });
+      sections.push({ title: 'ACADEMY CORE', items: core });
     }
-    return common;
+
+    return sections;
   };
 
-  const navItems = getNavItems();
-  const brandStyle = { background: `linear-gradient(180deg, ${settings.primaryColor} 0%, ${settings.secondaryColor} 100%)` };
+  const navSections = getNavSections();
+  const allNavItems = navSections.flatMap(s => s.items);
 
   return (
     <div className="min-h-screen bg-brand-900 flex flex-col md:flex-row text-brand-50">
@@ -129,8 +144,15 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <p className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{currentUser.role} Portal</p>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-          {navItems.map(item => <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
+        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
+          {navSections.map((section, idx) => (
+            <div key={idx} className="space-y-1">
+              <h3 className="px-4 text-[10px] font-black text-white/30 uppercase tracking-[0.25em] mb-3">{section.title}</h3>
+              <div className="space-y-1">
+                {section.items.map(item => <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
+              </div>
+            </div>
+          ))}
         </div>
         <div className="px-4 mb-4">
              <PerformanceHUD />
@@ -138,73 +160,107 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
         {/* Data Persistence Area - Only for Admins */}
         {currentUser.role === 'admin' && (
-            <div className="mx-4 mb-4 p-3 bg-white/10 rounded-xl border border-white/10">
-                <div className="flex items-center gap-2 mb-2">
-                    <Database size={14} className="text-white/70" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Database Status</span>
-                </div>
+            <div className="mx-4 mb-6 p-5 bg-brand-950/50 rounded-2xl border border-white/5 shadow-inner">
                 <div className="flex items-center gap-2 mb-3">
-                    <CheckCircle2 size={12} className="text-green-400" />
-                    <span className="text-xs text-white font-medium truncate">Saved locally {lastSaved.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    <Database size={14} className="text-brand-500" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-500">Datastore Sync</span>
+                </div>
+                <div className="flex items-center gap-2 mb-5">
+                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
+                    <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest truncate">Live Terminal active</span>
                 </div>
                 <button 
                     onClick={() => StorageService.triggerBackupDownload()}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-white text-gray-900 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors shadow-sm"
+                    className="w-full flex items-center justify-center gap-3 py-3 bg-gold text-brand-950 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/10"
                 >
-                    <Download size={12} />
-                    Download Backup
+                    <Download size={14} />
+                    Export Archive
                 </button>
             </div>
         )}
 
-        <div className="p-4 border-t border-white/10 bg-black/10">
-           <div className="flex items-center gap-3 mb-4 px-2">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">{currentUser.username[0].toUpperCase()}</div>
-              <p className="text-sm font-medium text-white truncate">{currentUser.username}</p>
+        <div className="p-5 border-t border-white/5 bg-brand-950/50">
+           <div className="flex items-center gap-4 mb-6 px-2">
+              <div className="w-10 h-10 rounded-2xl bg-brand-800 border border-white/5 flex items-center justify-center text-gold font-black shadow-inner">{currentUser.username[0].toUpperCase()}</div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-black text-white truncate uppercase tracking-tight">{currentUser.username}</p>
+                <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest mt-0.5">Authorization Level 4</p>
+              </div>
            </div>
-           <button onClick={onLogout} className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all text-sm text-white/80"><LogOut size={16} /><span>Sign Out</span></button>
+           <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-white/5 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-brand-500">
+             <LogOut size={16} strokeWidth={2.5} />
+             <span>Deauthorize</span>
+           </button>
         </div>
       </aside>
-      <header className="md:hidden bg-brand-800/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-sm">
-         <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-center bg-white">
+      <header className="md:hidden bg-brand-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-2xl">
+         <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl shadow-inner border border-white/10 flex items-center justify-center bg-white p-1">
                 {settings.logoUrl ? (
-                    <img src={settings.logoUrl} className="w-6 h-6 object-contain" />
+                    <img src={settings.logoUrl} className="w-8 h-8 object-contain" />
                 ) : (
-                    <div className="p-1 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-4 h-4 text-white" /></div>
+                    <div className="p-2 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-6 h-6 text-white" /></div>
                 )}
             </div>
-            <span className="font-black text-white tracking-tighter uppercase text-sm truncate max-w-[180px]" 
-                  style={{ fontFamily: settings.fontFamily }}>
-                {settings.name}
-            </span>
+            <div className="overflow-hidden">
+                <span className="font-black text-white tracking-tighter uppercase text-sm block leading-none" 
+                      style={{ fontFamily: settings.fontFamily }}>
+                    {settings.name}
+                </span>
+                <span className="text-[8px] font-black text-gold uppercase tracking-[0.2em] mt-1 block">Operational Hub</span>
+            </div>
          </div>
-         <button onClick={onLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors"><LogOut size={18} /></button>
+         <button onClick={onLogout} className="p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5">
+            <LogOut size={20} />
+         </button>
       </header>
       <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.5)] bg-brand-900 border-t border-white/5" >
         <div className="flex justify-around items-center h-16">
-          {navItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
-          {navItems.length > 4 && <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/40"><MoreHorizontal className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">More</span></button>}
+          {allNavItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
+          {allNavItems.length > 4 && <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/40"><MoreHorizontal className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">More</span></button>}
         </div>
       </nav>
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 backdrop-blur-xl bg-brand-900/95 md:hidden flex flex-col p-6">
-           <div className="flex justify-between items-center mb-8 text-white"><h2 className="text-2xl font-bold">Menu</h2><button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-white/10 rounded-full"><X size={24} /></button></div>
-           <div className="grid grid-cols-2 gap-4">
-              {navItems.map(item => <button key={item.id} onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }} className={`flex flex-col items-center p-4 rounded-xl border ${activeTab === item.id ? 'bg-white text-gray-900 border-white' : 'bg-white/5 border-white/10 text-white'}`}><item.icon className="w-8 h-8 mb-2" /><span className="font-medium text-sm">{item.label}</span></button>)}
+        <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-950/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
+           <div className="flex justify-between items-center mb-12">
+                <div>
+                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white" style={{ fontFamily: 'Orbitron' }}>System <span className="text-gold">Matrix</span></h2>
+                    <p className="text-[10px] text-brand-600 font-black uppercase tracking-[0.3em] mt-2">Remote Access Interface</p>
+                </div>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-white/5 rounded-[2rem] text-brand-500 hover:text-white border border-white/10 shadow-2xl">
+                    <X size={28} />
+                </button>
+           </div>
+           
+           <div className="grid grid-cols-2 gap-4 pb-20">
+              {allNavItems.map(item => (
+                <button 
+                    key={item.id} 
+                    onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }} 
+                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all duration-500 ${activeTab === item.id ? 'bg-gold text-brand-950 border-gold shadow-[0_10px_30px_rgba(255,215,0,0.2)] scale-[1.05] z-10' : 'bg-brand-900 border-white/5 text-brand-500 hover:bg-white/5 hover:text-white'}`}
+                >
+                    <div className={`p-4 rounded-2xl mb-4 ${activeTab === item.id ? 'bg-brand-950/10' : 'bg-brand-950/50 border border-white/5'}`}>
+                        <item.icon size={28} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
+                    </div>
+                    <span className="font-black text-[10px] uppercase tracking-[0.25em] text-center leading-tight">{item.label}</span>
+                </button>
+              ))}
            </div>
            
            {currentUser.role === 'admin' && (
-               <div className="mt-8 p-4 bg-white/10 rounded-xl border border-white/10 text-white">
-                    <div className="text-sm font-bold mb-2">Data Management</div>
+               <div className="mt-auto p-8 bg-brand-900/50 rounded-[3rem] border border-white/5 shadow-inner">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Database className="text-gold" size={20} />
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Security Override</span>
+                    </div>
                     <button 
                         onClick={() => StorageService.triggerBackupDownload()}
-                        className="w-full py-3 bg-white text-gray-900 rounded-lg font-bold text-sm flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-gold text-brand-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/10"
                     >
-                        <Download size={16} /> Save Database
+                        <Download size={20} /> Synchronize All Data
                     </button>
                </div>
            )}

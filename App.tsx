@@ -124,7 +124,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout currentUser={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
+    <Layout currentUser={currentUser} activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout}>
       <Suspense fallback={
         <div className="p-8 animate-in fade-in duration-500">
            <div className="flex items-center gap-4 mb-8">

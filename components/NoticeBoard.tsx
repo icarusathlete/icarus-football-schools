@@ -242,111 +242,114 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           )}
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-             OFFICIAL <span className="text-brand-500">NOTICES</span>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-800 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-5"><Megaphone size={120} className="text-white" /></div>
+        <div className="relative z-10">
+          <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
+             INTELLIGENCE <span className="text-gold">BULLETINS</span>
           </h2>
-          <p className="text-gray-500 font-medium mt-2">Updates, schedules, and important team news.</p>
+          <p className="text-brand-400 font-medium uppercase text-[10px] tracking-widest mt-1">Official Directives • Tactical Briefings • Sector Updates</p>
         </div>
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 bg-brand-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-brand-900/20 active:scale-95"
+            className="flex items-center gap-3 bg-gold text-brand-950 px-8 py-3.5 rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-gold/20 active:scale-95 z-10"
           >
             <Plus size={20} />
-            <span className="font-bold text-sm uppercase tracking-wider">New Post</span>
+            <span className="font-black text-[10px] uppercase tracking-[0.2em]">Broadcast Directive</span>
           </button>
         )}
       </div>
 
       {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-              <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                  <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                      <h3 className="font-bold text-xl text-gray-900">Create Announcement</h3>
-                      <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-200 rounded-full text-gray-500 transition-colors"><X size={20} /></button>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="bg-brand-900 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white/10">
+                  <div className="px-10 py-6 border-b border-white/5 flex justify-between items-center relative bg-brand-950/50">
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-30" />
+                      <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">Draft <span className="text-gold">Intelligence Bulletin</span></h3>
+                      <button onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={20} /></button>
                   </div>
                   
-                  <form onSubmit={handlePost} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                      <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Title</label>
+                  <form onSubmit={handlePost} className="p-10 space-y-10 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Directive Header (Title)</label>
                           <input 
-                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 font-bold text-gray-800 transition-all" 
-                            placeholder="e.g. Summer Camp Registration Open" 
+                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner transition-all placeholder:text-brand-700" 
+                            placeholder="e.g. MISSION: SUMMER CAMP REGISTRATION" 
                             value={newNotice.title} 
                             onChange={e => setNewNotice({...newNotice, title: e.target.value})} 
                             required 
                           />
                       </div>
 
-                      <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Message Body</label>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Bulletin Content</label>
                           <textarea 
-                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 font-medium text-gray-600 transition-all h-32" 
-                            placeholder="Details about the announcement..." 
+                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner transition-all h-32 placeholder:text-brand-700 text-sm" 
+                            placeholder="Provide full intelligence briefing..." 
                             value={newNotice.content} 
                             onChange={e => setNewNotice({...newNotice, content: e.target.value})} 
                             required 
                           />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cover Image (Poster)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Visual Asset (Poster)</label>
                               <div 
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-gray-50 transition-all h-32 relative overflow-hidden group"
+                                className="border-2 border-dashed border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gold hover:bg-gold/5 transition-all h-32 relative overflow-hidden group shadow-inner bg-brand-800/50"
                               >
                                   {newNotice.imageUrl ? (
-                                      <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                      <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                                   ) : (
-                                      <div className="text-center text-gray-400">
-                                          <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-                                          <span className="text-xs font-bold">Upload Poster/Image</span>
+                                      <div className="text-center text-brand-600">
+                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-gold opacity-50" />
+                                          <span className="text-[10px] font-black uppercase tracking-widest">Attach Media</span>
                                       </div>
                                   )}
                                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                               </div>
-                              <p className="text-[10px] text-gray-400">If uploaded, this will act as the full background of the brochure.</p>
                           </div>
 
-                          <div className="space-y-4">
-                              <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">QR Code (Optional)</label>
+                          <div className="space-y-6">
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Tactical Auth (QR)</label>
                                   <div 
                                     onClick={() => qrInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-xl p-2 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-gray-50 transition-all h-14 relative overflow-hidden"
+                                    className="border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-gold hover:bg-gold/5 transition-all h-14 bg-brand-800 shadow-inner group"
                                   >
                                       {newNotice.qrCodeUrl ? (
-                                          <div className="flex items-center gap-2 text-green-600 font-bold text-xs">
-                                              <QrCode size={16} /> QR Attached
+                                          <div className="flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-widest">
+                                              <QrCode size={16} /> QR Encrypted
                                           </div>
                                       ) : (
-                                          <div className="flex items-center gap-2 text-gray-400 text-xs font-bold">
-                                              <QrCode size={16} /> Upload QR
+                                          <div className="flex items-center gap-2 text-brand-600 text-[10px] font-black uppercase tracking-widest group-hover:text-gold transition-colors">
+                                              <QrCode size={16} /> Data Link (QR)
                                           </div>
                                       )}
                                       <input type="file" ref={qrInputRef} className="hidden" accept="image/*" onChange={handleQrUpload} />
                                   </div>
                               </div>
 
-                              <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Priority</label>
-                                  <select 
-                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 font-medium bg-white" 
-                                      value={newNotice.priority} 
-                                      onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
-                                  >
-                                      <option value="normal">Normal</option>
-                                      <option value="high">High Priority</option>
-                                  </select>
+                              <div className="flex gap-4">
+                                  <div className="flex-1 space-y-2">
+                                      <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Threat Level</label>
+                                      <select 
+                                          className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner appearance-none text-xs" 
+                                          value={newNotice.priority} 
+                                          onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
+                                      >
+                                          <option value="normal">Routine</option>
+                                          <option value="high">Critical</option>
+                                      </select>
+                                  </div>
                               </div>
-                              <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Signed By</label>
+                              <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Authorized Signatory</label>
                                   <input 
-                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 font-medium" 
-                                      placeholder="e.g. Head Coach" 
+                                      className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner text-xs placeholder:text-brand-700" 
+                                      placeholder="e.g. COMMANDER DAVID" 
                                       value={newNotice.author} 
                                       onChange={e => setNewNotice({...newNotice, author: e.target.value})} 
                                   />
@@ -354,9 +357,9 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           </div>
                       </div>
 
-                      <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                          <button type="button" onClick={() => setShowForm(false)} className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">Cancel</button>
-                          <button type="submit" className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all">Post Notice</button>
+                      <div className="pt-8 flex justify-end gap-4 border-t border-white/5">
+                          <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-500 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-widest">Abort</button>
+                          <button type="submit" className="flex-[2] py-4 bg-gold text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">Authorize Broadcast</button>
                       </div>
                   </form>
               </div>
@@ -364,59 +367,64 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
       )}
 
       {/* Notice Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {notices.map(notice => (
-              <div key={notice.id} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div key={notice.id} className="bg-brand-900 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden flex flex-col group hover:border-gold/30 transition-all duration-500 hover:-translate-y-2 relative">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
                   {/* Card Header Image */}
-                  <div className={`h-48 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-500 to-orange-600' : 'bg-gradient-to-br from-blue-500 to-cyan-600') : 'bg-gray-100'}`}>
+                  <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-600 to-red-900' : 'bg-brand-950') : 'bg-brand-950'}`}>
                       {notice.imageUrl ? (
-                          <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-70 group-hover:opacity-100" />
                       ) : (
-                          <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                              <Shield size={120} className="text-white" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                              <Shield size={200} className="text-white" />
                           </div>
                       )}
                       
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-transparent to-transparent" />
+
                       {/* Badges */}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                          <span className="px-3 py-1 bg-black/30 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-white/10">
-                              {new Date(notice.date).toLocaleDateString()}
+                      <div className="absolute top-6 left-6 flex gap-2">
+                          <span className="px-3 py-1 bg-brand-950/80 backdrop-blur-md text-brand-400 text-[8px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/10 shadow-xl">
+                              {new Date(notice.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                       </div>
                       
                       {notice.priority === 'high' && (
-                          <div className="absolute top-4 right-4">
-                              <span className="px-3 py-1 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg flex items-center gap-1">
-                                  <AlertCircle size={10} /> Important
-                              </span>
+                          <div className="absolute top-6 right-6">
+                              <div className="px-3 py-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-2xl flex items-center gap-2 animate-pulse">
+                                  <AlertCircle size={10} /> CRITICAL
+                              </div>
                           </div>
                       )}
                   </div>
 
-                  <div className="p-6 flex-1 flex flex-col">
-                      <div className="mb-4">
-                          <h3 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-brand-600 transition-colors">{notice.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-gray-400 font-bold uppercase tracking-wider">
-                              <User size={12} /> {notice.author}
+                  <div className="p-8 flex-1 flex flex-col relative bg-brand-900">
+                      <div className="mb-6">
+                          <h3 className="text-xl font-black text-white italic leading-tight mb-3 group-hover:text-gold transition-colors uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>{notice.title}</h3>
+                          <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em]">
+                              <div className="w-1.5 h-1.5 rounded-full bg-gold/50 shadow-[0_0_8px_#fbbf24]" />
+                              Authorized by <span className="text-brand-300 ml-1">{notice.author}</span>
                           </div>
                       </div>
                       
-                      <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 line-clamp-4">
+                      <div className="text-brand-400 text-[12px] leading-relaxed mb-8 flex-1 line-clamp-4 font-medium italic opacity-80 border-l-2 border-white/5 pl-4">
                           {notice.content}
-                      </p>
+                      </div>
 
-                      <div className="flex items-center gap-3 pt-6 border-t border-gray-50">
+                      <div className="flex items-center gap-4 pt-6 border-t border-white/5">
                           <button 
                             onClick={() => initiateDownload(notice)}
                             disabled={downloadingId === notice.id}
-                            className="flex-1 py-3 bg-gray-50 text-gray-700 font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 group/btn"
+                            className="flex-1 py-3.5 bg-brand-950 border border-white/5 text-brand-400 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:bg-gold hover:text-brand-950 hover:border-gold transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-inner"
                           >
                               {downloadingId === notice.id ? (
-                                  <Loader2 size={16} className="animate-spin text-brand-600" />
+                                  <Loader2 size={14} className="animate-spin text-gold" />
                               ) : (
                                   <>
-                                    <Download size={16} className="group-hover/btn:text-brand-600 transition-colors" />
-                                    Brochure
+                                    <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
+                                    Generate Brochure
                                   </>
                               )}
                           </button>
@@ -424,10 +432,10 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           {(role === 'admin' || role === 'coach') && (
                               <button 
                                 onClick={() => handleDeleteClick(notice.id)}
-                                className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors"
-                                title="Delete"
+                                className="p-3.5 bg-brand-950 border border-white/10 text-brand-600 rounded-xl hover:bg-red-600/10 hover:text-red-500 hover:border-red-500/30 transition-all"
+                                title="Revoke Directive"
                               >
-                                  <X size={16} />
+                                  <X size={18} />
                               </button>
                           )}
                       </div>
@@ -436,24 +444,24 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           ))}
           
           {notices.length === 0 && (
-              <div className="col-span-full py-20 text-center flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-                  <Megaphone size={48} className="mb-4 opacity-20" />
-                  <h3 className="font-bold text-gray-500">No Announcements</h3>
-                  <p className="text-sm">The notice board is currently empty.</p>
+              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-600 bg-brand-800/30 rounded-[4rem] border-2 border-dashed border-white/5">
+                  <Megaphone size={64} className="mb-6 opacity-5" />
+                  <h3 className="font-black text-brand-400 uppercase tracking-[0.4em] italic">Intelligence Void</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mt-2 opacity-50">No active bulletins in the datastore.</p>
               </div>
           )}
       </div>
 
       <ConfirmModal
           isOpen={deleteModalOpen}
-          onClose={() => {
+          onCancel={() => {
               setDeleteModalOpen(false);
               setNoticeToDelete(null);
           }}
           onConfirm={confirmDelete}
-          title="Delete Announcement"
-          message="Are you sure you want to delete this announcement? This action cannot be undone."
-          confirmText="Delete"
+          title="REDLINE PROTOCOL"
+          message="Are you sure you want to revoke this directive? This action will permanently remove the bulletin from all terminal nodes."
+          confirmText="REVOKE"
           type="danger"
       />
     </div>

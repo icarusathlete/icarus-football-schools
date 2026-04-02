@@ -36,49 +36,49 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center gap-3">
-          <div className="p-2 bg-red-100 text-red-600 rounded-lg">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-md animate-in fade-in">
+      <div className="bg-brand-900 w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="bg-red-500/10 px-8 py-5 border-b border-red-500/20 flex items-center gap-4">
+          <div className="p-2.5 bg-red-500/20 text-red-500 rounded-xl">
             <AlertTriangle size={20} />
           </div>
-          <h3 className="font-bold text-lg text-red-900">{title}</h3>
-          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-red-100 rounded-full text-red-400 transition-colors">
+          <h3 className="font-black text-white uppercase tracking-tight text-lg" style={{ fontFamily: 'Orbitron' }}>{title}</h3>
+          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-white/5 rounded-xl text-brand-600 hover:text-white transition-all">
             <X size={20} />
           </button>
         </div>
         
-        <div className="p-6">
-          <p className="text-gray-600 mb-6">{message}</p>
+        <div className="p-8">
+          <p className="text-red-200/60 text-sm font-bold leading-relaxed mb-8">{message}</p>
           
           {requireTypeToConfirm && (
-            <div className="mb-6">
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                Type "{requireTypeToConfirm}" to confirm
+            <div className="mb-8 p-6 bg-brand-950/50 rounded-2xl border border-white/5 shadow-inner">
+              <label className="block text-[10px] font-black text-brand-600 uppercase tracking-[0.2em] mb-3">
+                Authorization Sequence: Type "{requireTypeToConfirm}"
               </label>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
+                className="w-full bg-brand-800 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-black text-white placeholder:text-brand-700 focus:border-red-500 outline-none transition-all shadow-inner"
                 placeholder={requireTypeToConfirm}
               />
             </div>
           )}
           
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <button
               onClick={handleCancel}
-              className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
+              className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-brand-400 hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl transition-all border border-white/5"
             >
-              Cancel
+              Abort
             </button>
             <button
               onClick={handleConfirm}
               disabled={requireTypeToConfirm ? inputValue !== requireTypeToConfirm : false}
-              className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-4 px-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl transition-all shadow-lg shadow-red-600/20 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
             >
-              Confirm
+              Verify & Execute
             </button>
           </div>
         </div>

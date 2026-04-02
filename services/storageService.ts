@@ -841,5 +841,91 @@ export const StorageService = {
       };
       request.onerror = () => reject(request.error);
     });
+  },
+
+  seedSampleData: async () => {
+      console.log("Seeding sample data...");
+      
+      // 1. Mock Players
+      const players = [
+          { fullName: 'Marcus Rashford', squadId: 'U13', position: 'Forward', username: 'rashy10' },
+          { fullName: 'Jude Bellingham', squadId: 'U15', position: 'Midfielder', username: 'jude5' },
+          { fullName: 'Bukayo Saka', squadId: 'U13', position: 'Winger', username: 'saka7' },
+          { fullName: 'Phil Foden', squadId: 'U15', position: 'Midfielder', username: 'phil47' },
+          { fullName: 'Kobbie Mainoo', squadId: 'U13', position: 'Midfielder', username: 'kobbie37' },
+      ];
+
+      for (const p of players) {
+          await StorageService.addPlayer({
+              ...p as any, 
+              contactNumber: '555-0100', 
+              dateOfBirth: '2010-01-01', 
+              parentName: 'Guardian', 
+              photoUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.username}`
+          });
+      }
+
+      const freshPlayers = StorageService.getPlayers();
+
+      // 2. Mock Matches (Past)
+      const matches = [
+          { date: '2024-03-20', opponent: 'Nexus Academy', scoreFor: 3, scoreAgainst: 1, isLive: false, highlightsUrl: 'https://youtube.com/watch?v=dQw4w9WgXcQ' },
+          { date: '2024-03-25', opponent: 'Crestwood FC', scoreFor: 2, scoreAgainst: 2, isLive: false },
+          { date: '2024-03-28', opponent: 'Titan Academy', scoreFor: 0, scoreAgainst: 2, isLive: false },
+          { date: '2024-04-01', opponent: 'Solar Hawks', scoreFor: 4, scoreAgainst: 0, isLive: false },
+      ];
+
+      for (const m of matches) {
+          const stats = freshPlayers.map(p => ({
+              playerId: p.id,
+              goals: Math.floor(Math.random() * 2),
+              assists: Math.floor(Math.random() * 1),
+              rating: 6 + Math.floor(Math.random() * 4),
+              minutesPlayed: 90,
+              isStarter: true
+          }));
+          await StorageService.addMatch({
+              ...m,
+              result: m.scoreFor > m.scoreAgainst ? 'W' : m.scoreFor < m.scoreAgainst ? 'L' : 'D',
+              playerStats: stats,
+              possession: 45 + Math.floor(Math.random() * 15),
+              shotsOnTarget: m.scoreFor + Math.floor(Math.random() * 5),
+              report: 'Strong performance on the break. Tactical discipline was maintained throughout the second half.'
+          } as any);
+      }
+
+      // 3. Mock Venues & Batches
+      await StorageService.addVenue('Icarus Pro Complex');
+      await StorageService.addVenue('Olympic Grounds');
+      await StorageService.addBatch('Performance Elite');
+      await StorageService.addBatch('Development Pro');
+
+      // 4. Mock Schedule (Past & Future)
+      const now = new Date();
+      const schedule = [
+          { title: 'Match against Rovers FC', date: new Date(now.getTime() + 86400000 * 3).toISOString().split('T')[0], time: '10:00', type: 'match', location: 'Icarus Pro Complex' },
+          { title: 'Training: Tactical Positioning', date: new Date(now.getTime() + 86400000 * 5).toISOString().split('T')[0], time: '16:00', type: 'training', location: 'Olympic Grounds' },
+          { title: 'Match against Zenith United', date: new Date(now.getTime() + 86400000 * 10).toISOString().split('T')[0], time: '14:00', type: 'match', location: 'Icarus Pro Complex' },
+      ];
+
+      for (const s of schedule) {
+          await StorageService.addEvent(s as any);
+      }
+
+      // 5. Mock Notices
+      await StorageService.addNotice({ 
+          title: 'New Training Kits Available', 
+          content: 'Please collect your new Icarus brand kits from the office after practice.', 
+          author: 'Academy Director',
+          priority: 'normal'
+      });
+      await StorageService.addNotice({ 
+          title: 'Spring Tournament Update', 
+          content: 'Tournament brackets have been finalized. Check the Match Center for upcoming fixtures.', 
+          author: 'Head Coach',
+          priority: 'high'
+      });
+
+      console.log("Seeding complete.");
   }
 };

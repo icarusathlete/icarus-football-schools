@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from './ui/Card';
-import { Shield, Users, UploadCloud, ChevronRight, Check } from 'lucide-react';
+import { Shield, Users, UploadCloud, ChevronRight, Check, Trophy, Zap } from 'lucide-react';
 import Papa from 'papaparse';
 import { db } from '../firebase';
 import { doc, setDoc, writeBatch, collection } from 'firebase/firestore';
@@ -66,90 +66,124 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
     try {
       const updatedUser = { 
         ...user, 
-        fullName: user.fullName || user.username, // Fallback if not set
-        memberId: user.memberId || `M-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, // Generate if missing
+        fullName: user.fullName || user.username,
+        memberId: user.memberId || `M-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
         onboardingComplete: true, 
         specificRole: role 
       };
       
       await setDoc(doc(db, 'users', user.id), updatedUser, { merge: true });
-      onComplete(updatedUser);
+      
+      // Artificial delay for "moment of success"
+      setTimeout(() => {
+        onComplete(updatedUser);
+      }, 1500);
     } catch (error) {
       console.error("Error finishing setup:", error);
       alert("Failed to save profile. Please check your connection.");
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-brand-900 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full p-8 relative overflow-hidden">
+      <Card className="max-w-2xl w-full p-10 relative overflow-hidden border border-white/5 shadow-2xl">
+        {/* Top Progress Bar */}
+        <div className="absolute top-0 left-0 right-0 flex h-1">
+            {[1,2,3].map(i => (
+                <div key={i} className={`flex-1 transition-all duration-500 ${step >= i ? 'bg-gold' : 'bg-white/10'}`} />
+            ))}
+        </div>
+
         {/* Step 1: Role Selection */}
         {step === 1 && (
-          <div className="animate-slide-up space-y-6">
-             <div className="text-center mb-8">
-               <h2 className="text-3xl font-display font-bold text-white mb-2">Welcome to Icarus</h2>
-               <p className="text-brand-300">Let's set up your academy profile. What is your role?</p>
+          <div className="animate-slide-up space-y-8">
+             <div className="text-center">
+               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Initialize <span className="text-gold">Access</span></h2>
+               <p className="text-brand-400 font-medium">Select your primary designation within the academy.</p>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <button onClick={() => handleRoleSelect('head_coach')} className="p-6 border border-white/10 rounded-xl hover:border-gold hover:bg-white/5 transition-all flex items-center gap-4 group text-left">
-                 <div className="p-3 bg-white/5 rounded-lg group-hover:bg-gold/20 group-hover:text-gold"><Shield size={24} /></div>
-                 <div><h3 className="font-bold text-white">Head Coach</h3><p className="text-sm text-brand-400">Manage squads, matches, and training</p></div>
+               <button onClick={() => handleRoleSelect('head_coach')} className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-gold hover:bg-gold/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
+                 <div className="p-4 bg-white/5 rounded-xl group-hover:bg-gold/20 group-hover:text-gold w-fit transition-colors"><Shield size={28} /></div>
+                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Head Coach</h3><p className="text-xs text-brand-500 font-medium leading-relaxed mt-1">Full control over squad training, match fixtures, and attendance analytics.</p></div>
+                 {role === 'head_coach' && <div className="absolute top-4 right-4 text-gold"><Check size={20} /></div>}
                </button>
-               <button onClick={() => handleRoleSelect('academy_director')} className="p-6 border border-white/10 rounded-xl hover:border-gold hover:bg-white/5 transition-all flex items-center gap-4 group text-left">
-                 <div className="p-3 bg-white/5 rounded-lg group-hover:bg-gold/20 group-hover:text-gold"><Users size={24} /></div>
-                 <div><h3 className="font-bold text-white">Academy Director</h3><p className="text-sm text-brand-400">Full access to finance and analytics</p></div>
+               <button onClick={() => handleRoleSelect('academy_director')} className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-gold hover:bg-gold/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
+                 <div className="p-4 bg-white/5 rounded-xl group-hover:bg-gold/20 group-hover:text-gold w-fit transition-colors"><Users size={28} /></div>
+                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Director</h3><p className="text-xs text-brand-500 font-medium leading-relaxed mt-1">High-level oversight including financial reporting, registration, and system logs.</p></div>
+                 {role === 'academy_director' && <div className="absolute top-4 right-4 text-gold"><Check size={20} /></div>}
                </button>
              </div>
-             <div className="flex justify-center mt-6">
-                <button onClick={() => setStep(2)} className="text-sm text-brand-400 hover:text-white underline">Skip for now</button>
+             <div className="flex justify-center pt-4">
+                <button onClick={() => setStep(2)} className="text-[10px] font-black text-brand-600 hover:text-white uppercase tracking-[0.2em] transition-colors">Skip for now</button>
              </div>
           </div>
         )}
 
         {/* Step 2: Squad Import */}
         {step === 2 && (
-          <div className="animate-slide-up space-y-6">
-             <div className="text-center mb-8">
-               <h2 className="text-3xl font-display font-bold text-white mb-2">Build Your Squad</h2>
-               <p className="text-brand-300">Upload a CSV file to instantly import your players.</p>
+          <div className="animate-slide-up space-y-8">
+             <div className="text-center">
+               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Deploy <span className="text-gold">Squad</span></h2>
+               <p className="text-brand-400 font-medium">Batch-import your athletes via CSV for immediate analysis.</p>
              </div>
              
-             <div className="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-gold/50 transition-colors bg-white/5 relative">
+             <div className="border-2 border-dashed border-white/10 rounded-[2rem] p-16 text-center hover:border-gold/50 transition-all bg-white/5 relative group cursor-pointer">
                <input type="file" accept=".csv" onChange={handleFileUpload} disabled={loading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-               <UploadCloud size={48} className="mx-auto mb-4 text-brand-400" />
-               <h3 className="font-bold text-lg text-white mb-1">Click or drag a CSV file</h3>
-               <p className="text-sm text-brand-400">Format: name, squadId, position</p>
-               {loading && <p className="text-gold mt-4 font-bold animate-pulse">Importing players...</p>}
+               <div className="w-20 h-20 bg-brand-950 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                <UploadCloud size={32} className="text-brand-400 group-hover:text-gold" />
+               </div>
+               <h3 className="font-black text-xl text-white italic uppercase tracking-tight mb-2">Drop CSV Archive</h3>
+               <p className="text-xs text-brand-500 font-medium">Expected format: <span className="text-brand-300">name, squadId, position</span></p>
+               {loading && <div className="absolute inset-0 bg-brand-900/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-[2rem]">
+                  <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="text-xs font-black text-gold uppercase tracking-widest">Processing Ledger...</p>
+               </div>}
              </div>
              
-             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-300 hover:text-white font-medium flex items-center justify-center gap-2">Skip this step <ChevronRight size={16}/></button>
+             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-500 hover:text-white font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all">Manual Setup <ChevronRight size={14}/></button>
           </div>
         )}
 
-        {/* Step 3: Complete */}
+        {/* Step 3: Complete Moment */}
         {step === 3 && (
-            <div className="animate-fade-in text-center space-y-6 py-8">
-                <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                    <Check size={40} />
-                </div>
-                <h2 className="text-3xl font-display font-bold text-white mb-2">You're All Set!</h2>
-                {importedCount > 0 && <p className="text-brand-300">Successfully imported {importedCount} players.</p>}
-                <p className="text-brand-300">Your professional portal is ready.</p>
-                <button onClick={finishSetup} disabled={loading} className="mt-8 bg-gold hover:bg-gold-glow text-gray-900 font-bold px-8 py-4 rounded-xl shadow-lg transition-all w-full md:w-auto">
-                    {loading ? 'Finalizing...' : 'Enter Academy Portal'}
-                </button>
+            <div className="animate-fade-in text-center space-y-8 py-12">
+                {loading ? (
+                    <div className="flex flex-col items-center space-y-8">
+                        <div className="w-24 h-24 bg-gold/5 rounded-full flex items-center justify-center relative">
+                            <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+                            <Trophy className="text-gold animate-pulse" size={40} />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-display font-black text-white italic uppercase tracking-tight">Initializing <span className="text-gold">HQ</span></h2>
+                            <p className="text-brand-400 text-sm mt-2 animate-pulse">Syncing academy data and finalizing profile...</p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <div className="w-24 h-24 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+                            <Check size={48} strokeWidth={3} />
+                        </div>
+                        <div>
+                            <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2 flex items-center justify-center gap-3">Academy <span className="text-gold">Ready</span></h2>
+                            {importedCount > 0 ? (
+                                <p className="text-brand-400 font-medium uppercase text-[10px] tracking-[0.3em]">{importedCount} Athlete records successfully deployed</p>
+                            ) : (
+                                <p className="text-brand-400 font-medium">Core configuration successful.</p>
+                            )}
+                        </div>
+                        <button 
+                            onClick={finishSetup}
+                            className="w-full bg-gold hover:bg-gold-glow text-brand-950 font-black px-12 py-5 rounded-2xl shadow-2xl shadow-gold/20 transition-all uppercase tracking-[0.25em] text-xs hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                        >
+                            <Zap size={16} fill="currentColor" /> Enter Academy Portal
+                        </button>
+                    </>
+                )}
             </div>
         )}
-
-        {/* Progress Dots */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-            {[1,2,3].map(i => (
-                <div key={i} className={`h-1.5 rounded-full transition-all ${step === i ? 'w-6 bg-gold' : 'w-1.5 bg-white/20'}`} />
-            ))}
-        </div>
       </Card>
     </div>
   );
 };
+

@@ -49,6 +49,23 @@ export const AdminDashboard: React.FC = () => {
   const [showLocalBackupsModal, setShowLocalBackupsModal] = useState(false);
   const [isSavingBackup, setIsSavingBackup] = useState(false);
 
+  // Seeding State
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeedData = async () => {
+      if (!window.confirm("This will add sample players, matches, and schedule events. Continue?")) return;
+      setIsSeeding(true);
+      try {
+          await StorageService.seedSampleData();
+          // Reload to reflect all new listeners
+          window.location.reload();
+      } catch (e) {
+          alert("Failed to seed data.");
+      } finally {
+          setIsSeeding(false);
+      }
+  };
+
   const loadLocalBackups = async () => {
       try {
           const backups = await StorageService.getLocalBackups();
@@ -206,17 +223,28 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* HUD Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-                { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-brand-400' },
-                { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-gold' },
-                { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-cyan-400' },
-                { label: 'ACTIVE CAMPAIGN', val: matches.length, icon: Target, color: 'text-red-500' },
+                { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-white', unit: 'ATHLETES', accent: 'bg-blue-500' },
+                { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-gold', unit: 'SEASON', accent: 'bg-gold' },
+                { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-cyan-400', unit: 'DAILY', accent: 'bg-cyan-400' },
+                { label: 'ACTIVE CAMPAIGN', val: matches.length, icon: Target, color: 'text-red-500', unit: 'RECORDED', accent: 'bg-red-500' },
             ].map((hud, i) => (
-                <div key={i} className="bg-brand-800 p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><hud.icon size={48} /></div>
-                    <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1">{hud.label}</p>
-                    <p className={`text-4xl font-black ${hud.color} tracking-tighter`}>{hud.val}</p>
+                <div key={i} className="bg-brand-900 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 hover:-translate-y-1 transition-all duration-500">
+                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700 font-black"><hud.icon size={64} /></div>
+                    <div className="flex items-center justify-between mb-4 relative z-10">
+                        <div className={`px-3 py-1 rounded-full bg-brand-950 border border-white/5 flex items-center gap-2`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${hud.accent} animate-pulse`} />
+                            <span className="text-[8px] font-black text-brand-500 uppercase tracking-[0.2em]">{hud.label}</span>
+                        </div>
+                        <span className="text-[9px] font-black text-brand-700 uppercase tracking-widest">{hud.unit}</span>
+                    </div>
+                    <div className="relative z-10">
+                        <p className={`text-5xl font-black ${hud.color} tracking-tighter italic`} style={{ fontFamily: 'Orbitron' }}>{hud.val}</p>
+                        <div className="w-12 h-1 bg-white/5 mt-4 rounded-full overflow-hidden">
+                            <div className={`h-full ${hud.accent} w-2/3 group-hover:w-full transition-all duration-1000 shadow-[0_0_10px_currentColor]`} />
+                        </div>
+                    </div>
                 </div>
             ))}
         </div>
@@ -336,9 +364,42 @@ export const AdminDashboard: React.FC = () => {
                     </button>
                 </section>
 
+                {/* Quick Action Hub */}
+                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                    <h3 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-2 flex items-center gap-2 italic">
+                        <Plus size={14} className="text-gold" /> OPERATIONS QUICK ACTION
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2">
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Plus size={18} /></div>
+                                <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Enroll New Athlete</span>
+                            </div>
+                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                        </button>
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Trophy size={18} /></div>
+                                <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Log Match Result</span>
+                            </div>
+                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                        </button>
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Bell size={18} /></div>
+                                <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Broadcast Notice</span>
+                            </div>
+                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                        </button>
+                    </div>
+                </section>
+
                 {/* DB Archive Tools */}
                 <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
-                    <h4 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-1 italic">STORAGE & REDLINE PROTOCOLS</h4>
+                    <h4 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-1 italic flex items-center justify-between">
+                        STORAGE & PROTOCOLS
+                        <Database size={12} className="text-brand-700" />
+                    </h4>
                     <div className="grid grid-cols-1 gap-3">
                          <button onClick={StorageService.triggerBackupDownload} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
                              <Download size={14} /> EXPORT SEED
@@ -346,13 +407,23 @@ export const AdminDashboard: React.FC = () => {
                          <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
                              <Upload size={14} /> RESTORE BACKUP
                          </button>
-                         <button onClick={() => { loadLocalBackups(); setShowLocalBackupsModal(true); }} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                             <Database size={14} /> LOCAL ARCHIVES
-                         </button>
                          <div className="h-px bg-white/5 my-2" />
+                         
+                         {/* Engineering Tool: Sample Data moved here */}
+                         <button 
+                            onClick={handleSeedData} disabled={isSeeding}
+                            className="w-full py-3 bg-brand-950/20 border border-white/5 text-brand-600 rounded-xl hover:border-gold/30 hover:text-gold transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group"
+                         >
+                            <Zap size={12} className={isSeeding ? 'animate-spin' : ''} />
+                            {isSeeding ? 'SEEDING...' : 'INIT SAMPLE RECORDS'}
+                         </button>
+
                          <button onClick={() => { setDeleteAction({ type: 'clear' }); setDeleteModalOpen(true); }} className="w-full py-3 bg-red-900/10 border border-red-900/30 text-red-500 rounded-xl hover:bg-red-900 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
                              <Trash2 size={14} /> WIPE CORE
                          </button>
+                    </div>
+                    <div className="mt-4 text-center">
+                        <p className="text-[8px] font-black text-brand-700 uppercase tracking-[0.3em]">Telemetry: Secured & Encrypted</p>
                     </div>
                 </section>
             </div>
@@ -504,13 +575,12 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         <ConfirmModal
-            isOpen={deleteModalOpen} onClose={() => { setDeleteModalOpen(false); setDeleteAction(null); }}
+            isOpen={deleteModalOpen}
+            onCancel={() => { setDeleteModalOpen(false); setDeleteAction(null); }}
             onConfirm={confirmDeleteAction}
             title={deleteAction?.type === 'backup' ? "Delete Archive" : "REDLINE PROTOCOL"}
             message={deleteAction?.type === 'backup' ? "Permanently remove this archive signal?" : "CRITICAL: This will initiate a complete system wipe. Restore data via JSON if needed. Authorize?"}
-            confirmText={deleteAction?.type === 'backup' ? "DELETE" : "AUTHORIZE WIPE"}
-            type="danger"
-            requireTypeToConfirm={deleteAction?.type === 'clear'}
+            requireTypeToConfirm={deleteAction?.type === 'clear' ? "CLEAR" : undefined}
         />
     </div>
   );
