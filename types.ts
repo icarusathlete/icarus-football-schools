@@ -11,6 +11,8 @@ export interface User {
   // For Coaches
   assignedVenues?: string[];
   assignedBatches?: string[];
+  onboardingComplete?: boolean;
+  specificRole?: string; // head_coach, assistant_coach, academy_director
 }
 
 export interface PlayerEvaluation {
@@ -61,6 +63,7 @@ export interface Player {
   registeredAt: string;
   evaluation?: PlayerEvaluation;
   evaluationHistory?: PlayerEvaluation[]; // Store past reports
+  attachments?: { url: string; type: 'image' | 'video'; note: string; date: string }[];
 }
 
 export enum AttendanceStatus {
@@ -97,6 +100,11 @@ export interface Match {
   playerStats: MatchStats[];
   highlightsUrl?: string; // Optional YouTube link
   scheduledEventId?: string; // Link to schedule
+  isLive?: boolean;
+  report?: string;
+  playerOfTheMatchId?: string;
+  possession?: number;
+  shotsOnTarget?: number;
 }
 
 export interface AcademySettings {

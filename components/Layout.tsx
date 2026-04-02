@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell } from 'lucide-react';
+import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords } from 'lucide-react';
 import { User, Role, AcademySettings } from '../types';
 import { StorageService } from '../services/storageService';
+import { PerformanceHUD } from './ui/PerformanceHUD';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -82,9 +83,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
     const manage = [
       { id: 'coach', label: 'Attendance', icon: ClipboardCheck },
-      { id: 'matches', label: 'Matches', icon: Trophy },
+      { id: 'matches', label: 'Match Center', icon: Trophy },
+      { id: 'squad-comparison', label: 'Pro Analytics', icon: BarChart3 },
+      { id: 'head-to-head', label: 'Head to Head', icon: Swords },
       { id: 'evaluations', label: 'Scout Reports', icon: Gauge },
-      { id: 'training', label: 'Training', icon: Dumbbell }, // New Training Tab
+      { id: 'training', label: 'Training', icon: Dumbbell },
     ];
 
     if (currentUser.role === 'coach') return [...common, ...manage];
@@ -107,8 +110,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const brandStyle = { background: `linear-gradient(180deg, ${settings.primaryColor} 0%, ${settings.secondaryColor} 100%)` };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-      <aside className="hidden md:flex flex-col w-64 text-white h-screen sticky top-0 shadow-2xl z-20" style={brandStyle}>
+    <div className="min-h-screen bg-brand-900 flex flex-col md:flex-row text-brand-50">
+      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 shadow-2xl z-20 bg-brand-900 border-r border-white/5">
         <div className="p-6 flex items-center gap-4 border-b border-white/10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-white/5 backdrop-blur-sm -z-10" />
           <div className="shrink-0 p-2 bg-white rounded-2xl shadow-inner flex items-center justify-center w-12 h-12">
@@ -129,7 +132,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
           {navItems.map(item => <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
         </div>
-        
+        <div className="px-4 mb-4">
+             <PerformanceHUD />
+        </div>
+
         {/* Data Persistence Area - Only for Admins */}
         {currentUser.role === 'admin' && (
             <div className="mx-4 mb-4 p-3 bg-white/10 rounded-xl border border-white/10">
@@ -159,7 +165,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
            <button onClick={onLogout} className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all text-sm text-white/80"><LogOut size={16} /><span>Sign Out</span></button>
         </div>
       </aside>
-      <header className="md:hidden bg-white border-b border-gray-200 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-sm">
+      <header className="md:hidden bg-brand-800/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-sm">
          <div className="flex items-center gap-3">
             <div className="p-1.5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-center bg-white">
                 {settings.logoUrl ? (
@@ -168,7 +174,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                     <div className="p-1 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-4 h-4 text-white" /></div>
                 )}
             </div>
-            <span className="font-black text-gray-900 tracking-tighter uppercase text-sm truncate max-w-[180px]" 
+            <span className="font-black text-white tracking-tighter uppercase text-sm truncate max-w-[180px]" 
                   style={{ fontFamily: settings.fontFamily }}>
                 {settings.name}
             </span>
@@ -178,14 +184,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-2xl" style={brandStyle}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.5)] bg-brand-900 border-t border-white/5" >
         <div className="flex justify-around items-center h-16">
           {navItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
           {navItems.length > 4 && <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/40"><MoreHorizontal className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">More</span></button>}
         </div>
       </nav>
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 backdrop-blur-md md:hidden flex flex-col p-6" style={brandStyle}>
+        <div className="fixed inset-0 z-50 backdrop-blur-xl bg-brand-900/95 md:hidden flex flex-col p-6">
            <div className="flex justify-between items-center mb-8 text-white"><h2 className="text-2xl font-bold">Menu</h2><button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-white/10 rounded-full"><X size={24} /></button></div>
            <div className="grid grid-cols-2 gap-4">
               {navItems.map(item => <button key={item.id} onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }} className={`flex flex-col items-center p-4 rounded-xl border ${activeTab === item.id ? 'bg-white text-gray-900 border-white' : 'bg-white/5 border-white/10 text-white'}`}><item.icon className="w-8 h-8 mb-2" /><span className="font-medium text-sm">{item.label}</span></button>)}

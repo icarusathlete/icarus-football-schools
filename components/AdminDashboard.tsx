@@ -1,15 +1,26 @@
-
 import React, { useEffect, useState, useRef } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, AreaChart, Area } from 'recharts';
+import { 
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
+    ResponsiveContainer, BarChart, Bar, Legend, AreaChart, Area 
+} from 'recharts';
 import { StorageService } from '../services/storageService';
 import { GeminiService } from '../services/geminiService';
-import { Player, AttendanceRecord, AttendanceStatus, AcademySettings } from '../types';
-import { Brain, FileText, Loader2, TrendingUp, Download, Upload, Trash2, Database, Palette, Type, Image as ImageIcon, CheckCircle, AlertTriangle, FileJson, X, Settings, ChevronRight, Users, Activity } from 'lucide-react';
+import { Player, AttendanceRecord, AttendanceStatus, AcademySettings, ScheduleEvent, Match } from '../types';
+import { 
+    Brain, FileText, Loader2, TrendingUp, Download, Upload, 
+    Trash2, Database, Palette, Type, Image as ImageIcon, 
+    CheckCircle, AlertTriangle, FileJson, X, Settings, 
+    ChevronRight, Users, Activity, Plus, LayoutGrid, 
+    Target, Trophy, Calendar, Zap, MessageSquare, Shield,
+    Bell, Sparkles, Clock, MapPin
+} from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 
 export const AdminDashboard: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   
   // Settings State
@@ -25,7 +36,7 @@ export const AdminDashboard: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiReport, setAiReport] = useState<string | null>(null);
 
-  // Import/Export Logic
+  // Import/Export references
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [importModal, setImportModal] = useState<{isOpen: boolean, stats: any | null, error: string | null}>({
@@ -33,7 +44,7 @@ export const AdminDashboard: React.FC = () => {
   });
   const [importedContent, setImportedContent] = useState<string>('');
 
-  // Local Backups Logic
+  // Local Backups
   const [localBackups, setLocalBackups] = useState<any[]>([]);
   const [showLocalBackupsModal, setShowLocalBackupsModal] = useState(false);
   const [isSavingBackup, setIsSavingBackup] = useState(false);
@@ -47,71 +58,43 @@ export const AdminDashboard: React.FC = () => {
       }
   };
 
-  const handleSaveLocalBackup = async () => {
-      setIsSavingBackup(true);
-      try {
-          await StorageService.saveLocalBackup();
-          await loadLocalBackups();
-      } catch (e) {
-          alert("Failed to save local backup.");
-      } finally {
-          setIsSavingBackup(false);
-      }
-  };
-
-  const handleDeleteLocalBackup = async (id: string) => {
-      setDeleteAction({ type: 'backup', id });
-      setDeleteModalOpen(true);
-  };
-
-  const handleRestoreLocalBackup = (dataStr: string) => {
-      setImportedContent(dataStr);
-      const stats = StorageService.analyzeBackup(dataStr);
-      if (stats.valid) {
-          setImportModal({ isOpen: true, stats: stats.details, error: null });
-          setShowLocalBackupsModal(false);
-      } else {
-          setImportModal({ isOpen: true, stats: null, error: 'Invalid backup file. Missing Icarus data keys.' });
-      }
-  };
-
   const loadData = () => {
     const p = StorageService.getPlayers();
     const a = StorageService.getAttendance();
+    const m = StorageService.getMatches();
+    const e = StorageService.getSchedule();
     setPlayers(p);
     setAttendance(a);
+    setMatches(m);
+    setEvents(e);
     prepareChartData(a);
     setSettings(StorageService.getSettings());
   };
 
   useEffect(() => {
     loadData();
-    // Re-load if data changes externally
     window.addEventListener('academy_data_update', loadData);
-    return () => window.removeEventListener('academy_data_update', loadData);
+    const handleSettingsChange = () => setSettings(StorageService.getSettings());
+    window.addEventListener('settingsChanged', handleSettingsChange);
+    return () => {
+        window.removeEventListener('academy_data_update', loadData);
+        window.removeEventListener('settingsChanged', handleSettingsChange);
+    };
   }, []);
 
   const prepareChartData = (records: AttendanceRecord[]) => {
-    // Group by date
-    const groups: Record<string, { present: number, absent: number, late: number }> = {};
-    
-    // Sort records by date first
+    const groups: Record<string, { present: number, absent: number }> = {};
     const sorted = [...records].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
     sorted.forEach(r => {
-        if (!groups[r.date]) groups[r.date] = { present: 0, absent: 0, late: 0 };
+        if (!groups[r.date]) groups[r.date] = { present: 0, absent: 0 };
         if (r.status === AttendanceStatus.PRESENT) groups[r.date].present++;
         if (r.status === AttendanceStatus.ABSENT) groups[r.date].absent++;
-        if (r.status === AttendanceStatus.LATE) groups[r.date].late++;
     });
-
     const data = Object.keys(groups).map(date => ({
         date: new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
         Present: groups[date].present,
-        Absent: groups[date].absent,
-        Late: groups[date].late
-    })).slice(-10); // Last 10 days
-
+        Absent: groups[date].absent
+    })).slice(-7);
     setChartData(data);
   };
 
@@ -121,80 +104,36 @@ export const AdminDashboard: React.FC = () => {
         const report = await GeminiService.analyzeAttendance(players, attendance, settings.name);
         setAiReport(report);
     } catch (e) {
-        alert("Failed to analyze data. Please check your API Key.");
+        alert("AI processing unavailable. Check API credentials.");
     } finally {
         setIsAnalyzing(false);
     }
   };
 
-  // Data Management Functions
-  const handleExport = () => {
-      StorageService.triggerBackupDownload();
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const json = event.target?.result as string;
-        setImportedContent(json);
-        
-        // Analyze content before importing
-        const stats = StorageService.analyzeBackup(json);
-        if (stats.valid) {
-            setImportModal({ isOpen: true, stats: stats.details, error: null });
-        } else {
-            setImportModal({ isOpen: true, stats: null, error: 'Invalid backup file. Missing Icarus data keys.' });
-        }
-    };
-    reader.readAsText(file);
-    // Reset input so same file can be selected again if needed
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleSaveLocalBackup = async () => {
+      setIsSavingBackup(true);
+      try {
+          await StorageService.saveLocalBackup();
+          await loadLocalBackups();
+      } finally {
+          setIsSavingBackup(false);
+      }
   };
 
   const confirmImport = async () => {
       if (await StorageService.restoreBackup(importedContent)) {
           setImportModal({ ...importModal, isOpen: false });
-          // Force reload to ensure all states in all components are clean
           window.location.reload();
-      } else {
-          setImportModal({ ...importModal, error: "Failed to write data to storage. File format might be corrupted." });
       }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log("Academy branding - file selected:", file.name, file.size);
-      // Basic size validation (max 500KB for Base64 in Firestore documents)
-      if (file.size > 500 * 1024) {
-        console.error("Logo file is too large", file.size);
-        alert("Logo file is too large! Please choose an image smaller than 500KB to ensure smooth database performance.");
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log("Logo read as Data URL successfully");
-        const base64 = reader.result as string;
-        updateSetting('logoUrl', base64);
-      };
-      reader.readAsDataURL(file);
-    }
-    // Reset input
-    if (logoInputRef.current) logoInputRef.current.value = '';
-  };
-
-  const handleClear = () => {
-    setDeleteAction({ type: 'clear' });
-    setDeleteModalOpen(true);
+  const updateSetting = (key: keyof AcademySettings, value: string) => {
+      setSettings(prev => ({ ...prev, [key]: value }));
+      setHasUnsavedSettings(true);
   };
 
   const confirmDeleteAction = async () => {
       if (!deleteAction) return;
-      
       try {
           if (deleteAction.type === 'backup' && deleteAction.id) {
               await StorageService.deleteLocalBackup(deleteAction.id);
@@ -219,603 +158,357 @@ export const AdminDashboard: React.FC = () => {
       setShowSettingsModal(false);
   };
 
-  const updateSetting = (key: keyof AcademySettings, value: string) => {
-      setSettings(prev => ({ ...prev, [key]: value }));
-      setHasUnsavedSettings(true);
-  };
-
-  // Stats
-  const totalSessions = new Set(attendance.map(a => a.date)).size;
-  const overallPresence = attendance.filter(a => a.status === AttendanceStatus.PRESENT).length;
-  const avgAttendance = totalSessions > 0 
-    ? Math.round((overallPresence / (totalSessions * (players.length || 1))) * 100) 
-    : 0;
+  // Logic: Today's Operations
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayEvents = events.filter(e => e.date === todayStr);
+  const winRate = matches.length > 0 ? (matches.filter(m => m.result === 'W').length / matches.length * 100).toFixed(0) : 0;
+  const avgAttendance = attendance.length > 0 ? (attendance.filter(a => a.status === AttendanceStatus.PRESENT).length / attendance.length * 100).toFixed(0) : 0;
 
   return (
-    <div className="space-y-8 pb-12 relative animate-in fade-in duration-500">
-        {/* Hidden File Inputs at Top Level */}
-        <input 
-            type="file" 
-            ref={fileInputRef} 
-            accept=".json"
-            onChange={handleFileSelect}
-            className="fixed opacity-0 pointer-events-none -z-10"
-        />
-        <input 
-            type="file" 
-            ref={logoInputRef} 
-            accept="image/*"
-            onChange={handleLogoUpload}
-            className="fixed opacity-0 pointer-events-none -z-10"
-        />
-        
-        {/* Header with Settings Button */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+    <div className="space-y-8 pb-32 animate-in fade-in duration-700">
+        <input type="file" ref={fileInputRef} accept=".json" onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const json = event.target?.result as string;
+                setImportedContent(json);
+                const stats = StorageService.analyzeBackup(json);
+                setImportModal({ isOpen: true, stats: stats.valid ? stats.details : null, error: stats.valid ? null : 'Invalid JSON format' });
+            };
+            reader.readAsText(file);
+        }} className="hidden" />
+
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                    ADMIN <span className="text-brand-500">DASHBOARD</span>
+                <h1 className="text-4xl font-black italic tracking-tighter text-white uppercase flex items-center gap-3">
+                    COMMAND <span className="text-gold">DECK</span>
+                    <LayoutGrid size={24} className="text-brand-600" />
                 </h1>
-                <p className="text-gray-500 font-medium text-sm mt-1">Overview of academy performance and operations.</p>
+                <p className="text-brand-400 font-medium mt-1 uppercase text-[10px] tracking-widest">Real-time Academy Intelligence & Logistics</p>
             </div>
+            
             <div className="flex gap-3">
                 <button 
                     onClick={() => setShowSettingsModal(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all hover:border-brand-500 group"
+                    className="bg-brand-800 text-white px-5 py-3 rounded-2xl border border-white/5 hover:border-gold/30 hover:bg-gold/10 hover:text-gold transition-all shadow-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"
                 >
-                    <Palette size={18} className="text-gray-400 group-hover:text-brand-500 transition-colors" />
-                    <span className="text-xs uppercase tracking-wider">Academy Branding</span>
+                    <Palette size={16} />
+                    BRANDING TOOLKIT
                 </button>
-            </div>
-        </div>
-
-        {/* Professional KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group hover:border-blue-200 transition-colors">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Users size={64} className="text-blue-500" />
-                </div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                            <Users size={18} />
-                        </div>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Squad</span>
+                <div className="relative group">
+                    <div className="bg-brand-950 p-3 rounded-2xl border border-white/5 text-brand-500 cursor-help">
+                        <Shield size={20} />
                     </div>
-                    <h3 className="text-4xl font-black text-gray-900">{players.length}</h3>
-                    <div className="flex items-center gap-1 mt-2 text-xs font-bold text-green-500">
-                        <TrendingUp size={12} />
-                        <span>Active</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group hover:border-green-200 transition-colors">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Activity size={64} className="text-green-500" />
-                </div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-green-50 text-green-600 rounded-lg">
-                            <Activity size={18} />
-                        </div>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Avg Attendance</span>
-                    </div>
-                    <h3 className="text-4xl font-black text-gray-900">{avgAttendance}%</h3>
-                    <div className="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
-                        <div className="h-full bg-green-500 rounded-full" style={{ width: `${avgAttendance}%` }}></div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group hover:border-purple-200 transition-colors">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <FileText size={64} className="text-purple-500" />
-                </div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
-                            <FileText size={18} />
-                        </div>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Sessions Logged</span>
-                    </div>
-                    <h3 className="text-4xl font-black text-gray-900">{totalSessions}</h3>
-                    <p className="text-[10px] text-gray-400 mt-2 font-medium">Last 30 Days</p>
                 </div>
             </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Chart */}
-            <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900">Attendance Analytics</h3>
-                        <p className="text-xs text-gray-400 font-medium mt-1">Session participation trends over time</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div> Present
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
-                        </div>
-                    </div>
+        {/* HUD Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+                { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-brand-400' },
+                { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-gold' },
+                { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-cyan-400' },
+                { label: 'ACTIVE CAMPAIGN', val: matches.length, icon: Target, color: 'text-red-500' },
+            ].map((hud, i) => (
+                <div key={i} className="bg-brand-800 p-6 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><hud.icon size={48} /></div>
+                    <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1">{hud.label}</p>
+                    <p className={`text-4xl font-black ${hud.color} tracking-tighter`}>{hud.val}</p>
                 </div>
-                
-                <div className="h-80 w-full">
-                    {chartData.length > 0 ? (
+            ))}
+        </div>
+
+        {/* Quick Actions & Agenda */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div className="lg:col-span-8 space-y-8">
+                {/* Operations Agenda */}
+                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+                    <div className="bg-brand-950/50 px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                        <h3 className="text-sm font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
+                            <Clock size={16} className="text-gold" /> OPERATIONS AGENDA • TODAY
+                        </h3>
+                        <span className="text-[10px] font-black text-brand-500 uppercase">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                    </div>
+                    <div className="p-8">
+                        {todayEvents.length > 0 ? (
+                            <div className="space-y-4">
+                                {todayEvents.map(ev => (
+                                    <div key={ev.id} className="flex items-center gap-6 p-4 bg-brand-950/30 rounded-2xl border border-white/5 hover:border-gold/30 transition-all group">
+                                        <div className="w-16 text-center border-r border-white/5 pr-6">
+                                            <p className="text-xs font-black text-white">{ev.time}</p>
+                                            <p className="text-[8px] font-bold text-brand-600 uppercase">Start</p>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-sm font-black text-white group-hover:text-gold transition-colors italic uppercase">{ev.title}</h4>
+                                            <div className="flex items-center gap-3 text-[10px] font-bold text-brand-500 mt-1">
+                                                <MapPin size={10} /> {ev.location}
+                                                <span className="opacity-30">•</span>
+                                                <span className="text-gold opacity-100 uppercase">{ev.type}</span>
+                                            </div>
+                                        </div>
+                                        <ChevronRight size={18} className="text-brand-800" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <Zap size={40} className="mx-auto text-brand-700 opacity-20 mb-4" />
+                                <p className="text-xs font-black text-brand-600 uppercase tracking-widest">No deployments scheduled for today</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Analytical Trend */}
+                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                    <div className="flex justify-between items-center mb-8">
+                         <h3 className="text-sm font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
+                            <Activity size={16} className="text-gold" /> ENGAGEMENT INDEX
+                        </h3>
+                        <div className="flex gap-4">
+                             <div className="flex items-center gap-2 text-[9px] font-black text-gold uppercase tracking-tighter">
+                                <div className="w-2 h-2 rounded-full bg-gold" /> ATTENDANCE
+                             </div>
+                        </div>
+                    </div>
+                    <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData}>
                                 <defs>
-                                    <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.1}/>
-                                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorAbsent" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
-                                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                                    <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.2}/>
+                                        <stop offset="95%" stopColor="#fbbf24" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#64748b', fontWeight: 900}} />
                                 <Tooltip 
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                                    contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', color: '#fff' }}
                                 />
-                                <Area type="monotone" dataKey="Present" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorPresent)" />
-                                <Area type="monotone" dataKey="Absent" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorAbsent)" />
+                                <Area type="monotone" dataKey="Present" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorVisits)" />
                             </AreaChart>
                         </ResponsiveContainer>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
-                            <TrendingUp size={32} className="mb-2 opacity-50"/>
-                            <p className="text-sm font-medium">No data to display yet.</p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                </section>
             </div>
 
-            {/* AI Assistant */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-50">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+            {/* Sidebar Col: AI & Tools */}
+            <div className="lg:col-span-4 space-y-8">
+                {/* AI Intelligence Hub */}
+                <section className="bg-brand-900 rounded-[2.5rem] border border-gold/20 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
+                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-gold/5 blur-[80px] rounded-full" />
+                    <div className="flex items-center gap-3 mb-6 relative">
+                        <div className="p-2.5 bg-gold/10 text-gold rounded-2xl shadow-lg shadow-gold/10 border border-gold/20">
                             <Brain size={20} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900">AI Insights</h3>
-                            <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Powered by Gemini</p>
+                            <h3 className="font-black text-white text-sm italic uppercase">AI STRATEGIST</h3>
+                            <p className="text-[8px] font-black text-brand-500 uppercase tracking-widest">Neural Logistics Processor</p>
                         </div>
+                        <Sparkles className="ml-auto text-gold opacity-50" size={14} />
                     </div>
-                </div>
-                
-                <div className="flex-1 bg-gray-50/50 rounded-2xl p-5 mb-4 overflow-y-auto max-h-96 text-sm text-gray-700 border border-gray-100 custom-scrollbar">
-                    {isAnalyzing ? (
-                        <div className="flex flex-col items-center justify-center h-full space-y-4">
-                            <Loader2 className="animate-spin text-purple-600 w-10 h-10" />
-                            <p className="text-gray-500 font-medium animate-pulse">Crunching the numbers...</p>
-                        </div>
-                    ) : aiReport ? (
-                        <div className="prose prose-sm prose-purple prose-p:text-gray-600 prose-headings:font-bold prose-headings:text-gray-800" dangerouslySetInnerHTML={{ __html: aiReport }} />
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-center text-gray-400">
-                            <Brain size={48} className="mb-3 opacity-20" />
-                            <p className="max-w-[200px] text-xs leading-relaxed">Generate an AI report to identify trends, at-risk players, and draft parent communications.</p>
-                        </div>
-                    )}
-                </div>
-                <button
-                    onClick={handleAiAnalysis}
-                    disabled={isAnalyzing}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95 flex items-center justify-center gap-2 text-sm uppercase tracking-wide disabled:opacity-70 disabled:transform-none"
-                >
-                    <Brain size={18} />
-                    <span>{aiReport ? 'Regenerate Analysis' : 'Analyze Data'}</span>
-                </button>
-            </div>
-        </div>
 
-        {/* Data Management Section */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-8 py-6 border-b border-gray-100 flex items-center gap-3 bg-gray-50/30">
-                <Database className="w-5 h-5 text-gray-400" />
-                <h3 className="font-bold text-gray-800">Database Operations</h3>
-            </div>
-            <div className="p-8">
-                <div className="flex flex-wrap gap-4 items-center">
-                    <button 
-                        onClick={handleExport}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl border border-gray-200 transition-colors font-bold text-xs uppercase tracking-wider"
-                    >
-                        <Download size={16} />
-                        <span>Backup JSON</span>
-                    </button>
-
-                    <div className="relative">
-                        <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center gap-2 px-6 py-3.5 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl border border-gray-200 transition-colors font-bold text-xs uppercase tracking-wider"
-                        >
-                            <Upload size={16} />
-                            <span>Restore</span>
-                        </button>
+                    <div className="flex-1 bg-brand-950/50 rounded-3xl p-6 mb-6 border border-white/5 overflow-y-auto max-h-[300px] text-xs leading-relaxed text-brand-300 custom-scrollbar relative">
+                        {isAnalyzing ? (
+                            <div className="flex flex-col items-center justify-center h-full space-y-4">
+                                <Loader2 className="animate-spin text-gold w-8 h-8" />
+                                <p className="text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] animate-pulse">Scanning Databases...</p>
+                            </div>
+                        ) : aiReport ? (
+                            <div className="prose prose-invert prose-xs text-brand-400" dangerouslySetInnerHTML={{ __html: aiReport }} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full text-center py-4">
+                                <Activity size={32} className="text-brand-800 mb-4" />
+                                <p className="text-[10px] font-bold text-brand-500 uppercase tracking-widest leading-loose">Deploy Gemini AI to decode attendance patterns, workload stressors, and squad readiness.</p>
+                            </div>
+                        )}
                     </div>
 
                     <button 
-                        onClick={() => {
-                            loadLocalBackups();
-                            setShowLocalBackupsModal(true);
-                        }}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl border border-gray-200 transition-colors font-bold text-xs uppercase tracking-wider"
+                         onClick={handleAiAnalysis} disabled={isAnalyzing}
+                         className="w-full py-4 bg-gold text-brand-950 font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl shadow-gold/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
-                        <Database size={16} />
-                        <span>Local Backups</span>
+                        <Zap size={16} fill="currentColor" />
+                        {aiReport ? 'REFRESH INTEL' : 'EXECUTE ANALYSIS'}
                     </button>
+                </section>
 
-                    <div className="flex-1 border-t border-gray-100 mx-4 h-px"></div>
-
-                    <button 
-                        onClick={handleClear}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border border-red-100 transition-colors font-bold text-xs uppercase tracking-wider"
-                    >
-                        <Trash2 size={16} />
-                        <span>Factory Reset</span>
-                    </button>
-                </div>
+                {/* DB Archive Tools */}
+                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                    <h4 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-1 italic">STORAGE & REDLINE PROTOCOLS</h4>
+                    <div className="grid grid-cols-1 gap-3">
+                         <button onClick={StorageService.triggerBackupDownload} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                             <Download size={14} /> EXPORT SEED
+                         </button>
+                         <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                             <Upload size={14} /> RESTORE BACKUP
+                         </button>
+                         <button onClick={() => { loadLocalBackups(); setShowLocalBackupsModal(true); }} className="w-full py-3 bg-brand-950 border border-white/5 text-brand-400 rounded-xl hover:bg-white/5 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                             <Database size={14} /> LOCAL ARCHIVES
+                         </button>
+                         <div className="h-px bg-white/5 my-2" />
+                         <button onClick={() => { setDeleteAction({ type: 'clear' }); setDeleteModalOpen(true); }} className="w-full py-3 bg-red-900/10 border border-red-900/30 text-red-500 rounded-xl hover:bg-red-900 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                             <Trash2 size={14} /> WIPE CORE
+                         </button>
+                    </div>
+                </section>
             </div>
         </div>
 
-        {/* BRANDING SETTINGS MODAL */}
+        {/* Branding Settings Modal */}
         {showSettingsModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-                    <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <Palette size={20} className="text-brand-600" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-900">Academy Branding</h3>
-                                <p className="text-xs text-gray-500 font-medium">Customize look and feel</p>
-                            </div>
-                        </div>
-                        <button onClick={() => setShowSettingsModal(false)} className="p-2 hover:bg-white rounded-full text-gray-400 hover:text-gray-600 transition-colors">
-                            <X size={24} />
-                        </button>
+            <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+                <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl border border-white/10 flex flex-col max-h-[90vh] overflow-hidden relative">
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-30" />
+                    
+                    <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center">
+                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">IDENTITY <span className="text-gold">CONFIG</span></h3>
+                         <button onClick={() => setShowSettingsModal(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={24}/></button>
                     </div>
 
-                    <div className="p-8 overflow-y-auto custom-scrollbar space-y-8">
-                        {/* Name & Font */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-10 overflow-y-auto custom-scrollbar space-y-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Academy Name</label>
-                                <div className="relative">
-                                    <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <input 
-                                        type="text" 
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
-                                        value={settings.name}
-                                        onChange={(e) => updateSetting('name', e.target.value)}
-                                        placeholder="Academy Name"
-                                    />
-                                </div>
+                                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">ACADEMY DESIGNATION</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none font-bold text-white shadow-inner"
+                                    value={settings.name}
+                                    onChange={(e) => updateSetting('name', e.target.value)}
+                                />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Font Family</label>
+                                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">INTERFACE FONT</label>
                                 <select 
-                                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-brand-500 outline-none transition-all appearance-none"
+                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none font-bold text-white shadow-inner appearance-none"
                                     value={settings.fontFamily}
                                     onChange={(e) => updateSetting('fontFamily', e.target.value)}
                                 >
-                                    <option value="Orbitron">Orbitron (Modern/Sci-Fi)</option>
-                                    <option value="Inter">Inter (Clean/Standard)</option>
-                                    <option value="Montserrat">Montserrat (Geometric)</option>
-                                    <option value="Oswald">Oswald (Bold/Condensed)</option>
-                                    <option value="Roboto">Roboto (Classic)</option>
+                                    <option value="Orbitron">Orbitron</option>
+                                    <option value="Inter">Inter</option>
+                                    <option value="Montserrat">Montserrat</option>
+                                    <option value="Oswald">Oswald</option>
                                 </select>
                             </div>
                         </div>
 
-                        {/* Identity & Logo */}
-                        <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
-                            <div className="flex items-center gap-2 mb-2">
-                                <ImageIcon className="text-brand-500 w-4 h-4" />
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Visual Identity</span>
-                            </div>
-                            
-                            <div className="flex flex-col md:flex-row gap-8 items-start">
-                                {/* Logo Preview & Upload */}
-                                <div className="flex-shrink-0">
-                                    <div className="relative group">
-                                        <div className="w-32 h-32 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-brand-400 shadow-sm">
-                                            {settings.logoUrl ? (
-                                                <img src={settings.logoUrl} className="w-full h-full object-contain p-2" alt="Academy Logo" />
-                                            ) : (
-                                                <div className="text-center p-4">
-                                                    <ImageIcon size={32} className="mx-auto text-gray-300 mb-2" />
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase">No Logo</p>
-                                                </div>
-                                            )}
-                                            <div 
-                                                onClick={() => logoInputRef.current?.click()}
-                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                                            >
-                                                <Upload className="text-white" size={24} />
-                                            </div>
-                                        </div>
-                                        {settings.logoUrl && (
-                                            <button 
-                                                onClick={() => updateSetting('logoUrl', '')}
-                                                className="absolute -top-3 -right-3 p-1.5 bg-red-100 text-red-600 rounded-full border-2 border-white shadow-sm hover:bg-red-200 transition-colors"
-                                            >
-                                                <X size={12} />
-                                            </button>
-                                        )}
-                                    </div>
-                                    <p className="text-[10px] text-center text-gray-400 mt-3 font-bold uppercase tracking-wider">Academy Logo</p>
-                                </div>
-
-                                <div className="flex-1 w-full space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Academy Name</label>
-                                        <div className="relative">
-                                            <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input 
-                                                type="text" 
-                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:border-brand-500 outline-none transition-all"
-                                                value={settings.name}
-                                                onChange={(e) => updateSetting('name', e.target.value)}
-                                                placeholder="Enter Academy Name"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Logo Reference (URL)</label>
-                                        <div className="relative">
-                                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                            <input 
-                                                type="text" 
-                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-medium text-gray-600 focus:border-brand-500 outline-none transition-all"
-                                                value={settings.logoUrl.startsWith('data:') ? '[Uploaded Image]' : settings.logoUrl}
-                                                onChange={(e) => updateSetting('logoUrl', e.target.value)}
-                                                placeholder="https://example.com/logo.png"
-                                                disabled={settings.logoUrl.startsWith('data:')}
-                                            />
-                                        </div>
-                                        <button 
-                                            onClick={() => logoInputRef.current?.click()}
-                                            className="w-full py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:bg-gray-50 flex items-center justify-center gap-2"
-                                        >
-                                            <Upload size={14} /> Replace with File
-                                        </button>
-                                        <p className="text-[10px] text-gray-400 font-medium ml-1 italic">Max file size: 500KB. Transparent PNG recommended.</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="bg-brand-800 p-8 rounded-3xl border border-white/5 space-y-8">
+                             <div className="flex flex-col md:flex-row gap-10 items-center">
+                                 <div className="relative group">
+                                     <div className="w-32 h-32 bg-brand-950 rounded-[2.5rem] border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden transition-all group-hover:border-gold/50 shadow-inner">
+                                         {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain p-4" /> : <ImageIcon size={32} className="text-brand-800" />}
+                                         <div onClick={() => logoInputRef.current?.click()} className="absolute inset-0 bg-brand-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                                             <Upload className="text-gold" size={24} />
+                                         </div>
+                                     </div>
+                                     <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={(e) => {
+                                         const file = e.target.files?.[0];
+                                         if(file) {
+                                             const reader = new FileReader();
+                                             reader.onloadend = () => { updateSetting('logoUrl', reader.result as string); };
+                                             reader.readAsDataURL(file);
+                                         }
+                                     }} />
+                                 </div>
+                                 <div className="flex-1 w-full space-y-4">
+                                     <h4 className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">IDENTITY MARK (LOGO)</h4>
+                                     <p className="text-xs text-brand-500 italic font-medium">Upload a transparent SVG or high-res PNG. This mark will appear on all scout reports, match center headers, and the player portal.</p>
+                                     <button onClick={() => logoInputRef.current?.click()} className="w-full py-3 bg-brand-950 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-gold hover:text-brand-950 transition-all">REPLACE SIGNAL</button>
+                                 </div>
+                             </div>
                         </div>
 
-                        {/* Colors */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Theme Gradient</label>
-                            <div className="p-4 rounded-2xl border-2 border-gray-100 flex flex-col gap-4">
-                                <div className="flex gap-4">
-                                    <div className="flex-1 space-y-1">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">Start Color</span>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                value={settings.primaryColor}
-                                                onChange={(e) => updateSetting('primaryColor', e.target.value)}
-                                                className="h-10 w-10 rounded-lg cursor-pointer border-0 p-0 overflow-hidden" 
-                                            />
-                                            <span className="text-xs font-mono font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">{settings.primaryColor}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">End Color</span>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                value={settings.secondaryColor}
-                                                onChange={(e) => updateSetting('secondaryColor', e.target.value)}
-                                                className="h-10 w-10 rounded-lg cursor-pointer border-0 p-0 overflow-hidden" 
-                                            />
-                                            <span className="text-xs font-mono font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">{settings.secondaryColor}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Preview Banner */}
-                                <div className="h-16 rounded-xl flex items-center px-6 text-white shadow-lg" style={{ background: `linear-gradient(90deg, ${settings.primaryColor}, ${settings.secondaryColor})` }}>
-                                    <div>
-                                        <h4 className="font-bold text-lg leading-none" style={{ fontFamily: settings.fontFamily }}>{settings.name || 'ACADEMY NAME'}</h4>
-                                        <p className="text-[10px] opacity-80 font-medium tracking-widest uppercase mt-1">Portal Preview</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="space-y-4">
+                             <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1 text-center block">CHROMATIC SIGNATURE</label>
+                             <div className="flex gap-4">
+                                 <div className="flex-1 space-y-2">
+                                     <p className="text-[8px] font-black text-brand-600 uppercase text-center">Primary</p>
+                                     <div className="flex items-center gap-3 bg-brand-800 p-3 rounded-2xl border border-white/5">
+                                         <input type="color" value={settings.primaryColor} onChange={(e) => updateSetting('primaryColor', e.target.value)} className="h-8 w-12 rounded-lg cursor-pointer bg-transparent border-none" />
+                                         <span className="text-[10px] font-mono text-white/50">{settings.primaryColor}</span>
+                                     </div>
+                                 </div>
+                                 <div className="flex-1 space-y-2">
+                                     <p className="text-[8px] font-black text-brand-600 uppercase text-center">Secondary</p>
+                                     <div className="flex items-center gap-3 bg-brand-800 p-3 rounded-2xl border border-white/5">
+                                         <input type="color" value={settings.secondaryColor} onChange={(e) => updateSetting('secondaryColor', e.target.value)} className="h-8 w-12 rounded-lg cursor-pointer bg-transparent border-none" />
+                                         <span className="text-[10px] font-mono text-white/50">{settings.secondaryColor}</span>
+                                     </div>
+                                 </div>
+                             </div>
+                             {/* Preview */}
+                             <div className="h-20 rounded-3xl flex items-center px-8 text-white shadow-2xl relative overflow-hidden" 
+                                style={{ background: `linear-gradient(90deg, ${settings.primaryColor}, ${settings.secondaryColor})` }}>
+                                 <div className="relative z-10">
+                                     <h4 className="font-black text-xl italic uppercase tracking-tighter" style={{ fontFamily: settings.fontFamily }}>{settings.name || 'ACADEMY CORE'}</h4>
+                                     <p className="text-[9px] font-black opacity-80 uppercase tracking-widest">Portal Aesthetic Preview</p>
+                                 </div>
+                                 <div className="absolute right-0 bottom-0 p-4 opacity-20"><Shield size={64} /></div>
+                             </div>
                         </div>
                     </div>
 
-                    <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                    <div className="px-10 py-6 border-t border-white/5 bg-brand-950/50 flex gap-4">
+                        <button onClick={() => setShowSettingsModal(false)} className="px-8 py-4 text-brand-500 font-bold hover:text-white transition-colors text-xs uppercase tracking-widest">Discard Changes</button>
                         <button 
-                            onClick={() => setShowSettingsModal(false)}
-                            className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-200 rounded-xl transition-colors text-sm"
+                            onClick={saveSettings} disabled={!hasUnsavedSettings}
+                            className="flex-1 py-4 bg-gold text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-[0.2em] disabled:opacity-50"
                         >
-                            Cancel
-                        </button>
-                        <button 
-                            onClick={saveSettings}
-                            disabled={!hasUnsavedSettings}
-                            className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                            {hasUnsavedSettings ? <CheckCircle size={16} /> : null}
-                            {hasUnsavedSettings ? 'Save Changes' : 'Saved'}
+                            <CheckCircle size={18} className="inline mr-2" />
+                            DEPLOY IDENTITY
                         </button>
                     </div>
                 </div>
             </div>
         )}
 
-        {/* RESTORE PREVIEW MODAL */}
-        {importModal.isOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                            <Upload size={20} className="text-brand-600" />
-                            Restore Data
-                         </h3>
-                         <button onClick={() => setImportModal({...importModal, isOpen: false})} className="p-1 hover:bg-gray-200 rounded-full text-gray-400">
-                             <X size={20} />
-                         </button>
-                    </div>
-                    
-                    <div className="p-6">
-                        {importModal.error ? (
-                            <div className="text-center py-4">
-                                <div className="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertTriangle size={32} />
-                                </div>
-                                <h4 className="text-red-700 font-bold mb-2">Invalid File</h4>
-                                <p className="text-sm text-gray-600">{importModal.error}</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                    <FileJson className="text-blue-500" />
-                                    <div className="text-sm text-blue-800">
-                                        <p className="font-bold">Backup File Detected</p>
-                                        <p className="text-xs opacity-80">Ready to restore the following data:</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <span className="block text-xs text-gray-400 font-bold uppercase">Players</span>
-                                        <span className="block text-xl font-black text-gray-800">{importModal.stats?.players || 0}</span>
-                                    </div>
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <span className="block text-xs text-gray-400 font-bold uppercase">Matches</span>
-                                        <span className="block text-xl font-black text-gray-800">{importModal.stats?.matches || 0}</span>
-                                    </div>
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <span className="block text-xs text-gray-400 font-bold uppercase">Attendance</span>
-                                        <span className="block text-xl font-black text-gray-800">{importModal.stats?.attendance || 0}</span>
-                                    </div>
-                                    <div className="bg-gray-50 p-3 rounded-lg">
-                                        <span className="block text-xs text-gray-400 font-bold uppercase">Events</span>
-                                        <span className="block text-xl font-black text-gray-800">{importModal.stats?.events || 0}</span>
-                                    </div>
-                                </div>
-
-                                <div className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100 flex gap-2">
-                                    <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" />
-                                    <p>Warning: Restoring this backup will <strong>permanently replace</strong> all current data on this device. This action cannot be undone.</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="bg-gray-50 px-6 py-4 flex gap-3 justify-end border-t border-gray-200">
-                        <button 
-                            onClick={() => setImportModal({...importModal, isOpen: false})}
-                            className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-200 rounded-lg transition-colors text-sm"
-                        >
-                            Cancel
-                        </button>
-                        {!importModal.error && (
-                            <button 
-                                onClick={confirmImport}
-                                className="px-6 py-2 bg-brand-900 text-white font-bold rounded-lg shadow-lg hover:bg-black transition-all text-sm flex items-center gap-2"
-                            >
-                                <CheckCircle size={16} />
-                                Confirm Restore
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        )}
-        {/* LOCAL BACKUPS MODAL */}
+        {/* Local Backups Modal */}
         {showLocalBackupsModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-                    <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <Database size={20} className="text-brand-600" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-900">Local Backups</h3>
-                                <p className="text-xs text-gray-500 font-medium">Manage backups stored securely in this browser</p>
-                            </div>
-                        </div>
-                        <button onClick={() => setShowLocalBackupsModal(false)} className="p-2 hover:bg-white rounded-full text-gray-400 hover:text-gray-600 transition-colors">
-                            <X size={24} />
-                        </button>
+            <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+                <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-xl border border-white/10 flex flex-col max-h-[90vh] overflow-hidden">
+                    <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center">
+                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">LOCAL <span className="text-gold">ARCHIVE</span></h3>
+                         <button onClick={() => setShowLocalBackupsModal(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={24}/></button>
                     </div>
+                    <div className="p-10 overflow-y-auto custom-scrollbar space-y-8">
+                        <button onClick={handleSaveLocalBackup} disabled={isSavingBackup} className="w-full py-4 bg-brand-800 border-2 border-dashed border-white/10 hover:border-gold/50 rounded-2xl text-brand-400 hover:text-white transition-all flex items-center justify-center gap-3">
+                            {isSavingBackup ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+                            <span className="text-xs font-black uppercase tracking-widest">INITIALIZE NEW ARCHIVE</span>
+                        </button>
 
-                    <div className="p-8 overflow-y-auto custom-scrollbar space-y-6">
-                        <div className="flex justify-between items-center">
-                            <p className="text-sm text-gray-600">These backups are stored locally in your browser using IndexedDB. They are not synced to the cloud.</p>
-                            <button 
-                                onClick={handleSaveLocalBackup}
-                                disabled={isSavingBackup}
-                                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
-                            >
-                                {isSavingBackup ? <Loader2 size={16} className="animate-spin" /> : <Database size={16} />}
-                                Create New Backup
-                            </button>
-                        </div>
-
-                        {localBackups.length === 0 ? (
-                            <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                                <Database size={48} className="mx-auto text-gray-300 mb-4" />
-                                <h4 className="text-gray-900 font-bold mb-1">No Local Backups</h4>
-                                <p className="text-sm text-gray-500">Create your first local backup to secure your data.</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {localBackups.map(backup => (
-                                    <div key={backup.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-brand-300 transition-colors">
-                                        <div>
-                                            <h4 className="font-bold text-gray-900">{backup.name}</h4>
-                                            <p className="text-xs text-gray-500 mt-1">{new Date(backup.timestamp).toLocaleString()}</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => handleRestoreLocalBackup(backup.data)}
-                                                className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-colors"
-                                            >
-                                                Restore
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteLocalBackup(backup.id)}
-                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
+                        <div className="space-y-3">
+                            {localBackups.map(backup => (
+                                <div key={backup.id} className="bg-brand-800 p-5 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-white/10">
+                                    <div>
+                                        <h4 className="font-black text-white text-sm italic uppercase tracking-widest">{backup.name}</h4>
+                                        <p className="text-[10px] font-medium text-brand-500 mt-1">{new Date(backup.timestamp).toLocaleString()}</p>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <div className="flex gap-2">
+                                        <button onClick={async () => {
+                                            if(await StorageService.restoreBackup(backup.data)) window.location.reload();
+                                        }} className="px-4 py-2 bg-brand-950 text-gold rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-gold hover:text-brand-950 transition-all">RESTORE</button>
+                                        <button onClick={async () => { 
+                                            await StorageService.deleteLocalBackup(backup.id);
+                                            await loadLocalBackups();
+                                        }} className="p-2 text-brand-700 hover:text-red-500"><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
         )}
 
         <ConfirmModal
-            isOpen={deleteModalOpen}
-            onClose={() => {
-                setDeleteModalOpen(false);
-                setDeleteAction(null);
-            }}
+            isOpen={deleteModalOpen} onClose={() => { setDeleteModalOpen(false); setDeleteAction(null); }}
             onConfirm={confirmDeleteAction}
-            title={deleteAction?.type === 'backup' ? "Delete Backup" : "Clear All Data"}
-            message={deleteAction?.type === 'backup' 
-                ? "Are you sure you want to delete this backup? This action cannot be undone."
-                : "WARNING: This will delete ALL players, matches, and attendance records. The app will reset to default demo data. Are you sure?"}
-            confirmText="Delete"
+            title={deleteAction?.type === 'backup' ? "Delete Archive" : "REDLINE PROTOCOL"}
+            message={deleteAction?.type === 'backup' ? "Permanently remove this archive signal?" : "CRITICAL: This will initiate a complete system wipe. Restore data via JSON if needed. Authorize?"}
+            confirmText={deleteAction?.type === 'backup' ? "DELETE" : "AUTHORIZE WIPE"}
             type="danger"
             requireTypeToConfirm={deleteAction?.type === 'clear'}
         />

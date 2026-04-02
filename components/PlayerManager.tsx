@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch, User } from '../types';
-import { Search, Edit2, Trash2, Save, X, User as UserIcon, Phone, MapPin, Layers, Map, Filter, Camera, Shield, Check, Key } from 'lucide-react';
+import { Search, Edit2, Trash2, Save, X, User as UserIcon, Phone, MapPin, Layers, Map, Filter, Camera, Shield, Check, Key, Activity } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { PlayerPerformanceModal } from './PlayerPerformanceModal';
 
 export const PlayerManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'players' | 'coaches'>('players');
@@ -23,6 +24,7 @@ export const PlayerManager: React.FC = () => {
 
   // Edit State
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const [viewingPerformance, setViewingPerformance] = useState<Player | null>(null);
   const [editingCoach, setEditingCoach] = useState<User | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -293,6 +295,13 @@ export const PlayerManager: React.FC = () => {
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <button 
+                                            onClick={() => setViewingPerformance(p)}
+                                            className="p-2 bg-white border border-gray-200 text-gray-600 hover:text-purple-600 hover:border-purple-500 rounded-lg transition-all shadow-sm"
+                                            title="Performance & Media"
+                                          >
+                                              <Activity size={16} />
+                                          </button>
                                           <button 
                                             onClick={() => openEditModal(p, 'player')}
                                             className="p-2 bg-white border border-gray-200 text-gray-600 hover:text-brand-600 hover:border-brand-500 rounded-lg transition-all shadow-sm"
@@ -683,6 +692,18 @@ export const PlayerManager: React.FC = () => {
                   </div>
               </div>
           </div>
+      )}
+
+      {/* Player Performance Modal */}
+      {viewingPerformance && (
+          <PlayerPerformanceModal 
+              player={viewingPerformance} 
+              onClose={() => setViewingPerformance(null)}
+              onUpdate={(updatedPlayer) => {
+                  setPlayers(StorageService.getPlayers());
+                  setViewingPerformance(updatedPlayer);
+              }}
+          />
       )}
 
       <ConfirmModal

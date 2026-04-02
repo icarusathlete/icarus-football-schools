@@ -461,6 +461,23 @@ export const StorageService = {
       handleFirestoreError(error, OperationType.WRITE, `matches/${newId}`);
     }
   },
+
+  updateMatch: async (m: Match) => {
+    try {
+      const sanitized = sanitizeObject(m);
+      await setDoc(doc(db, 'matches', m.id), sanitized);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `matches/${m.id}`);
+    }
+  },
+
+  deleteMatch: async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'matches', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `matches/${id}`);
+    }
+  },
   
   getSchedule: (): ScheduleEvent[] => JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '[]'),
   

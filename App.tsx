@@ -1,26 +1,31 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
-import { PlayerRegistration } from './components/PlayerRegistration';
-import { CoachAttendance } from './components/CoachAttendance';
-import { AdminDashboard } from './components/AdminDashboard';
-import { UserManagement } from './components/UserManagement';
-import { MatchManager } from './components/MatchManager';
-import { PlayerPortal } from './components/PlayerPortal';
-import { Schedule } from './components/Schedule';
-import { NoticeBoard } from './components/NoticeBoard';
-import { FinanceManager } from './components/FinanceManager';
-import { Leaderboard } from './components/Leaderboard';
-import { EvaluationManager } from './components/EvaluationManager';
-import { PlayerManager } from './components/PlayerManager';
-import { Team } from './components/Team'; 
-import { TrainingManager } from './components/TrainingManager';
+import { Onboarding } from './components/Onboarding';
 import { StorageService } from './services/storageService';
 import { User } from './types';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { LoadingList } from './components/ui/LoadingSkeleton';
+
+// Lazy Loaded Components
+const Schedule = lazy(() => import('./components/Schedule').then(m => ({ default: m.Schedule })));
+const NoticeBoard = lazy(() => import('./components/NoticeBoard').then(m => ({ default: m.NoticeBoard })));
+const Leaderboard = lazy(() => import('./components/Leaderboard').then(m => ({ default: m.Leaderboard })));
+const Team = lazy(() => import('./components/Team').then(m => ({ default: m.Team })));
+const CoachAttendance = lazy(() => import('./components/CoachAttendance').then(m => ({ default: m.CoachAttendance })));
+const MatchManager = lazy(() => import('./components/MatchManager').then(m => ({ default: m.MatchManager })));
+const SquadComparison = lazy(() => import('./components/SquadComparison').then(m => ({ default: m.SquadComparison })));
+const HeadToHead = lazy(() => import('./components/HeadToHead').then(m => ({ default: m.HeadToHead })));
+const EvaluationManager = lazy(() => import('./components/EvaluationManager').then(m => ({ default: m.EvaluationManager })));
+const TrainingManager = lazy(() => import('./components/TrainingManager').then(m => ({ default: m.TrainingManager })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const UserManagement = lazy(() => import('./components/UserManagement').then(m => ({ default: m.UserManagement })));
+const PlayerRegistration = lazy(() => import('./components/PlayerRegistration').then(m => ({ default: m.PlayerRegistration })));
+const FinanceManager = lazy(() => import('./components/FinanceManager').then(m => ({ default: m.FinanceManager })));
+const PlayerManager = lazy(() => import('./components/PlayerManager').then(m => ({ default: m.PlayerManager })));
+const PlayerPortal = lazy(() => import('./components/PlayerPortal').then(m => ({ default: m.PlayerPortal })));
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -48,9 +53,6 @@ const App: React.FC = () => {
           if (userData.role === 'admin') setActiveTab('admin');
           else if (userData.role === 'coach') setActiveTab('schedule');
           else if (userData.role === 'player') setActiveTab('player-dashboard');
-        } else {
-          // Fallback if user doc doesn't exist yet (e.g. during first login)
-          // The Login component will create it and call handleLoginSuccess
         }
       } else {
         setCurrentUser(null);
@@ -68,8 +70,6 @@ const App: React.FC = () => {
   const handleLoginSuccess = (user: User) => {
       setCurrentUser(user);
       StorageService.startFirebaseSync(user);
-      
-      // Default tabs based on role
       if (user.role === 'admin') setActiveTab('admin');
       else if (user.role === 'coach') setActiveTab('schedule');
       else if (user.role === 'player') setActiveTab('player-dashboard');
@@ -92,49 +92,53 @@ const App: React.FC = () => {
       case 'team': return <Team currentUser={currentUser} />;
       case 'coach': return <CoachAttendance />;
       case 'matches': return <MatchManager />;
+      case 'squad-comparison': return <SquadComparison />;
+      case 'head-to-head': return <HeadToHead />;
       case 'evaluations': return <EvaluationManager />;
       case 'training': return <TrainingManager />;
       case 'admin': return <AdminDashboard />;
-      case 'register': return <PlayerRegistration />;
-      case 'players': return <PlayerManager />;
       case 'users': return <UserManagement />;
+      case 'register': return <PlayerRegistration />;
       case 'finance': return <FinanceManager />;
-      case 'player-dashboard': return <PlayerPortal user={currentUser} />;
-      default: return <div>Tab not found</div>;
+      case 'players': return <PlayerManager />;
+      case 'player-dashboard': return <PlayerPortal currentUser={currentUser} />;
+      default: return <div className="p-8 text-white">Select a module to begin</div>;
     }
   };
 
   if (!isAuthReady) {
     return (
-      <div 
-        className="min-h-screen flex items-center justify-center text-white font-mono"
-        style={{ backgroundColor: 'var(--brand-secondary)' }}
-      >
-        <div className="flex flex-col items-center gap-4">
-           {settings.logoUrl && <img src={settings.logoUrl} className="w-16 h-16 object-contain" alt="Logo" />}
-           <div className="animate-pulse flex flex-col items-center">
-             <span className="uppercase tracking-[0.3em] font-black text-xs opacity-50 mb-2">Synchronizing</span>
-             <span className="font-bold text-lg">{settings.name}</span>
-           </div>
-        </div>
+      <div className="min-h-screen bg-brand-950 flex items-center justify-center p-12">
+        <LoadingList count={5} />
       </div>
     );
   }
 
   if (!currentUser) {
-      return <Login onLogin={handleLoginSuccess} />;
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  // Intercept if profile is incomplete
+  if (!currentUser.fullName || !currentUser.memberId) {
+    return <Onboarding currentUser={currentUser} onComplete={(updated) => setCurrentUser(updated)} />;
   }
 
   return (
-    <Layout 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-        currentUser={currentUser}
-        onLogout={handleLogout}
-    >
-      <div className="max-w-7xl mx-auto">
+    <Layout currentUser={currentUser} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
+      <Suspense fallback={
+        <div className="p-8 animate-in fade-in duration-500">
+           <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 bg-brand-800 rounded-xl animate-pulse" />
+              <div className="space-y-2">
+                 <div className="h-4 w-32 bg-brand-800 rounded animate-pulse" />
+                 <div className="h-3 w-48 bg-brand-800/50 rounded animate-pulse" />
+              </div>
+           </div>
+           <LoadingList count={3} />
+        </div>
+      }>
         {renderContent()}
-      </div>
+      </Suspense>
     </Layout>
   );
 };

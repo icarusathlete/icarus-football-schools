@@ -1,8 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
 import { ScheduleEvent, Role, Drill, User, EventType } from '../types';
-import { Calendar, Clock, MapPin, Plus, MonitorPlay, Users, Coffee, Edit3, Trash2, X, Save, Trophy, ArrowRight, ClipboardList, Check, User as UserIcon, Filter, Zap, PartyPopper, ChevronRight } from 'lucide-react';
+import { 
+    Calendar as CalendarIcon, Clock, MapPin, Plus, MonitorPlay, 
+    Users, Coffee, Edit3, Trash2, X, Save, Trophy, ArrowRight, 
+    ClipboardList, Check, User as UserIcon, Filter, Zap, 
+    PartyPopper, ChevronRight, ChevronLeft, LayoutList, Calendar
+} from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 
 interface ScheduleProps {
@@ -14,6 +18,8 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   const [drills, setDrills] = useState<Drill[]>([]);
   const [coaches, setCoaches] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | EventType>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   
   // Modal State
   const [showForm, setShowForm] = useState(false);
@@ -33,44 +39,20 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
     leadCoachId: ''
   });
 
-  useEffect(() => {
-    const loadedEvents = loadEvents();
-    loadDrills();
-    loadCoaches();
-    determineDefaultTab(loadedEvents);
-  }, []);
-
-  const loadEvents = () => {
+  const loadData = () => {
     const allEvents = StorageService.getSchedule();
-    // Sort by date/time
     allEvents.sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
     setEvents(allEvents);
-    return allEvents;
+    setDrills(StorageService.getDrills());
+    const allUsers = StorageService.getUsers();
+    setCoaches(allUsers.filter(u => u.role === 'coach'));
   };
 
-  const determineDefaultTab = (allEvents: ScheduleEvent[]) => {
-      const now = new Date();
-      // Find the first event that hasn't happened yet (or happened today)
-      const nextEvent = allEvents.find(e => {
-          const eventDate = new Date(`${e.date}T${e.time}`);
-          return eventDate >= now;
-      });
-
-      if (nextEvent) {
-          setActiveTab(nextEvent.type);
-      } else {
-          setActiveTab('all');
-      }
-  };
-
-  const loadDrills = () => {
-      setDrills(StorageService.getDrills());
-  };
-
-  const loadCoaches = () => {
-      const allUsers = StorageService.getUsers();
-      setCoaches(allUsers.filter(u => u.role === 'coach'));
-  };
+  useEffect(() => {
+    loadData();
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
+  }, []);
 
   const handleCreate = () => {
       setEditingId(null);
@@ -100,9 +82,8 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   const confirmDelete = () => {
       if (eventToDelete) {
           StorageService.deleteEvent(eventToDelete);
-          loadEvents();
+          loadData();
           setDeleteModalOpen(false);
-          setEventToDelete(null);
       }
   };
 
@@ -119,22 +100,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (editingId) {
         const eventToUpdate = events.find(e => e.id === editingId);
-        if (eventToUpdate) {
-            StorageService.updateEvent({ ...eventToUpdate, ...form });
-        }
+        if (eventToUpdate) StorageService.updateEvent({ ...eventToUpdate, ...form });
     } else {
         StorageService.addEvent(form);
     }
-    
-    const updatedEvents = loadEvents();
-    // If we created a new event, switch to that tab to show it
-    if (!editingId) setActiveTab(form.type);
-    
+    loadData();
     setShowForm(false);
-    setEditingId(null);
   };
 
   const isEventPast = (date: string, time: string) => {
@@ -144,324 +117,319 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
   const filteredEvents = events.filter(e => activeTab === 'all' || e.type === activeTab);
 
-  // --- UI COMPONENTS ---
+  // Calendar Helpers
+  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
-  const TabButton = ({ type, label, icon: Icon, colorClass, activeClass }: any) => (
-      <button
-          onClick={() => setActiveTab(type)}
-          className={`
-              relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300
-              ${activeTab === type ? `${activeClass} text-white shadow-lg transform scale-105` : `bg-white text-gray-500 hover:bg-gray-50 border border-gray-200`}
-          `}
-      >
-          <Icon size={16} />
-          <span className="hidden md:inline">{label}</span>
-      </button>
-  );
+  const changeMonth = (offset: number) => {
+      const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1);
+      setCurrentMonth(nextMonth);
+  };
+
+  const getTypeStyles = (type: EventType) => {
+      switch(type) {
+          case 'match': return { border: 'border-l-gold', bg: 'bg-gold/10', text: 'text-gold', icon: <Trophy size={14} className="text-gold" />, dot: 'bg-gold' };
+          case 'social': return { border: 'border-l-purple-500', bg: 'bg-purple-500/10', text: 'text-purple-400', icon: <PartyPopper size={14} className="text-purple-400" />, dot: 'bg-purple-500' };
+          default: return { border: 'border-l-cyan-400', bg: 'bg-cyan-400/10', text: 'text-cyan-400', icon: <Zap size={14} className="text-cyan-400" />, dot: 'bg-cyan-400' };
+      }
+  };
+
+  const CalendarView = () => {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const daysInMonth = getDaysInMonth(year, month);
+      const firstDay = getFirstDayOfMonth(year, month);
+      const days = [];
+
+      // Empty cells for first week
+      for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-brand-900/20 border border-white/5" />);
+
+      for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const dayEvents = events.filter(e => e.date === dateStr);
+          const isToday = new Date().toISOString().split('T')[0] === dateStr;
+
+          days.push(
+              <div key={d} className={`h-24 md:h-32 p-2 border border-white/5 transition-colors hover:bg-white/5 overflow-hidden ${isToday ? 'bg-gold/5 border-gold/20' : 'bg-brand-900/40'}`}>
+                  <div className="flex justify-between items-center mb-1">
+                      <span className={`text-xs font-black ${isToday ? 'text-gold' : 'text-brand-500'}`}>{d}</span>
+                      {isToday && <span className="text-[8px] font-black text-gold uppercase tracking-tighter">Today</span>}
+                  </div>
+                  <div className="space-y-1 overflow-y-auto max-h-[80%] custom-scrollbar">
+                      {dayEvents.map(e => {
+                          const s = getTypeStyles(e.type);
+                          return (
+                              <div key={e.id} onClick={() => handleEdit(e)} className={`px-1.5 py-0.5 rounded text-[8px] font-bold truncate cursor-pointer ${s.bg} ${s.text} border-l-2 ${s.border} hover:opacity-80`}>
+                                  {e.title}
+                              </div>
+                          );
+                      })}
+                  </div>
+              </div>
+          );
+      }
+
+      return (
+          <div className="bg-brand-800 rounded-3xl border border-white/5 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-brand-950/30">
+                  <h3 className="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
+                      {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                  </h3>
+                  <div className="flex gap-2">
+                      <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-white/10 rounded-xl text-brand-400 transition-colors"><ChevronLeft size={20}/></button>
+                      <button onClick={() => setCurrentMonth(new Date())} className="px-4 py-2 hover:bg-white/10 rounded-xl text-xs font-bold text-white uppercase tracking-widest transition-colors">Today</button>
+                      <button onClick={() => changeMonth(1)} className="p-2 hover:bg-white/10 rounded-xl text-brand-400 transition-colors"><ChevronRight size={20}/></button>
+                  </div>
+              </div>
+              <div className="grid grid-cols-7 border-b border-white/5 bg-brand-950/20">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                      <div key={d} className="py-3 text-center text-[10px] font-black text-brand-500 uppercase tracking-widest">{d}</div>
+                  ))}
+              </div>
+              <div className="grid grid-cols-7">
+                  {days}
+              </div>
+          </div>
+      );
+  };
 
   return (
-    <div className="space-y-8 pb-12 animate-in fade-in duration-500">
+    <div className="space-y-8 pb-24 animate-in fade-in duration-500">
       
       {/* Header & Controls */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h2 className="text-4xl font-black italic tracking-tighter text-gray-900" style={{ fontFamily: 'Orbitron' }}>
-             TEAM <span className="text-brand-500">SCHEDULE</span>
+          <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase">
+             TEAM <span className="text-gold">SCHEDULE</span>
           </h2>
-          <p className="text-gray-500 font-medium mt-2">Manage sessions, fixtures, and events.</p>
+          <p className="text-brand-400 font-medium mt-1">Orchestrate sessions, matches, and media events.</p>
         </div>
 
-        <div className="flex flex-wrap gap-3 bg-gray-100/50 p-1.5 rounded-2xl border border-gray-200 w-full lg:w-auto">
-            <TabButton type="all" label="All" icon={Filter} activeClass="bg-gray-800" />
-            <TabButton type="training" label="Training" icon={Zap} activeClass="bg-cyan-500" />
-            <TabButton type="match" label="Matches" icon={Trophy} activeClass="bg-yellow-500" />
-            <TabButton type="social" label="Events" icon={PartyPopper} activeClass="bg-purple-500" />
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            {/* View Toggle */}
+            <div className="flex bg-brand-800 p-1 rounded-xl border border-white/5">
+                <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-gold text-brand-950 shadow-lg shadow-gold/20' : 'text-brand-500 hover:text-white'}`}>
+                    <LayoutList size={14}/> List
+                </button>
+                <button onClick={() => setViewMode('calendar')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-gold text-brand-950 shadow-lg shadow-gold/20' : 'text-brand-500 hover:text-white'}`}>
+                    <Calendar size={14}/> Calendar
+                </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+                {[
+                    { id: 'all', label: 'All', icon: Filter, active: 'bg-white/10 text-white' },
+                    { id: 'training', label: 'Training', icon: Zap, active: 'bg-cyan-400/20 text-cyan-400 border border-cyan-400/30' },
+                    { id: 'match', label: 'Matches', icon: Trophy, active: 'bg-gold/20 text-gold border border-gold/30' },
+                    { id: 'social', label: 'Events', icon: PartyPopper, active: 'bg-purple-500/20 text-purple-400 border border-purple-500/30' }
+                ].map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? tab.active : 'bg-brand-800 text-brand-500 border border-transparent hover:border-white/10'}`}
+                    >
+                        <tab.icon size={12} />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
         </div>
 
         {(role === 'admin' || role === 'coach') && (
-          <button 
-            onClick={handleCreate}
-            className="hidden lg:flex items-center gap-2 bg-brand-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-brand-900/20 active:scale-95"
-          >
-            <Plus size={20} />
-            <span className="font-bold text-sm uppercase tracking-wider">New Activity</span>
-          </button>
+            <button 
+                onClick={handleCreate}
+                className="hidden lg:flex items-center gap-2 bg-gold text-brand-950 px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-gold/20 font-black text-xs uppercase tracking-widest"
+            >
+                <Plus size={18} />
+                PLAN ACTIVITY
+            </button>
         )}
       </div>
 
-      {/* Mobile Create Button */}
-      {(role === 'admin' || role === 'coach') && (
-          <button 
-            onClick={handleCreate}
-            className="lg:hidden w-full flex items-center justify-center gap-2 bg-brand-900 text-white px-6 py-4 rounded-xl hover:bg-black transition-all shadow-lg active:scale-95"
-          >
-            <Plus size={20} />
-            <span className="font-bold text-sm uppercase tracking-wider">Schedule New Activity</span>
-          </button>
+      {viewMode === 'calendar' ? <CalendarView /> : (
+          <div className="space-y-4">
+              {filteredEvents.length === 0 && (
+                 <div className="bg-brand-800 border-2 border-dashed border-white/5 rounded-[2.5rem] p-20 text-center flex flex-col items-center">
+                     <CalendarIcon size={48} className="text-brand-600 mb-4 opacity-20" />
+                     <h3 className="text-xl font-black text-brand-400 uppercase tracking-widest italic">Operations Silent</h3>
+                     <p className="text-brand-500 mt-2 text-sm italic font-medium">No active {activeTab === 'all' ? 'missions' : activeTab} found for the current period.</p>
+                 </div>
+              )}
+
+              {filteredEvents.map((event) => {
+                  const isPast = isEventPast(event.date, event.time);
+                  const dateObj = new Date(event.date);
+                  const coach = coaches.find(c => c.id === event.leadCoachId);
+                  const s = getTypeStyles(event.type);
+
+                  return (
+                      <div 
+                        key={event.id} 
+                        className={`group relative bg-brand-800 rounded-3xl border border-white/5 hover:border-white/10 transition-all duration-500 overflow-hidden flex flex-col md:flex-row ${isPast ? 'opacity-40 grayscale' : ''} border-l-4 ${s.border}`}
+                      >
+                          {/* Left: Date & Time */}
+                          <div className="w-full md:w-48 p-8 bg-brand-950/30 flex flex-row md:flex-col justify-between md:justify-center items-center gap-3 border-b md:border-b-0 md:border-r border-white/5">
+                              <div className="text-center">
+                                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-500">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
+                                  <div className="text-4xl font-black text-white leading-none my-1 tracking-tighter italic">{dateObj.getDate()}</div>
+                                  <span className="text-[10px] font-bold uppercase text-brand-500 tracking-[0.2em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                              </div>
+                              <div className="h-10 w-px bg-white/5 hidden md:block my-2"></div>
+                              <div className="flex items-center gap-2 bg-brand-950 px-4 py-2 rounded-xl border border-white/10">
+                                  <Clock size={14} className="text-gold" />
+                                  <span className="text-xs font-black text-white">{event.time}</span>
+                              </div>
+                          </div>
+
+                          {/* Middle: Content */}
+                          <div className="flex-1 p-8 flex flex-col justify-center relative">
+                              <div className="absolute top-8 right-8 hidden md:block">
+                                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${s.bg} ${s.text} border border-${s.text}/20`}>
+                                      {s.icon} {event.type}
+                                  </span>
+                              </div>
+
+                              <h3 className="text-2xl font-black text-white mb-3 group-hover:text-gold transition-colors italic uppercase tracking-tight">
+                                  {event.title}
+                              </h3>
+                              
+                              <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-brand-400">
+                                  <div className="flex items-center gap-2.5">
+                                      <div className="p-2 bg-brand-950 rounded-lg"><MapPin size={16} className="text-gold" /></div>
+                                      {event.location}
+                                  </div>
+                                  
+                                  {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
+                                      <div className="flex items-center gap-2.5">
+                                          <div className="p-2 bg-cyan-400/10 rounded-lg text-cyan-400"><ClipboardList size={16} /></div>
+                                          <span className="text-xs uppercase tracking-widest">{event.drillIds.length} DRILLS ASSIGNED</span>
+                                      </div>
+                                  )}
+                                  
+                                  {coach && (
+                                      <div className="flex items-center gap-3 pl-6 border-l border-white/5">
+                                          <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-8 h-8 rounded-xl bg-brand-950 border border-white/10 object-cover shadow-lg" />
+                                          <div className="flex flex-col">
+                                            <span className="text-[10px] uppercase text-brand-500 font-black tracking-widest">Lead Strategist</span>
+                                            <span className="text-xs text-white">{coach.username}</span>
+                                          </div>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+
+                          {/* Right: Actions */}
+                          {(role === 'admin' || role === 'coach') && (
+                              <div className="p-6 md:p-8 flex flex-row md:flex-col items-center justify-center gap-3 bg-brand-950/20 border-t md:border-t-0 md:border-l border-white/5">
+                                 {!isPast ? (
+                                     <>
+                                        <button onClick={() => handleEdit(event)} className="w-full md:w-auto p-4 bg-brand-900 border border-white/5 text-brand-400 rounded-2xl hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all shadow-xl group/btn" title="Refine Action">
+                                            <Edit3 size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                        </button>
+                                        <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-auto p-4 bg-brand-900 border border-white/5 text-brand-400 rounded-2xl hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/5 transition-all shadow-xl group/btn" title="Abort Mission">
+                                            <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                        </button>
+                                     </>
+                                 ) : (
+                                    <div className="text-center px-4">
+                                        <div className="p-4 bg-brand-900/50 rounded-2xl border border-white/5">
+                                            <History size={20} className="mx-auto text-brand-700" />
+                                        </div>
+                                    </div>
+                                 )}
+                              </div>
+                          )}
+                      </div>
+                  );
+              })}
+          </div>
       )}
 
-      {/* Event Stream */}
-      <div className="space-y-4">
-          {filteredEvents.length === 0 && (
-             <div className="bg-white border-2 border-dashed border-gray-200 rounded-[2rem] p-16 text-center flex flex-col items-center">
-                 <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 ${
-                     activeTab === 'match' ? 'bg-yellow-50 text-yellow-300' :
-                     activeTab === 'training' ? 'bg-cyan-50 text-cyan-300' :
-                     activeTab === 'social' ? 'bg-purple-50 text-purple-300' : 'bg-gray-50 text-gray-300'
-                 }`}>
-                     <Calendar size={40} />
-                 </div>
-                 <h3 className="text-xl font-black text-gray-400 uppercase tracking-widest">No {activeTab === 'all' ? 'events' : activeTab} Scheduled</h3>
-                 <p className="text-gray-400 mt-2 text-sm">Check back later or change filters.</p>
-             </div>
-          )}
-
-          {filteredEvents.map((event) => {
-              const isPast = isEventPast(event.date, event.time);
-              const dateObj = new Date(event.date);
-              const coach = coaches.find(c => c.id === event.leadCoachId);
-              
-              // Type-specific styles
-              const getTypeStyles = () => {
-                  switch(event.type) {
-                      case 'match': return {
-                          border: 'border-l-yellow-400', 
-                          bg: 'bg-yellow-50', 
-                          text: 'text-yellow-700',
-                          icon: <Trophy size={18} className="text-yellow-600" />
-                      };
-                      case 'social': return {
-                          border: 'border-l-purple-400', 
-                          bg: 'bg-purple-50', 
-                          text: 'text-purple-700',
-                          icon: <PartyPopper size={18} className="text-purple-600" />
-                      };
-                      default: return {
-                          border: 'border-l-cyan-400', 
-                          bg: 'bg-cyan-50', 
-                          text: 'text-cyan-700',
-                          icon: <Zap size={18} className="text-cyan-600" />
-                      };
-                  }
-              };
-              const styles = getTypeStyles();
-
-              return (
-                  <div 
-                    key={event.id} 
-                    className={`group relative bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col md:flex-row ${isPast ? 'opacity-60 grayscale' : ''} border-l-4 ${styles.border}`}
-                  >
-                      {/* Left: Date & Time */}
-                      <div className="w-full md:w-48 p-6 bg-gray-50/50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-2 border-b md:border-b-0 md:border-r border-gray-100">
-                          <div className="text-center">
-                              <span className="text-xs font-black uppercase tracking-widest text-gray-400">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
-                              <div className="text-3xl font-black text-gray-900 leading-none my-1" style={{ fontFamily: 'Orbitron' }}>{dateObj.getDate()}</div>
-                              <span className="text-xs font-bold uppercase text-gray-400">{dateObj.toLocaleDateString(undefined, { weekday: 'short' })}</span>
-                          </div>
-                          <div className="h-8 w-px bg-gray-200 hidden md:block my-2"></div>
-                          <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
-                              <Clock size={14} className="text-brand-500" />
-                              <span className="text-xs font-bold text-gray-700">{event.time}</span>
-                          </div>
-                      </div>
-
-                      {/* Middle: Content */}
-                      <div className="flex-1 p-6 flex flex-col justify-center relative">
-                          {/* Type Badge */}
-                          <div className="absolute top-6 right-6 hidden md:block">
-                              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${styles.bg} ${styles.text}`}>
-                                  {styles.icon} {event.type}
-                              </span>
-                          </div>
-
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors flex items-center gap-3">
-                              {event.title}
-                              <span className={`md:hidden px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide ${styles.bg} ${styles.text}`}>{event.type}</span>
-                          </h3>
-                          
-                          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-500 mt-2">
-                              <div className="flex items-center gap-2">
-                                  <MapPin size={16} className="text-gray-400" />
-                                  {event.location}
-                              </div>
-                              
-                              {/* Contextual Info based on type */}
-                              {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
-                                  <div className="flex items-center gap-2 text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md">
-                                      <ClipboardList size={14} />
-                                      <span className="text-xs font-bold">{event.drillIds.length} Drills</span>
-                                  </div>
-                              )}
-                              
-                              {coach && (
-                                  <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
-                                      <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-5 h-5 rounded-full bg-gray-200" />
-                                      <span className="text-xs font-bold text-gray-700">{coach.username}</span>
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-
-                      {/* Right: Actions */}
-                      {(role === 'admin' || role === 'coach') && (
-                          <div className="p-4 md:p-6 flex flex-row md:flex-col items-center justify-center gap-2 bg-gray-50/30 border-t md:border-t-0 md:border-l border-gray-100">
-                             {!isPast ? (
-                                 <>
-                                    <button 
-                                        onClick={() => handleEdit(event)}
-                                        className="w-full md:w-auto p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:text-brand-600 hover:border-brand-500 transition-all shadow-sm group/btn"
-                                        title="Edit Event"
-                                    >
-                                        <Edit3 size={18} className="group-hover/btn:scale-110 transition-transform" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDeleteClick(event.id)}
-                                        className="w-full md:w-auto p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:text-red-500 hover:border-red-500 transition-all shadow-sm group/btn"
-                                        title="Delete Event"
-                                    >
-                                        <Trash2 size={18} className="group-hover/btn:scale-110 transition-transform" />
-                                    </button>
-                                 </>
-                             ) : (
-                                <div className="text-center px-4">
-                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Locked</span>
-                                </div>
-                             )}
-                          </div>
-                      )}
-                  </div>
-              );
-          })}
-      </div>
-
-      {/* Modal Form (Reused Logic, Updated Style) */}
+      {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
-            <div className="bg-gray-50 px-8 py-5 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-bold text-xl text-gray-800">{editingId ? 'Edit Activity' : 'New Activity'}</h3>
-                <button type="button" onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-200 rounded-full text-gray-500 transition-colors"><X size={20}/></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+            <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center relative">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-30" />
+                <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">{editingId ? 'Refine' : 'Formulate'} <span className="text-gold">Activity</span></h3>
+                <button type="button" onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={20}/></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-5 custom-scrollbar">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Activity Title</label>
-                <input 
-                    required 
-                    type="text" 
-                    placeholder="e.g. Tactical Session / League Match"
-                    className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-bold text-gray-900"
-                    value={form.title} 
-                    onChange={e => setForm({...form, title: e.target.value})} 
-                />
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Activity Designation</label>
+                <input required type="text" placeholder="e.g. Tactical Drill 04 / Home Opener" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none font-bold text-white shadow-inner" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
               </div>
 
-              <div className="grid grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Date</label>
-                    <input 
-                        required 
-                        type="date" 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
-                        value={form.date} 
-                        onChange={e => setForm({...form, date: e.target.value})} 
-                    />
+              <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Deployment Date</label>
+                    <input required type="date" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none text-sm font-bold text-white shadow-inner" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Time</label>
-                    <input 
-                        required 
-                        type="time" 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
-                        value={form.time} 
-                        onChange={e => setForm({...form, time: e.target.value})} 
-                    />
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Start Time</label>
+                    <input required type="time" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none text-sm font-bold text-white shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
                   </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-5">
-                 <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Type</label>
-                    <select 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
-                        value={form.type} 
-                        onChange={e => setForm({...form, type: e.target.value as any})}
-                    >
+              <div className="grid grid-cols-2 gap-6">
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Engagement Type</label>
+                    <select className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none text-sm font-bold text-white shadow-inner appearance-none" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
                         <option value="training">Training</option>
                         <option value="match">Match</option>
-                        <option value="social">Event</option>
+                        <option value="social">Social/Event</option>
                     </select>
                  </div>
-                 <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Location</label>
-                    <input 
-                        required 
-                        type="text" 
-                        placeholder="Pitch A"
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
-                        value={form.location} 
-                        onChange={e => setForm({...form, location: e.target.value})} 
-                    />
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Operational Zone</label>
+                    <input required type="text" placeholder="Pitch Alpha / VR Suite" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none text-sm font-bold text-white shadow-inner" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                  </div>
               </div>
 
-              <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Lead Coach</label>
-                  <select 
-                      className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
-                      value={form.leadCoachId} 
-                      onChange={e => setForm({...form, leadCoachId: e.target.value})}
-                  >
-                      <option value="">Select Coach...</option>
-                      {coaches.map(c => (
-                          <option key={c.id} value={c.id}>{c.username}</option>
-                      ))}
+              <div className="space-y-2">
+                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Designated Strategist</label>
+                  <select className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none text-sm font-bold text-white shadow-inner appearance-none" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
+                      <option value="">Awaiting Assignment...</option>
+                      {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
                   </select>
               </div>
 
-              {/* Drill Selector - Only for Training Sessions */}
               {form.type === 'training' && (
-                  <div className="pt-4 border-t border-gray-100 animate-in fade-in">
-                      <div className="flex justify-between items-end mb-3">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                              <ClipboardList size={14} /> Session Drills
-                          </label>
-                          <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{form.drillIds.length} Selected</span>
+                  <div className="pt-6 border-t border-white/5 animate-in slide-in-from-top-4">
+                      <div className="flex justify-between items-end mb-4">
+                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"><ClipboardList size={14} className="text-gold" /> Tactical Components</label>
+                          <span className="text-[9px] font-black text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20">{form.drillIds.length} SELECTED</span>
                       </div>
                       
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-2 max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="bg-brand-950/20 border border-white/5 rounded-3xl p-3 max-h-48 overflow-y-auto custom-scrollbar">
                           {drills.length > 0 ? (
-                              <div className="space-y-1">
+                              <div className="space-y-2">
                                   {drills.map(drill => {
                                       const isSelected = form.drillIds.includes(drill.id);
                                       return (
-                                          <div 
-                                            key={drill.id} 
-                                            onClick={() => toggleDrill(drill.id)}
-                                            className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${isSelected ? 'bg-white border border-brand-500 shadow-sm' : 'hover:bg-white border border-transparent'}`}
-                                          >
+                                          <div key={drill.id} onClick={() => toggleDrill(drill.id)} className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-gold/10 border-gold/30 shadow-lg shadow-gold/5' : 'bg-brand-900/50 border-white/5 hover:border-white/10'}`}>
                                               <div className="flex flex-col">
-                                                  <span className={`text-sm font-bold ${isSelected ? 'text-brand-700' : 'text-gray-700'}`}>{drill.title}</span>
-                                                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{drill.category} • {drill.duration} min</span>
+                                                  <span className={`text-sm font-black italic uppercase ${isSelected ? 'text-gold' : 'text-white'}`}>{drill.title}</span>
+                                                  <span className="text-[9px] text-brand-500 font-bold uppercase tracking-[0.15em]">{drill.category} • {drill.duration} MIN</span>
                                               </div>
-                                              {isSelected && <div className="bg-brand-500 text-white p-1 rounded-full"><Check size={12} strokeWidth={3} /></div>}
+                                              {isSelected && <div className="bg-gold text-brand-950 p-1 rounded-lg"><Check size={12} strokeWidth={4} /></div>}
                                           </div>
                                       );
                                   })}
                               </div>
                           ) : (
-                              <p className="text-center text-xs text-gray-400 py-4">No drills created yet.</p>
+                              <p className="text-center text-xs text-brand-600 py-6 italic font-medium">Drill database empty. Initialize from Training module.</p>
                           )}
                       </div>
                   </div>
               )}
             </form>
 
-            <div className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-3 text-gray-600 font-bold hover:bg-gray-200 rounded-xl transition-colors text-sm">Cancel</button>
-                <button onClick={handleSubmit} className="flex-1 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                    <Save size={16} />
-                    {editingId ? 'Update Activity' : 'Schedule Activity'}
+            <div className="px-10 py-6 border-t border-white/5 bg-brand-950/50 flex gap-4">
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-500 font-black hover:text-white rounded-2xl transition-all text-xs uppercase tracking-[0.2em]">Abort</button>
+                <button onClick={handleSubmit} className="flex-1 py-4 bg-gold text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em]">
+                    <Save size={18} /> {editingId ? 'Confirm Redesign' : 'Authorize Plan'}
                 </button>
             </div>
           </div>
@@ -475,9 +443,9 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               setEventToDelete(null);
           }}
           onConfirm={confirmDelete}
-          title="Delete Event"
-          message="Are you sure you want to delete this event? This action cannot be undone."
-          confirmText="Delete"
+          title="Abort Operation"
+          message="Are you sure you want to permanently remove this activity? All assigned drills and data links will be severed."
+          confirmText="Confirm Deletion"
           type="danger"
       />
     </div>

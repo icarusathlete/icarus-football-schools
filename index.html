@@ -20,10 +20,45 @@
 
     <style id="brand-styles">
       :root {
-        --brand-primary: #64748b;
-        --brand-secondary: #0f172a;
+        --brand-primary: #fbbf24; /* Electric Gold */
+        --brand-secondary: #0f172a; /* Deep Navy */
+        --brand-accent: #1e293b;
+        --brand-text: #f8fafc;
       }
-      body { background-color: var(--brand-secondary); }
+      body { 
+        background-color: var(--brand-secondary); 
+        color: var(--brand-text);
+      }
+      /* Custom Micro-animations & utilities */
+      .premium-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s ease;
+      }
+      .premium-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.6);
+        border-color: rgba(251, 191, 36, 0.3); /* Gold glow on hover */
+      }
+      .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+      .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: var(--brand-secondary); }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 
     <script>
@@ -40,6 +75,8 @@
               if (meta) meta.setAttribute('content', settings.secondaryColor);
             }
           }
+          // Force dark mode
+          document.documentElement.classList.add('dark');
         } catch (e) {}
       })();
     </script>
@@ -47,23 +84,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
               brand: {
                  50: '#f8fafc',
+                 100: '#f1f5f9',
+                 200: '#e2e8f0',
+                 300: '#cbd5e1',
+                 400: '#94a3b8',
                  500: 'var(--brand-primary)',
+                 600: '#475569',
+                 700: '#334155',
+                 800: '#1e293b',
                  900: 'var(--brand-secondary)',
+                 950: '#020617',
+              },
+              gold: {
+                DEFAULT: '#fbbf24',
+                glow: 'rgba(251, 191, 36, 0.5)'
               }
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+              heading: ['Montserrat', 'sans-serif'],
+              display: ['Orbitron', 'sans-serif'],
+            },
+            animation: {
+              'spin-slow': 'spin 3s linear infinite',
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
           }
         }
       }
-    </script>
-  <script type="importmap">
+    </script>  <script type="importmap">
 {
   "imports": {
     "react/": "https://esm.sh/react@^19.2.3/",
