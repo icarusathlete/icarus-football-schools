@@ -244,10 +244,11 @@ export const PlayerRegistration: React.FC = () => {
               });
               setCoachPreviewUrl(null);
               setErrors({});
+              refreshData();
               
               setTimeout(() => {
-                  setStatus('idle');
-                  setStatusMsg('');
+                   setStatus('idle');
+                   setStatusMsg('');
               }, 4000);
           } catch (err: any) {
               setStatus('error');
