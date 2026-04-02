@@ -167,14 +167,17 @@ export const AdminDashboard: React.FC = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log("Academy branding - file selected:", file.name, file.size);
       // Basic size validation (max 500KB for Base64 in Firestore documents)
       if (file.size > 500 * 1024) {
+        console.error("Logo file is too large", file.size);
         alert("Logo file is too large! Please choose an image smaller than 500KB to ensure smooth database performance.");
         return;
       }
       
       const reader = new FileReader();
       reader.onloadend = () => {
+        console.log("Logo read as Data URL successfully");
         const base64 = reader.result as string;
         updateSetting('logoUrl', base64);
       };
@@ -230,6 +233,21 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-12 relative animate-in fade-in duration-500">
+        {/* Hidden File Inputs at Top Level */}
+        <input 
+            type="file" 
+            ref={fileInputRef} 
+            accept=".json"
+            onChange={handleFileSelect}
+            className="fixed opacity-0 pointer-events-none -z-10"
+        />
+        <input 
+            type="file" 
+            ref={logoInputRef} 
+            accept="image/*"
+            onChange={handleLogoUpload}
+            className="fixed opacity-0 pointer-events-none -z-10"
+        />
         
         {/* Header with Settings Button */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
@@ -414,20 +432,6 @@ export const AdminDashboard: React.FC = () => {
                     </button>
 
                     <div className="relative">
-                        <input 
-                            type="file" 
-                            accept=".json" 
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            className="hidden"
-                        />
-                        <input 
-                            type="file" 
-                            accept="image/*" 
-                            ref={logoInputRef}
-                            onChange={handleLogoUpload}
-                            className="hidden"
-                        />
                         <button 
                             onClick={() => fileInputRef.current?.click()}
                             className="flex items-center gap-2 px-6 py-3.5 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl border border-gray-200 transition-colors font-bold text-xs uppercase tracking-wider"
