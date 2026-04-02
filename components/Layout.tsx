@@ -30,14 +30,14 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     onClick={() => onTabChange(item.id)}
     className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden ${
       activeTab === item.id 
-        ? 'bg-gold/10 text-gold shadow-[0_0_30px_rgba(255,215,0,0.05)] border border-gold/10' 
-        : 'text-brand-500 hover:bg-white/5 hover:text-white'
+        ? 'bg-white/10 text-brand-500 shadow-[0_0_30px_rgba(14,165,233,0.1)] border border-white/20' 
+        : 'text-white/50 hover:bg-white/10 hover:text-white'
     }`}
   >
     {activeTab === item.id && (
-      <div className="absolute left-0 top-3 bottom-3 w-1 bg-gold rounded-r-full shadow-[0_0_15px_#FFD700]" />
+      <div className="absolute left-0 top-3 bottom-3 w-1 bg-brand-500 rounded-r-full shadow-[0_0_15px_#0EA5E9]" />
     )}
-    <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-gold scale-110' : 'text-brand-600 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/30 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
     <span className={`text-[11px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
   </button>
 );
@@ -46,11 +46,11 @@ const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTab
   <button
     onClick={() => onTabChange(item.id)}
     className={`flex flex-col items-center justify-center py-2 px-1 flex-1 transition-all duration-500 ${
-      activeTab === item.id ? 'text-gold scale-105' : 'text-brand-600 opacity-70 hover:opacity-100 hover:text-white'
+      activeTab === item.id ? 'text-brand-500 scale-105' : 'text-white/40 hover:text-white'
     }`}
   >
-    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-gold/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
-    <span className="text-[8px] font-black uppercase tracking-[0.2em] truncate w-full text-center">{item.label}</span>
+    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-brand-500/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
+    <span className="text-[9px] font-black uppercase tracking-[0.2em] truncate w-full text-center">{item.label}</span>
   </button>
 );
 
@@ -137,17 +137,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             )}
           </div>
           <div className="overflow-hidden">
-            <h1 className="text-sm font-black tracking-tight leading-tight uppercase" 
+            <h1 className="text-sm font-black tracking-tighter leading-tight uppercase" 
                 style={{ fontFamily: settings.fontFamily, color: 'white' }}>
               {settings.name}
             </h1>
-            <p className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{currentUser.role} Portal</p>
+            <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] font-black mt-0.5">{currentUser.role} Portal</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
           {navSections.map((section, idx) => (
             <div key={idx} className="space-y-1">
-              <h3 className="px-4 text-[10px] font-black text-white/30 uppercase tracking-[0.25em] mb-3">{section.title}</h3>
+              <h3 className="px-5 text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-3">{section.title}</h3>
               <div className="space-y-1">
                 {section.items.map(item => <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
               </div>
@@ -162,16 +162,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         {currentUser.role === 'admin' && (
             <div className="mx-4 mb-6 p-5 bg-brand-950/50 rounded-2xl border border-white/5 shadow-inner">
                 <div className="flex items-center gap-2 mb-3">
-                    <Database size={14} className="text-brand-500" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-500">Datastore Sync</span>
+                    <Database size={14} className="text-white/20" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Datastore Sync</span>
                 </div>
                 <div className="flex items-center gap-2 mb-5">
-                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
-                    <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest truncate">Live Terminal active</span>
+                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                    <span className="text-[10px] text-white/60 font-black uppercase tracking-widest truncate">Live Terminal active</span>
                 </div>
                 <button 
                     onClick={() => StorageService.triggerBackupDownload()}
-                    className="w-full flex items-center justify-center gap-3 py-3 bg-gold text-brand-950 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/10"
+                    className="w-full flex items-center justify-center gap-3 py-3 bg-brand-500 text-brand-950 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/10"
                 >
                     <Download size={14} />
                     Export Archive
@@ -207,7 +207,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                       style={{ fontFamily: settings.fontFamily }}>
                     {settings.name}
                 </span>
-                <span className="text-[8px] font-black text-gold uppercase tracking-[0.2em] mt-1 block">Operational Hub</span>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mt-1 block">Operational Hub</span>
             </div>
          </div>
          <button onClick={onLogout} className="p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5">
@@ -227,7 +227,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-950/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
            <div className="flex justify-between items-center mb-12">
                 <div>
-                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white" style={{ fontFamily: 'Orbitron' }}>System <span className="text-gold">Matrix</span></h2>
+                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white" style={{ fontFamily: 'Orbitron' }}>System <span className="text-lime">Matrix</span></h2>
                     <p className="text-[10px] text-brand-600 font-black uppercase tracking-[0.3em] mt-2">Remote Access Interface</p>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-white/5 rounded-[2rem] text-brand-500 hover:text-white border border-white/10 shadow-2xl">
@@ -240,9 +240,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 <button 
                     key={item.id} 
                     onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }} 
-                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all duration-500 ${activeTab === item.id ? 'bg-gold text-brand-950 border-gold shadow-[0_10px_30px_rgba(255,215,0,0.2)] scale-[1.05] z-10' : 'bg-brand-900 border-white/5 text-brand-500 hover:bg-white/5 hover:text-white'}`}
+                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all duration-500 ${activeTab === item.id ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-[0_10px_30px_rgba(14,165,233,0.2)] scale-[1.05] z-10' : 'bg-brand-950/50 border-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}
                 >
-                    <div className={`p-4 rounded-2xl mb-4 ${activeTab === item.id ? 'bg-brand-950/10' : 'bg-brand-950/50 border border-white/5'}`}>
+                    <div className={`p-4 rounded-2xl mb-4 ${activeTab === item.id ? 'bg-brand-950/10' : 'bg-white/5 border border-white/10'}`}>
                         <item.icon size={28} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
                     </div>
                     <span className="font-black text-[10px] uppercase tracking-[0.25em] text-center leading-tight">{item.label}</span>
@@ -253,12 +253,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
            {currentUser.role === 'admin' && (
                <div className="mt-auto p-8 bg-brand-900/50 rounded-[3rem] border border-white/5 shadow-inner">
                     <div className="flex items-center gap-3 mb-6">
-                        <Database className="text-gold" size={20} />
+                        <Database className="text-lime" size={20} />
                         <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Security Override</span>
                     </div>
                     <button 
                         onClick={() => StorageService.triggerBackupDownload()}
-                        className="w-full py-5 bg-gold text-brand-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/10"
+                        className="w-full py-5 bg-brand-500 text-brand-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand-500/10"
                     >
                         <Download size={20} /> Synchronize All Data
                     </button>

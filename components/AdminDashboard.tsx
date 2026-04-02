@@ -200,7 +200,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
                 <h1 className="text-4xl font-black italic tracking-tighter text-white uppercase flex items-center gap-3">
-                    COMMAND <span className="text-gold">DECK</span>
+                    COMMAND <span className="text-brand-500">DECK</span>
                     <LayoutGrid size={24} className="text-brand-600" />
                 </h1>
                 <p className="text-brand-400 font-medium mt-1 uppercase text-[10px] tracking-widest">Real-time Academy Intelligence & Logistics</p>
@@ -209,7 +209,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex gap-3">
                 <button 
                     onClick={() => setShowSettingsModal(true)}
-                    className="bg-brand-800 text-white px-5 py-3 rounded-2xl border border-white/5 hover:border-gold/30 hover:bg-gold/10 hover:text-gold transition-all shadow-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"
+                    className="bg-brand-950 text-white px-5 py-3 rounded-2xl border border-white/5 hover:border-brand-500/30 hover:bg-brand-500/10 hover:text-brand-500 transition-all shadow-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"
                 >
                     <Palette size={16} />
                     BRANDING TOOLKIT
@@ -226,7 +226,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
                 { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-white', unit: 'ATHLETES', accent: 'bg-blue-500' },
-                { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-gold', unit: 'SEASON', accent: 'bg-gold' },
+                { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-brand-500', unit: 'SEASON', accent: 'bg-brand-500' },
                 { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-cyan-400', unit: 'DAILY', accent: 'bg-cyan-400' },
                 { label: 'ACTIVE CAMPAIGN', val: matches.length, icon: Target, color: 'text-red-500', unit: 'RECORDED', accent: 'bg-red-500' },
             ].map((hud, i) => (
@@ -326,10 +326,10 @@ export const AdminDashboard: React.FC = () => {
             {/* Sidebar Col: AI & Tools */}
             <div className="lg:col-span-4 space-y-8">
                 {/* AI Intelligence Hub */}
-                <section className="bg-brand-900 rounded-[2.5rem] border border-gold/20 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
+                <section className="bg-brand-950/50 rounded-[2.5rem] border border-brand-500/20 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
                     <div className="absolute -top-12 -right-12 w-48 h-48 bg-gold/5 blur-[80px] rounded-full" />
                     <div className="flex items-center gap-3 mb-6 relative">
-                        <div className="p-2.5 bg-gold/10 text-gold rounded-2xl shadow-lg shadow-gold/10 border border-gold/20">
+                        <div className="p-2.5 bg-brand-500/10 text-brand-500 rounded-2xl shadow-lg shadow-brand-500/10 border border-brand-500/20">
                             <Brain size={20} />
                         </div>
                         <div>
@@ -357,7 +357,7 @@ export const AdminDashboard: React.FC = () => {
 
                     <button 
                          onClick={handleAiAnalysis} disabled={isAnalyzing}
-                         className="w-full py-4 bg-gold text-brand-950 font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl shadow-gold/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                         className="w-full py-4 bg-brand-500 text-brand-950 font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                     >
                         <Zap size={16} fill="currentColor" />
                         {aiReport ? 'REFRESH INTEL' : 'EXECUTE ANALYSIS'}

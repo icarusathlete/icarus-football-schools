@@ -40,9 +40,9 @@ export const PerformanceHUD: React.FC = () => {
             
             <div className="flex items-center gap-2 px-1">
                 {isSyncing ? (
-                    <RefreshCw size={12} className="text-gold animate-spin" />
+                    <RefreshCw size={12} className="text-brand-500 animate-spin" />
                 ) : (
-                    <Zap size={12} className={isOnline ? 'text-gold' : 'text-brand-800'} />
+                    <Zap size={12} className={isOnline ? 'text-lime' : 'text-brand-800'} />
                 )}
                 <span className="text-[9px] font-black text-brand-600 uppercase tracking-widest">
                     {isSyncing ? 'SYNCING...' : 'LIVE'}

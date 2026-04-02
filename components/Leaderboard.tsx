@@ -138,14 +138,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                 <div className="absolute top-0 right-0 p-8 opacity-5"><Medal size={120} /></div>
                 <div className="relative z-10">
                     <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
-                        ELITE <span className="text-gold">RANKINGS</span>
+                        ELITE <span className="text-brand-500">RANKINGS</span>
                     </h2>
                     <p className="text-brand-400 font-medium uppercase text-[10px] tracking-widest mt-1">Official performance leaderboard • {monthName}</p>
                 </div>
                 
                 <div className="flex flex-wrap gap-3 relative z-10">
                     <div className="flex items-center gap-3 bg-brand-950 px-4 py-2 rounded-2xl border border-white/5">
-                        <Calendar size={16} className="text-gold" />
+                        <Calendar size={16} className="text-brand-500" />
                         <input 
                             type="month" value={month} onChange={(e) => setMonth(e.target.value)}
                             className="bg-transparent text-white font-black text-xs outline-none cursor-pointer uppercase"
@@ -153,7 +153,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                     </div>
                     <button 
                         onClick={exportToPDF} disabled={isExporting}
-                        className="bg-gold text-brand-950 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/10"
+                        className="bg-brand-500 text-brand-950 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-500/10"
                     >
                         {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
                         GENERATE REPORT
@@ -183,31 +183,31 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                 </div>
                             )}
 
-                            {/* Gold - P1 */}
+                            {/* Champion - P1 */}
                             {topThree[0] && (
-                                <div onClick={() => setViewingPlayer(topThree[0])} className="bg-brand-800 p-10 rounded-[3rem] border-2 border-gold/40 flex flex-col items-center group cursor-pointer hover:scale-[1.02] transition-all shadow-[0_0_50px_rgba(251,191,36,0.15)] order-1 md:order-2 h-[380px] relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-6 opacity-10"><Crown size={40} className="text-gold" /></div>
-                                    <div className="w-28 h-28 bg-brand-950 rounded-[2.5rem] border-2 border-gold flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform">
+                                <div onClick={() => setViewingPlayer(topThree[0])} className="bg-brand-800 p-10 rounded-[3rem] border-2 border-brand-500/40 flex flex-col items-center group cursor-pointer hover:scale-[1.02] transition-all shadow-[0_0_50px_rgba(14,165,233,0.15)] order-1 md:order-2 h-[380px] relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-6 opacity-10"><Crown size={40} className="text-brand-500" /></div>
+                                    <div className="w-28 h-28 bg-brand-950 rounded-[2.5rem] border-2 border-brand-500 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform">
                                         <img src={topThree[0].photoUrl} className="w-full h-full object-cover rounded-[2.5rem]" />
-                                        <div className="absolute -top-3 -right-3 w-10 h-10 bg-gold rounded-full flex items-center justify-center font-black text-brand-950 text-xs border-4 border-brand-800">1</div>
+                                        <div className="absolute -top-3 -right-3 w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center font-black text-brand-950 text-xs border-4 border-brand-800">1</div>
                                     </div>
                                     <h3 className="text-2xl font-black text-white italic truncate w-full text-center">{topThree[0].fullName}</h3>
                                     
                                     {(role === 'admin' || role === 'coach') && (
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); setPotmAction({ playerId: topThree[0].id, playerName: topThree[0].fullName, month, monthName }); setPotmModalOpen(true); }}
-                                            className="mt-3 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-gold/20 hover:bg-gold hover:text-brand-950 transition-all"
+                                            className="mt-3 bg-brand-500/10 text-brand-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-brand-500/20 hover:bg-brand-500 hover:text-brand-950 transition-all"
                                         >
                                             {potmData?.playerId === topThree[0].id ? 'AWARDEDPOTM' : 'AWARD POTM'}
                                         </button>
                                     )}
 
-                                    {potmData?.playerId === topThree[0].id && <div className="mt-2 flex items-center gap-1 text-[8px] font-black bg-gold/20 text-gold px-3 py-1 rounded-full border border-gold/30"><Sparkles size={8} /> CHAMPION STATUS</div>}
+                                    {potmData?.playerId === topThree[0].id && <div className="mt-2 flex items-center gap-1 text-[8px] font-black bg-lime/20 text-lime px-3 py-1 rounded-full border border-lime/30"><Sparkles size={8} /> CHAMPION STATUS</div>}
                                     
                                     <div className="grid grid-cols-3 gap-6 w-full pt-8 mt-auto border-t border-white/5">
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">GOL</p><p className="text-2xl font-black text-white">{topThree[0].goals}</p></div>
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">RTG</p><p className="text-2xl font-black text-white">{topThree[0].avgRating}</p></div>
-                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-2xl font-black text-gold">{topThree[0].totalPoints}</p></div>
+                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-2xl font-black text-brand-500">{topThree[0].totalPoints}</p></div>
                                     </div>
                                 </div>
                             )}
@@ -250,11 +250,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                          {monthlyLeaderboard.map((p, idx) => (
                                              <tr key={p.id} onClick={() => setViewingPlayer(p)} className="group hover:bg-gold/5 transition-colors cursor-pointer">
                                                  <td className="px-8 py-4 text-center">
-                                                     <span className={`text-base font-black italic ${idx === 0 ? 'text-gold' : 'text-brand-500'}`}>{idx + 1}</span>
+                                                     <span className={`text-base font-black italic ${idx === 0 ? 'text-brand-500' : 'text-brand-400'}`}>{idx + 1}</span>
                                                  </td>
                                                  <td className="px-8 py-4">
                                                      <div className="flex items-center gap-4">
-                                                         <img src={p.photoUrl} className="w-10 h-10 rounded-xl bg-brand-950 object-cover border border-white/10 group-hover:border-gold/30" />
+                                                         <img src={p.photoUrl} className="w-10 h-10 rounded-xl bg-brand-950 object-cover border border-white/10 group-hover:border-brand-500/30" />
                                                          <div>
                                                              <p className="text-xs font-black text-white uppercase italic tracking-tight">{p.fullName}</p>
                                                              <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest">{p.position}</p>
@@ -270,7 +270,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                                     </div>
                                                  </td>
                                                  <td className="px-6 py-4 text-center font-black text-white">{p.avgRating}</td>
-                                                 <td className={`px-8 py-4 text-center font-black text-lg bg-brand-950/20 group-hover:bg-gold/10 ${idx === 0 ? 'text-gold' : 'text-white'}`}>
+                                                 <td className={`px-8 py-4 text-center font-black text-lg bg-brand-950/20 group-hover:bg-brand-500/10 ${idx === 0 ? 'text-brand-500' : 'text-white'}`}>
                                                      {p.totalPoints}
                                                  </td>
                                              </tr>
@@ -296,8 +296,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                     onClick={() => setViewingPlayer(null)}
                 >
                     <div className="relative cursor-default" onClick={(e) => e.stopPropagation()}>
-                        <div className="absolute inset-0 bg-gold/10 rounded-[3rem] blur-3xl opacity-50 animate-pulse"></div>
-                        <div className="relative w-80 h-[30rem] rounded-t-[2.5rem] rounded-b-[3.5rem] bg-brand-900 border-[3px] border-gold/40 shadow-2xl overflow-hidden">
+                        <div className="absolute inset-0 bg-brand-500/10 rounded-[3rem] blur-3xl opacity-50 animate-pulse"></div>
+                        <div className="relative w-80 h-[30rem] rounded-t-[2.5rem] rounded-b-[3.5rem] bg-brand-900 border-[3px] border-brand-500/40 shadow-2xl overflow-hidden">
                              {/* Card Art */}
                              <div className="absolute inset-0 bg-[linear-gradient(135deg,_#0a0f20_0%,_#050814_100%)]"></div>
                              <div className="absolute top-0 right-0 p-8 opacity-5"><Shield size={200} /></div>
@@ -305,11 +305,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                              
                              <div className="relative z-10 p-8 flex items-start gap-4">
                                 <div className="flex flex-col items-center">
-                                    <span className="text-5xl font-black text-gold italic leading-none">{Math.min(99, Math.round(75 + (viewingPlayer.avgRating - 6) * 5))}</span>
+                                    <span className="text-5xl font-black text-brand-500 italic leading-none">{Math.min(99, Math.round(75 + (viewingPlayer.avgRating - 6) * 5))}</span>
                                     <span className="text-[10px] font-black text-white/50 uppercase mt-2">{viewingPlayer.position}</span>
-                                    <div className="w-6 h-0.5 bg-gold/50 my-3" />
+                                    <div className="w-6 h-0.5 bg-brand-500/50 my-3" />
                                     <div className="w-8 h-8 opacity-80">
-                                        {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain" /> : <Shield className="w-full h-full text-gold" />}
+                                        {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain" /> : <Shield className="w-full h-full text-brand-500" />}
                                     </div>
                                 </div>
                                 <img 
@@ -321,14 +321,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
 
                              <div className="relative z-10 mt-24 text-center px-6">
                                 <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter truncate">{viewingPlayer.fullName}</h2>
-                                <div className="w-1/2 mx-auto h-0.5 bg-gradient-to-r from-transparent via-gold/50 to-transparent mt-2" />
+                                <div className="w-1/2 mx-auto h-0.5 bg-gradient-to-r from-transparent via-brand-500/50 to-transparent mt-2" />
                              </div>
 
                              <div className="relative z-10 grid grid-cols-2 gap-4 px-8 mt-8 text-center bg-brand-950/50 mx-6 py-4 rounded-3xl border border-white/5 font-mono">
                                 <div><p className="text-[8px] text-brand-500 uppercase">MAT</p><p className="text-lg font-black text-white">{viewingPlayer.matchCount}</p></div>
                                 <div><p className="text-[8px] text-brand-500 uppercase">RTG</p><p className="text-lg font-black text-white">{viewingPlayer.avgRating}</p></div>
                                 <div><p className="text-[8px] text-brand-500 uppercase">GOL</p><p className="text-lg font-black text-white">{viewingPlayer.goals}</p></div>
-                                <div><p className="text-[8px] text-brand-500 uppercase">PTS</p><p className="text-lg font-black text-gold">{viewingPlayer.totalPoints}</p></div>
+                                <div><p className="text-[8px] text-brand-500 uppercase">PTS</p><p className="text-lg font-black text-brand-500">{viewingPlayer.totalPoints}</p></div>
                              </div>
 
                              <button 

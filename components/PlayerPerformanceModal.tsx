@@ -58,7 +58,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
         <div className="bg-brand-800 px-8 py-6 flex justify-between items-center relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-3xl -z-10 rounded-full" />
            <div className="flex items-center gap-6">
-              <img src={player.photoUrl} className="w-16 h-16 rounded-full border-2 border-gold shadow-lg object-cover" />
+              <img src={player.photoUrl} className="w-16 h-16 rounded-full border-2 border-brand-500 shadow-lg object-cover" />
               <div>
                   <h3 className="font-bold text-2xl text-white tracking-tight">{player.fullName}</h3>
                   <div className="flex gap-2 items-center mt-1">

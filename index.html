@@ -20,9 +20,9 @@
 
     <style id="brand-styles">
       :root {
-        --brand-primary: #fbbf24; /* Electric Gold */
-        --brand-secondary: #0f172a; /* Deep Navy */
-        --brand-accent: #1e293b;
+        --brand-primary: #0ea5e9; /* Sky Blue */
+        --brand-secondary: #030712; /* Cosmic Deep Navy */
+        --brand-accent: #bef264; /* Lime Punch */
         --brand-text: #f8fafc;
       }
       body { 
@@ -40,8 +40,8 @@
       }
       .premium-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.6);
-        border-color: rgba(251, 191, 36, 0.3); /* Gold glow on hover */
+        box-shadow: 0 15px 35px -5px rgba(14, 165, 233, 0.2); /* Sky Blue glow */
+        border-color: rgba(14, 165, 233, 0.4); 
       }
       .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
       .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -89,21 +89,21 @@
           extend: {
             colors: {
               brand: {
-                 50: '#f8fafc',
-                 100: '#f1f5f9',
-                 200: '#e2e8f0',
-                 300: '#cbd5e1',
-                 400: '#94a3b8',
+                 50: '#f0f9ff',
+                 100: '#e0f2fe',
+                 200: '#bae6fd',
+                 300: '#7dd3fc',
+                 400: '#38bdf8',
                  500: 'var(--brand-primary)',
-                 600: '#475569',
-                 700: '#334155',
-                 800: '#1e293b',
+                 600: '#0284c7',
+                 700: '#0369a1',
+                 800: '#075985',
                  900: 'var(--brand-secondary)',
                  950: '#020617',
               },
-              gold: {
-                DEFAULT: '#fbbf24',
-                glow: 'rgba(251, 191, 36, 0.5)'
+              lime: {
+                DEFAULT: '#bef264',
+                glow: 'rgba(190, 242, 100, 0.5)'
               }
             },
             fontFamily: {

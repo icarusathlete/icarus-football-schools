@@ -246,14 +246,14 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
         <div className="absolute top-0 right-0 p-8 opacity-5"><Megaphone size={120} className="text-white" /></div>
         <div className="relative z-10">
           <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-             INTELLIGENCE <span className="text-gold">BULLETINS</span>
+             INTELLIGENCE <span className="text-lime">BULLETINS</span>
           </h2>
-          <p className="text-brand-400 font-medium uppercase text-[10px] tracking-widest mt-1">Official Directives • Tactical Briefings • Sector Updates</p>
+          <p className="text-white/40 font-black uppercase text-[10px] tracking-widest mt-1">Official Directives • Tactical Briefings • Sector Updates</p>
         </div>
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-3 bg-gold text-brand-950 px-8 py-3.5 rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-gold/20 active:scale-95 z-10"
+            className="flex items-center gap-3 bg-brand-500 text-brand-950 px-8 py-3.5 rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-brand-500/20 active:scale-95 z-10"
           >
             <Plus size={20} />
             <span className="font-black text-[10px] uppercase tracking-[0.2em]">Broadcast Directive</span>
@@ -265,8 +265,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-md animate-in fade-in duration-300">
               <div className="bg-brand-900 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white/10">
                   <div className="px-10 py-6 border-b border-white/5 flex justify-between items-center relative bg-brand-950/50">
-                      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-30" />
-                      <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">Draft <span className="text-gold">Intelligence Bulletin</span></h3>
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
+                      <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">Draft <span className="text-brand-500">Intelligence Bulletin</span></h3>
                       <button onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={20} /></button>
                   </div>
                   

@@ -177,9 +177,9 @@ export const PlayerManager: React.FC = () => {
         <div className="absolute top-0 right-0 p-8 opacity-5"><Users size={120} className="text-white" /></div>
         <div className="relative z-10">
           <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-             SQUAD <span className="text-gold">INTELLIGENCE</span>
+             SQUAD <span className="text-brand-500">INTELLIGENCE</span>
           </h2>
-          <p className="text-brand-400 font-medium uppercase text-[10px] tracking-widest mt-1">Official Roster • Personnel Lifecycle Management</p>
+          <p className="text-white/40 font-black uppercase text-[10px] tracking-widest mt-1">Official Roster • Personnel Lifecycle Management</p>
         </div>
         
         {/* Tab Switcher */}
@@ -188,7 +188,7 @@ export const PlayerManager: React.FC = () => {
                 onClick={() => setActiveTab('players')}
                 className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                     activeTab === 'players' 
-                    ? 'bg-gold text-brand-950 shadow-lg shadow-gold/20' 
+                    ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' 
                     : 'text-brand-500 hover:text-white'
                 }`}
             >
@@ -198,7 +198,7 @@ export const PlayerManager: React.FC = () => {
                 onClick={() => setActiveTab('coaches')}
                 className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                     activeTab === 'coaches' 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                    ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' 
                     : 'text-brand-500 hover:text-white'
                 }`}
             >

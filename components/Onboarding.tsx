@@ -91,7 +91,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
         {/* Top Progress Bar */}
         <div className="absolute top-0 left-0 right-0 flex h-1">
             {[1,2,3].map(i => (
-                <div key={i} className={`flex-1 transition-all duration-500 ${step >= i ? 'bg-gold' : 'bg-white/10'}`} />
+                <div key={i} className={`flex-1 transition-all duration-500 ${step >= i ? 'bg-brand-500' : 'bg-white/10'}`} />
             ))}
         </div>
 
@@ -99,7 +99,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
         {step === 1 && (
           <div className="animate-slide-up space-y-8">
              <div className="text-center">
-               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Initialize <span className="text-gold">Access</span></h2>
+               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Initialize <span className="text-brand-500">Access</span></h2>
                <p className="text-brand-400 font-medium">Select your primary designation within the academy.</p>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,7 +111,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                <button onClick={() => handleRoleSelect('academy_director')} className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-gold hover:bg-gold/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
                  <div className="p-4 bg-white/5 rounded-xl group-hover:bg-gold/20 group-hover:text-gold w-fit transition-colors"><Users size={28} /></div>
                  <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Director</h3><p className="text-xs text-brand-500 font-medium leading-relaxed mt-1">High-level oversight including financial reporting, registration, and system logs.</p></div>
-                 {role === 'academy_director' && <div className="absolute top-4 right-4 text-gold"><Check size={20} /></div>}
+                 {role === 'academy_director' && <div className="absolute top-4 right-4 text-brand-500"><Check size={20} /></div>}
                </button>
              </div>
              <div className="flex justify-center pt-4">
@@ -124,8 +124,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
         {step === 2 && (
           <div className="animate-slide-up space-y-8">
              <div className="text-center">
-               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Deploy <span className="text-gold">Squad</span></h2>
-               <p className="text-brand-400 font-medium">Batch-import your athletes via CSV for immediate analysis.</p>
+               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Deploy <span className="text-brand-500">Squad</span></h2>
+               <p className="text-brand-400 font-medium tracking-tight">Batch-import your athletes via CSV for immediate analysis.</p>
              </div>
              
              <div className="border-2 border-dashed border-white/10 rounded-[2rem] p-16 text-center hover:border-gold/50 transition-all bg-white/5 relative group cursor-pointer">
