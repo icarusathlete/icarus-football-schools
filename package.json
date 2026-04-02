@@ -1,5 +1,5 @@
 {
-  "name": "icarus-football-schools",
+  "name": "academy-portal",
   "private": true,
   "version": "0.0.0",
   "type": "commonjs",
@@ -31,8 +31,8 @@
     "vite": "^6.2.0"
   },
   "build": {
-    "appId": "com.icarus.footballschools",
-    "productName": "Icarus App",
+    "appId": "com.academy.portal",
+    "productName": "Academy Portal",
     "directories": {
       "output": "dist-desktop"
     },

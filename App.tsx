@@ -26,10 +26,15 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<string>('schedule');
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [settings, setSettings] = useState(StorageService.getSettings());
 
   useEffect(() => {
     StorageService.init();
     
+    // Immediate settings loading
+    const handleSettingsChange = () => setSettings(StorageService.getSettings());
+    window.addEventListener('settingsChanged', handleSettingsChange);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Fetch user role from Firestore
@@ -54,7 +59,10 @@ const App: React.FC = () => {
       setIsAuthReady(true);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      window.removeEventListener('settingsChanged', handleSettingsChange);
+    };
   }, []);
 
   const handleLoginSuccess = (user: User) => {
@@ -97,7 +105,20 @@ const App: React.FC = () => {
   };
 
   if (!isAuthReady) {
-    return <div className="min-h-screen bg-icarus-900 flex items-center justify-center text-white font-mono">Loading...</div>;
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center text-white font-mono"
+        style={{ backgroundColor: 'var(--brand-secondary)' }}
+      >
+        <div className="flex flex-col items-center gap-4">
+           {settings.logoUrl && <img src={settings.logoUrl} className="w-16 h-16 object-contain" alt="Logo" />}
+           <div className="animate-pulse flex flex-col items-center">
+             <span className="uppercase tracking-[0.3em] font-black text-xs opacity-50 mb-2">Synchronizing</span>
+             <span className="font-bold text-lg">{settings.name}</span>
+           </div>
+        </div>
+      </div>
+    );
   }
 
   if (!currentUser) {

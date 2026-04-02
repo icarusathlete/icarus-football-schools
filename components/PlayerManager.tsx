@@ -33,8 +33,8 @@ export const PlayerManager: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    window.addEventListener('icarus_data_update', loadData);
-    return () => window.removeEventListener('icarus_data_update', loadData);
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, []);
 
   useEffect(() => {
@@ -171,7 +171,7 @@ export const PlayerManager: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-             SQUAD <span className="text-icarus-500">MANAGER</span>
+             SQUAD <span className="text-brand-500">MANAGER</span>
           </h2>
           <p className="text-gray-500 font-medium text-sm">Update profiles, assign batches, and manage roster.</p>
         </div>
@@ -182,7 +182,7 @@ export const PlayerManager: React.FC = () => {
                 onClick={() => setActiveTab('players')}
                 className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${
                     activeTab === 'players' 
-                    ? 'bg-icarus-900 text-white shadow-md' 
+                    ? 'bg-brand-900 text-white shadow-md' 
                     : 'text-gray-500 hover:text-gray-900'
                 }`}
             >
@@ -208,7 +208,7 @@ export const PlayerManager: React.FC = () => {
               <input 
                 type="text" 
                 placeholder={`Search ${activeTab === 'players' ? 'players' : 'coaches'}...`} 
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-icarus-500 transition-all text-sm font-medium"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-medium"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -217,7 +217,7 @@ export const PlayerManager: React.FC = () => {
               <div className="relative group min-w-[140px]">
                   <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <select 
-                    className="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-icarus-500 transition-all text-sm font-bold text-gray-600 appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-bold text-gray-600 appearance-none cursor-pointer"
                     value={filterVenue}
                     onChange={(e) => setFilterVenue(e.target.value)}
                   >
@@ -229,7 +229,7 @@ export const PlayerManager: React.FC = () => {
               <div className="relative group min-w-[140px]">
                   <Layers className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <select 
-                    className="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-icarus-500 transition-all text-sm font-bold text-gray-600 appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-bold text-gray-600 appearance-none cursor-pointer"
                     value={filterBatch}
                     onChange={(e) => setFilterBatch(e.target.value)}
                   >
@@ -295,7 +295,7 @@ export const PlayerManager: React.FC = () => {
                                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                           <button 
                                             onClick={() => openEditModal(p, 'player')}
-                                            className="p-2 bg-white border border-gray-200 text-gray-600 hover:text-icarus-600 hover:border-icarus-500 rounded-lg transition-all shadow-sm"
+                                            className="p-2 bg-white border border-gray-200 text-gray-600 hover:text-brand-600 hover:border-brand-500 rounded-lg transition-all shadow-sm"
                                             title="Edit Profile"
                                           >
                                               <Edit2 size={16} />
@@ -445,7 +445,7 @@ export const PlayerManager: React.FC = () => {
                               <input 
                                 required
                                 type="text" 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-bold"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-bold"
                                 value={editingPlayer.fullName}
                                 onChange={e => setEditingPlayer({...editingPlayer, fullName: e.target.value})}
                               />
@@ -455,7 +455,7 @@ export const PlayerManager: React.FC = () => {
                               <input 
                                 required
                                 type="date" 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 value={editingPlayer.dateOfBirth}
                                 onChange={e => setEditingPlayer({...editingPlayer, dateOfBirth: e.target.value})}
                               />
@@ -463,7 +463,7 @@ export const PlayerManager: React.FC = () => {
                           <div className="space-y-1.5">
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Position</label>
                               <select 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium bg-white"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
                                 value={editingPlayer.position}
                                 onChange={e => setEditingPlayer({...editingPlayer, position: e.target.value})}
                               >
@@ -476,7 +476,7 @@ export const PlayerManager: React.FC = () => {
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Contact Number</label>
                               <input 
                                 type="tel" 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 value={editingPlayer.contactNumber}
                                 onChange={e => setEditingPlayer({...editingPlayer, contactNumber: e.target.value})}
                               />
@@ -485,7 +485,7 @@ export const PlayerManager: React.FC = () => {
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Parent Name</label>
                               <input 
                                 type="text" 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 value={editingPlayer.parentName}
                                 onChange={e => setEditingPlayer({...editingPlayer, parentName: e.target.value})}
                               />
@@ -494,7 +494,7 @@ export const PlayerManager: React.FC = () => {
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Address</label>
                               <input 
                                 type="text" 
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 value={editingPlayer.address || ''}
                                 onChange={e => setEditingPlayer({...editingPlayer, address: e.target.value})}
                               />
@@ -506,7 +506,7 @@ export const PlayerManager: React.FC = () => {
                                   <div className="relative">
                                       <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                       <select 
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium bg-white"
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
                                         value={editingPlayer.venue || ''}
                                         onChange={e => setEditingPlayer({...editingPlayer, venue: e.target.value})}
                                       >
@@ -520,7 +520,7 @@ export const PlayerManager: React.FC = () => {
                                   <div className="relative">
                                       <Layers className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                       <select 
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium bg-white"
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
                                         value={editingPlayer.batch || ''}
                                         onChange={e => setEditingPlayer({...editingPlayer, batch: e.target.value})}
                                       >
@@ -543,7 +543,7 @@ export const PlayerManager: React.FC = () => {
                       </button>
                       <button 
                         onClick={savePlayerChanges}
-                        className="px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider flex items-center gap-2"
+                        className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider flex items-center gap-2"
                       >
                           <Save size={16} />
                           Save Changes

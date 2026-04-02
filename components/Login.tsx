@@ -80,13 +80,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-700" 
-             style={{ backgroundColor: settings.secondaryColor || '#020617' }}>
+             style={{ backgroundColor: settings.secondaryColor }}>
             
             {/* Background elements with theme primary color */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 rounded-full blur-3xl opacity-20" 
-                 style={{ backgroundColor: settings.primaryColor || '#0ea5e9' }} />
+                 style={{ backgroundColor: settings.primaryColor }} />
             <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 rounded-full blur-3xl opacity-10" 
-                 style={{ backgroundColor: settings.primaryColor || '#0ea5e9' }} />
+                 style={{ backgroundColor: settings.primaryColor }} />
 
             <div className="mb-8 text-center text-white relative z-10">
                 <div className="p-6 bg-white/10 backdrop-blur-xl rounded-[2.5rem] inline-block border border-white/20 mb-6 shadow-2xl animate-in zoom-in duration-500">
@@ -97,7 +97,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     )}
                 </div>
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase" 
-                    style={{ fontFamily: settings.fontFamily || 'Orbitron' }}>
+                    style={{ fontFamily: settings.fontFamily }}>
                     {settings.name.split(' ')[0]} <span className="font-normal opacity-70" style={{ color: settings.primaryColor }}>{settings.name.split(' ').slice(1).join(' ')}</span>
                 </h1>
                 <p className="text-white/40 uppercase tracking-[0.4em] text-[10px] font-bold mt-4">Football Management Portal</p>
@@ -120,8 +120,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         disabled={isLoading}
                         className="w-full text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center space-x-3 shadow-xl active:scale-95 italic disabled:opacity-70 disabled:cursor-not-allowed group"
                         style={{ 
-                            fontFamily: 'Orbitron',
-                            backgroundColor: settings.primaryColor || '#0ea5e9',
+                            fontFamily: settings.fontFamily,
+                            backgroundColor: settings.primaryColor,
                             boxShadow: `0 20px 25px -5px ${settings.primaryColor}33`
                         }}
                     >

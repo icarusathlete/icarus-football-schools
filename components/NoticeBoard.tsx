@@ -155,8 +155,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                     <Shield className="w-12 h-12 text-white" />
                                 )}
                                 <div>
-                                    <h1 className="text-xl font-black text-white italic leading-none" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0] || 'ICARUS'}</h1>
-                                    <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Football Schools</p>
+                                    <h1 className="text-xl font-black text-white italic leading-none" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0]}</h1>
+                                    <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">{settings.name.split(' ').slice(1).join(' ') || 'Portal'}</p>
                                 </div>
                           </div>
 
@@ -186,8 +186,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                           )}
                                       </div>
                                       <div>
-                                          <h1 className="text-4xl font-black text-white italic tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0] || 'ICARUS'}</h1>
-                                          <p className="text-cyan-400 font-bold uppercase tracking-[0.3em] text-sm">Official Announcement</p>
+                                          <h1 className="text-4xl font-black text-white italic tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0]}</h1>
+                                          <p className="text-brand-500 font-bold uppercase tracking-[0.3em] text-sm">Official Announcement</p>
                                       </div>
                                   </div>
                               </div>
@@ -219,8 +219,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <div className="flex justify-between items-end">
                                   <div>
                                       <h3 className="font-bold text-slate-900 text-lg mb-1">{settings.name}</h3>
-                                      <p className="text-gray-500 text-sm">Training Grounds & Academy HQ</p>
-                                      <p className="text-gray-500 text-sm mt-4">www.icarusfootball.com</p>
+                                      <p className="text-gray-500 text-sm">Official Academy Hub</p>
+                                      <p className="text-gray-500 text-sm mt-4">{settings.name.toLowerCase().replace(/\s+/g, '')}.com</p>
                                   </div>
                                   <div className="text-right">
                                       <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block">
@@ -245,14 +245,14 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-             OFFICIAL <span className="text-icarus-500">NOTICES</span>
+             OFFICIAL <span className="text-brand-500">NOTICES</span>
           </h2>
           <p className="text-gray-500 font-medium mt-2">Updates, schedules, and important team news.</p>
         </div>
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 bg-icarus-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-icarus-900/20 active:scale-95"
+            className="flex items-center gap-2 bg-brand-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-brand-900/20 active:scale-95"
           >
             <Plus size={20} />
             <span className="font-bold text-sm uppercase tracking-wider">New Post</span>
@@ -272,7 +272,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       <div className="space-y-1.5">
                           <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Title</label>
                           <input 
-                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-icarus-500 focus:ring-4 focus:ring-icarus-500/10 font-bold text-gray-800 transition-all" 
+                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 font-bold text-gray-800 transition-all" 
                             placeholder="e.g. Summer Camp Registration Open" 
                             value={newNotice.title} 
                             onChange={e => setNewNotice({...newNotice, title: e.target.value})} 
@@ -283,7 +283,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       <div className="space-y-1.5">
                           <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Message Body</label>
                           <textarea 
-                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-icarus-500 focus:ring-4 focus:ring-icarus-500/10 font-medium text-gray-600 transition-all h-32" 
+                            className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 font-medium text-gray-600 transition-all h-32" 
                             placeholder="Details about the announcement..." 
                             value={newNotice.content} 
                             onChange={e => setNewNotice({...newNotice, content: e.target.value})} 
@@ -296,7 +296,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cover Image (Poster)</label>
                               <div 
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-icarus-500 hover:bg-gray-50 transition-all h-32 relative overflow-hidden group"
+                                className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-gray-50 transition-all h-32 relative overflow-hidden group"
                               >
                                   {newNotice.imageUrl ? (
                                       <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -316,7 +316,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">QR Code (Optional)</label>
                                   <div 
                                     onClick={() => qrInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-xl p-2 flex items-center justify-center gap-3 cursor-pointer hover:border-icarus-500 hover:bg-gray-50 transition-all h-14 relative overflow-hidden"
+                                    className="border-2 border-dashed border-gray-300 rounded-xl p-2 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-gray-50 transition-all h-14 relative overflow-hidden"
                                   >
                                       {newNotice.qrCodeUrl ? (
                                           <div className="flex items-center gap-2 text-green-600 font-bold text-xs">
@@ -334,7 +334,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <div className="space-y-1.5">
                                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Priority</label>
                                   <select 
-                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-icarus-500 font-medium bg-white" 
+                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 font-medium bg-white" 
                                       value={newNotice.priority} 
                                       onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
                                   >
@@ -345,7 +345,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <div className="space-y-1.5">
                                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Signed By</label>
                                   <input 
-                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-icarus-500 font-medium" 
+                                      className="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 font-medium" 
                                       placeholder="e.g. Head Coach" 
                                       value={newNotice.author} 
                                       onChange={e => setNewNotice({...newNotice, author: e.target.value})} 
@@ -356,7 +356,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                       <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
                           <button type="button" onClick={() => setShowForm(false)} className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">Cancel</button>
-                          <button type="submit" className="px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all">Post Notice</button>
+                          <button type="submit" className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all">Post Notice</button>
                       </div>
                   </form>
               </div>
@@ -395,7 +395,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                   <div className="p-6 flex-1 flex flex-col">
                       <div className="mb-4">
-                          <h3 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-icarus-600 transition-colors">{notice.title}</h3>
+                          <h3 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-brand-600 transition-colors">{notice.title}</h3>
                           <div className="flex items-center gap-2 text-xs text-gray-400 font-bold uppercase tracking-wider">
                               <User size={12} /> {notice.author}
                           </div>
@@ -412,10 +412,10 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                             className="flex-1 py-3 bg-gray-50 text-gray-700 font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 group/btn"
                           >
                               {downloadingId === notice.id ? (
-                                  <Loader2 size={16} className="animate-spin text-icarus-600" />
+                                  <Loader2 size={16} className="animate-spin text-brand-600" />
                               ) : (
                                   <>
-                                    <Download size={16} className="group-hover/btn:text-icarus-600 transition-colors" />
+                                    <Download size={16} className="group-hover/btn:text-brand-600 transition-colors" />
                                     Brochure
                                   </>
                               )}

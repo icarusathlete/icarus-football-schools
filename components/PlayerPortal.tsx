@@ -261,7 +261,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     const handleAnalyzeMatch = async () => {
         if (!lastMatch || !player) return;
         setIsAnalyzingMatch(true);
-        const analysis = await GeminiService.analyzeMatchPerformance(player, lastMatch);
+        const analysis = await GeminiService.analyzeMatchPerformance(player, lastMatch, settings.name);
         setMatchAnalysis(analysis);
         setIsAnalyzingMatch(false);
     };
@@ -473,14 +473,14 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                             </div>
 
                             <div className="mb-16">
-                                <p className="font-bold text-base text-black leading-relaxed">Thank You For Choosing Icarus Football Schools. We look forward to helping you achieve your football goals!</p>
+                                <p className="font-bold text-base text-black leading-relaxed">Thank You For Choosing {settings.name}. We look forward to helping you achieve your football goals!</p>
                             </div>
 
                             {/* SIGNATURE */}
                             <div className="text-base font-bold text-black">
                                 <p>Authorized By:</p>
                                 <p>Abhishek Begal</p>
-                                <p>Icarus Football Schools</p>
+                                <p>{settings.name}</p>
                                 <div className="mt-4 w-64 border-b-2 border-black relative">
                                      <div className="h-16 absolute bottom-2 left-4">
                                          <span className="font-calendary text-5xl ml-4 opacity-70" style={{fontFamily: 'cursive'}}>AbhiB</span>
@@ -502,7 +502,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                 onClick={() => setViewMode('overview')}
                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
                     viewMode === 'overview' 
-                    ? 'bg-icarus-900 text-white shadow-md' 
+                    ? 'bg-brand-900 text-white shadow-md' 
                     : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -512,7 +512,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                 onClick={() => setViewMode('scout')}
                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
                     viewMode === 'scout' 
-                    ? 'bg-icarus-900 text-white shadow-md' 
+                    ? 'bg-brand-900 text-white shadow-md' 
                     : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -615,7 +615,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                         {/* ... (Existing Schedule Section Code) ... */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <div className="p-2 bg-icarus-50 rounded-lg text-icarus-600">
+                                <div className="p-2 bg-brand-50 rounded-lg text-brand-600">
                                     <Calendar size={20} />
                                 </div>
                                 Upcoming Schedule
@@ -662,7 +662,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                                         <span className="text-2xl leading-none font-black">{new Date(event.date).getDate()}</span>
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-gray-900 text-lg group-hover:text-icarus-700 transition-colors">{event.title}</div>
+                                                        <div className="font-bold text-gray-900 text-lg group-hover:text-brand-700 transition-colors">{event.title}</div>
                                                         <div className="text-xs text-gray-500 flex flex-wrap items-center gap-3 mt-1.5 font-medium">
                                                             <span className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
                                                                 <Clock size={12} className={
@@ -738,7 +738,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                                     </div>
                                                     <div className="flex gap-6 text-center">
                                                         <div><div className="text-2xl font-black text-gray-800">{match.scoreFor}-{match.scoreAgainst}</div><div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Score</div></div>
-                                                        <div><div className="text-2xl font-black text-icarus-600">{match.myStats?.rating || '-'}</div><div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">My Rating</div></div>
+                                                        <div><div className="text-2xl font-black text-brand-600">{match.myStats?.rating || '-'}</div><div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">My Rating</div></div>
                                                     </div>
                                                 </div>
                                                 {embedUrl ? (<div className="aspect-video w-full bg-black"><iframe src={embedUrl} className="w-full h-full" title="Match Highlights" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /></div>) : (<div className="p-8 text-center bg-gray-50 border-t border-gray-100"><div className="inline-flex items-center gap-2 text-gray-400 text-sm font-medium"><PlayCircle size={16} /> No highlights uploaded for this match</div></div>)}

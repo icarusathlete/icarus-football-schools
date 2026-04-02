@@ -60,11 +60,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     const handleDataUpdate = () => setLastSaved(new Date());
     
     window.addEventListener('settingsChanged', handleSettingsChange);
-    window.addEventListener('icarus_data_update', handleDataUpdate);
+    window.addEventListener('academy_data_update', handleDataUpdate);
     
     return () => {
         window.removeEventListener('settingsChanged', handleSettingsChange);
-        window.removeEventListener('icarus_data_update', handleDataUpdate);
+        window.removeEventListener('academy_data_update', handleDataUpdate);
     };
   }, []);
 
@@ -115,12 +115,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             {settings.logoUrl ? (
               <img src={settings.logoUrl} className="w-10 h-10 object-contain" alt="Logo" />
             ) : (
-              <Trophy className="w-8 h-8 text-icarus-600" />
+              <Trophy className="w-8 h-8 opacity-20" style={{ color: settings.primaryColor }} />
             )}
           </div>
           <div className="overflow-hidden">
             <h1 className="text-sm font-black tracking-tight leading-tight uppercase" 
-                style={{ fontFamily: settings.fontFamily || 'Orbitron', color: 'white' }}>
+                style={{ fontFamily: settings.fontFamily, color: 'white' }}>
               {settings.name}
             </h1>
             <p className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{currentUser.role} Portal</p>
@@ -169,7 +169,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 )}
             </div>
             <span className="font-black text-gray-900 tracking-tighter uppercase text-sm truncate max-w-[180px]" 
-                  style={{ fontFamily: settings.fontFamily || 'Orbitron' }}>
+                  style={{ fontFamily: settings.fontFamily }}>
                 {settings.name}
             </span>
          </div>

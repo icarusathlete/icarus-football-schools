@@ -72,22 +72,22 @@ const POTM_KEY = 'icarus_potm_map';
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const notifyDataChange = () => {
-  window.dispatchEvent(new Event('icarus_data_update'));
+  window.dispatchEvent(new Event('academy_data_update'));
 };
 
 const generateSequentialMemberId = (existingPlayers: Player[]): string => {
-  if (existingPlayers.length === 0) return 'ICR-0001';
+  if (existingPlayers.length === 0) return 'MBR-0001';
   
   const ids = existingPlayers
     .map(p => {
-      const match = p.memberId?.match(/ICR-(\d+)/);
+      const match = p.memberId?.match(/MBR-(\d+)/);
       return match ? parseInt(match[1], 10) : 0;
     })
     .filter(id => !isNaN(id));
 
   const maxId = ids.length > 0 ? Math.max(...ids) : 0;
   const nextId = maxId + 1;
-  return `ICR-${nextId.toString().padStart(4, '0')}`;
+  return `MBR-${nextId.toString().padStart(4, '0')}`;
 };
 
 let syncUnsubscribers: (() => void)[] = [];
@@ -554,12 +554,19 @@ export const StorageService = {
   
   getSettings: (): AcademySettings => {
     const data = localStorage.getItem(SETTINGS_KEY);
-    return data ? JSON.parse(data) : {
-      name: 'ICARUS FOOTBALL SCHOOLS',
+    if (data) {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        console.error("Failed to parse local settings", e);
+      }
+    }
+    return {
+      name: 'ACADEMY PORTAL',
       logoUrl: '',
-      primaryColor: '#0ea5e9',
-      secondaryColor: '#0c4a6e',
-      fontFamily: 'Orbitron'
+      primaryColor: '#64748b', // Neutral slate
+      secondaryColor: '#0f172a', // Dark slate
+      fontFamily: 'Inter'
     };
   },
   

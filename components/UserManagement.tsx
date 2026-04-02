@@ -26,8 +26,8 @@ export const UserManagement: React.FC = () => {
 
     useEffect(() => {
         loadData();
-        window.addEventListener('icarus_data_update', loadData);
-        return () => window.removeEventListener('icarus_data_update', loadData);
+        window.addEventListener('academy_data_update', loadData);
+        return () => window.removeEventListener('academy_data_update', loadData);
     }, []);
 
     const handleEditClick = (user: User) => {
@@ -109,7 +109,7 @@ export const UserManagement: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-icarus-50 text-icarus-600 rounded-lg">
+                        <div className="p-2 bg-brand-50 text-brand-600 rounded-lg">
                             <Users size={20} />
                         </div>
                         <h3 className="font-bold text-gray-800">System Users</h3>
@@ -134,11 +134,11 @@ export const UserManagement: React.FC = () => {
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h4 className="font-bold text-gray-900">{user.username}</h4>
-                                            {user.role === 'admin' && <Shield size={14} className="text-icarus-500" />}
+                                            {user.role === 'admin' && <Shield size={14} className="text-brand-500" />}
                                         </div>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                                                user.role === 'admin' ? 'bg-icarus-100 text-icarus-700' :
+                                                user.role === 'admin' ? 'bg-brand-100 text-brand-700' :
                                                 user.role === 'coach' ? 'bg-blue-100 text-blue-700' :
                                                 'bg-gray-100 text-gray-600'
                                             }`}>
@@ -224,7 +224,7 @@ export const UserManagement: React.FC = () => {
                                                             onClick={() => toggleAssignment('venue', v.name)}
                                                             className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                                                                 editForm.assignedVenues?.includes(v.name)
-                                                                ? 'bg-icarus-900 text-white border-icarus-900'
+                                                                ? 'bg-brand-900 text-white border-brand-900'
                                                                 : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                                                             }`}
                                                         >

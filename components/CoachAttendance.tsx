@@ -57,8 +57,8 @@ export const CoachAttendance: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    window.addEventListener('icarus_data_update', loadData);
-    return () => window.removeEventListener('icarus_data_update', loadData);
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, [date]);
 
   const toggleStatus = (playerId: string) => {
@@ -107,7 +107,7 @@ export const CoachAttendance: React.FC = () => {
       {/* Breadcrumb / Title */}
       <div>
         <h1 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-            SESSION <span className="text-icarus-500">ATTENDANCE</span>
+            SESSION <span className="text-brand-500">ATTENDANCE</span>
         </h1>
         <div className="flex items-center gap-2 text-sm text-gray-400 font-medium mt-1">
             <span>Dashboard</span>
@@ -138,7 +138,7 @@ export const CoachAttendance: React.FC = () => {
         <div className="flex gap-3 w-full md:w-auto">
             <button 
                 onClick={saveAttendance}
-                className={`flex-1 md:flex-none flex items-center justify-center px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg active:scale-95 ${saved ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-icarus-900 text-white hover:bg-black shadow-icarus-900/20'}`}
+                className={`flex-1 md:flex-none flex items-center justify-center px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg active:scale-95 ${saved ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-brand-900 text-white hover:bg-black shadow-brand-900/20'}`}
             >
                 {saved ? <CheckCircle className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                 {saved ? 'Saved' : 'Save Roll'}
@@ -188,7 +188,7 @@ export const CoachAttendance: React.FC = () => {
       <div className="space-y-4">
           <div className="flex items-center justify-between">
               <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                  <Users size={20} className="text-icarus-500" />
+                  <Users size={20} className="text-brand-500" />
                   Player Roster
               </h3>
               <div className="flex gap-2">

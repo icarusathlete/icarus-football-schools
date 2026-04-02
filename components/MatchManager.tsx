@@ -15,6 +15,7 @@ export const MatchManager: React.FC = () => {
     const [showJsonImport, setShowJsonImport] = useState(false);
     const [jsonInput, setJsonInput] = useState('');
     const [importStatus, setImportStatus] = useState<{msg: string, type: 'success' | 'error' | 'neutral'}>({ msg: '', type: 'neutral' });
+    const [settings, setSettings] = useState(StorageService.getSettings());
 
     // New Match Form State
     const [newMatch, setNewMatch] = useState({
@@ -50,8 +51,15 @@ export const MatchManager: React.FC = () => {
 
     useEffect(() => {
         loadData();
-        window.addEventListener('icarus_data_update', loadData);
-        return () => window.removeEventListener('icarus_data_update', loadData);
+        
+        const handleSettingsChange = () => setSettings(StorageService.getSettings());
+        window.addEventListener('settingsChanged', handleSettingsChange);
+        window.addEventListener('academy_data_update', loadData);
+        
+        return () => {
+            window.removeEventListener('settingsChanged', handleSettingsChange);
+            window.removeEventListener('academy_data_update', loadData);
+        };
     }, []);
 
     const handleScheduleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -176,14 +184,15 @@ export const MatchManager: React.FC = () => {
             <div>
                 <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 mb-2">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                            MATCH <span className="text-icarus-500">CENTRE</span>
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: settings.fontFamily }}>
+                            {settings.name.split(' ')[0]} <span style={{ color: settings.primaryColor }}>{settings.name.split(' ').slice(1).join(' ')}</span>
                         </h1>
                         <p className="text-gray-500 text-sm font-medium">Results, statistics and match reports</p>
                     </div>
                     <button 
                         onClick={() => setShowForm(!showForm)}
-                        className="bg-icarus-900 text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-black shadow-lg shadow-icarus-900/20 active:scale-95 transition-all font-bold text-sm uppercase tracking-wider"
+                        className="text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg active:scale-95 transition-all font-bold text-sm uppercase tracking-wider"
+                        style={{ backgroundColor: settings.primaryColor }}
                     >
                         <PlusCircle size={18} />
                         <span>Log Result</span>
@@ -223,7 +232,7 @@ export const MatchManager: React.FC = () => {
                             {/* Scoreline */}
                             <div className="flex-1 flex items-center justify-center gap-6 w-full py-4 md:py-0 border-y md:border-y-0 border-gray-50 bg-gray-50/50 md:bg-transparent rounded-xl md:rounded-none">
                                 <div className="text-right flex-1">
-                                    <h3 className="font-black text-gray-800 text-lg md:text-xl uppercase tracking-tight">Icarus FS</h3>
+                                    <h3 className="font-black text-gray-800 text-lg md:text-xl uppercase tracking-tight">{settings.name}</h3>
                                 </div>
                                 <div className="px-4 py-2 bg-gray-900 text-white rounded-lg font-mono font-bold text-xl md:text-2xl shadow-lg">
                                     {m.scoreFor} - {m.scoreAgainst}
@@ -326,7 +335,7 @@ export const MatchManager: React.FC = () => {
                                         <select 
                                             value={newMatch.scheduledEventId} 
                                             onChange={handleScheduleSelect} 
-                                            className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none font-medium text-sm bg-white"
+                                            className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none font-medium text-sm bg-white"
                                         >
                                             <option value="">-- Manual Entry --</option>
                                             {scheduleEvents.map(ev => (
@@ -339,19 +348,19 @@ export const MatchManager: React.FC = () => {
 
                                     <div className="col-span-2 md:col-span-3">
                                         <label className="text-xs font-bold text-gray-500 mb-1.5 block">Date</label>
-                                        <input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none font-medium text-sm" />
+                                        <input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none font-medium text-sm" />
                                     </div>
                                     <div className="col-span-2 md:col-span-5">
                                         <label className="text-xs font-bold text-gray-500 mb-1.5 block">Opponent</label>
-                                        <input type="text" placeholder="e.g. Titans FC" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none font-medium text-sm" />
+                                        <input type="text" placeholder="e.g. Titans FC" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none font-medium text-sm" />
                                     </div>
                                     <div className="col-span-1 md:col-span-2">
                                         <label className="text-xs font-bold text-gray-500 mb-1.5 block">For</label>
-                                        <input type="number" value={newMatch.scoreFor} onChange={e => setNewMatch({...newMatch, scoreFor: parseInt(e.target.value)})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none font-black text-center text-lg" />
+                                        <input type="number" value={newMatch.scoreFor} onChange={e => setNewMatch({...newMatch, scoreFor: parseInt(e.target.value)})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none font-black text-center text-lg" />
                                     </div>
                                     <div className="col-span-1 md:col-span-2">
                                         <label className="text-xs font-bold text-gray-500 mb-1.5 block">Against</label>
-                                        <input type="number" value={newMatch.scoreAgainst} onChange={e => setNewMatch({...newMatch, scoreAgainst: parseInt(e.target.value)})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none font-black text-center text-lg" />
+                                        <input type="number" value={newMatch.scoreAgainst} onChange={e => setNewMatch({...newMatch, scoreAgainst: parseInt(e.target.value)})} className="w-full border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none font-black text-center text-lg" />
                                     </div>
                                     
                                     <div className="col-span-2 md:col-span-12 pt-2 border-t border-gray-200 mt-2">
@@ -418,7 +427,7 @@ export const MatchManager: React.FC = () => {
                                     {/* JSON Import Toggle */}
                                     <button 
                                         onClick={() => setShowJsonImport(!showJsonImport)}
-                                        className="text-xs font-bold text-icarus-600 bg-icarus-50 px-3 py-1.5 rounded-lg hover:bg-icarus-100 transition-colors flex items-center gap-2"
+                                        className="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition-colors flex items-center gap-2"
                                     >
                                         <FileJson size={14} />
                                         Import from AI Analysis
@@ -427,13 +436,13 @@ export const MatchManager: React.FC = () => {
 
                                 {/* JSON Import Area */}
                                 {showJsonImport && (
-                                    <div className="mb-6 p-4 bg-gray-50 border-2 border-dashed border-icarus-200 rounded-xl animate-in slide-in-from-top-2">
+                                    <div className="mb-6 p-4 bg-gray-50 border-2 border-dashed border-brand-200 rounded-xl animate-in slide-in-from-top-2">
                                         <div className="flex justify-between items-start mb-2">
                                             <label className="text-xs font-bold text-gray-500 uppercase">Paste JSON Data</label>
                                             <button onClick={() => setShowJsonImport(false)} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
                                         </div>
                                         <textarea 
-                                            className="w-full h-32 p-3 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-icarus-500 outline-none bg-white"
+                                            className="w-full h-32 p-3 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none bg-white"
                                             placeholder='[ { "name": "Player Name", "goals": 1, "assists": 0, "rating": 8.5 }, ... ]'
                                             value={jsonInput}
                                             onChange={(e) => setJsonInput(e.target.value)}
@@ -444,7 +453,7 @@ export const MatchManager: React.FC = () => {
                                             </span>
                                             <button 
                                                 onClick={processJsonStats}
-                                                className="bg-icarus-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-black flex items-center gap-2"
+                                                className="bg-brand-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-black flex items-center gap-2"
                                             >
                                                 <UploadCloud size={14} /> Auto-Fill Stats
                                             </button>
@@ -456,7 +465,7 @@ export const MatchManager: React.FC = () => {
                                     {players.map(p => {
                                         const isStarting = starters.has(p.id);
                                         return (
-                                            <div key={p.id} className={`bg-white p-3 rounded-xl border flex items-center justify-between hover:border-icarus-500 transition-colors shadow-sm ${isStarting ? 'border-green-200 bg-green-50/20' : 'border-gray-200'}`}>
+                                            <div key={p.id} className={`bg-white p-3 rounded-xl border flex items-center justify-between hover:border-brand-500 transition-colors shadow-sm ${isStarting ? 'border-green-200 bg-green-50/20' : 'border-gray-200'}`}>
                                                 <div className="flex items-center gap-3 w-1/3">
                                                     <div className="relative">
                                                         <img src={p.photoUrl} className="w-8 h-8 rounded-full bg-gray-100 object-cover" />
@@ -477,7 +486,7 @@ export const MatchManager: React.FC = () => {
                                                     </div>
                                                     <div className="flex flex-col items-center">
                                                         <label className="text-[9px] text-gray-400 font-bold uppercase mb-0.5">Rtg</label>
-                                                        <input type="number" min="1" max="10" step="0.1" className="w-12 p-1 text-center text-sm font-bold border border-icarus-200 rounded bg-icarus-50 text-icarus-700" value={playerStats[p.id]?.rating} onChange={(e) => updateStat(p.id, 'rating', parseFloat(e.target.value))} />
+                                                        <input type="number" min="1" max="10" step="0.1" className="w-12 p-1 text-center text-sm font-bold border border-brand-200 rounded bg-brand-50 text-brand-700" value={playerStats[p.id]?.rating} onChange={(e) => updateStat(p.id, 'rating', parseFloat(e.target.value))} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -489,7 +498,7 @@ export const MatchManager: React.FC = () => {
 
                         <div className="p-6 border-t bg-gray-50 flex gap-3 justify-end">
                             <button onClick={() => setShowForm(false)} className="px-6 py-3 text-gray-600 hover:bg-gray-200 rounded-xl font-bold transition-colors text-sm">Cancel</button>
-                            <button onClick={handleSaveMatch} className="px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black flex items-center justify-center gap-2 transform active:scale-95 transition-all text-sm uppercase tracking-wider">
+                            <button onClick={handleSaveMatch} className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black flex items-center justify-center gap-2 transform active:scale-95 transition-all text-sm uppercase tracking-wider">
                                 <Save size={16} /> Save Record
                             </button>
                         </div>

@@ -81,7 +81,7 @@ const StopwatchTool: React.FC<{
              <button 
                 type="button"
                 onClick={applyTime}
-                className="w-full py-2 bg-icarus-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-black transition-colors"
+                className="w-full py-2 bg-brand-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-black transition-colors"
              >
                  Save Time
              </button>
@@ -187,8 +187,8 @@ export const EvaluationManager: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    window.addEventListener('icarus_data_update', loadData);
-    return () => window.removeEventListener('icarus_data_update', loadData);
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, []);
 
   // --- Draft Logic ---
@@ -267,7 +267,7 @@ export const EvaluationManager: React.FC = () => {
                 <input 
                     type="text" 
                     placeholder="Search roster..." 
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-icarus-500/10 focus:border-icarus-500 transition-all text-sm font-medium"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all text-sm font-medium"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -281,7 +281,7 @@ export const EvaluationManager: React.FC = () => {
                         <div 
                         key={p.id} 
                         onClick={() => handleSelectPlayer(p)}
-                        className="bg-white p-4 rounded-2xl border border-gray-100 hover:border-icarus-500 cursor-pointer transition-all shadow-sm hover:shadow-lg hover:-translate-y-1 flex items-center gap-4 group relative overflow-hidden"
+                        className="bg-white p-4 rounded-2xl border border-gray-100 hover:border-brand-500 cursor-pointer transition-all shadow-sm hover:shadow-lg hover:-translate-y-1 flex items-center gap-4 group relative overflow-hidden"
                         >
                         {hasDraft && <div className="absolute top-0 right-0 w-3 h-3 bg-yellow-400 rounded-bl-lg shadow-sm" title="Draft Saved"></div>}
                         
@@ -291,7 +291,7 @@ export const EvaluationManager: React.FC = () => {
                             className="w-14 h-14 rounded-full bg-gray-100 border object-cover group-hover:scale-105 transition-transform" 
                         />
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-gray-900 truncate group-hover:text-icarus-600 transition-colors">{p.fullName}</h3>
+                            <h3 className="font-bold text-gray-900 truncate group-hover:text-brand-600 transition-colors">{p.fullName}</h3>
                             <div className="flex items-center gap-2">
                                 <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">{p.memberId}</p>
                                 {hasDraft && <span className="text-[8px] font-bold bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full uppercase">Draft</span>}
@@ -302,7 +302,7 @@ export const EvaluationManager: React.FC = () => {
                             <span className="text-[10px] bg-gray-50 text-gray-400 px-2 py-0.5 rounded-full font-bold uppercase mt-1 inline-block border border-gray-100">Pending</span>
                             )}
                         </div>
-                        <ChevronRight size={18} className="text-gray-300 group-hover:text-icarus-500" />
+                        <ChevronRight size={18} className="text-gray-300 group-hover:text-brand-500" />
                         </div>
                     );
                 })}
@@ -341,7 +341,7 @@ export const EvaluationManager: React.FC = () => {
                         <div className="relative w-16 h-16 flex items-center justify-center">
                              {/* Circular Progress Placeholder - CSS Conic Gradient */}
                              <div className="absolute inset-0 rounded-full border-4 border-gray-100"></div>
-                             <div className="absolute inset-0 rounded-full border-4 border-icarus-500 border-t-transparent border-l-transparent -rotate-45"></div>
+                             <div className="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent border-l-transparent -rotate-45"></div>
                              <Shield size={24} className="text-gray-800" />
                         </div>
                     </div>
@@ -355,16 +355,16 @@ export const EvaluationManager: React.FC = () => {
                             {/* Anthropometry */}
                             <section>
                                 <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-4">
-                                    <Activity size={16} className="text-icarus-500" /> Anthropometry
+                                    <Activity size={16} className="text-brand-500" /> Anthropometry
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-gray-600 ml-1">Height</label>
                                         <div className="relative group">
-                                            <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-icarus-500 transition-colors" />
+                                            <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-brand-500 transition-colors" />
                                             <input 
                                                 type="number" 
-                                                className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-icarus-500/20 focus:border-icarus-500 outline-none transition-all"
+                                                className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                                 value={form.height}
                                                 onChange={e => setForm({...form, height: parseInt(e.target.value)})}
                                             />
@@ -374,10 +374,10 @@ export const EvaluationManager: React.FC = () => {
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-gray-600 ml-1">Weight</label>
                                         <div className="relative group">
-                                            <Weight className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-icarus-500 transition-colors" />
+                                            <Weight className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-brand-500 transition-colors" />
                                             <input 
                                                 type="number" 
-                                                className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-icarus-500/20 focus:border-icarus-500 outline-none transition-all"
+                                                className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                                                 value={form.weight}
                                                 onChange={e => setForm({...form, weight: parseInt(e.target.value)})}
                                             />
@@ -546,7 +546,7 @@ export const EvaluationManager: React.FC = () => {
                         </button>
                         <button 
                             onClick={handleSave} 
-                            className="flex-1 md:flex-none px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm flex items-center justify-center gap-2"
+                            className="flex-1 md:flex-none px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm flex items-center justify-center gap-2"
                         >
                             <Save size={16} />
                             Submit Evaluation

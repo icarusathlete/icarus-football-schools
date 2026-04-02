@@ -57,8 +57,8 @@ export const FinanceManager: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    window.addEventListener('icarus_data_update', loadData);
-    return () => window.removeEventListener('icarus_data_update', loadData);
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, []);
 
   const getStatus = (playerId: string) => {
@@ -215,13 +215,13 @@ export const FinanceManager: React.FC = () => {
        <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl w-fit border border-gray-200">
            <button 
              onClick={() => setActiveTab('tracking')}
-             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'tracking' ? 'bg-white text-icarus-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'tracking' ? 'bg-white text-brand-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
            >
                Fee Tracking
            </button>
            <button 
              onClick={() => setActiveTab('generator')}
-             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'generator' ? 'bg-white text-icarus-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'generator' ? 'bg-white text-brand-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
            >
                External Invoice Generator
            </button>
@@ -261,12 +261,12 @@ export const FinanceManager: React.FC = () => {
                          type="month" 
                          value={month} 
                          onChange={e => setMonth(e.target.value)} 
-                         className="w-full sm:w-auto pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-4 focus:ring-icarus-500/10 focus:border-icarus-500 outline-none font-medium"
+                         className="w-full sm:w-auto pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none font-medium"
                        />
                    </div>
-                   <div className="bg-icarus-50/50 px-5 py-2.5 rounded-xl border border-icarus-100 flex items-center justify-between sm:justify-start gap-4">
-                      <span className="text-xs font-black text-icarus-600 uppercase tracking-wider">Collected</span>
-                      <span className="font-mono font-bold text-icarus-900 text-lg tracking-tight">₹{totalCollected} <span className="text-gray-400 text-sm">/ ₹{totalDue}</span></span>
+                   <div className="bg-brand-50/50 px-5 py-2.5 rounded-xl border border-brand-100 flex items-center justify-between sm:justify-start gap-4">
+                      <span className="text-xs font-black text-brand-600 uppercase tracking-wider">Collected</span>
+                      <span className="font-mono font-bold text-brand-900 text-lg tracking-tight">₹{totalCollected} <span className="text-gray-400 text-sm">/ ₹{totalDue}</span></span>
                    </div>
                </div>
            </div>
@@ -276,7 +276,7 @@ export const FinanceManager: React.FC = () => {
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                <input 
                  placeholder="Search player name or member ID..." 
-                 className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-icarus-500/10 focus:border-icarus-500 outline-none transition-all font-medium"
+                 className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all font-medium"
                  value={searchTerm}
                  onChange={e => setSearchTerm(e.target.value)}
                />
@@ -441,7 +441,7 @@ export const FinanceManager: React.FC = () => {
                                     type="text" 
                                     value={invoiceForm.invoiceNo} 
                                     onChange={e => setInvoiceForm({...invoiceForm, invoiceNo: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none font-mono text-sm"
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-mono text-sm"
                                 />
                             </div>
 
@@ -451,7 +451,7 @@ export const FinanceManager: React.FC = () => {
                                     type="date" 
                                     value={invoiceForm.date} 
                                     onChange={e => setInvoiceForm({...invoiceForm, date: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 />
                             </div>
 
@@ -461,7 +461,7 @@ export const FinanceManager: React.FC = () => {
                                     type="date" 
                                     value={invoiceForm.validTill} 
                                     onChange={e => setInvoiceForm({...invoiceForm, validTill: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                                 />
                             </div>
 
@@ -472,7 +472,7 @@ export const FinanceManager: React.FC = () => {
                                          type="number" 
                                          value={invoiceForm.amount} 
                                          onChange={e => setInvoiceForm({...invoiceForm, amount: parseInt(e.target.value)})}
-                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-bold"
+                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-bold"
                                      />
                                  </div>
                                  <div className="space-y-1.5">
@@ -480,7 +480,7 @@ export const FinanceManager: React.FC = () => {
                                      <select 
                                          value={invoiceForm.paymentMode} 
                                          onChange={e => setInvoiceForm({...invoiceForm, paymentMode: e.target.value as any})}
-                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm bg-white"
+                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white"
                                      >
                                          <option value="Cash">Cash</option>
                                          <option value="UPI">UPI</option>
@@ -495,7 +495,7 @@ export const FinanceManager: React.FC = () => {
                             <button 
                                  onClick={handleSubmitInvoice}
                                  disabled={isSubmitting}
-                                 className="w-full py-4 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                                 className="w-full py-4 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={18} />}
                                 {isSubmitting ? 'Submitting...' : 'Submit & Send to Player'}
@@ -586,8 +586,8 @@ export const FinanceManager: React.FC = () => {
                                  <div className="absolute top-0 left-0 h-full w-2/5 pl-8 flex items-center z-10">
                                      <div className="flex flex-col">
                                          {settings.logoUrl && <img src={settings.logoUrl} className="h-16 object-contain mb-2" />}
-                                         <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900 leading-none" style={{ fontFamily: 'Orbitron' }}>
-                                             ICARUS <br/> <span className="text-xl tracking-tight font-bold">FOOTBALL SCHOOLS</span>
+                                         <h1 className="text-3xl font-black uppercase tracking-tighter text-gray-900 leading-none" style={{ fontFamily: settings.fontFamily }}>
+                                             {settings.name}
                                          </h1>
                                      </div>
                                  </div>
@@ -609,11 +609,11 @@ export const FinanceManager: React.FC = () => {
                                          </div>
                                          <div className="flex items-center gap-3">
                                              <Mail size={14} className="text-white" />
-                                             <span>hello@icarusfootballschools.com</span>
+                                             <span>support@academyportal.com</span>
                                          </div>
                                          <div className="flex items-center gap-3">
                                              <Globe size={14} className="text-white" />
-                                             <span>www.icarusfootballschools.com</span>
+                                             <span>www.academyportal.com</span>
                                          </div>
                                      </div>
                                  </div>
@@ -697,14 +697,14 @@ export const FinanceManager: React.FC = () => {
                                  </div>
 
                                  <div className="mb-12">
-                                     <p className="font-bold text-sm text-gray-800">Thank You For Choosing Icarus Football Schools. We look forward to helping you achieve your football goals!</p>
+                                     <p className="font-bold text-sm text-gray-800">Thank You For Choosing {settings.name}. We look forward to helping you achieve your football goals!</p>
                                  </div>
 
                                  {/* SIGNATURE */}
                                  <div className="text-sm font-bold text-gray-900">
                                      <p>Authorized By:</p>
-                                     <p>Abhishek Begal</p>
-                                     <p>Icarus Football Schools</p>
+                                     <p>Academy Director</p>
+                                     <p>{settings.name}</p>
                                      <div className="mt-2 w-48 border-b border-black">
                                           <div className="h-10">
                                               <span className="font-calendary text-3xl ml-4 opacity-70" style={{fontFamily: 'cursive'}}>AbhiB</span>

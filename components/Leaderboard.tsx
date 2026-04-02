@@ -63,12 +63,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
         const timer = setInterval(() => setCurrentTime(Date.now()), 60000);
 
         window.addEventListener('settingsChanged', handleSettings);
-        window.addEventListener('icarus_data_update', loadData);
+        window.addEventListener('academy_data_update', loadData);
         
         return () => {
             clearInterval(timer);
             window.removeEventListener('settingsChanged', handleSettings);
-            window.removeEventListener('icarus_data_update', loadData);
+            window.removeEventListener('academy_data_update', loadData);
         }
     }, [month]); // Re-load when month changes to get month-specific POTM
 
@@ -317,7 +317,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-gray-200 pb-6">
                 <div>
                     <h2 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                        LEAGUE <span className="text-icarus-500">STANDINGS</span>
+                        LEAGUE <span className="text-brand-500">STANDINGS</span>
                     </h2>
                     <p className="text-gray-500 font-medium mt-1">
                         Official player rankings for {monthName}
@@ -325,7 +325,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                 </div>
                 <div className="flex items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-gray-200">
                     <div className="px-4 py-2 bg-slate-50 rounded-lg font-bold text-sm text-slate-700 flex items-center gap-2 border border-slate-100">
-                         <Calendar size={14} className="text-icarus-500"/>
+                         <Calendar size={14} className="text-brand-500"/>
                          {monthName}
                     </div>
                     <div className="relative">
@@ -364,7 +364,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     <div className="grid grid-cols-3 gap-4 w-full text-center mt-auto">
                                         <div><div className="text-xl font-black text-gray-800">{topThree[1].goals}</div><div className="text-[10px] text-gray-400 font-bold uppercase">G</div></div>
                                         <div><div className="text-xl font-black text-gray-800">{topThree[1].avgRating}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Rtg</div></div>
-                                        <div><div className="text-xl font-black text-icarus-600">{topThree[1].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Pts</div></div>
+                                        <div><div className="text-xl font-black text-brand-600">{topThree[1].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Pts</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -378,7 +378,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     rounded-2xl shadow-xl border-2 overflow-hidden flex flex-col transform md:-translate-y-4 z-10 cursor-pointer hover:scale-105 transition-transform duration-300 relative
                                     ${potmData?.playerId === topThree[0].id && isGlowing(topThree[0].id)
                                         ? 'border-yellow-400 glow-border' 
-                                        : 'bg-white border-icarus-500 shadow-icarus-900/10'
+                                        : 'bg-white border-brand-500 shadow-brand-900/10'
                                     }
                                 `}
                             >
@@ -387,17 +387,17 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     <div className="absolute inset-0 z-0 animate-shine-gold opacity-20 pointer-events-none"></div>
                                 )}
 
-                                <div className={`${potmData?.playerId === topThree[0].id ? 'bg-amber-500 border-amber-600' : 'bg-icarus-600 border-icarus-700'} p-4 border-b flex justify-between items-center text-white transition-colors duration-500 relative z-10`}>
+                                <div className={`${potmData?.playerId === topThree[0].id ? 'bg-amber-500 border-amber-600' : 'bg-brand-600 border-brand-700'} p-4 border-b flex justify-between items-center text-white transition-colors duration-500 relative z-10`}>
                                     <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                         <Crown size={14} fill="currentColor" className={potmData?.playerId === topThree[0].id && isGlowing(topThree[0].id) ? 'animate-bounce' : ''} /> 
                                         {potmData?.playerId === topThree[0].id ? 'PLAYER OF THE MONTH' : 'Leader'}
                                     </span>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shadow-lg ${potmData?.playerId === topThree[0].id ? 'bg-white text-amber-600' : 'bg-white text-icarus-700'}`}>1</div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shadow-lg ${potmData?.playerId === topThree[0].id ? 'bg-white text-amber-600' : 'bg-white text-brand-700'}`}>1</div>
                                 </div>
                                 
-                                <div className={`p-8 flex flex-col items-center flex-1 relative z-10 ${potmData?.playerId === topThree[0].id ? 'bg-amber-50/50' : 'bg-gradient-to-b from-white to-icarus-50'}`}>
+                                <div className={`p-8 flex flex-col items-center flex-1 relative z-10 ${potmData?.playerId === topThree[0].id ? 'bg-amber-50/50' : 'bg-gradient-to-b from-white to-brand-50'}`}>
                                     <div className="relative">
-                                        <div className={`absolute inset-0 rounded-full blur-xl opacity-50 ${potmData?.playerId === topThree[0].id && isGlowing(topThree[0].id) ? 'bg-amber-400 animate-pulse' : 'bg-icarus-200'}`}></div>
+                                        <div className={`absolute inset-0 rounded-full blur-xl opacity-50 ${potmData?.playerId === topThree[0].id && isGlowing(topThree[0].id) ? 'bg-amber-400 animate-pulse' : 'bg-brand-200'}`}></div>
                                         <img src={topThree[0].photoUrl} className="relative w-28 h-28 rounded-full object-cover border-4 border-white mb-6 shadow-xl" />
                                     </div>
                                     
@@ -420,13 +420,13 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     )}
 
                                     {(!((role === 'admin' || role === 'coach')) && potmData?.playerId !== topThree[0].id) && (
-                                        <p className="text-xs font-bold text-icarus-600 uppercase tracking-widest mb-8 bg-icarus-100 px-3 py-1 rounded-full">{topThree[0].position}</p>
+                                        <p className="text-xs font-bold text-brand-600 uppercase tracking-widest mb-8 bg-brand-100 px-3 py-1 rounded-full">{topThree[0].position}</p>
                                     )}
                                     
                                     <div className="grid grid-cols-3 gap-6 w-full text-center mt-auto p-4 bg-white rounded-xl shadow-sm border border-gray-100 relative z-10">
                                         <div><div className="text-2xl font-black text-gray-900">{topThree[0].goals}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Goals</div></div>
                                         <div><div className="text-2xl font-black text-gray-900">{topThree[0].avgRating}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Avg Rtg</div></div>
-                                        <div><div className="text-2xl font-black text-icarus-600">{topThree[0].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Points</div></div>
+                                        <div><div className="text-2xl font-black text-brand-600">{topThree[0].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Points</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -450,7 +450,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     <div className="grid grid-cols-3 gap-4 w-full text-center mt-auto">
                                         <div><div className="text-xl font-black text-gray-800">{topThree[2].goals}</div><div className="text-[10px] text-gray-400 font-bold uppercase">G</div></div>
                                         <div><div className="text-xl font-black text-gray-800">{topThree[2].avgRating}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Rtg</div></div>
-                                        <div><div className="text-xl font-black text-icarus-600">{topThree[2].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Pts</div></div>
+                                        <div><div className="text-xl font-black text-brand-600">{topThree[2].totalPoints}</div><div className="text-[10px] text-gray-400 font-bold uppercase">Pts</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -477,7 +477,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                     {monthlyLeaderboard.map((p, idx) => {
                                         const rank = idx + 1;
                                         // Top 4 highlighting like CL spots
-                                        const rankClass = rank === 1 ? 'border-l-4 border-l-icarus-500' : 
+                                        const rankClass = rank === 1 ? 'border-l-4 border-l-brand-500' : 
                                                           rank <= 4 ? 'border-l-4 border-l-blue-400' : 'border-l-4 border-l-transparent';
                                         const isWinner = potmData?.playerId === p.id;
                                         const shouldGlow = isWinner && isGlowing(p.id);
@@ -500,7 +500,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                                                             <img src={p.photoUrl} className="w-8 h-8 rounded-full bg-gray-200 object-cover border border-gray-200 shadow-sm block" />
                                                         </div>
                                                         <div>
-                                                            <div className={`font-bold leading-none transition-colors ${isWinner ? 'text-amber-700' : 'text-gray-900 group-hover:text-icarus-600'}`}>{p.fullName}</div>
+                                                            <div className={`font-bold leading-none transition-colors ${isWinner ? 'text-amber-700' : 'text-gray-900 group-hover:text-brand-600'}`}>{p.fullName}</div>
                                                             <div className="text-[10px] text-gray-400 font-medium uppercase mt-1 tracking-wide">{p.batch || 'Academy'} • {p.position}</div>
                                                         </div>
                                                     </div>
@@ -536,7 +536,7 @@ Congratulations on the well-deserved recognition! Keep pushing the limits.`;
                             </div>
                         )}
                         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-[10px] text-gray-500 font-medium flex gap-6">
-                            <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-icarus-500"></div> Champion</span>
+                            <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-brand-500"></div> Champion</span>
                             <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-400"></div> Champions League Qualification</span>
                             <span className="ml-auto">Click any row to view Player Card</span>
                         </div>

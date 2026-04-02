@@ -5,7 +5,7 @@ import { Player, AttendanceRecord, Match } from "../types";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 export const GeminiService = {
-  analyzeAttendance: async (players: Player[], attendance: AttendanceRecord[]) => {
+  analyzeAttendance: async (players: Player[], attendance: AttendanceRecord[], academyName: string = "Academy Portal") => {
     if (!process.env.API_KEY) throw new Error("Gemini API Key is missing.");
 
     const summaryData = players.map(p => {
@@ -19,7 +19,7 @@ export const GeminiService = {
     });
 
     const prompt = `
-      You are an AI Assistant for "Icarus Football Schools".
+      You are an AI Assistant for "${academyName}".
       Analyze the following attendance data: ${JSON.stringify(summaryData)}
       Provide an HTML response with:
       1. Executive summary.
@@ -90,14 +90,14 @@ export const GeminiService = {
      }
   },
 
-  analyzeMatchPerformance: async (player: Player, match: Match) => {
+  analyzeMatchPerformance: async (player: Player, match: Match, academyName: string = "Academy Portal") => {
     if (!process.env.API_KEY) throw new Error("Gemini API Key is missing.");
 
     const stats = match.playerStats.find(s => s.playerId === player.id);
     if (!stats) return "<p>No stats found for this match.</p>";
 
     const prompt = `
-        You are a tactical football analyst for Icarus Football Schools.
+        You are a tactical football analyst for ${academyName}.
         Analyze the specific match performance for:
         Player: ${player.fullName} (${player.position})
         Match: vs ${match.opponent} (${match.result} ${match.scoreFor}-${match.scoreAgainst})

@@ -166,7 +166,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h2 className="text-4xl font-black italic tracking-tighter text-gray-900" style={{ fontFamily: 'Orbitron' }}>
-             TEAM <span className="text-icarus-500">SCHEDULE</span>
+             TEAM <span className="text-brand-500">SCHEDULE</span>
           </h2>
           <p className="text-gray-500 font-medium mt-2">Manage sessions, fixtures, and events.</p>
         </div>
@@ -181,7 +181,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={handleCreate}
-            className="hidden lg:flex items-center gap-2 bg-icarus-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-icarus-900/20 active:scale-95"
+            className="hidden lg:flex items-center gap-2 bg-brand-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-brand-900/20 active:scale-95"
           >
             <Plus size={20} />
             <span className="font-bold text-sm uppercase tracking-wider">New Activity</span>
@@ -193,7 +193,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={handleCreate}
-            className="lg:hidden w-full flex items-center justify-center gap-2 bg-icarus-900 text-white px-6 py-4 rounded-xl hover:bg-black transition-all shadow-lg active:scale-95"
+            className="lg:hidden w-full flex items-center justify-center gap-2 bg-brand-900 text-white px-6 py-4 rounded-xl hover:bg-black transition-all shadow-lg active:scale-95"
           >
             <Plus size={20} />
             <span className="font-bold text-sm uppercase tracking-wider">Schedule New Activity</span>
@@ -260,7 +260,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                           </div>
                           <div className="h-8 w-px bg-gray-200 hidden md:block my-2"></div>
                           <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
-                              <Clock size={14} className="text-icarus-500" />
+                              <Clock size={14} className="text-brand-500" />
                               <span className="text-xs font-bold text-gray-700">{event.time}</span>
                           </div>
                       </div>
@@ -274,7 +274,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                               </span>
                           </div>
 
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-icarus-600 transition-colors flex items-center gap-3">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors flex items-center gap-3">
                               {event.title}
                               <span className={`md:hidden px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wide ${styles.bg} ${styles.text}`}>{event.type}</span>
                           </h3>
@@ -309,7 +309,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                                  <>
                                     <button 
                                         onClick={() => handleEdit(event)}
-                                        className="w-full md:w-auto p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:text-icarus-600 hover:border-icarus-500 transition-all shadow-sm group/btn"
+                                        className="w-full md:w-auto p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:text-brand-600 hover:border-brand-500 transition-all shadow-sm group/btn"
                                         title="Edit Event"
                                     >
                                         <Edit3 size={18} className="group-hover/btn:scale-110 transition-transform" />
@@ -350,7 +350,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     required 
                     type="text" 
                     placeholder="e.g. Tactical Session / League Match"
-                    className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none font-bold text-gray-900"
+                    className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-bold text-gray-900"
                     value={form.title} 
                     onChange={e => setForm({...form, title: e.target.value})} 
                 />
@@ -362,7 +362,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     <input 
                         required 
                         type="date" 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                         value={form.date} 
                         onChange={e => setForm({...form, date: e.target.value})} 
                     />
@@ -372,7 +372,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     <input 
                         required 
                         type="time" 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                         value={form.time} 
                         onChange={e => setForm({...form, time: e.target.value})} 
                     />
@@ -383,7 +383,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                  <div className="space-y-1.5">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Type</label>
                     <select 
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium bg-white"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
                         value={form.type} 
                         onChange={e => setForm({...form, type: e.target.value as any})}
                     >
@@ -398,7 +398,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                         required 
                         type="text" 
                         placeholder="Pitch A"
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
                         value={form.location} 
                         onChange={e => setForm({...form, location: e.target.value})} 
                     />
@@ -408,7 +408,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Lead Coach</label>
                   <select 
-                      className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-medium bg-white"
+                      className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium bg-white"
                       value={form.leadCoachId} 
                       onChange={e => setForm({...form, leadCoachId: e.target.value})}
                   >
@@ -438,13 +438,13 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                                           <div 
                                             key={drill.id} 
                                             onClick={() => toggleDrill(drill.id)}
-                                            className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${isSelected ? 'bg-white border border-icarus-500 shadow-sm' : 'hover:bg-white border border-transparent'}`}
+                                            className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${isSelected ? 'bg-white border border-brand-500 shadow-sm' : 'hover:bg-white border border-transparent'}`}
                                           >
                                               <div className="flex flex-col">
-                                                  <span className={`text-sm font-bold ${isSelected ? 'text-icarus-700' : 'text-gray-700'}`}>{drill.title}</span>
+                                                  <span className={`text-sm font-bold ${isSelected ? 'text-brand-700' : 'text-gray-700'}`}>{drill.title}</span>
                                                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{drill.category} • {drill.duration} min</span>
                                               </div>
-                                              {isSelected && <div className="bg-icarus-500 text-white p-1 rounded-full"><Check size={12} strokeWidth={3} /></div>}
+                                              {isSelected && <div className="bg-brand-500 text-white p-1 rounded-full"><Check size={12} strokeWidth={3} /></div>}
                                           </div>
                                       );
                                   })}
@@ -459,7 +459,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-3 text-gray-600 font-bold hover:bg-gray-200 rounded-xl transition-colors text-sm">Cancel</button>
-                <button onClick={handleSubmit} className="flex-1 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <button onClick={handleSubmit} className="flex-1 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                     <Save size={16} />
                     {editingId ? 'Update Activity' : 'Schedule Activity'}
                 </button>

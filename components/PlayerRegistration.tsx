@@ -60,8 +60,8 @@ export const PlayerRegistration: React.FC = () => {
   useEffect(() => {
     refreshData();
     // Listen for updates in case another tab adds a player or configs change
-    window.addEventListener('icarus_data_update', refreshData);
-    return () => window.removeEventListener('icarus_data_update', refreshData);
+    window.addEventListener('academy_data_update', refreshData);
+    return () => window.removeEventListener('academy_data_update', refreshData);
   }, []);
 
   const refreshData = () => {
@@ -408,7 +408,7 @@ export const PlayerRegistration: React.FC = () => {
         <div className="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-2">
             <button 
                 onClick={() => setMode('player')}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl transition-all duration-300 ${mode === 'player' ? 'bg-icarus-900 text-white shadow-md' : 'hover:bg-gray-50 text-gray-500'}`}
+                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl transition-all duration-300 ${mode === 'player' ? 'bg-brand-900 text-white shadow-md' : 'hover:bg-gray-50 text-gray-500'}`}
             >
                 <User size={20} />
                 <div className="text-left">
@@ -446,7 +446,7 @@ export const PlayerRegistration: React.FC = () => {
         )}
 
         {/* Header Section */}
-        <div className={`relative px-8 py-10 md:py-14 text-white overflow-hidden transition-colors duration-500 ${mode === 'coach' ? 'bg-blue-900' : 'bg-icarus-900'}`}>
+        <div className={`relative px-8 py-10 md:py-14 text-white overflow-hidden transition-colors duration-500 ${mode === 'coach' ? 'bg-blue-900' : 'bg-brand-900'}`}>
           <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
           
@@ -529,7 +529,7 @@ export const PlayerRegistration: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                            <label className="absolute -bottom-4 -right-4 cursor-pointer bg-icarus-900 text-white p-4 rounded-2xl shadow-xl hover:bg-black transition-all hover:scale-110 active:scale-95 group-hover:animate-bounce">
+                            <label className="absolute -bottom-4 -right-4 cursor-pointer bg-brand-900 text-white p-4 rounded-2xl shadow-xl hover:bg-black transition-all hover:scale-110 active:scale-95 group-hover:animate-bounce">
                                 <Upload size={20} />
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                             </label>
@@ -600,7 +600,7 @@ export const PlayerRegistration: React.FC = () => {
                                     className={`
                                         py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider border-2 transition-all duration-200 flex flex-col items-center gap-1
                                         ${formData.position === pos 
-                                        ? 'bg-icarus-900 border-icarus-900 text-white shadow-lg shadow-icarus-900/20 scale-105' 
+                                        ? 'bg-brand-900 border-brand-900 text-white shadow-lg shadow-brand-900/20 scale-105' 
                                         : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50'
                                         }
                                     `}
@@ -731,7 +731,7 @@ export const PlayerRegistration: React.FC = () => {
                         <button
                         type="submit"
                         disabled={status === 'submitting'}
-                        className="w-full md:w-auto bg-gradient-to-r from-icarus-900 to-blue-900 hover:from-black hover:to-black text-white font-black py-4 px-12 rounded-2xl shadow-xl shadow-icarus-900/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 uppercase tracking-widest text-xs disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                        className="w-full md:w-auto bg-gradient-to-r from-brand-900 to-blue-900 hover:from-black hover:to-black text-white font-black py-4 px-12 rounded-2xl shadow-xl shadow-brand-900/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 uppercase tracking-widest text-xs disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                         style={{ fontFamily: 'Orbitron' }}
                         >
                         {status === 'submitting' ? (
@@ -947,13 +947,13 @@ export const PlayerRegistration: React.FC = () => {
                   <div className="flex border-b border-gray-100">
                       <button 
                         onClick={() => setConfigTab('venues')}
-                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'venues' ? 'text-icarus-600 border-b-2 border-icarus-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
+                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'venues' ? 'text-brand-600 border-b-2 border-brand-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
                       >
                           Venues
                       </button>
                       <button 
                         onClick={() => setConfigTab('batches')}
-                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'batches' ? 'text-icarus-600 border-b-2 border-icarus-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
+                        className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${configTab === 'batches' ? 'text-brand-600 border-b-2 border-brand-600 bg-white' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
                       >
                           Batches
                       </button>
@@ -967,12 +967,12 @@ export const PlayerRegistration: React.FC = () => {
                             placeholder={`New ${configTab === 'venues' ? 'Venue Name' : 'Batch Name'}...`}
                             value={newItemName}
                             onChange={(e) => setNewItemName(e.target.value)}
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl outline-none focus:border-icarus-500 transition-all text-sm font-medium"
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-medium"
                           />
                           <button 
                             onClick={handleAddItem}
                             disabled={!newItemName.trim()}
-                            className="bg-icarus-900 text-white px-6 rounded-xl font-bold uppercase text-xs tracking-wider hover:bg-black transition-colors disabled:opacity-50"
+                            className="bg-brand-900 text-white px-6 rounded-xl font-bold uppercase text-xs tracking-wider hover:bg-black transition-colors disabled:opacity-50"
                           >
                               Add
                           </button>
@@ -989,7 +989,7 @@ export const PlayerRegistration: React.FC = () => {
                                             type="text" 
                                             value={editingItem.name} 
                                             onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                                            className="flex-1 px-3 py-1.5 border border-icarus-300 rounded-lg text-sm font-bold outline-none"
+                                            className="flex-1 px-3 py-1.5 border border-brand-300 rounded-lg text-sm font-bold outline-none"
                                           />
                                           <button onClick={handleUpdateItem} className="p-1.5 bg-green-500 text-white rounded-lg"><Check size={16} /></button>
                                           <button onClick={() => setEditingItem(null)} className="p-1.5 bg-gray-300 text-gray-700 rounded-lg"><X size={16} /></button>

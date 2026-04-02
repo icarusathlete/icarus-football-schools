@@ -138,7 +138,7 @@ export const TrainingManager: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                        TRAINING <span className="text-icarus-500">GROUND</span>
+                        TRAINING <span className="text-brand-500">GROUND</span>
                     </h1>
                     <p className="text-gray-500 font-medium mt-2">
                         Drill library and session planning resources.
@@ -146,7 +146,7 @@ export const TrainingManager: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setIsCreating(true)}
-                    className="flex items-center gap-2 bg-icarus-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-icarus-900/20 active:scale-95"
+                    className="flex items-center gap-2 bg-brand-900 text-white px-6 py-3 rounded-xl hover:bg-black transition-all shadow-lg shadow-brand-900/20 active:scale-95"
                 >
                     <Plus size={20} />
                     <span className="font-bold text-sm uppercase tracking-wider">New Drill</span>
@@ -160,7 +160,7 @@ export const TrainingManager: React.FC = () => {
                     <input 
                         type="text" 
                         placeholder="Search drills..." 
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-icarus-500 transition-all text-sm font-medium"
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-500 transition-all text-sm font-medium"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -172,7 +172,7 @@ export const TrainingManager: React.FC = () => {
                             onClick={() => setFilterCategory(cat as any)}
                             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors border ${
                                 filterCategory === cat 
-                                ? 'bg-icarus-900 text-white border-icarus-900' 
+                                ? 'bg-brand-900 text-white border-brand-900' 
                                 : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                             }`}
                         >
@@ -214,7 +214,7 @@ export const TrainingManager: React.FC = () => {
                                 {getCategoryIcon(drill.category)}
                                 {drill.category}
                             </div>
-                            <h3 className="text-lg font-black text-gray-900 mb-2 leading-tight group-hover:text-icarus-600 transition-colors">{drill.title}</h3>
+                            <h3 className="text-lg font-black text-gray-900 mb-2 leading-tight group-hover:text-brand-600 transition-colors">{drill.title}</h3>
                             <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{drill.description}</p>
                             
                             <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-xs font-bold text-gray-500">
@@ -245,7 +245,7 @@ export const TrainingManager: React.FC = () => {
                             </button>
                             <div className="absolute bottom-0 left-0 p-8 w-full">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <span className="px-3 py-1 bg-icarus-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg">
+                                    <span className="px-3 py-1 bg-brand-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg">
                                         {selectedDrill.category}
                                     </span>
                                     <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-white/20">
@@ -265,7 +265,7 @@ export const TrainingManager: React.FC = () => {
                                 <div className="space-y-8">
                                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                         <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                            <PlayCircle size={16} className="text-icarus-500" /> Drill Specs
+                                            <PlayCircle size={16} className="text-brand-500" /> Drill Specs
                                         </h4>
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center pb-2 border-b border-gray-50">
@@ -293,12 +293,12 @@ export const TrainingManager: React.FC = () => {
 
                                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                         <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                            <Dumbbell size={16} className="text-icarus-500" /> Equipment
+                                            <Dumbbell size={16} className="text-brand-500" /> Equipment
                                         </h4>
                                         <ul className="space-y-2">
                                             {selectedDrill.equipment.map((item, idx) => (
                                                 <li key={idx} className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                                                    <div className="w-1.5 h-1.5 bg-icarus-400 rounded-full" />
+                                                    <div className="w-1.5 h-1.5 bg-brand-400 rounded-full" />
                                                     {item}
                                                 </li>
                                             ))}
@@ -364,7 +364,7 @@ export const TrainingManager: React.FC = () => {
                         <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Drill Title</label>
-                                <input required type="text" className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-icarus-500 outline-none text-sm font-bold" value={newDrill.title} onChange={e => setNewDrill({...newDrill, title: e.target.value})} placeholder="e.g. 3-Zone Transition Game"/>
+                                <input required type="text" className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-bold" value={newDrill.title} onChange={e => setNewDrill({...newDrill, title: e.target.value})} placeholder="e.g. 3-Zone Transition Game"/>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -403,7 +403,7 @@ export const TrainingManager: React.FC = () => {
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Drill Diagram / Image (WebP)</label>
                                 <div 
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-icarus-500 hover:bg-gray-50 transition-all group min-h-[160px] relative overflow-hidden"
+                                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-gray-50 transition-all group min-h-[160px] relative overflow-hidden"
                                 >
                                     {newDrill.imageUrl ? (
                                         <>
@@ -414,7 +414,7 @@ export const TrainingManager: React.FC = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-icarus-100 group-hover:text-icarus-600 transition-colors text-gray-400">
+                                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-brand-100 group-hover:text-brand-600 transition-colors text-gray-400">
                                                 <UploadCloud size={24} />
                                             </div>
                                             <p className="text-sm font-bold text-gray-600">Click to upload image</p>
@@ -496,7 +496,7 @@ export const TrainingManager: React.FC = () => {
                             
                             <div className="p-6 border-t border-gray-100 flex gap-3 justify-end bg-gray-50">
                                 <button type="button" onClick={() => setIsCreating(false)} className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-200 rounded-xl transition-colors text-sm">Cancel</button>
-                                <button type="submit" className="px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider flex items-center gap-2">
+                                <button type="submit" className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider flex items-center gap-2">
                                     <Save size={16} /> Save Drill
                                 </button>
                             </div>

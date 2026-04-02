@@ -87,8 +87,8 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     loadData();
     // Re-load if data changes externally
-    window.addEventListener('icarus_data_update', loadData);
-    return () => window.removeEventListener('icarus_data_update', loadData);
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, []);
 
   const prepareChartData = (records: AttendanceRecord[]) => {
@@ -118,7 +118,7 @@ export const AdminDashboard: React.FC = () => {
   const handleAiAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-        const report = await GeminiService.analyzeAttendance(players, attendance);
+        const report = await GeminiService.analyzeAttendance(players, attendance, settings.name);
         setAiReport(report);
     } catch (e) {
         alert("Failed to analyze data. Please check your API Key.");
@@ -253,16 +253,16 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h1 className="text-3xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                    ADMIN <span className="text-icarus-500">DASHBOARD</span>
+                    ADMIN <span className="text-brand-500">DASHBOARD</span>
                 </h1>
                 <p className="text-gray-500 font-medium text-sm mt-1">Overview of academy performance and operations.</p>
             </div>
             <div className="flex gap-3">
                 <button 
                     onClick={() => setShowSettingsModal(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all hover:border-icarus-500 group"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition-all hover:border-brand-500 group"
                 >
-                    <Palette size={18} className="text-gray-400 group-hover:text-icarus-500 transition-colors" />
+                    <Palette size={18} className="text-gray-400 group-hover:text-brand-500 transition-colors" />
                     <span className="text-xs uppercase tracking-wider">Academy Branding</span>
                 </button>
             </div>
@@ -472,7 +472,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <Palette size={20} className="text-icarus-600" />
+                                <Palette size={20} className="text-brand-600" />
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-gray-900">Academy Branding</h3>
@@ -493,7 +493,7 @@ export const AdminDashboard: React.FC = () => {
                                     <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                     <input 
                                         type="text" 
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-icarus-500 focus:ring-4 focus:ring-icarus-500/10 outline-none transition-all"
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
                                         value={settings.name}
                                         onChange={(e) => updateSetting('name', e.target.value)}
                                         placeholder="Academy Name"
@@ -503,7 +503,7 @@ export const AdminDashboard: React.FC = () => {
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Font Family</label>
                                 <select 
-                                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-icarus-500 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:border-brand-500 outline-none transition-all appearance-none"
                                     value={settings.fontFamily}
                                     onChange={(e) => updateSetting('fontFamily', e.target.value)}
                                 >
@@ -519,7 +519,7 @@ export const AdminDashboard: React.FC = () => {
                         {/* Identity & Logo */}
                         <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
                             <div className="flex items-center gap-2 mb-2">
-                                <ImageIcon className="text-icarus-500 w-4 h-4" />
+                                <ImageIcon className="text-brand-500 w-4 h-4" />
                                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Visual Identity</span>
                             </div>
                             
@@ -527,7 +527,7 @@ export const AdminDashboard: React.FC = () => {
                                 {/* Logo Preview & Upload */}
                                 <div className="flex-shrink-0">
                                     <div className="relative group">
-                                        <div className="w-32 h-32 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-icarus-400 shadow-sm">
+                                        <div className="w-32 h-32 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-brand-400 shadow-sm">
                                             {settings.logoUrl ? (
                                                 <img src={settings.logoUrl} className="w-full h-full object-contain p-2" alt="Academy Logo" />
                                             ) : (
@@ -562,7 +562,7 @@ export const AdminDashboard: React.FC = () => {
                                             <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                             <input 
                                                 type="text" 
-                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:border-icarus-500 outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:border-brand-500 outline-none transition-all"
                                                 value={settings.name}
                                                 onChange={(e) => updateSetting('name', e.target.value)}
                                                 placeholder="Enter Academy Name"
@@ -575,7 +575,7 @@ export const AdminDashboard: React.FC = () => {
                                             <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                             <input 
                                                 type="text" 
-                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-medium text-gray-600 focus:border-icarus-500 outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-medium text-gray-600 focus:border-brand-500 outline-none transition-all"
                                                 value={settings.logoUrl.startsWith('data:') ? '[Uploaded Image]' : settings.logoUrl}
                                                 onChange={(e) => updateSetting('logoUrl', e.target.value)}
                                                 placeholder="https://example.com/logo.png"
@@ -645,7 +645,7 @@ export const AdminDashboard: React.FC = () => {
                         <button 
                             onClick={saveSettings}
                             disabled={!hasUnsavedSettings}
-                            className="px-8 py-3 bg-icarus-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="px-8 py-3 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                             {hasUnsavedSettings ? <CheckCircle size={16} /> : null}
                             {hasUnsavedSettings ? 'Save Changes' : 'Saved'}
@@ -661,7 +661,7 @@ export const AdminDashboard: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
                     <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                          <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                            <Upload size={20} className="text-icarus-600" />
+                            <Upload size={20} className="text-brand-600" />
                             Restore Data
                          </h3>
                          <button onClick={() => setImportModal({...importModal, isOpen: false})} className="p-1 hover:bg-gray-200 rounded-full text-gray-400">
@@ -725,7 +725,7 @@ export const AdminDashboard: React.FC = () => {
                         {!importModal.error && (
                             <button 
                                 onClick={confirmImport}
-                                className="px-6 py-2 bg-icarus-900 text-white font-bold rounded-lg shadow-lg hover:bg-black transition-all text-sm flex items-center gap-2"
+                                className="px-6 py-2 bg-brand-900 text-white font-bold rounded-lg shadow-lg hover:bg-black transition-all text-sm flex items-center gap-2"
                             >
                                 <CheckCircle size={16} />
                                 Confirm Restore
@@ -742,7 +742,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <Database size={20} className="text-icarus-600" />
+                                <Database size={20} className="text-brand-600" />
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-gray-900">Local Backups</h3>
@@ -760,7 +760,7 @@ export const AdminDashboard: React.FC = () => {
                             <button 
                                 onClick={handleSaveLocalBackup}
                                 disabled={isSavingBackup}
-                                className="px-4 py-2 bg-icarus-600 hover:bg-icarus-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
                             >
                                 {isSavingBackup ? <Loader2 size={16} className="animate-spin" /> : <Database size={16} />}
                                 Create New Backup
@@ -776,7 +776,7 @@ export const AdminDashboard: React.FC = () => {
                         ) : (
                             <div className="space-y-3">
                                 {localBackups.map(backup => (
-                                    <div key={backup.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-icarus-300 transition-colors">
+                                    <div key={backup.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-brand-300 transition-colors">
                                         <div>
                                             <h4 className="font-bold text-gray-900">{backup.name}</h4>
                                             <p className="text-xs text-gray-500 mt-1">{new Date(backup.timestamp).toLocaleString()}</p>

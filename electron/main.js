@@ -6,7 +6,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    title: "Icarus Football Schools",
+    title: "Academy Portal",
     icon: path.join(__dirname, '../dist/favicon.ico'), // Will fallback to default if not found
     webPreferences: {
       nodeIntegration: false,
@@ -14,7 +14,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
     // Premium Look
-    backgroundColor: '#0a1d37', // Matches Icarus 900
+    backgroundColor: '#000000', // Neutral
     show: false,
   });
 

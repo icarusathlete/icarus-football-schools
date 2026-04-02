@@ -38,9 +38,9 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
                 </h3>
                 
                 <div className="flex items-center gap-3 text-xs font-bold text-gray-400 mb-4">
-                    <span className="flex items-center gap-1"><Layers size={12} className="text-icarus-500" /> {player.batch || 'Academy'}</span>
+                    <span className="flex items-center gap-1"><Layers size={12} className="text-brand-500" /> {player.batch || 'Academy'}</span>
                     <span className="w-1 h-1 rounded-full bg-gray-600" />
-                    <span className="flex items-center gap-1"><MapPin size={12} className="text-icarus-500" /> {player.venue || 'General'}</span>
+                    <span className="flex items-center gap-1"><MapPin size={12} className="text-brand-500" /> {player.venue || 'General'}</span>
                 </div>
 
                 {/* Mini Stats (Mocked or Real if available) */}
@@ -223,7 +223,7 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                        TEAM <span className="text-icarus-500">HUB</span>
+                        TEAM <span className="text-brand-500">HUB</span>
                     </h1>
                     <p className="text-gray-500 font-medium mt-2">
                         {currentUser.role === 'coach' 
@@ -235,7 +235,7 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
                 {/* Filter Toggle for Admins Only (Coaches see their assigned list) */}
                 {(currentUser.role === 'admin') && (
                     <div className="bg-white p-1 rounded-xl border border-gray-200 shadow-sm flex">
-                        <button className="px-4 py-2 bg-icarus-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-md">
+                        <button className="px-4 py-2 bg-brand-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-md">
                             All Players
                         </button>
                         <button className="px-4 py-2 text-gray-500 hover:text-gray-900 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">
@@ -249,11 +249,11 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
             <section className="space-y-6">
                 <div className="flex items-center justify-between px-2">
                     <h2 className="text-lg font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                        <Shield className="text-icarus-500" size={18} /> Coaching Staff
+                        <Shield className="text-brand-500" size={18} /> Coaching Staff
                     </h2>
                     <div className="flex gap-2">
-                        <button onClick={() => scroll(coachScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-icarus-600 hover:border-icarus-500 transition-all"><ChevronLeft size={20} /></button>
-                        <button onClick={() => scroll(coachScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-icarus-600 hover:border-icarus-500 transition-all"><ChevronRight size={20} /></button>
+                        <button onClick={() => scroll(coachScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronLeft size={20} /></button>
+                        <button onClick={() => scroll(coachScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronRight size={20} /></button>
                     </div>
                 </div>
                 
@@ -277,13 +277,13 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
             <section className="space-y-6">
                 <div className="flex items-center justify-between px-2">
                     <h2 className="text-lg font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                        <UserIcon className="text-icarus-500" size={18} /> 
+                        <UserIcon className="text-brand-500" size={18} /> 
                         {myPlayerProfile ? 'Your Teammates' : 'Academy Squad'}
                         <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs font-black ml-2">{displayedPlayers.length}</span>
                     </h2>
                     <div className="flex gap-2">
-                        <button onClick={() => scroll(squadScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-icarus-600 hover:border-icarus-500 transition-all"><ChevronLeft size={20} /></button>
-                        <button onClick={() => scroll(squadScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-icarus-600 hover:border-icarus-500 transition-all"><ChevronRight size={20} /></button>
+                        <button onClick={() => scroll(squadScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronLeft size={20} /></button>
+                        <button onClick={() => scroll(squadScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronRight size={20} /></button>
                     </div>
                 </div>
 

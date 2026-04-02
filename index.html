@@ -4,11 +4,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Icarus Football Manager</title>
+    <title>Academy Portal</title>
     
     <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0c4a6e">
+    <meta id="theme-color" name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/53/53283.png">
@@ -18,19 +18,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&family=Orbitron:wght@400;600;700;800&family=Oswald:wght@400;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
+    <style id="brand-styles">
+      :root {
+        --brand-primary: #64748b;
+        --brand-secondary: #0f172a;
+      }
+      body { background-color: var(--brand-secondary); }
+    </style>
+
+    <script>
+      (function() {
+        try {
+          const settings = JSON.parse(localStorage.getItem('icarus_settings'));
+          if (settings) {
+            const root = document.documentElement;
+            if (settings.primaryColor) root.style.setProperty('--brand-primary', settings.primaryColor);
+            if (settings.secondaryColor) {
+              root.style.setProperty('--brand-secondary', settings.secondaryColor);
+              document.body.style.backgroundColor = settings.secondaryColor;
+              const meta = document.getElementById('theme-color');
+              if (meta) meta.setAttribute('content', settings.secondaryColor);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              icarus: {
-                50: '#f0f9ff',
-                100: '#e0f2fe',
-                500: '#0ea5e9',
-                600: '#0284c7',
-                800: '#075985',
-                900: '#0c4a6e',
+              brand: {
+                 50: '#f8fafc',
+                 500: 'var(--brand-primary)',
+                 900: 'var(--brand-secondary)',
               }
             },
             fontFamily: {
@@ -56,7 +79,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-gray-50 text-slate-900 antialiased select-none font-sans">
+  <body class="text-white antialiased select-none font-sans" style="background-color: var(--brand-secondary);">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
