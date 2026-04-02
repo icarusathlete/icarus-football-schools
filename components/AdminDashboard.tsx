@@ -167,6 +167,12 @@ export const AdminDashboard: React.FC = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Basic size validation (max 500KB for Base64 in Firestore documents)
+      if (file.size > 500 * 1024) {
+        alert("Logo file is too large! Please choose an image smaller than 500KB to ensure smooth database performance.");
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
@@ -499,40 +505,82 @@ export const AdminDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Logo */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Academy Logo</label>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1 relative">
-                                    <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <input 
-                                        type="text" 
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-sm font-medium text-gray-600 focus:bg-white focus:border-icarus-500 outline-none transition-all"
-                                        value={settings.logoUrl}
-                                        onChange={(e) => updateSetting('logoUrl', e.target.value)}
-                                        placeholder="Image URL..."
-                                    />
-                                </div>
-                                <span className="text-xs font-bold text-gray-400 uppercase">OR</span>
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    ref={logoInputRef}
-                                    onChange={handleLogoUpload}
-                                    className="hidden"
-                                />
-                                <button 
-                                    onClick={() => logoInputRef.current?.click()}
-                                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 whitespace-nowrap"
-                                >
-                                    <Upload size={14} /> Upload File
-                                </button>
+                        {/* Identity & Logo */}
+                        <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
+                            <div className="flex items-center gap-2 mb-2">
+                                <ImageIcon className="text-icarus-500 w-4 h-4" />
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Visual Identity</span>
                             </div>
-                            {settings.logoUrl && (
-                                <div className="mt-2 p-2 bg-gray-50 border border-dashed border-gray-300 rounded-xl inline-block">
-                                    <img src={settings.logoUrl} className="h-12 object-contain" alt="Preview" />
+                            
+                            <div className="flex flex-col md:flex-row gap-8 items-start">
+                                {/* Logo Preview & Upload */}
+                                <div className="flex-shrink-0">
+                                    <div className="relative group">
+                                        <div className="w-32 h-32 bg-white rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-icarus-400 shadow-sm">
+                                            {settings.logoUrl ? (
+                                                <img src={settings.logoUrl} className="w-full h-full object-contain p-2" alt="Academy Logo" />
+                                            ) : (
+                                                <div className="text-center p-4">
+                                                    <ImageIcon size={32} className="mx-auto text-gray-300 mb-2" />
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase">No Logo</p>
+                                                </div>
+                                            )}
+                                            <div 
+                                                onClick={() => logoInputRef.current?.click()}
+                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                            >
+                                                <Upload className="text-white" size={24} />
+                                            </div>
+                                        </div>
+                                        {settings.logoUrl && (
+                                            <button 
+                                                onClick={() => updateSetting('logoUrl', '')}
+                                                className="absolute -top-3 -right-3 p-1.5 bg-red-100 text-red-600 rounded-full border-2 border-white shadow-sm hover:bg-red-200 transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-center text-gray-400 mt-3 font-bold uppercase tracking-wider">Academy Logo</p>
                                 </div>
-                            )}
+
+                                <div className="flex-1 w-full space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Academy Name</label>
+                                        <div className="relative">
+                                            <Type className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                            <input 
+                                                type="text" 
+                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-bold text-gray-800 focus:border-icarus-500 outline-none transition-all"
+                                                value={settings.name}
+                                                onChange={(e) => updateSetting('name', e.target.value)}
+                                                placeholder="Enter Academy Name"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Logo Reference (URL)</label>
+                                        <div className="relative">
+                                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                            <input 
+                                                type="text" 
+                                                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-xl text-sm font-medium text-gray-600 focus:border-icarus-500 outline-none transition-all"
+                                                value={settings.logoUrl.startsWith('data:') ? '[Uploaded Image]' : settings.logoUrl}
+                                                onChange={(e) => updateSetting('logoUrl', e.target.value)}
+                                                placeholder="https://example.com/logo.png"
+                                                disabled={settings.logoUrl.startsWith('data:')}
+                                            />
+                                        </div>
+                                        <button 
+                                            onClick={() => logoInputRef.current?.click()}
+                                            className="w-full py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hover:bg-gray-50 flex items-center justify-center gap-2"
+                                        >
+                                            <Upload size={14} /> Replace with File
+                                        </button>
+                                        <p className="text-[10px] text-gray-400 font-medium ml-1 italic">Max file size: 500KB. Transparent PNG recommended.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Colors */}

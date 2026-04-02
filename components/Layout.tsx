@@ -109,13 +109,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <aside className="hidden md:flex flex-col w-64 text-white h-screen sticky top-0 shadow-2xl z-20" style={brandStyle}>
-        <div className="p-6 flex items-center space-x-3 border-b border-white/10">
-          <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-            {settings.logoUrl ? <img src={settings.logoUrl} className="w-8 h-8 object-contain" alt="Logo" /> : <Trophy className="w-6 h-6 text-white" />}
+        <div className="p-6 flex items-center gap-4 border-b border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-white/5 backdrop-blur-sm -z-10" />
+          <div className="shrink-0 p-2 bg-white rounded-2xl shadow-inner flex items-center justify-center w-12 h-12">
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} className="w-10 h-10 object-contain" alt="Logo" />
+            ) : (
+              <Trophy className="w-8 h-8 text-icarus-600" />
+            )}
           </div>
           <div className="overflow-hidden">
-            <h1 className="text-sm font-bold tracking-wider leading-tight whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontFamily: settings.fontFamily }}>{settings.name}</h1>
-            <p className="text-[10px] text-white/60 uppercase tracking-widest font-semibold">{currentUser.role} Portal</p>
+            <h1 className="text-sm font-black tracking-tight leading-tight uppercase" 
+                style={{ fontFamily: settings.fontFamily || 'Orbitron', color: 'white' }}>
+              {settings.name}
+            </h1>
+            <p className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{currentUser.role} Portal</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
@@ -152,11 +160,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         </div>
       </aside>
       <header className="md:hidden bg-white border-b border-gray-200 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-sm">
-         <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md" style={{ background: settings.primaryColor }}>{settings.logoUrl ? <img src={settings.logoUrl} className="w-5 h-5 object-contain" /> : <Trophy className="w-5 h-5 text-white" />}</div>
-            <span className="font-bold text-gray-900 tracking-tight truncate max-w-[200px]">{settings.name}</span>
+         <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-center bg-white">
+                {settings.logoUrl ? (
+                    <img src={settings.logoUrl} className="w-6 h-6 object-contain" />
+                ) : (
+                    <div className="p-1 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-4 h-4 text-white" /></div>
+                )}
+            </div>
+            <span className="font-black text-gray-900 tracking-tighter uppercase text-sm truncate max-w-[180px]" 
+                  style={{ fontFamily: settings.fontFamily || 'Orbitron' }}>
+                {settings.name}
+            </span>
          </div>
-         <button onClick={onLogout} className="p-2 text-gray-500"><LogOut size={18} /></button>
+         <button onClick={onLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors"><LogOut size={18} /></button>
       </header>
       <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>

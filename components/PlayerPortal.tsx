@@ -299,7 +299,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
             {/* HIDDEN GENERATORS FOR DOWNLOADS */}
             <div className="fixed left-[-9999px] top-0">
                 {/* 1. ID CARD GENERATOR */}
-                <div ref={idCardRef} className="w-[320px] h-[500px] bg-slate-950 relative overflow-hidden flex flex-col items-center p-6 text-white border-4 border-cyan-500 rounded-[2rem]">
+                <div ref={idCardRef} className="w-[320px] h-[500px] bg-slate-950 relative overflow-hidden flex flex-col items-center p-6 text-white border-4 rounded-[2rem]" style={{ borderColor: settings.primaryColor }}>
                     {/* Background */}
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-cyan-900/40 via-slate-950 to-slate-950"></div>
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -313,15 +313,16 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                             ) : (
                                 <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-2" />
                             )}
-                            <h2 className="text-xl font-black italic tracking-tighter" style={{ fontFamily: settings.fontFamily }}>{settings.name.split(' ')[0] || 'ICARUS'}</h2>
-                            <p className="text-[8px] font-bold text-cyan-400 uppercase tracking-[0.3em]">Official Player Pass</p>
+                            <h2 className="text-xl font-black italic tracking-tighter uppercase" style={{ fontFamily: settings.fontFamily }}>{settings.name.split(' ')[0]}</h2>
+                            <p className="text-[8px] font-bold uppercase tracking-[0.3em]" style={{ color: settings.primaryColor }}>Official Player Pass</p>
                         </div>
 
                         {/* Photo */}
                         <div className="relative w-40 h-40 mb-6 group">
-                            <div className="absolute inset-0 bg-cyan-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="absolute -inset-2 rounded-full blur-xl opacity-20" style={{ backgroundColor: settings.primaryColor }}></div>
                             <img src={player.photoUrl} className="relative w-full h-full object-cover rounded-full border-4 border-slate-800 shadow-2xl" />
-                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-slate-900">
+                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 text-slate-900 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-slate-900"
+                                 style={{ backgroundColor: settings.primaryColor }}>
                                 {player.position}
                             </div>
                         </div>
@@ -341,7 +342,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                             <div className="h-6 w-px bg-slate-800"></div>
                             <div className="text-center">
                                 <p className="text-[8px] text-slate-500 uppercase font-bold">Status</p>
-                                <p className="text-xs font-bold text-green-400 flex items-center gap-1"><CheckCircle2 size={10} /> Active</p>
+                                <p className="text-xs font-bold flex items-center gap-1" style={{ color: settings.primaryColor }}><CheckCircle2 size={10} /> Active</p>
                             </div>
                             <div className="h-6 w-px bg-slate-800"></div>
                             <div className="text-center">
@@ -366,10 +367,10 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                          <Shield className="h-24 w-24 text-black" />
                                      )}
                                      <div>
-                                         <h1 className="text-5xl font-black uppercase tracking-tighter text-black leading-none" style={{ fontFamily: 'Orbitron' }}>
-                                             ICARUS
+                                         <h1 className="text-5xl font-black uppercase tracking-tighter text-black leading-none" style={{ fontFamily: settings.fontFamily || 'Orbitron' }}>
+                                             {settings.name.split(' ')[0]}
                                          </h1>
-                                         <p className="text-xl font-bold text-black tracking-wide">FOOTBALL SCHOOLS</p>
+                                         <p className="text-xl font-bold text-black tracking-wide uppercase">{settings.name.split(' ').slice(1).join(' ')}</p>
                                      </div>
                                  </div>
                             </div>

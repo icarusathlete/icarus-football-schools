@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, ArrowRight, AlertTriangle } from 'lucide-react';
-import { User } from '../types';
+import { User, AcademySettings } from '../types';
 import { loginWithGoogle, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { handleFirestoreError, OperationType } from '../services/storageService';
+import { handleFirestoreError, OperationType, StorageService } from '../services/storageService';
 
 interface LoginProps {
     onLogin: (user: User) => void;
@@ -12,6 +12,22 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
+
+    useEffect(() => {
+        // Attempt to fetch latest settings from Firestore for public branding
+        const fetchSettings = async () => {
+            try {
+                const settingsDoc = await getDoc(doc(db, 'settings', 'academy'));
+                if (settingsDoc.exists()) {
+                    setSettings(settingsDoc.data() as AcademySettings);
+                }
+            } catch (e) {
+                console.warn("Could not fetch remote settings for branding, using local defaults.");
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleGoogleLogin = async () => {
         setError('');
@@ -63,22 +79,31 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen bg-icarus-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-icarus-500/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-700" 
+             style={{ backgroundColor: settings.secondaryColor || '#020617' }}>
+            
+            {/* Background elements with theme primary color */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 rounded-full blur-3xl opacity-20" 
+                 style={{ backgroundColor: settings.primaryColor || '#0ea5e9' }} />
+            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 rounded-full blur-3xl opacity-10" 
+                 style={{ backgroundColor: settings.primaryColor || '#0ea5e9' }} />
 
             <div className="mb-8 text-center text-white relative z-10">
-                <div className="p-4 bg-white/10 backdrop-blur-xl rounded-3xl inline-block border border-white/20 mb-6 shadow-2xl">
-                    <Trophy className="w-16 h-16 text-yellow-400" />
+                <div className="p-6 bg-white/10 backdrop-blur-xl rounded-[2.5rem] inline-block border border-white/20 mb-6 shadow-2xl animate-in zoom-in duration-500">
+                    {settings.logoUrl ? (
+                        <img src={settings.logoUrl} className="w-20 h-20 object-contain" alt="Logo" />
+                    ) : (
+                        <Trophy className="w-16 h-16 text-yellow-400" />
+                    )}
                 </div>
-                <h1 className="text-5xl font-black tracking-tighter italic" style={{ fontFamily: 'Orbitron' }}>
-                    ICARUS <span className="text-icarus-500 font-normal">SCHOOLS</span>
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase" 
+                    style={{ fontFamily: settings.fontFamily || 'Orbitron' }}>
+                    {settings.name.split(' ')[0]} <span className="font-normal opacity-70" style={{ color: settings.primaryColor }}>{settings.name.split(' ').slice(1).join(' ')}</span>
                 </h1>
-                <p className="text-icarus-100 uppercase tracking-[0.4em] text-[10px] font-bold mt-2 opacity-70">Football Management Portal</p>
+                <p className="text-white/40 uppercase tracking-[0.4em] text-[10px] font-bold mt-4">Football Management Portal</p>
             </div>
 
-            <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 border border-white/20">
+            <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 border border-white/20 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 <div className="p-10 text-center">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
                     <p className="text-gray-400 text-sm mb-8">Sign in to access your dashboard.</p>
@@ -93,23 +118,27 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <button 
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="w-full bg-icarus-600 hover:bg-icarus-700 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center space-x-3 shadow-xl shadow-icarus-600/20 active:scale-95 italic disabled:opacity-70 disabled:cursor-not-allowed"
-                        style={{ fontFamily: 'Orbitron' }}
+                        className="w-full text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center space-x-3 shadow-xl active:scale-95 italic disabled:opacity-70 disabled:cursor-not-allowed group"
+                        style={{ 
+                            fontFamily: 'Orbitron',
+                            backgroundColor: settings.primaryColor || '#0ea5e9',
+                            boxShadow: `0 20px 25px -5px ${settings.primaryColor}33`
+                        }}
                     >
                         {isLoading ? (
                             <span>SIGNING IN...</span>
                         ) : (
                             <>
                                 <span>SIGN IN WITH GOOGLE</span>
-                                <ArrowRight className="w-5 h-5" />
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
                     </button>
                 </div>
             </div>
             
-            <p className="mt-8 text-white/30 text-[10px] font-bold uppercase tracking-[0.3em] relative z-10">
-                &copy; 2025 ICARUS ATHLETIC SYSTEMS
+            <p className="mt-8 text-white/20 text-[10px] font-bold uppercase tracking-[0.3em] relative z-10">
+                &copy; 2025 {settings.name} SYSTEMS
             </p>
         </div>
     );
