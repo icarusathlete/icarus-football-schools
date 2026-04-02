@@ -45,9 +45,9 @@ export const PlayerManager: React.FC = () => {
 
   const loadData = () => {
     setPlayers(StorageService.getPlayers());
-    // Filter users to get only coaches
+    // Filter users to get only coaches (case-insensitive role check)
     const allUsers = StorageService.getUsers();
-    setCoaches(allUsers.filter(u => u.role === 'coach'));
+    setCoaches(allUsers.filter(u => u.role?.toLowerCase() === 'coach'));
     
     setVenues(StorageService.getVenues());
     setBatches(StorageService.getBatches());
@@ -74,10 +74,10 @@ export const PlayerManager: React.FC = () => {
         }
         // Filter logic for coaches assignments (if they have ANY of the selected venue/batch)
         if (filterVenue !== 'ALL') {
-            result = result.filter(c => c.assignedVenues?.includes(filterVenue));
+            result = result.filter(c => c.assignedVenues?.some(v => v === filterVenue));
         }
         if (filterBatch !== 'ALL') {
-            result = result.filter(c => c.assignedBatches?.includes(filterBatch));
+            result = result.filter(c => c.assignedBatches?.some(b => b === filterBatch));
         }
         setFilteredCoaches(result);
     }
@@ -99,6 +99,7 @@ export const PlayerManager: React.FC = () => {
           } else {
               await StorageService.deleteUser(item.id);
           }
+          loadData();
           setDeleteModalOpen(false);
           setItemToDelete(null);
       } catch (error: any) {
@@ -134,6 +135,7 @@ export const PlayerManager: React.FC = () => {
       e.preventDefault();
       if (editingPlayer) {
           StorageService.updatePlayer(editingPlayer);
+          loadData();
           setEditingPlayer(null);
           setPreviewUrl(null);
       }
@@ -143,6 +145,7 @@ export const PlayerManager: React.FC = () => {
       e.preventDefault();
       if (editingCoach) {
           StorageService.updateUser(editingCoach);
+          loadData();
           setEditingCoach(null);
           setPreviewUrl(null);
       }
@@ -699,7 +702,7 @@ export const PlayerManager: React.FC = () => {
       {viewingPerformance && (
           <PlayerPerformanceModal 
               player={viewingPerformance} 
-              onClose={() => setViewingPerformance(null)}
+              onCancel={() => setViewingPerformance(null)}
               onUpdate={(updatedPlayer) => {
                   setPlayers(StorageService.getPlayers());
                   setViewingPerformance(updatedPlayer);

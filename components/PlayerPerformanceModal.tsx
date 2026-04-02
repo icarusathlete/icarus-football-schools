@@ -5,11 +5,11 @@ import { StorageService } from '../services/storageService';
 
 interface Props {
   player: Player;
-  onClose: () => void;
+  onCancel: () => void;
   onUpdate: (updatedPlayer: Player) => void;
 }
 
-export const PlayerPerformanceModal: React.FC<Props> = ({ player, onClose, onUpdate }) => {
+export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUpdate }) => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'kpis' | 'attachments'>('timeline');
   const [newAttachmentUrl, setNewAttachmentUrl] = useState('');
   const [newAttachmentNote, setNewAttachmentNote] = useState('');
@@ -67,7 +67,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onClose, onUpd
                   </div>
               </div>
            </div>
-           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-brand-400 hover:text-white transition-colors">
+           <button onClick={onCancel} className="p-2 hover:bg-white/10 rounded-full text-brand-400 hover:text-white transition-all">
               <X size={24} />
            </button>
         </div>
