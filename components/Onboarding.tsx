@@ -8,7 +8,7 @@ import { User } from '../types';
 
 interface OnboardingProps {
   user: User;
-  onComplete: () => void;
+  onComplete: (updatedUser: User) => void;
 }
 
 export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
@@ -86,8 +86,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-900 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full p-10 relative overflow-hidden border border-white/5 shadow-2xl">
+    <div className="min-h-screen bg-brand-950 flex items-center justify-center p-4">
+      <Card className="max-w-2xl w-full p-10 relative overflow-hidden border border-white/5 shadow-2xl bg-brand-900 rounded-[3rem]">
         {/* Top Progress Bar */}
         <div className="absolute top-0 left-0 right-0 flex h-1">
             {[1,2,3].map(i => (
@@ -103,14 +103,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                <p className="text-brand-400 font-medium">Select your primary designation within the academy.</p>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <button onClick={() => handleRoleSelect('head_coach')} className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-gold hover:bg-gold/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
-                 <div className="p-4 bg-white/5 rounded-xl group-hover:bg-gold/20 group-hover:text-gold w-fit transition-colors"><Shield size={28} /></div>
-                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Head Coach</h3><p className="text-xs text-brand-500 font-medium leading-relaxed mt-1">Full control over squad training, match fixtures, and attendance analytics.</p></div>
-                 {role === 'head_coach' && <div className="absolute top-4 right-4 text-gold"><Check size={20} /></div>}
+               <button onClick={() => handleRoleSelect('head_coach')} className="p-8 bg-brand-950/50 border border-white/10 rounded-[2rem] hover:border-brand-500 hover:bg-brand-500/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
+                 <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-brand-500/20 group-hover:text-brand-500 w-fit transition-colors"><Shield size={28} /></div>
+                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Head Coach</h3><p className="text-xs text-brand-400 font-medium leading-relaxed mt-1">Full control over squad training, match fixtures, and attendance analytics.</p></div>
+                 {role === 'head_coach' && <div className="absolute top-4 right-4 text-brand-500"><Check size={20} /></div>}
                </button>
-               <button onClick={() => handleRoleSelect('academy_director')} className="p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-gold hover:bg-gold/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
-                 <div className="p-4 bg-white/5 rounded-xl group-hover:bg-gold/20 group-hover:text-gold w-fit transition-colors"><Users size={28} /></div>
-                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Director</h3><p className="text-xs text-brand-500 font-medium leading-relaxed mt-1">High-level oversight including financial reporting, registration, and system logs.</p></div>
+               <button onClick={() => handleRoleSelect('academy_director')} className="p-8 bg-brand-950/50 border border-white/10 rounded-[2rem] hover:border-brand-500 hover:bg-brand-500/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
+                 <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-brand-500/20 group-hover:text-brand-500 w-fit transition-colors"><Users size={28} /></div>
+                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Director</h3><p className="text-xs text-brand-400 font-medium leading-relaxed mt-1">High-level oversight including financial reporting, registration, and system logs.</p></div>
                  {role === 'academy_director' && <div className="absolute top-4 right-4 text-brand-500"><Check size={20} /></div>}
                </button>
              </div>
@@ -128,20 +128,20 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                <p className="text-brand-400 font-medium tracking-tight">Batch-import your athletes via CSV for immediate analysis.</p>
              </div>
              
-             <div className="border-2 border-dashed border-white/10 rounded-[2rem] p-16 text-center hover:border-gold/50 transition-all bg-white/5 relative group cursor-pointer">
+             <div className="border-2 border-dashed border-white/10 rounded-[3rem] p-16 text-center hover:border-brand-500/50 transition-all bg-brand-950/50 relative group cursor-pointer shadow-inner">
                <input type="file" accept=".csv" onChange={handleFileUpload} disabled={loading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-               <div className="w-20 h-20 bg-brand-950 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                <UploadCloud size={32} className="text-brand-400 group-hover:text-gold" />
+               <div className="w-20 h-20 bg-brand-900 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-2xl">
+                <UploadCloud size={32} className="text-brand-500 group-hover:text-brand-400" />
                </div>
                <h3 className="font-black text-xl text-white italic uppercase tracking-tight mb-2">Drop CSV Archive</h3>
-               <p className="text-xs text-brand-500 font-medium">Expected format: <span className="text-brand-300">name, squadId, position</span></p>
-               {loading && <div className="absolute inset-0 bg-brand-900/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-[2rem]">
-                  <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4" />
-                  <p className="text-xs font-black text-gold uppercase tracking-widest">Processing Ledger...</p>
+               <p className="text-xs text-brand-400 font-medium">Expected format: <span className="text-brand-300">name, squadId, position</span></p>
+               {loading && <div className="absolute inset-0 bg-brand-950/90 backdrop-blur-md flex flex-col items-center justify-center rounded-[3rem]">
+                  <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="text-xs font-black text-brand-500 uppercase tracking-widest">Processing Ledger...</p>
                </div>}
              </div>
              
-             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-500 hover:text-white font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all">Manual Setup <ChevronRight size={14}/></button>
+             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-500 hover:text-white font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all font-display italic">Manual Setup <ChevronRight size={14}/></button>
           </div>
         )}
 
@@ -150,31 +150,31 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
             <div className="animate-fade-in text-center space-y-8 py-12">
                 {loading ? (
                     <div className="flex flex-col items-center space-y-8">
-                        <div className="w-24 h-24 bg-gold/5 rounded-full flex items-center justify-center relative">
-                            <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-                            <Trophy className="text-gold animate-pulse" size={40} />
+                        <div className="w-24 h-24 bg-brand-500/5 rounded-full flex items-center justify-center relative">
+                            <div className="absolute inset-0 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+                            <Trophy className="text-brand-500 animate-pulse" size={40} />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-display font-black text-white italic uppercase tracking-tight">Initializing <span className="text-gold">HQ</span></h2>
+                            <h2 className="text-3xl font-display font-black text-white italic uppercase tracking-tight">Initializing <span className="text-brand-500">HQ</span></h2>
                             <p className="text-brand-400 text-sm mt-2 animate-pulse">Syncing academy data and finalizing profile...</p>
                         </div>
                     </div>
                 ) : (
                     <>
-                        <div className="w-24 h-24 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-                            <Check size={48} strokeWidth={3} />
+                        <div className="w-24 h-24 bg-lime/20 text-lime rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(190,242,100,0.2)]">
+                            <Check size={48} strokeWidth={4} />
                         </div>
                         <div>
-                            <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2 flex items-center justify-center gap-3">Academy <span className="text-gold">Ready</span></h2>
+                            <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2 flex items-center justify-center gap-3">Academy <span className="text-brand-500">Ready</span></h2>
                             {importedCount > 0 ? (
-                                <p className="text-brand-400 font-medium uppercase text-[10px] tracking-[0.3em]">{importedCount} Athlete records successfully deployed</p>
+                                <p className="text-brand-400 font-medium uppercase text-[10px] tracking-[0.3em] font-display">{importedCount} Athlete records successfully deployed</p>
                             ) : (
-                                <p className="text-brand-400 font-medium">Core configuration successful.</p>
+                                <p className="text-brand-400 font-medium font-display uppercase text-[10px] tracking-widest">Core configuration successful.</p>
                             )}
                         </div>
                         <button 
                             onClick={finishSetup}
-                            className="w-full bg-gold hover:bg-gold-glow text-brand-950 font-black px-12 py-5 rounded-2xl shadow-2xl shadow-gold/20 transition-all uppercase tracking-[0.25em] text-xs hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                            className="w-full bg-brand-500 hover:bg-brand-400 text-brand-950 font-black px-12 py-5 rounded-[2rem] shadow-2xl shadow-brand-500/20 transition-all uppercase tracking-[0.25em] text-xs hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 font-display italic"
                         >
                             <Zap size={16} fill="currentColor" /> Enter Academy Portal
                         </button>
@@ -186,4 +186,3 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
     </div>
   );
 };
-

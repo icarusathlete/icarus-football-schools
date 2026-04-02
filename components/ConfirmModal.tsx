@@ -37,7 +37,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-md animate-in fade-in">
-      <div className="bg-brand-900 w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-brand-500/10 backdrop-blur-xl w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(14,165,233,0.3)] border border-brand-500/30 overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="bg-red-500/10 px-8 py-5 border-b border-red-500/20 flex items-center gap-4">
           <div className="p-2.5 bg-red-500/20 text-red-500 rounded-xl">
             <AlertTriangle size={20} />
@@ -69,14 +69,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <div className="flex gap-4">
             <button
               onClick={handleCancel}
-              className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-brand-400 hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl transition-all border border-white/5"
+              className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-brand-400 hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all border border-white/5 shadow-inner"
             >
-              Abort
+              Abort Action
             </button>
             <button
               onClick={handleConfirm}
               disabled={requireTypeToConfirm ? inputValue !== requireTypeToConfirm : false}
-              className="flex-1 py-4 px-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl transition-all shadow-lg shadow-red-600/20 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+              className="flex-1 py-4 px-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl shadow-red-600/20 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed transform active:scale-95"
             >
               Verify & Execute
             </button>

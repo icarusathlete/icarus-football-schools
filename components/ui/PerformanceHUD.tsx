@@ -28,7 +28,7 @@ export const PerformanceHUD: React.FC = () => {
     }, []);
 
     return (
-        <div className="flex items-center gap-3 bg-brand-950/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/5 shadow-2xl">
+        <div className="flex items-center gap-3 bg-brand-500/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-brand-500/20 shadow-2xl">
             <div className="flex items-center gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
                 <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isOnline ? 'text-emerald-500' : 'text-red-500'}`}>

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, Save, Users, CheckCircle2, ChevronDown, Search, Filter } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, Save, Users, CheckCircle2, ChevronDown, Search, Filter, Zap } from 'lucide-react';
 import { StorageService } from '../services/storageService';
 import { Player, AttendanceRecord, AttendanceStatus, ScheduleEvent } from '../types';
 
@@ -85,15 +84,14 @@ export const CoachAttendance: React.FC = () => {
   };
 
   const getStatusStyles = (status: AttendanceStatus) => {
-    // Simplified logic primarily for Present/Absent, keeping legacy support for display
     switch (status) {
       case AttendanceStatus.PRESENT: 
-      case AttendanceStatus.LATE: // Treating legacy Late as Present visually in list
-        return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', badge: 'bg-green-100 text-green-700', label: 'PRESENT' };
+      case AttendanceStatus.LATE:
+        return { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'PRESENT' };
       case AttendanceStatus.ABSENT: 
-      case AttendanceStatus.EXCUSED: // Treating legacy Excused as Absent visually
-        return { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', badge: 'bg-red-100 text-red-700', label: 'ABSENT' };
-      default: return { bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-700', badge: 'bg-gray-100', label: 'UNKNOWN' };
+      case AttendanceStatus.EXCUSED:
+        return { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', badge: 'bg-red-500/10 text-red-500 border-red-500/20', label: 'ABSENT' };
+      default: return { bg: 'bg-brand-900', border: 'border-white/5', text: 'text-brand-400', badge: 'bg-brand-800 text-brand-400 border-white/5', label: 'UNKNOWN' };
     }
   };
 
@@ -103,100 +101,90 @@ export const CoachAttendance: React.FC = () => {
   });
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Breadcrumb / Title */}
-      <div>
-        <h1 className="text-3xl font-black text-white tracking-tight font-display">
-            SESSION <span className="text-gold">ATTENDANCE</span>
-        </h1>
-        <div className="flex items-center gap-2 text-sm text-gray-400 font-medium mt-1">
-            <span>Dashboard</span>
-            <span className="text-gray-300">/</span>
-            <span>Attendance Manager</span>
+    <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
+              SESSION <span className="text-brand-500">ATTENDANCE</span>
+              <Calendar size={32} className="text-brand-500 opacity-50" />
+          </h1>
+          <p className="text-brand-400 font-medium mt-1 tracking-tight">Active duty deployment logging and RSVP verification.</p>
+        </div>
+        
+        <div className="flex items-center gap-4 bg-brand-800 p-2 rounded-2xl border border-white/10 shadow-xl">
+             <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="p-3 bg-brand-950 hover:bg-brand-500 hover:text-brand-950 rounded-xl text-brand-500 transition-all shadow-lg active:scale-95">
+                 <ChevronDown className="rotate-90 w-5 h-5" />
+             </button>
+             <div className="px-6 text-center">
+                  <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">Tactical Date</p>
+                  <input 
+                      type="date" 
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="bg-transparent border-none outline-none text-sm font-black text-white w-32 cursor-pointer text-center"
+                  />
+             </div>
+             <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="p-3 bg-brand-950 hover:bg-brand-500 hover:text-brand-950 rounded-xl text-brand-500 transition-all shadow-lg active:scale-95">
+                 <ChevronDown className="-rotate-90 w-5 h-5" />
+             </button>
         </div>
       </div>
 
-      {/* Control Bar */}
-      <div className="bg-brand-800 p-4 rounded-2xl shadow-lg border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3 w-full md:w-auto bg-brand-950 p-1.5 rounded-xl border border-white/5">
-           <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="p-2 hover:bg-white/5 rounded-lg text-brand-400 hover:text-white transition-all shadow-sm">
-               <ChevronDown className="rotate-90 w-5 h-5" />
-           </button>
-           <div className="relative">
-                <input 
-                    type="date" 
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="bg-transparent border-none outline-none text-sm font-bold text-white w-32 text-center cursor-pointer"
-                />
-           </div>
-           <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="p-2 hover:bg-white/5 rounded-lg text-brand-400 hover:text-white transition-all shadow-sm">
-               <ChevronDown className="-rotate-90 w-5 h-5" />
-           </button>
-        </div>
-
-        <div className="flex gap-3 w-full md:w-auto">
-            <button 
-                onClick={saveAttendance}
-                className={`flex-1 md:flex-none flex items-center justify-center px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg active:scale-95 ${saved ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-gold text-brand-950 hover:bg-yellow-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]'}`}
-            >
-                {saved ? <CheckCircle className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                {saved ? 'Saved' : 'Save Roll'}
-            </button>
-        </div>
-      </div>
-
-      {/* Session Forecast Cards */}
+      {/* Stats Cluster */}
       {scheduledEvent ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-brand-800 p-6 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between group hover:border-green-400 transition-all">
-                  <div>
-                      <p className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-1">Confirmed</p>
-                      <h3 className="text-4xl font-black text-white">{rsvps.attending.length}</h3>
+              <div className="bg-brand-800 p-10 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-emerald-500/30 transition-all shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><CheckCircle2 size={80} /></div>
+                  <div className="relative">
+                      <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-3 italic">Confirmed RSVP</p>
+                      <h3 className="text-5xl font-black text-white italic">{rsvps.attending.length}</h3>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <CheckCircle2 size={24} />
-                  </div>
-              </div>
-              <div className="bg-brand-800 p-6 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between group hover:border-red-400 transition-all">
-                  <div>
-                      <p className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-1">Declined</p>
-                      <h3 className="text-4xl font-black text-white">{rsvps.declined.length}</h3>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <XCircle size={24} />
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <CheckCircle2 size={32} />
                   </div>
               </div>
-              <div className="bg-brand-800 p-6 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between group hover:border-gold transition-all">
-                  <div>
-                      <p className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-1">No Response</p>
-                      <h3 className="text-4xl font-black text-white">{rsvps.pending.length}</h3>
+              <div className="bg-brand-800 p-10 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-red-500/30 transition-all shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><XCircle size={80} /></div>
+                  <div className="relative">
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em] mb-3 italic">Declined RSVP</p>
+                      <h3 className="text-5xl font-black text-white italic">{rsvps.declined.length}</h3>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-gold/10 text-gold border border-gold/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <AlertCircle size={24} />
+                  <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <XCircle size={32} />
+                  </div>
+              </div>
+              <div className="bg-brand-800 p-10 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-brand-500/30 transition-all shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><AlertCircle size={80} /></div>
+                  <div className="relative">
+                      <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-3 italic">Awaiting Response</p>
+                      <h3 className="text-5xl font-black text-white italic">{rsvps.pending.length}</h3>
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <AlertCircle size={32} />
                   </div>
               </div>
           </div>
       ) : (
-          <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-center gap-3 text-blue-400 text-sm">
-              <AlertCircle size={18} />
-              <span className="font-medium">No event scheduled for this date. Attendance is being recorded for an ad-hoc session.</span>
+          <div className="bg-brand-950 p-6 rounded-[2rem] border border-brand-500/10 flex items-center gap-4 text-brand-400 text-sm shadow-xl italic font-medium">
+              <div className="p-3 bg-brand-500/10 rounded-xl text-brand-500"><Zap size={20} /></div>
+              <span>No scheduled engagement detected. Attendance logging configured for ad-hoc session protocol.</span>
           </div>
       )}
 
-      {/* Roster & Filter */}
-      <div className="space-y-4">
-          <div className="flex items-center justify-between">
-              <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                  <Users size={20} className="text-gold" />
-                  Player Roster
+      {/* Roster Area */}
+      <div className="space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
+              <h3 className="font-black text-white text-xl uppercase italic tracking-tighter flex items-center gap-3">
+                  <Users size={24} className="text-brand-500" />
+                  SQUAD ROSTER <span className="text-brand-500/20">({filteredPlayers.length})</span>
               </h3>
-              <div className="flex gap-2">
+              <div className="flex bg-brand-800 p-1.5 rounded-2xl border border-white/5">
                   {['ALL', 'PRESENT', 'ABSENT'].map(f => (
                       <button 
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all ${filter === f ? 'bg-gold text-brand-950 border-gold' : 'bg-brand-800 text-brand-300 border-white/10 hover:bg-brand-700'}`}
+                        className={`text-[10px] font-black px-6 py-2.5 rounded-xl uppercase tracking-widest transition-all italic ${filter === f ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}
                       >
                           {f}
                       </button>
@@ -204,7 +192,7 @@ export const CoachAttendance: React.FC = () => {
               </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredPlayers.map(player => {
                 const styles = getStatusStyles(attendance[player.id]);
                 const isRsvpYes = scheduledEvent?.rsvps?.[player.id] === 'attending';
@@ -213,37 +201,33 @@ export const CoachAttendance: React.FC = () => {
                     <div 
                         key={player.id}
                         onClick={() => toggleStatus(player.id)}
-                        className={`
-                            relative bg-brand-800 rounded-xl border border-white/5 transition-all cursor-pointer group hover:shadow-lg hover:border-white/20
-                        `}
+                        className="relative bg-brand-800 rounded-[2rem] border border-white/5 transition-all cursor-pointer group hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] overflow-hidden"
                     >
-                        {/* Status Strip */}
-                        <div className={`h-1.5 w-full rounded-t-lg ${styles.bg.replace('bg-', 'bg-').replace('50', '400')}`} />
-                        
-                        <div className="p-4 flex items-center gap-4">
+                        <div className="p-6 flex items-center gap-5">
                             <div className="relative">
-                                <img src={player.photoUrl} className="w-12 h-12 rounded-full object-cover bg-brand-950 border border-white/10" />
+                                <img src={player.photoUrl} className="w-16 h-16 rounded-full object-cover bg-brand-950 border-2 border-white/10 group-hover:border-brand-500/50 transition-colors" />
                                 {isRsvpYes && (
-                                    <div className="absolute -bottom-1 -right-1 bg-green-500 text-white p-0.5 rounded-full border-2 border-brand-800" title="RSVP Confirmed">
-                                        <CheckCircle size={10} />
+                                    <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-brand-950 p-1 rounded-full border-2 border-brand-800 shadow-xl" title="RSVP Confirmed">
+                                        <CheckCircle2 size={12} />
                                     </div>
                                 )}
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-white text-sm truncate">{player.fullName}</h4>
-                                <p className="text-[10px] text-brand-400 font-bold uppercase tracking-wider">{player.position}</p>
+                                <h4 className="font-black text-white text-sm uppercase italic tracking-tight truncate">{player.fullName}</h4>
+                                <p className="text-[10px] text-brand-500 font-bold uppercase tracking-widest mt-1">{player.position}</p>
                             </div>
 
-                            <div className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider min-w-[70px] text-center border ${styles.badge}`}>
+                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all italic border ${styles.badge}`}>
                                 {styles.label}
                             </div>
                         </div>
 
-                        {/* Hover Prompt */}
-                        <div className="absolute inset-0 bg-brand-950/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center border border-white/10">
-                            <span className="bg-brand-900 shadow-md border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-white scale-90 group-hover:scale-100 transition-transform">
-                                Tap to toggle
+                        {/* Interactive Overlay */}
+                        <div className="absolute inset-0 bg-brand-950/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center p-6 text-center border border-white/10">
+                            <Zap size={24} className="text-brand-500 mb-3 animate-pulse" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">
+                                TOGGLE LOG STATUS
                             </span>
                         </div>
                     </div>
@@ -252,10 +236,21 @@ export const CoachAttendance: React.FC = () => {
           </div>
           
           {filteredPlayers.length === 0 && (
-              <div className="text-center py-12 bg-white border border-dashed border-gray-200 rounded-2xl">
-                  <p className="text-gray-400 text-sm font-medium">No players found with this filter.</p>
+              <div className="text-center py-24 bg-brand-900/50 border-2 border-dashed border-white/5 rounded-[3rem]">
+                  <p className="text-brand-600 text-sm font-black uppercase tracking-widest italic">No matching personnel signals detected.</p>
               </div>
           )}
+      </div>
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-10 right-10 z-50">
+          <button 
+                onClick={saveAttendance}
+                className={`flex items-center gap-4 px-10 py-5 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] transition-all shadow-2xl active:scale-95 group italic font-display ${saved ? 'bg-emerald-500 text-brand-950' : 'bg-brand-500 text-brand-950 hover:bg-brand-400 hover:scale-[1.02]'}`}
+            >
+                {saved ? <CheckCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+                {saved ? 'DATA STORED' : 'EXECUTE LOG SYNC'}
+            </button>
       </div>
     </div>
   );

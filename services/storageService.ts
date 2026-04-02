@@ -76,18 +76,18 @@ const notifyDataChange = () => {
 };
 
 const generateSequentialMemberId = (existingPlayers: Player[]): string => {
-  if (existingPlayers.length === 0) return 'MBR-0001';
+  if (existingPlayers.length === 0) return 'ICR-0001';
   
   const ids = existingPlayers
     .map(p => {
-      const match = p.memberId?.match(/MBR-(\d+)/);
+      const match = p.memberId?.match(/ICR-(\d+)/);
       return match ? parseInt(match[1], 10) : 0;
     })
     .filter(id => !isNaN(id));
 
   const maxId = ids.length > 0 ? Math.max(...ids) : 0;
   const nextId = maxId + 1;
-  return `MBR-${nextId.toString().padStart(4, '0')}`;
+  return `ICR-${nextId.toString().padStart(4, '0')}`;
 };
 
 let syncUnsubscribers: (() => void)[] = [];
@@ -581,9 +581,9 @@ export const StorageService = {
     return {
       name: 'ACADEMY PORTAL',
       logoUrl: '',
-      primaryColor: '#64748b', // Neutral slate
-      secondaryColor: '#0f172a', // Dark slate
-      fontFamily: 'Inter'
+      primaryColor: '#0ea5e9', // Summer 2026 Sky Blue
+      secondaryColor: '#030712', // Summer 2026 Cosmic Deep Navy
+      fontFamily: 'Orbitron' // Summer 2026 Tactical Display Font
     };
   },
   

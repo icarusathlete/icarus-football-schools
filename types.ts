@@ -61,6 +61,8 @@ export interface Player {
   photoUrl: string;
   position: string;
   registeredAt: string;
+  email?: string;
+  notes?: string;
   evaluation?: PlayerEvaluation;
   evaluationHistory?: PlayerEvaluation[]; // Store past reports
   attachments?: { url: string; type: 'image' | 'video'; note: string; date: string }[];

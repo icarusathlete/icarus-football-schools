@@ -56,7 +56,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
         
         {/* HEADER */}
         <div className="bg-brand-800 px-8 py-6 flex justify-between items-center relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-3xl -z-10 rounded-full" />
+           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/5 blur-3xl -z-10 rounded-full" />
            <div className="flex items-center gap-6">
               <img src={player.photoUrl} className="w-16 h-16 rounded-full border-2 border-brand-500 shadow-lg object-cover" />
               <div>
@@ -76,19 +76,19 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
         <div className="flex bg-brand-900 px-8 py-2 border-b border-white/5 gap-6 text-sm font-bold uppercase tracking-wider">
            <button 
              onClick={() => setActiveTab('timeline')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'timeline' ? 'border-gold text-gold' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
+             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'timeline' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
            >
              Dev. Timeline
            </button>
            <button 
              onClick={() => setActiveTab('kpis')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'kpis' ? 'border-gold text-gold' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
+             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'kpis' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
            >
              Position KPIs
            </button>
            <button 
              onClick={() => setActiveTab('attachments')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'attachments' ? 'border-gold text-gold' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
+             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'attachments' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
            >
              Media Vault
            </button>
@@ -101,7 +101,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
                <div className="space-y-6 animate-fade-in pl-4 border-l-2 border-brand-800 ml-4">
                   {milestones.map((m, i) => (
                       <div key={i} className="relative">
-                          <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-gold shadow-[0_0_10px_rgba(251,191,36,0.5)] -ml-px" />
+                          <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-brand-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] -ml-px" />
                           <div className="pl-6">
                               <div className="text-xs font-bold text-brand-400 uppercase tracking-widest">{new Date(m.date).toLocaleDateString()}</div>
                               <h4 className="text-lg font-bold text-white mt-1">{m.title}</h4>
@@ -115,7 +115,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
            {activeTab === 'kpis' && (
                <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div className="md:col-span-2 mb-4 bg-brand-800/50 p-4 rounded-xl border border-white/5 flex items-center gap-3">
-                       <Target className="text-gold" size={24} />
+                       <Target className="text-brand-500" size={24} />
                        <div>
                            <div className="text-white font-bold">{player.position} Metrics</div>
                            <div className="text-xs text-brand-400">Key performance indicators tracked for this position.</div>
@@ -165,10 +165,10 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
                        <div className="space-y-4">
                            <div className="flex gap-4">
                                <label className="flex items-center gap-2 text-sm text-brand-300">
-                                   <input type="radio" checked={newAttachmentType==='image'} onChange={()=>setNewAttachmentType('image')} className="accent-gold"/> Image
+                                   <input type="radio" checked={newAttachmentType==='image'} onChange={()=>setNewAttachmentType('image')} className="accent-brand-500"/> Image
                                </label>
                                <label className="flex items-center gap-2 text-sm text-brand-300">
-                                   <input type="radio" checked={newAttachmentType==='video'} onChange={()=>setNewAttachmentType('video')} className="accent-gold"/> Video URL
+                                   <input type="radio" checked={newAttachmentType==='video'} onChange={()=>setNewAttachmentType('video')} className="accent-brand-500"/> Video URL
                                </label>
                            </div>
                            <input 
@@ -176,17 +176,17 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
                              placeholder={newAttachmentType === 'image' ? 'Image URL (e.g. from Firebase Storage)' : 'YouTube Video URL'} 
                              value={newAttachmentUrl}
                              onChange={e=>setNewAttachmentUrl(e.target.value)}
-                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-gold"
+                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-brand-500"
                            />
                            <input 
                              type="text" 
                              placeholder="Note / Description (Optional)" 
                              value={newAttachmentNote}
                              onChange={e=>setNewAttachmentNote(e.target.value)}
-                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-gold"
+                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-brand-500"
                            />
-                           <button onClick={handleAddAttachment} className="bg-gold text-brand-950 font-bold px-6 py-2 rounded-lg text-sm transition-colors hover:bg-yellow-400">
-                               Upload Media
+                           <button onClick={handleAddAttachment} className="bg-brand-500 text-brand-950 font-black rounded-xl px-8 py-3 text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-brand-500/10">
+                               UPLOAD TO VAULT
                            </button>
                        </div>
                    </div>

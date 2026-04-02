@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Player, AcademySettings, PlayerEvaluation } from '../types';
-import { Trophy, Star, TrendingUp, TrendingDown, Activity, Target, Shield, Download, Loader2, PlayCircle, Timer, Zap, Ruler, Weight, Calendar } from 'lucide-react';
+import { Trophy, Star, TrendingUp, TrendingDown, Activity, Target, Shield, Download, Loader2, PlayCircle, Timer, Zap, Ruler, Weight, Calendar, Gauge } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -24,12 +24,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   const evalData = player.evaluation;
   
   if (!evalData) return (
-    <div className="p-12 text-center bg-white rounded-3xl border-2 border-dashed border-gray-100 shadow-sm">
-      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-        <Trophy className="w-8 h-8 text-gray-300" />
+    <div className="p-12 text-center bg-brand-900 rounded-[2.5rem] border-2 border-dashed border-white/10 shadow-2xl">
+      <div className="w-20 h-20 bg-brand-950 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-inner">
+        <Trophy className="w-10 h-10 text-brand-700" />
       </div>
-      <h3 className="text-xl font-bold text-gray-800">No Scout Report Available</h3>
-      <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">A coach needs to complete a performance evaluation for this player before a report card can be generated.</p>
+      <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">No Scouting <span className="text-brand-500">Log Detected</span></h3>
+      <p className="text-brand-500 text-sm mt-3 max-w-sm mx-auto font-medium italic opacity-70">Tactical evaluation protocol required for this operative before a performance dossier can be generated.</p>
     </div>
   );
 
@@ -52,7 +52,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         const canvas = await html2canvas(cardRef.current, {
             scale: 2,
             useCORS: true,
-            backgroundColor: '#020617', // Match slate-950 background
+            backgroundColor: '#030712', // Match Cosmic Navy
             logging: false,
             allowTaint: true
         });
@@ -78,18 +78,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   };
 
   // Helper Component: Cyber Progress Bar
-  const CyberProgressBar = ({ value, label, color = 'bg-cyan-500' }: { value: number, label: string, color?: string }) => (
+  const CyberProgressBar = ({ value, label, color = 'bg-brand-500' }: { value: number, label: string, color?: string }) => (
       <div className="relative pt-1 group">
           <div className="flex justify-between items-end mb-1.5">
-              <span className="text-[10px] font-bold text-cyan-200/60 uppercase tracking-[0.2em] group-hover:text-cyan-200 transition-colors">{label}</span>
-              <span className={`text-sm font-mono font-bold text-white`}>{value}</span>
+              <span className="text-[10px] font-black text-brand-500/60 uppercase tracking-[0.2em] group-hover:text-brand-500 transition-colors italic">{label}</span>
+              <span className={`text-sm font-black italic text-white`}>{value}</span>
           </div>
-          <div className="h-2 w-full bg-slate-800 rounded-sm overflow-hidden border border-white/5 relative">
+          <div className="h-2.5 w-full bg-brand-950 rounded-full overflow-hidden border border-white/5 relative">
               <div 
-                className={`h-full ${color} shadow-[0_0_15px_currentColor] relative`} 
+                className={`h-full ${color} shadow-[0_0_15px_currentColor] relative rounded-full transition-all duration-1000`} 
                 style={{ width: `${value}%` }} 
               >
-                  <div className="absolute top-0 right-0 bottom-0 w-1 bg-white/50"></div>
+                  <div className="absolute top-0 right-0 bottom-0 w-2 bg-white/20"></div>
               </div>
           </div>
       </div>
@@ -102,36 +102,36 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
             <button 
                 onClick={handleDownloadPDF} 
                 disabled={isGenerating}
-                className="bg-cyan-500 text-slate-950 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-cyan-400 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                className="bg-brand-500 text-brand-950 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand-500/20 flex items-center gap-3 disabled:opacity-50 italic"
             >
-                {isGenerating ? <Loader2 className="animate-spin" size={16}/> : <Download size={16} />} 
-                Download Report PDF
+                {isGenerating ? <Loader2 className="animate-spin" size={18}/> : <Download size={18} />} 
+                EXPORT PERFORMANCE DOSSIER
             </button>
         </div>
 
         {/* --- MAIN REPORT CANVAS --- */}
-        <div ref={cardRef} className="max-w-6xl mx-auto font-sans bg-slate-950 rounded-[2.5rem] overflow-hidden border border-slate-800 shadow-2xl relative select-none p-12">
+        <div ref={cardRef} className="max-w-6xl mx-auto font-display bg-brand-950 rounded-[4rem] overflow-hidden border border-white/5 shadow-3xl relative select-none p-16">
             
             {/* Background Textures */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 -z-20" />
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] -z-10" />
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-[120px] -z-10 translate-x-1/3 -translate-y-1/3" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/3" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.1),transparent_70%)] opacity-50" />
+            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] -z-10" />
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-500/5 rounded-full blur-[150px] -z-10 translate-x-1/3 -translate-y-1/3" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-lime/5 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/3" />
 
             {/* Header Line */}
-            <div className="flex justify-between items-end border-b border-slate-800/50 pb-8 mb-10">
+            <div className="flex justify-between items-end border-b border-white/5 pb-12 mb-12">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <Activity size={24} className="text-cyan-500" />
-                        <span className="text-xs font-black text-cyan-500 uppercase tracking-[0.3em]">Official Analysis</span>
+                    <div className="flex items-center gap-4 mb-4">
+                        <Activity size={28} className="text-brand-500 animate-pulse" />
+                        <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] italic">DEEP TELEMETRY ANALYSIS</span>
                     </div>
-                    <h1 className="text-5xl font-black text-white italic tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-                        SCOUTING <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">REPORT</span>
+                    <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-none">
+                        SCOUTING <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">DOSSIER</span>
                     </h1>
                 </div>
                 <div className="text-right">
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Generated ID</div>
-                    <div className="font-mono text-xl text-cyan-300 font-bold">{player.memberId}</div>
+                    <div className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] mb-2 italic">PROTOCOL IDENTIFIER</div>
+                    <div className="font-mono text-2xl text-brand-500 font-black tracking-widest">{player.memberId}</div>
                 </div>
             </div>
 
@@ -152,13 +152,13 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                         {/* Top Info */}
                         <div className="relative z-10 p-8 flex items-start justify-between">
                             <div className="flex flex-col items-center mt-2">
-                                <span className="text-6xl font-black text-white leading-none font-[Orbitron] drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                                <span className="text-6xl font-black text-white leading-none italic font-display drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
                                     {evalData.overallRating}
                                 </span>
-                                <span className="text-xl font-bold text-cyan-400 uppercase tracking-wider mt-1">{player.position.substring(0,3)}</span>
-                                <div className="w-10 h-0.5 bg-white/20 my-4"></div>
-                                <div className="w-10 h-10 opacity-90">
-                                    {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain" /> : <Shield className="w-full h-full text-white" />}
+                                <span className="text-xl font-black text-brand-500 uppercase tracking-widest mt-2 italic">{player.position.substring(0,3)}</span>
+                                <div className="w-12 h-1 bg-brand-500/20 my-6"></div>
+                                <div className="w-12 h-12">
+                                    {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain rounded-full shadow-2xl" /> : <Shield className="w-full h-full text-white" />}
                                 </div>
                             </div>
                             
@@ -174,63 +174,63 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
 
                         {/* Name */}
                         <div className="relative z-10 mt-36 text-center px-4">
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight font-[Orbitron] drop-shadow-lg truncate">
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic font-display drop-shadow-lg truncate">
                                 {player.fullName}
                             </h2>
-                            <div className="w-1/2 mx-auto h-0.5 bg-gradient-to-r from-transparent via-cyan-500 to-transparent mt-4 opacity-60"></div>
+                            <div className="w-2/3 mx-auto h-[3px] bg-gradient-to-r from-transparent via-brand-500/50 to-transparent mt-4"></div>
                         </div>
 
                         {/* Card Stats Grid */}
-                        <div className="relative z-10 px-8 mt-8">
-                            <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-white font-[Orbitron]">
+                        <div className="relative z-10 px-8 mt-10">
+                            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-white font-display italic">
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{evalData.metrics.passing}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">PAS</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">PAS</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{evalData.metrics.shooting}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">SHO</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">SHO</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{evalData.metrics.juggling}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">DRI</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">DRI</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{stats.rating}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">RTG</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">RTG</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{stats.matches}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">MAT</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">MAT</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{stats.starts || 0}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">XI</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">XI</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{stats.goals}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">GOL</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">GOL</span>
                                 </div>
                                 <div className="flex justify-between items-center group/stat border-b border-white/5 pb-1">
                                     <span className="font-bold text-xl">{stats.assists}</span>
-                                    <span className="text-xs font-bold text-cyan-200/60 tracking-widest uppercase group-hover/stat:text-cyan-400 transition-colors">AST</span>
+                                    <span className="text-xs font-bold text-brand-500/60 tracking-[0.2em] group-hover/stat:text-brand-500 transition-colors">AST</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Card Bottom Deco */}
-                        <div className="absolute bottom-6 left-0 right-0 flex justify-center opacity-40 gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_currentColor]"></div>
-                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_currentColor]"></div>
-                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_currentColor]"></div>
+                        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 opacity-60">
+                            <div className="w-2 h-2 rounded-full bg-brand-500 shadow-[0_0_10px_#0ea5e9]"></div>
+                            <div className="w-2 h-2 rounded-full bg-brand-500 shadow-[0_0_10px_#0ea5e9]"></div>
+                            <div className="w-2 h-2 rounded-full bg-brand-500 shadow-[0_0_10px_#0ea5e9]"></div>
                         </div>
                     </div>
 
                     {/* Metadata under card */}
-                    <div className="mt-8 text-center">
-                        <div className="inline-flex items-center gap-3 bg-slate-900/50 border border-slate-800 px-6 py-3 rounded-2xl backdrop-blur-sm shadow-inner">
-                            <Calendar size={16} className="text-slate-400" />
-                            <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">{new Date(evalData.evaluationDate).toLocaleDateString()}</span>
+                    <div className="mt-10 text-center">
+                        <div className="inline-flex items-center gap-4 bg-brand-900 border border-white/5 px-8 py-4 rounded-3xl shadow-3xl italic">
+                            <Calendar size={18} className="text-brand-500" />
+                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">{new Date(evalData.evaluationDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                     </div>
                 </div>
@@ -241,95 +241,95 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                     {/* Metrics Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Technical DNA */}
-                        <div className="bg-slate-900/40 border border-slate-800/60 p-8 rounded-[2rem] backdrop-blur-md relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <Target size={80} className="text-white" />
+                        <div className="bg-brand-900 border border-white/5 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                                <Target size={120} className="text-white" />
                             </div>
-                            <h3 className="text-xs font-black text-white uppercase tracking-widest mb-8 flex items-center gap-2 border-b border-white/5 pb-3">
-                                <Target size={16} className="text-cyan-400" /> Technical DNA
+                            <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-10 flex items-center gap-4 border-b border-white/5 pb-5 italic">
+                                <Target size={18} className="text-brand-500" /> TACTICAL DNA
                             </h3>
-                            <div className="space-y-6 relative z-10">
-                                <CyberProgressBar label="Passing & Vision" value={evalData.metrics.passing} color="bg-cyan-500" />
-                                <CyberProgressBar label="Finishing" value={evalData.metrics.shooting} color="bg-blue-500" />
-                                <CyberProgressBar label="Ball Control" value={evalData.metrics.juggling} color="bg-purple-500" />
-                                <CyberProgressBar label="Weak Foot" value={evalData.metrics.weakFoot} color="bg-orange-500" />
-                                <CyberProgressBar label="Aerial / Long Pass" value={evalData.metrics.longPass} color="bg-emerald-500" />
+                            <div className="space-y-8 relative z-10">
+                                <CyberProgressBar label="Strategic Vision" value={evalData.metrics.passing} color="bg-brand-500" />
+                                <CyberProgressBar label="Strike Precision" value={evalData.metrics.shooting} color="bg-blue-500" />
+                                <CyberProgressBar label="Ball Dominion" value={evalData.metrics.juggling} color="bg-purple-500" />
+                                <CyberProgressBar label="Alternate Linkage" value={evalData.metrics.weakFoot} color="bg-orange-500" />
+                                <CyberProgressBar label="Long Range Comms" value={evalData.metrics.longPass} color="bg-lime" />
                             </div>
                         </div>
 
                         {/* Physical Engine */}
                         <div className="flex flex-col gap-6">
-                            <div className="bg-slate-900/40 border border-slate-800/60 p-8 rounded-[2rem] backdrop-blur-md flex-1 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <Zap size={80} className="text-white" />
+                            <div className="bg-brand-900 border border-white/5 p-10 rounded-[3rem] shadow-2xl flex-1 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                                    <Zap size={120} className="text-white" />
                                 </div>
-                                <h3 className="text-xs font-black text-white uppercase tracking-widest mb-8 flex items-center gap-2 border-b border-white/5 pb-3">
-                                    <Zap size={16} className="text-yellow-400" /> Physical Engine
+                                <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-10 flex items-center gap-4 border-b border-white/5 pb-5 italic">
+                                    <Zap size={18} className="text-lime" /> PHYSICAL ENGINE
                                 </h3>
-                                <div className="space-y-4 relative z-10">
-                                    <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-white/5 shadow-inner">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-slate-900 rounded-lg text-slate-400"><Timer size={16} /></div>
-                                            <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">100m Pace</span>
+                                <div className="space-y-5 relative z-10">
+                                    <div className="flex items-center justify-between p-5 bg-brand-950 rounded-2xl border border-white/5 shadow-inner">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-brand-900 rounded-xl text-brand-600 shadow-xl"><Timer size={18} /></div>
+                                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic">100m PACE</span>
                                         </div>
-                                        <span className="text-xl font-mono font-black text-white">{evalData.timeTrials.speed}<span className="text-sm text-slate-500 ml-1">s</span></span>
+                                        <span className="text-2xl font-black text-white italic">{evalData.timeTrials.speed}<span className="text-xs text-brand-700 ml-1">S</span></span>
                                     </div>
-                                    <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-white/5 shadow-inner">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-slate-900 rounded-lg text-slate-400"><Activity size={16} /></div>
-                                            <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">Agility</span>
+                                    <div className="flex items-center justify-between p-5 bg-brand-950 rounded-2xl border border-white/5 shadow-inner">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-brand-900 rounded-xl text-brand-600 shadow-xl"><Gauge size={18} /></div>
+                                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic">AGILITY</span>
                                         </div>
-                                        <span className="text-xl font-mono font-black text-white">{evalData.timeTrials.agility}<span className="text-sm text-slate-500 ml-1">s</span></span>
+                                        <span className="text-2xl font-black text-white italic">{evalData.timeTrials.agility}<span className="text-xs text-brand-700 ml-1">S</span></span>
                                     </div>
-                                    <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-white/5 shadow-inner">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-slate-900 rounded-lg text-slate-400"><PlayCircle size={16} /></div>
-                                            <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">Dribble</span>
+                                    <div className="flex items-center justify-between p-5 bg-brand-950 rounded-2xl border border-white/5 shadow-inner">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-brand-900 rounded-xl text-brand-600 shadow-xl"><PlayCircle size={18} /></div>
+                                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic">DRIBBLING</span>
                                         </div>
-                                        <span className="text-xl font-mono font-black text-white">{evalData.timeTrials.dribbling}<span className="text-sm text-slate-500 ml-1">s</span></span>
+                                        <span className="text-2xl font-black text-white italic">{evalData.timeTrials.dribbling}<span className="text-xs text-brand-700 ml-1">S</span></span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Anthropometry Mini */}
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-slate-900/40 border border-slate-800/60 p-5 rounded-2xl flex flex-col items-center justify-center">
-                                    <Ruler size={16} className="text-slate-500 mb-2" />
-                                    <span className="text-xl font-black text-white">{evalData.height} <span className="text-xs text-slate-500">cm</span></span>
+                                <div className="bg-brand-900 border border-white/5 p-6 rounded-2xl flex flex-col items-center justify-center shadow-inner group hover:border-brand-500/30 transition-all">
+                                    <Ruler size={20} className="text-brand-600 mb-3 group-hover:text-brand-500 transition-colors" />
+                                    <span className="text-2xl font-black text-white italic">{evalData.height} <span className="text-xs text-brand-700 ml-1 uppercase">CM</span></span>
                                 </div>
-                                <div className="bg-slate-900/40 border border-slate-800/60 p-5 rounded-2xl flex flex-col items-center justify-center">
-                                    <Weight size={16} className="text-slate-500 mb-2" />
-                                    <span className="text-xl font-black text-white">{evalData.weight} <span className="text-xs text-slate-500">kg</span></span>
+                                <div className="bg-brand-900 border border-white/5 p-6 rounded-2xl flex flex-col items-center justify-center shadow-inner group hover:border-brand-500/30 transition-all">
+                                    <Weight size={20} className="text-brand-600 mb-3 group-hover:text-brand-500 transition-colors" />
+                                    <span className="text-2xl font-black text-white italic">{evalData.weight} <span className="text-xs text-brand-700 ml-1 uppercase">KG</span></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Analyst Notes */}
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-8 rounded-[2rem] relative overflow-hidden mt-auto shadow-lg">
-                        <div className="absolute top-0 right-0 p-4 opacity-5">
-                            <Shield size={100} className="text-white" />
+                    <div className="bg-brand-900 border border-white/5 p-12 rounded-[3.5rem] relative overflow-hidden mt-auto shadow-3xl">
+                        <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+                            <Shield size={160} className="text-white" />
                         </div>
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <Shield size={12} /> Development Focus Areas
+                        <h3 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] mb-8 flex items-center gap-4 italic border-b border-white/5 pb-5">
+                            <Shield size={18} /> OPERATIONAL FOCUS AREAS
                         </h3>
-                        <div className="flex flex-wrap gap-3 relative z-10 mb-8">
+                        <div className="flex flex-wrap gap-4 relative z-10 mb-12">
                             {evalData.developmentAreas.map(area => (
-                                <span key={area} className="px-5 py-2.5 bg-slate-800/80 text-cyan-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-cyan-900/30 shadow-sm backdrop-blur-md">
+                                <span key={area} className="px-6 py-3 bg-brand-950 text-brand-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-brand-500/20 shadow-xl italic transition-all hover:border-brand-500/50">
                                     {area}
                                 </span>
                             ))}
-                            {evalData.developmentAreas.length === 0 && <span className="text-xs text-slate-600 italic">No specific areas tagged by coaching staff.</span>}
+                            {evalData.developmentAreas.length === 0 && <span className="text-xs text-brand-700 italic font-medium">No strategic focuses tagged by command staff.</span>}
                         </div>
                         
-                        <div className="pt-6 border-t border-slate-800 flex justify-between items-center">
-                            <div className="text-xs text-slate-600 font-medium italic">
-                                "Performance metrics are evaluated based on academy standards."
+                        <div className="pt-8 border-t border-white/5 flex justify-between items-end">
+                            <div className="text-[10px] text-brand-700 font-black italic uppercase tracking-widest max-w-[240px]">
+                                "Performance telemetry verified against Summer 2026 academy standards."
                             </div>
                             <div className="text-right">
-                                <div className="font-calendary text-2xl text-slate-500 opacity-80 italic pr-4" style={{ fontFamily: 'cursive' }}>{evalData.coachName}</div>
-                                <div className="h-px w-40 bg-slate-700 mt-2 mb-1 ml-auto"></div>
-                                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Head Coach Signature</div>
+                                <div className="text-3xl text-brand-500 opacity-60 italic pr-6" style={{ fontFamily: 'Orbitron' }}>{evalData.coachName}</div>
+                                <div className="h-px w-48 bg-brand-700 mt-4 mb-2 ml-auto opacity-30"></div>
+                                <div className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic">COMMAND SIGN-OFF</div>
                             </div>
                         </div>
                     </div>

@@ -28,7 +28,7 @@ const numberToWords = (num: number): string => {
 };
 
 export const FinanceManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'tracking' | 'generator'>('tracking');
+  const [activeTab, setActiveTab] = useState<'tracking'>('tracking');
   const [players, setPlayers] = useState<Player[]>([]);
   const [fees, setFees] = useState<FeeRecord[]>([]);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
@@ -210,77 +210,60 @@ export const FinanceManager: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-       {/* Tab Switcher */}
-       <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl w-fit border border-gray-200">
-           <button 
-             onClick={() => setActiveTab('tracking')}
-             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'tracking' ? 'bg-white text-brand-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-           >
-               Fee Tracking
-           </button>
-           <button 
-             onClick={() => setActiveTab('generator')}
-             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'generator' ? 'bg-white text-brand-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-           >
-               External Invoice Generator
-           </button>
-       </div>
+    <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
+       {/* Removed External Invoice Generator Tab as per request */}
 
        {activeTab === 'tracking' ? (
          <>
-           {/* Header Section */}
-           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-               <div>
-                  <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Finance & Fees</h2>
-                  <p className="text-gray-500 text-sm mt-1">Track monthly payments and generate invoices</p>
-               </div>
-               <div className="flex flex-col sm:flex-row gap-3">
-                   <div className="flex flex-col gap-2">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Invoice Template</label>
-                       <div className="flex gap-2">
-                           <label className="cursor-pointer bg-white border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
-                               <Download size={14} className="rotate-180" />
-                               {invoiceTemplate ? 'Change Template' : 'Upload Template'}
-                               <input type="file" accept="image/*" className="hidden" onChange={handleTemplateUpload} />
-                           </label>
-                           {invoiceTemplate && (
-                               <button 
-                                 onClick={clearTemplate}
-                                 className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors border border-red-100"
-                                 title="Clear Template"
-                               >
-                                   <X size={14} />
-                               </button>
-                           )}
-                       </div>
-                   </div>
-                   <div className="relative">
-                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                       <input 
-                         type="month" 
-                         value={month} 
-                         onChange={e => setMonth(e.target.value)} 
-                         className="w-full sm:w-auto pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none font-medium"
-                       />
-                   </div>
-                   <div className="bg-brand-50/50 px-5 py-2.5 rounded-xl border border-brand-100 flex items-center justify-between sm:justify-start gap-4">
-                      <span className="text-xs font-black text-brand-600 uppercase tracking-wider">Collected</span>
-                      <span className="font-mono font-bold text-brand-900 text-lg tracking-tight">₹{totalCollected} <span className="text-gray-400 text-sm">/ ₹{totalDue}</span></span>
-                   </div>
-               </div>
-           </div>
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500/10 backdrop-blur-xl p-10 rounded-[3rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><DollarSign size={160} className="text-white" /></div>
+                <div className="relative z-10">
+                    <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
+                        FINANCE <span className="text-brand-500">DECK</span>
+                    </h1>
+                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Tactical Resource Synchronization Protocol</p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-6 relative z-10 w-full lg:w-auto">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic ml-1">Archive Month</label>
+                        <div className="relative">
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500" />
+                            <input 
+                              type="month" 
+                              value={month} 
+                              onChange={e => setMonth(e.target.value)} 
+                              className="w-full sm:w-auto pl-12 pr-6 py-4 bg-brand-950 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="bg-brand-500/20 backdrop-blur-xl px-8 py-4 rounded-[2rem] border border-brand-500/40 shadow-inner flex items-center justify-between gap-10">
+                        <div>
+                            <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-black text-lime italic">₹{totalCollected}</span>
+                                <span className="text-[10px] font-bold text-brand-700">/ ₹{totalDue}</span>
+                            </div>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-lime/10 flex items-center justify-center text-lime border border-lime/20 shadow-[0_0_20px_rgba(190,242,100,0.1)]">
+                            <Trophy size={20} />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-           {/* Search Bar */}
-           <div className="relative">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-               <input 
-                 placeholder="Search player name or member ID..." 
-                 className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all font-medium"
-                 value={searchTerm}
-                 onChange={e => setSearchTerm(e.target.value)}
-               />
-           </div>
+            {/* Search Bar */}
+            <div className="relative group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 group-focus-within:text-white transition-colors w-5 h-5" />
+                <input 
+                  placeholder="Search operative nomenclature or member ID..." 
+                  className="w-full pl-16 pr-8 py-5 bg-brand-500/5 backdrop-blur-xl border border-brand-500/30 rounded-[2rem] shadow-2xl focus:border-brand-500 outline-none transition-all font-black text-xs text-white placeholder:text-brand-700 italic tracking-wider"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+            </div>
 
            {/* Mobile Card View (Hidden on MD+) */}
            <div className="md:hidden grid gap-4">
@@ -288,119 +271,106 @@ export const FinanceManager: React.FC = () => {
                   const status = getStatus(p.id);
                   const statusVal = status?.status || 'PENDING';
                   return (
-                      <div key={p.id} className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden group">
-                          <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[10px] font-black tracking-wider uppercase border-b border-l ${getStatusColor(statusVal)}`}>
-                              {statusVal}
+                      <div key={p.id} className="bg-brand-500/10 backdrop-blur-md p-6 rounded-[2rem] border border-brand-500/20 shadow-2xl relative overflow-hidden group">
+                          <div className={`absolute top-0 right-0 px-4 py-1.5 rounded-bl-2xl text-[9px] font-black tracking-widest uppercase border-b border-l border-white/10 ${
+                              statusVal === 'PAID' ? 'bg-lime text-brand-950' : 
+                              statusVal === 'OVERDUE' ? 'bg-red-600 text-white' : 
+                              'bg-brand-900 text-brand-500'
+                          }`}>
+                              {statusVal === 'PAID' ? 'SECURED' : statusVal === 'OVERDUE' ? 'BREACH' : 'PENDING'}
                           </div>
-                          <div className="flex items-center gap-3 mb-3">
-                              <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-gray-100 object-cover border" />
+                          <div className="flex items-center gap-4 mb-4">
+                              <img src={p.photoUrl} className="w-16 h-16 rounded-full bg-brand-900 object-cover border-2 border-white/10" />
                               <div>
-                                  <h3 className="font-bold text-gray-900">{p.fullName}</h3>
-                                  <p className="text-[10px] text-gray-400 font-mono tracking-wider">{p.memberId}</p>
+                                  <h3 className="font-black text-white italic truncate">{p.fullName}</h3>
+                                  <p className="text-[10px] text-brand-700 font-mono tracking-widest uppercase">{p.memberId}</p>
                                   {status?.datePaid && (
-                                    <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1 font-medium bg-green-50 px-2 py-0.5 rounded-full w-fit">
+                                    <p className="text-[9px] font-black text-brand-500 mt-1 flex items-center gap-1 uppercase italic bg-brand-500/10 px-2 py-0.5 rounded-full w-fit border border-brand-500/20">
                                         <Check size={10} /> {new Date(status.datePaid).toLocaleDateString()}
                                     </p>
                                   )}
                               </div>
                           </div>
-                          <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                              <div className="font-mono font-bold text-gray-700 text-lg">₹2400</div>
-                              <div className="flex gap-1.5">
-                                  <button onClick={() => openInvoiceGenerator(p)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Generate Invoice">
-                                       <FileText size={20} />
+                          <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                              <div className="font-mono font-black text-white italic text-xl">₹2400</div>
+                              <div className="flex gap-2">
+                                  <button onClick={() => openInvoiceGenerator(p)} className="p-3 bg-brand-900 border border-white/5 text-brand-500 rounded-xl hover:text-white transition-all shadow-xl" title="Generate Invoice">
+                                       <FileText size={18} />
                                   </button>
                                   {statusVal !== 'PAID' && (
-                                      <button onClick={() => updateStatus(p.id, 'PAID')} className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"><Check size={20} /></button>
+                                      <button onClick={() => updateStatus(p.id, 'PAID')} className="p-3 bg-brand-900 border border-lime/20 text-lime rounded-xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl"><Check size={18} /></button>
                                   )}
                                   {statusVal !== 'OVERDUE' && (
-                                      <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"><AlertCircle size={20} /></button>
-                                  )}
-                                  {statusVal !== 'PENDING' && (
-                                      <button onClick={() => updateStatus(p.id, 'PENDING')} className="p-2 bg-gray-100 text-gray-500 rounded-lg hover:bg-gray-200 transition-colors"><X size={20} /></button>
+                                      <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-3 bg-brand-900 border border-red-500/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-xl"><AlertCircle size={18} /></button>
                                   )}
                               </div>
                           </div>
                       </div>
                   )
               })}
-              {filteredPlayers.length === 0 && <div className="text-center text-gray-400 py-10">No players found.</div>}
+              {filteredPlayers.length === 0 && <div className="text-center text-brand-700 font-black uppercase tracking-widest py-10 italic">No operatives detected.</div>}
            </div>
            
-           {/* Desktop Table View (Hidden on Mobile) */}
-           <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-               <div className="overflow-x-auto">
-                   <table className="w-full text-left text-sm">
-                       <thead className="bg-gray-50/50 border-b border-gray-200">
-                           <tr>
-                               <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Player</th>
-                               <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Member ID</th>
-                               <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider">Fee Amount</th>
-                               <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider text-center">Status</th>
-                               <th className="px-6 py-4 font-bold text-gray-400 uppercase text-xs tracking-wider text-right">Action</th>
-                           </tr>
-                       </thead>
-                       <tbody className="divide-y divide-gray-100">
-                           {filteredPlayers.map(p => {
-                               const status = getStatus(p.id);
-                               const statusVal = status?.status || 'PENDING';
-                               
-                               return (
-                                   <tr key={p.id} className="group hover:bg-gray-50 transition-colors">
-                                       <td className="px-6 py-4 font-medium flex items-center gap-4">
-                                           <img src={p.photoUrl} className="w-10 h-10 rounded-xl bg-gray-200 object-cover border shadow-sm" />
-                                           <div className="flex flex-col">
-                                              <span className="font-bold text-gray-900">{p.fullName}</span>
-                                              {status?.datePaid && (
-                                                  <span className="text-[10px] text-green-600 font-medium">Paid: {new Date(status.datePaid).toLocaleDateString()}</span>
-                                              )}
-                                           </div>
-                                       </td>
-                                       <td className="px-6 py-4 text-gray-500 font-mono text-xs">{p.memberId}</td>
-                                       <td className="px-6 py-4 font-mono font-bold text-gray-700">₹2400</td>
-                                       <td className="px-6 py-4 text-center">
-                                           <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${getStatusColor(statusVal)}`}>
-                                               {statusVal}
-                                           </span>
-                                       </td>
-                                       <td className="px-6 py-4 text-right">
-                                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                               <button 
-                                                    onClick={() => openInvoiceGenerator(p)} 
-                                                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" 
-                                                    title="Generate Invoice"
-                                               >
-                                                    <FileText size={18} />
-                                               </button>
-                                               {statusVal !== 'PAID' && (
-                                                   <button onClick={() => updateStatus(p.id, 'PAID')} className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors" title="Mark Paid">
-                                                       <Check size={18} />
-                                                   </button>
-                                               )}
-                                               {statusVal !== 'OVERDUE' && (
-                                                   <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors" title="Mark Overdue">
-                                                       <AlertCircle size={18} />
-                                                   </button>
-                                               )}
-                                                {statusVal !== 'PENDING' && (
-                                                   <button onClick={() => updateStatus(p.id, 'PENDING')} className="p-1.5 bg-gray-100 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors" title="Reset">
-                                                       <X size={18} />
-                                                   </button>
-                                               )}
-                                           </div>
-                                       </td>
-                                   </tr>
-                               );
-                           })}
-                           {filteredPlayers.length === 0 && (
-                               <tr>
-                                   <td colSpan={5} className="text-center py-10 text-gray-400">No players found matching your search.</td>
-                               </tr>
-                           )}
-                       </tbody>
-                   </table>
-               </div>
-           </div>
+            {/* Desktop Table View */}
+            <div className="bg-brand-500/10 backdrop-blur-xl rounded-[3rem] border border-brand-500/30 overflow-hidden shadow-3xl">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-brand-950/50 border-b border-white/5">
+                            <tr className="font-display italic">
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Operative Profile</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Clearance ID</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Quota Assessment</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] text-center">Protocol Status</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] text-right">Overrides</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {filteredPlayers.map(p => {
+                                const status = getStatus(p.id);
+                                const statusVal = status?.status || 'PENDING';
+                                
+                                return (
+                                    <tr key={p.id} className="group hover:bg-brand-500/5 transition-all">
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-6">
+                                                <img src={p.photoUrl} className="w-12 h-12 rounded-full bg-brand-950 object-cover border-2 border-white/10 group-hover:border-brand-500/50 transition-all shadow-xl" />
+                                                <div>
+                                                   <span className="font-black text-white italic text-base uppercase tracking-tight block">{p.fullName}</span>
+                                                   {status?.datePaid && (
+                                                       <span className="text-[9px] font-black text-brand-500 uppercase tracking-[2px] mt-1 italic">Clearance: {new Date(status.datePaid).toLocaleDateString()}</span>
+                                                   )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-6 text-brand-700 font-mono text-xs">{p.memberId}</td>
+                                        <td className="px-10 py-6 font-mono font-black text-white italic text-lg">₹2400</td>
+                                        <td className="px-10 py-6 text-center">
+                                            <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border italic ${
+                                                statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' : 
+                                                statusVal === 'OVERDUE' ? 'bg-red-900/30 text-red-500 border-red-500/30' : 
+                                                'bg-brand-950 text-brand-500 border-white/5'
+                                            }`}>
+                                                {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
+                                            </span>
+                                        </td>
+                                        <td className="px-10 py-6 text-right">
+                                            <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                                <button onClick={() => openInvoiceGenerator(p)} className="p-3.5 bg-brand-950 border border-white/10 text-brand-500 hover:text-white hover:bg-brand-500 rounded-xl transition-all shadow-xl"><FileText size={18} /></button>
+                                                {statusVal !== 'PAID' && (
+                                                    <button onClick={() => updateStatus(p.id, 'PAID')} className="p-3.5 bg-brand-950 border border-lime/20 text-lime hover:bg-lime hover:text-brand-950 rounded-xl transition-all shadow-xl"><Check size={18} /></button>
+                                                )}
+                                                {statusVal !== 'OVERDUE' && (
+                                                    <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-3.5 bg-brand-950 border border-red-500/20 text-red-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all shadow-xl"><AlertCircle size={18} /></button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
          </>
        ) : (
          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[800px] relative">
@@ -424,97 +394,97 @@ export const FinanceManager: React.FC = () => {
 
         {/* Invoice Generator Modal */}
         {isInvoiceModalOpen && selectedPlayerForInvoice && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col md:flex-row overflow-hidden">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
+                <div className="bg-brand-900 rounded-[3rem] shadow-3xl w-full max-w-6xl h-[95vh] flex flex-col md:flex-row overflow-hidden border border-white/10">
                     
                     {/* Left Panel: Controls */}
-                    <div className="w-full md:w-1/3 bg-gray-50 p-8 border-r border-gray-200 overflow-y-auto">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold text-gray-900">Invoice Details</h3>
-                            <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-gray-200 rounded-full text-gray-500"><X size={20} /></button>
+                    <div className="w-full md:w-1/3 bg-brand-950 p-10 border-r border-white/5 overflow-y-auto">
+                        <div className="flex items-center justify-between mb-10">
+                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">CORE</span></h3>
+                            <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-brand-500/10 rounded-full text-brand-500 transition-colors"><X size={24} /></button>
                         </div>
                         
-                        <div className="space-y-6">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Invoice Number</label>
+                        <div className="space-y-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Serial Number</label>
                                 <input 
                                     type="text" 
                                     value={invoiceForm.invoiceNo} 
                                     onChange={e => setInvoiceForm({...invoiceForm, invoiceNo: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none font-mono text-sm"
+                                    className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none font-mono text-sm text-white font-black italic"
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Date Issued</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Issuance Cycle</label>
                                 <input 
                                     type="date" 
                                     value={invoiceForm.date} 
                                     onChange={e => setInvoiceForm({...invoiceForm, date: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
+                                    className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-black text-white italic uppercase"
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Fee Valid Till</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Access Valid Until</label>
                                 <input 
                                     type="date" 
                                     value={invoiceForm.validTill} 
                                     onChange={e => setInvoiceForm({...invoiceForm, validTill: e.target.value})}
-                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium"
+                                    className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-black text-white italic uppercase"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                 <div className="space-y-1.5">
-                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Amount (₹)</label>
+                                 <div className="space-y-2">
+                                     <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Quota (₹)</label>
                                      <input 
                                          type="number" 
                                          value={invoiceForm.amount} 
                                          onChange={e => setInvoiceForm({...invoiceForm, amount: parseInt(e.target.value)})}
-                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-bold"
+                                         className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-black text-lime italic"
                                      />
                                  </div>
-                                 <div className="space-y-1.5">
-                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Mode</label>
+                                 <div className="space-y-2">
+                                     <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Channel</label>
                                      <select 
                                          value={invoiceForm.paymentMode} 
                                          onChange={e => setInvoiceForm({...invoiceForm, paymentMode: e.target.value as any})}
-                                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white"
+                                         className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-black text-brand-500 italic bg-brand-950"
                                      >
                                          <option value="Cash">Cash</option>
-                                         <option value="UPI">UPI</option>
-                                         <option value="Bank Transfer">Bank Transfer</option>
-                                         <option value="Card">Credit/Debit Card</option>
+                                         <option value="UPI">UPI Sync</option>
+                                         <option value="Bank Transfer">Bank Intel</option>
+                                         <option value="Card">Terminal Credit</option>
                                      </select>
                                  </div>
                             </div>
                         </div>
 
-                        <div className="mt-12 space-y-3">
+                        <div className="mt-12 space-y-4">
                             <button 
                                  onClick={handleSubmitInvoice}
                                  disabled={isSubmitting}
-                                 className="w-full py-4 bg-brand-900 text-white font-bold rounded-xl shadow-lg hover:bg-black transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                                 className="w-full py-5 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic disabled:opacity-70 disabled:cursor-not-allowed group"
                             >
-                                {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={18} />}
-                                {isSubmitting ? 'Submitting...' : 'Submit & Send to Player'}
+                                {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={20} className="group-hover:translate-x-1 transition-transform" />}
+                                {isSubmitting ? 'SYNCING DATA...' : 'TRANSMIT CLEARANCE'}
                             </button>
                             
                             <button 
                                  onClick={handleDownloadPDF}
-                                 className="w-full py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm"
+                                 className="w-full py-5 bg-brand-900 border border-white/10 text-brand-500 font-black rounded-2xl hover:bg-brand-800 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic"
                             >
-                                <Download size={18} />
-                                Download PDF
+                                <Download size={20} />
+                                ARCHIVE PDF
                             </button>
 
-                            <p className="text-xs text-center text-gray-400 mt-3">This will mark fees as PAID and make the invoice available in the player's portal.</p>
+                            <p className="text-[9px] text-center text-brand-700 font-black uppercase tracking-widest mt-6 italic">This will grant clearance and sync data to the operative's hub.</p>
                         </div>
                     </div>
 
                     {/* Right Panel: Live Preview */}
-                    <div className="w-full md:w-2/3 bg-gray-100 p-8 overflow-y-auto flex items-center justify-center">
+                    <div className="w-full md:w-2/3 bg-brand-900 p-10 overflow-y-auto flex items-center justify-center">
                         <div ref={invoiceRef} className="bg-white w-full max-w-[700px] min-h-[900px] shadow-2xl relative text-gray-900 overflow-hidden">
                             
                             {invoiceTemplate ? (

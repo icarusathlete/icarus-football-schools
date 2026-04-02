@@ -150,7 +150,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           {/* Branding Overlay (Top Right) */}
                           <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-3">
                                 {settings.logoUrl ? (
-                                    <img src={settings.logoUrl} className="w-12 h-12 object-contain" />
+                                    <img src={settings.logoUrl} className="w-12 h-12 rounded-full object-contain" />
                                 ) : (
                                     <Shield className="w-12 h-12 text-white" />
                                 )}
@@ -172,17 +172,17 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       /* SCENARIO B: Clean & Beautiful Text-Based Brochure */
                       <div className="flex flex-col h-full font-sans text-gray-900 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {/* Decorative Header */}
-                          <div className="h-64 bg-slate-900 relative overflow-hidden flex-shrink-0">
+                          <div className="h-64 bg-brand-950 relative overflow-hidden flex-shrink-0">
                               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-                              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+                              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
                               
                               <div className="relative z-10 h-full flex flex-col justify-center px-16">
                                   <div className="flex items-center gap-4 mb-4">
                                       <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
                                           {settings.logoUrl ? (
-                                              <img src={settings.logoUrl} className="w-10 h-10 object-contain" />
+                                              <img src={settings.logoUrl} className="w-10 h-10 rounded-full object-contain" />
                                           ) : (
-                                              <Shield className="w-10 h-10 text-cyan-400" />
+                                              <Shield className="w-10 h-10 text-brand-500" />
                                           )}
                                       </div>
                                       <div>
@@ -207,18 +207,18 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                   </div>
                               </div>
 
-                              <h2 className="text-5xl font-black text-slate-900 mb-8 leading-tight tracking-tight">{brochureData.title}</h2>
+                              <h2 className="text-5xl font-black text-brand-950 mb-8 leading-tight tracking-tight">{brochureData.title}</h2>
                               
-                              <div className="prose prose-xl prose-slate max-w-none text-gray-600 font-medium leading-relaxed whitespace-pre-wrap">
+                              <div className="prose prose-xl prose-brand max-w-none text-brand-900 font-medium leading-relaxed whitespace-pre-wrap">
                                   {brochureData.content}
                               </div>
                           </div>
 
                           {/* Footer */}
-                          <div className="bg-slate-50 px-16 py-12 border-t border-gray-200 mt-auto">
+                          <div className="bg-brand-50 px-16 py-12 border-t border-brand-100 mt-auto">
                               <div className="flex justify-between items-end">
                                   <div>
-                                      <h3 className="font-bold text-slate-900 text-lg mb-1">{settings.name}</h3>
+                                      <h3 className="font-bold text-brand-950 text-lg mb-1">{settings.name}</h3>
                                       <p className="text-gray-500 text-sm">Official Academy Hub</p>
                                       <p className="text-gray-500 text-sm mt-4">{settings.name.toLowerCase().replace(/\s+/g, '')}.com</p>
                                   </div>
@@ -227,7 +227,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                           {brochureData.qrCodeUrl ? (
                                               <img src={brochureData.qrCodeUrl} className="w-24 h-24 object-contain" />
                                           ) : (
-                                              <div className="w-24 h-24 bg-slate-100 flex items-center justify-center text-gray-300">
+                                              <div className="w-24 h-24 bg-brand-100 flex items-center justify-center text-brand-300">
                                                   <Share2 size={32} />
                                               </div>
                                           )}
@@ -242,11 +242,11 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           )}
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-800 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-500/10 backdrop-blur-xl p-8 rounded-[2.5rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5"><Megaphone size={120} className="text-white" /></div>
         <div className="relative z-10">
           <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-             INTELLIGENCE <span className="text-lime">BULLETINS</span>
+             INTELLIGENCE <span className="text-brand-500">BULLETINS</span>
           </h2>
           <p className="text-white/40 font-black uppercase text-[10px] tracking-widest mt-1">Official Directives • Tactical Briefings • Sector Updates</p>
         </div>
@@ -274,7 +274,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       <div className="space-y-2">
                           <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Directive Header (Title)</label>
                           <input 
-                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner transition-all placeholder:text-brand-700" 
+                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner transition-all placeholder:text-brand-700" 
                             placeholder="e.g. MISSION: SUMMER CAMP REGISTRATION" 
                             value={newNotice.title} 
                             onChange={e => setNewNotice({...newNotice, title: e.target.value})} 
@@ -285,7 +285,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       <div className="space-y-2">
                           <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Bulletin Content</label>
                           <textarea 
-                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner transition-all h-32 placeholder:text-brand-700 text-sm" 
+                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner transition-all h-32 placeholder:text-brand-700 text-sm" 
                             placeholder="Provide full intelligence briefing..." 
                             value={newNotice.content} 
                             onChange={e => setNewNotice({...newNotice, content: e.target.value})} 
@@ -298,13 +298,13 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Visual Asset (Poster)</label>
                               <div 
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gold hover:bg-gold/5 transition-all h-32 relative overflow-hidden group shadow-inner bg-brand-800/50"
+                                className="border-2 border-dashed border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-500/5 transition-all h-32 relative overflow-hidden group shadow-inner bg-brand-800/50"
                               >
                                   {newNotice.imageUrl ? (
                                       <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                                   ) : (
                                       <div className="text-center text-brand-600">
-                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-gold opacity-50" />
+                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-brand-500 opacity-50" />
                                           <span className="text-[10px] font-black uppercase tracking-widest">Attach Media</span>
                                       </div>
                                   )}
@@ -317,14 +317,14 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                   <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Tactical Auth (QR)</label>
                                   <div 
                                     onClick={() => qrInputRef.current?.click()}
-                                    className="border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-gold hover:bg-gold/5 transition-all h-14 bg-brand-800 shadow-inner group"
+                                    className="border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-500/5 transition-all h-14 bg-brand-800 shadow-inner group"
                                   >
                                       {newNotice.qrCodeUrl ? (
-                                          <div className="flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-widest">
+                                          <div className="flex items-center gap-2 text-brand-500 font-black text-[10px] uppercase tracking-widest">
                                               <QrCode size={16} /> QR Encrypted
                                           </div>
                                       ) : (
-                                          <div className="flex items-center gap-2 text-brand-600 text-[10px] font-black uppercase tracking-widest group-hover:text-gold transition-colors">
+                                          <div className="flex items-center gap-2 text-brand-600 text-[10px] font-black uppercase tracking-widest group-hover:text-brand-500 transition-colors">
                                               <QrCode size={16} /> Data Link (QR)
                                           </div>
                                       )}
@@ -336,7 +336,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                   <div className="flex-1 space-y-2">
                                       <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Threat Level</label>
                                       <select 
-                                          className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner appearance-none text-xs" 
+                                          className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner appearance-none text-xs" 
                                           value={newNotice.priority} 
                                           onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
                                       >
@@ -348,7 +348,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                               <div className="space-y-2">
                                   <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Authorized Signatory</label>
                                   <input 
-                                      className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-gold font-bold text-white shadow-inner text-xs placeholder:text-brand-700" 
+                                      className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner text-xs placeholder:text-brand-700" 
                                       placeholder="e.g. COMMANDER DAVID" 
                                       value={newNotice.author} 
                                       onChange={e => setNewNotice({...newNotice, author: e.target.value})} 
@@ -359,7 +359,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                       <div className="pt-8 flex justify-end gap-4 border-t border-white/5">
                           <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-500 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-widest">Abort</button>
-                          <button type="submit" className="flex-[2] py-4 bg-gold text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">Authorize Broadcast</button>
+                          <button type="submit" className="flex-[2] py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">Authorize Broadcast</button>
                       </div>
                   </form>
               </div>
@@ -369,8 +369,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
       {/* Notice Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {notices.map(notice => (
-              <div key={notice.id} className="bg-brand-900 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden flex flex-col group hover:border-gold/30 transition-all duration-500 hover:-translate-y-2 relative">
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div key={notice.id} className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-brand-500/30 overflow-hidden flex flex-col group hover:border-brand-500/50 transition-all duration-500 hover:-translate-y-2 relative">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   
                   {/* Card Header Image */}
                   <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-600 to-red-900' : 'bg-brand-950') : 'bg-brand-950'}`}>
@@ -402,9 +402,9 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                   <div className="p-8 flex-1 flex flex-col relative bg-brand-900">
                       <div className="mb-6">
-                          <h3 className="text-xl font-black text-white italic leading-tight mb-3 group-hover:text-gold transition-colors uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>{notice.title}</h3>
+                          <h3 className="text-xl font-black text-white italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>{notice.title}</h3>
                           <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em]">
-                              <div className="w-1.5 h-1.5 rounded-full bg-gold/50 shadow-[0_0_8px_#fbbf24]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#0ea5e9]" />
                               Authorized by <span className="text-brand-300 ml-1">{notice.author}</span>
                           </div>
                       </div>
@@ -417,10 +417,10 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           <button 
                             onClick={() => initiateDownload(notice)}
                             disabled={downloadingId === notice.id}
-                            className="flex-1 py-3.5 bg-brand-950 border border-white/5 text-brand-400 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:bg-gold hover:text-brand-950 hover:border-gold transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-inner"
+                            className="flex-1 py-3.5 bg-brand-950 border border-white/5 text-brand-400 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:bg-brand-500 hover:text-brand-950 hover:border-brand-500 transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-inner"
                           >
                               {downloadingId === notice.id ? (
-                                  <Loader2 size={14} className="animate-spin text-gold" />
+                                  <Loader2 size={14} className="animate-spin text-brand-500" />
                               ) : (
                                   <>
                                     <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
@@ -444,7 +444,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           ))}
           
           {notices.length === 0 && (
-              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-600 bg-brand-800/30 rounded-[4rem] border-2 border-dashed border-white/5">
+              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-600 bg-brand-500/5 backdrop-blur-xl rounded-[4rem] border-2 border-dashed border-brand-500/20">
                   <Megaphone size={64} className="mb-6 opacity-5" />
                   <h3 className="font-black text-brand-400 uppercase tracking-[0.4em] italic">Intelligence Void</h3>
                   <p className="text-[10px] font-bold uppercase tracking-widest mt-2 opacity-50">No active bulletins in the datastore.</p>

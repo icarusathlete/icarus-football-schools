@@ -18,8 +18,8 @@ interface LeaderboardProps {
 const FormBadge: React.FC<{ rating: number }> = ({ rating }) => {
     let color = 'bg-brand-900 border-white/5';
     let text = '-';
-    if (rating >= 8.5) { color = 'bg-gold/20 text-gold border-gold/30'; text = 'W'; }
-    else if (rating >= 7) { color = 'bg-blue-500/20 text-blue-400 border-blue-500/30'; text = 'D'; }
+    if (rating >= 8.5) { color = 'bg-lime/20 text-lime border-lime/30'; text = 'W'; }
+    else if (rating >= 7) { color = 'bg-brand-500/20 text-brand-400 border-brand-500/30'; text = 'D'; }
     else if (rating < 6) { color = 'bg-red-500/20 text-red-400 border-red-500/30'; text = 'L'; }
     return (
         <div className={`w-6 h-6 rounded flex items-center justify-center text-[8px] font-black ${color} shadow-sm border`}>
@@ -134,7 +134,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
     return (
         <div className="space-y-8 pb-32 animate-in fade-in duration-700">
             {/* Header & Controls */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-800 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-500/10 backdrop-blur-xl p-8 rounded-[2.5rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-5"><Medal size={120} /></div>
                 <div className="relative z-10">
                     <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter">
@@ -168,27 +168,27 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                             {/* P2 */}
                             {topThree[1] && (
-                                <div onClick={() => setViewingPlayer(topThree[1])} className="bg-brand-800 p-8 rounded-[2.5rem] border border-white/5 flex flex-col items-center group cursor-pointer hover:border-blue-400/30 transition-all shadow-2xl order-2 md:order-1 h-[320px]">
-                                    <div className="w-20 h-20 bg-brand-950 rounded-[2rem] border border-white/5 flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform">
-                                        <img src={topThree[1].photoUrl} className="w-full h-full object-cover rounded-[2rem]" />
-                                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center font-black text-white text-[10px] border-2 border-brand-800">2</div>
+                                <div onClick={() => setViewingPlayer(topThree[1])} className="bg-brand-500/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-brand-500/30 flex flex-col items-center group cursor-pointer hover:border-brand-500/50 transition-all shadow-2xl order-2 md:order-1 h-[320px]">
+                                    <div className="w-20 h-20 bg-brand-950 rounded-full border border-white/5 flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform">
+                                        <img src={topThree[1].photoUrl} className="w-full h-full object-cover rounded-full" />
+                                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-brand-400 rounded-full flex items-center justify-center font-black text-white text-[10px] border-2 border-brand-800">2</div>
                                     </div>
                                     <h3 className="text-xl font-black text-white italic truncate w-full text-center">{topThree[1].fullName}</h3>
                                     <p className="text-[9px] font-bold text-brand-500 uppercase tracking-widest mt-1 mb-6">{topThree[1].position}</p>
                                     <div className="grid grid-cols-3 gap-4 w-full pt-6 border-t border-white/5">
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">GOL</p><p className="text-xl font-black text-white">{topThree[1].goals}</p></div>
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">RTG</p><p className="text-xl font-black text-white">{topThree[1].avgRating}</p></div>
-                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-xl font-black text-blue-400">{topThree[1].totalPoints}</p></div>
+                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-xl font-black text-brand-500">{topThree[1].totalPoints}</p></div>
                                     </div>
                                 </div>
                             )}
 
                             {/* Champion - P1 */}
                             {topThree[0] && (
-                                <div onClick={() => setViewingPlayer(topThree[0])} className="bg-brand-800 p-10 rounded-[3rem] border-2 border-brand-500/40 flex flex-col items-center group cursor-pointer hover:scale-[1.02] transition-all shadow-[0_0_50px_rgba(14,165,233,0.15)] order-1 md:order-2 h-[380px] relative overflow-hidden">
+                                <div onClick={() => setViewingPlayer(topThree[0])} className="bg-brand-500/10 backdrop-blur-xl p-10 rounded-[3rem] border-2 border-brand-500/50 flex flex-col items-center group cursor-pointer hover:scale-[1.02] transition-all shadow-[0_0_50px_rgba(14,165,233,0.15)] order-1 md:order-2 h-[380px] relative overflow-hidden">
                                     <div className="absolute top-0 right-0 p-6 opacity-10"><Crown size={40} className="text-brand-500" /></div>
-                                    <div className="w-28 h-28 bg-brand-950 rounded-[2.5rem] border-2 border-brand-500 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform">
-                                        <img src={topThree[0].photoUrl} className="w-full h-full object-cover rounded-[2.5rem]" />
+                                    <div className="w-28 h-28 bg-brand-950 rounded-full border-2 border-brand-500 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform">
+                                        <img src={topThree[0].photoUrl} className="w-full h-full object-cover rounded-full" />
                                         <div className="absolute -top-3 -right-3 w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center font-black text-brand-950 text-xs border-4 border-brand-800">1</div>
                                     </div>
                                     <h3 className="text-2xl font-black text-white italic truncate w-full text-center">{topThree[0].fullName}</h3>
@@ -214,28 +214,28 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
 
                             {/* P3 */}
                             {topThree[2] && (
-                                <div onClick={() => setViewingPlayer(topThree[2])} className="bg-brand-800 p-8 rounded-[2.5rem] border border-white/5 flex flex-col items-center group cursor-pointer hover:border-orange-500/30 transition-all shadow-2xl order-3 h-[320px]">
-                                    <div className="w-20 h-20 bg-brand-950 rounded-[2rem] border border-white/5 flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform">
-                                        <img src={topThree[2].photoUrl} className="w-full h-full object-cover rounded-[2rem]" />
-                                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-700/60 rounded-full flex items-center justify-center font-black text-white text-[10px] border-2 border-brand-800">3</div>
+                                <div onClick={() => setViewingPlayer(topThree[2])} className="bg-brand-500/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-brand-500/30 flex flex-col items-center group cursor-pointer hover:border-lime/50 transition-all shadow-2xl order-3 h-[320px]">
+                                    <div className="w-20 h-20 bg-brand-950 rounded-full border border-white/5 flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform">
+                                        <img src={topThree[2].photoUrl} className="w-full h-full object-cover rounded-full" />
+                                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-lime rounded-full flex items-center justify-center font-black text-brand-950 text-[10px] border-2 border-brand-800">3</div>
                                     </div>
                                     <h3 className="text-xl font-black text-white italic truncate w-full text-center">{topThree[2].fullName}</h3>
                                     <p className="text-[9px] font-bold text-brand-500 uppercase tracking-widest mt-1 mb-6">{topThree[2].position}</p>
                                     <div className="grid grid-cols-3 gap-4 w-full pt-6 border-t border-white/5">
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">GOL</p><p className="text-xl font-black text-white">{topThree[2].goals}</p></div>
                                         <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">RTG</p><p className="text-xl font-black text-white">{topThree[2].avgRating}</p></div>
-                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-xl font-black text-orange-500">{topThree[2].totalPoints}</p></div>
+                                        <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase">PTS</p><p className="text-xl font-black text-brand-500">{topThree[2].totalPoints}</p></div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Professional League Table */}
-                        <div className="bg-brand-800 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+                        <div className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] border border-brand-500/30 overflow-hidden shadow-2xl">
                              <div className="overflow-x-auto">
                                  <table className="w-full text-left border-collapse">
                                      <thead>
-                                         <tr className="bg-brand-950/50 text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] border-b border-white/5">
+                                         <tr className="bg-brand-900 text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] border-b border-white/5">
                                              <th className="px-8 py-5 w-16 text-center">RANK</th>
                                              <th className="px-8 py-5">PLAYER PROFILE</th>
                                              <th className="px-6 py-5 text-center w-16">P</th>
@@ -248,13 +248,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                      </thead>
                                      <tbody className="divide-y divide-white/5">
                                          {monthlyLeaderboard.map((p, idx) => (
-                                             <tr key={p.id} onClick={() => setViewingPlayer(p)} className="group hover:bg-gold/5 transition-colors cursor-pointer">
+                                             <tr key={p.id} onClick={() => setViewingPlayer(p)} className="group hover:bg-brand-500/5 transition-colors cursor-pointer">
                                                  <td className="px-8 py-4 text-center">
                                                      <span className={`text-base font-black italic ${idx === 0 ? 'text-brand-500' : 'text-brand-400'}`}>{idx + 1}</span>
                                                  </td>
                                                  <td className="px-8 py-4">
                                                      <div className="flex items-center gap-4">
-                                                         <img src={p.photoUrl} className="w-10 h-10 rounded-xl bg-brand-950 object-cover border border-white/10 group-hover:border-brand-500/30" />
+                                                         <img src={p.photoUrl} className="w-10 h-10 rounded-full bg-brand-950 object-cover border border-white/10 group-hover:border-brand-500/30" />
                                                          <div>
                                                              <p className="text-xs font-black text-white uppercase italic tracking-tight">{p.fullName}</p>
                                                              <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest">{p.position}</p>

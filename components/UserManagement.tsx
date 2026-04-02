@@ -102,29 +102,36 @@ export const UserManagement: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Access Control & Staff Management</h2>
-            <p className="text-sm text-gray-500">Users are automatically added when they sign in with Google. You can assign roles and link player profiles below.</p>
-            
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-brand-50 text-brand-600 rounded-lg">
-                            <Users size={20} />
+        <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-800 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><Shield size={160} className="text-white" /></div>
+                <div className="relative z-10">
+                    <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
+                        ACCESS <span className="text-brand-500">CONTROL</span>
+                    </h2>
+                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Autonomous Security & Staff Authorization Protocol</p>
+                </div>
+            </div>
+
+            <div className="bg-brand-950 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl shadow-inner">
+                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-brand-950/50">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 shadow-lg">
+                            <Users size={24} />
                         </div>
-                        <h3 className="font-bold text-gray-800">System Users</h3>
+                        <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Verified Command Units</h3>
                     </div>
-                    <span className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-bold text-gray-500 shadow-sm">
-                        {users.length} Active
+                    <span className="px-4 py-1.5 bg-brand-900 border border-white/10 rounded-xl text-[10px] font-black text-brand-500 uppercase tracking-widest shadow-2xl italic">
+                        {users.length} SECURED
                     </span>
                 </div>
                 
                 <div className="divide-y divide-gray-100">
                     {users.map(user => (
-                        <div key={user.id} className="p-6 hover:bg-gray-50/50 transition-colors">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold text-gray-400 overflow-hidden border border-gray-200">
+                        <div key={user.id} className="p-8 hover:bg-brand-500/5 transition-all group">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 rounded-full bg-brand-950 flex items-center justify-center text-xl font-black text-brand-800 overflow-hidden border-2 border-white/10 group-hover:border-brand-500/50 transition-all shadow-2xl">
                                         {user.photoUrl ? (
                                             <img src={user.photoUrl} alt={user.username} className="w-full h-full object-cover" />
                                         ) : (
@@ -132,15 +139,15 @@ export const UserManagement: React.FC = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-gray-900">{user.username}</h4>
-                                            {user.role === 'admin' && <Shield size={14} className="text-brand-500" />}
+                                        <div className="flex items-center gap-3">
+                                            <h4 className="font-black text-white italic text-lg uppercase tracking-tight">{user.username}</h4>
+                                            {user.role === 'admin' && <Shield size={16} className="text-brand-500" />}
                                         </div>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                                                user.role === 'admin' ? 'bg-brand-100 text-brand-700' :
-                                                user.role === 'coach' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-gray-100 text-gray-600'
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] border italic ${
+                                                user.role === 'admin' ? 'bg-brand-500/10 text-brand-500 border-brand-500/30' :
+                                                user.role === 'coach' ? 'bg-brand-500/5 text-blue-400 border-blue-400/30' :
+                                                'bg-brand-900 text-brand-600 border-white/5'
                                             }`}>
                                                 {user.role}
                                             </span>

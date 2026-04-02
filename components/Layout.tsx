@@ -30,12 +30,12 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     onClick={() => onTabChange(item.id)}
     className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden ${
       activeTab === item.id 
-        ? 'bg-white/10 text-brand-500 shadow-[0_0_30px_rgba(14,165,233,0.1)] border border-white/20' 
+        ? 'bg-brand-500/10 text-brand-500 shadow-[0_0_30px_rgba(14,165,233,0.1)] border border-brand-500/20' 
         : 'text-white/50 hover:bg-white/10 hover:text-white'
     }`}
   >
     {activeTab === item.id && (
-      <div className="absolute left-0 top-3 bottom-3 w-1 bg-brand-500 rounded-r-full shadow-[0_0_15px_#0EA5E9]" />
+      <div className="absolute left-0 top-3 bottom-3 w-1 bg-lime shadow-[0_0_15px_#bef264] rounded-r-full" />
     )}
     <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/30 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
     <span className={`text-[11px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
@@ -125,20 +125,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const allNavItems = navSections.flatMap(s => s.items);
 
   return (
-    <div className="min-h-screen bg-brand-900 flex flex-col md:flex-row text-brand-50">
-      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 shadow-2xl z-20 bg-brand-900 border-r border-white/5">
-        <div className="p-6 flex items-center gap-4 border-b border-white/10 relative overflow-hidden">
+    <div className="min-h-screen bg-brand-950 flex flex-col md:flex-row text-brand-50 relative overflow-hidden">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(14,165,233,0.1),transparent_50%)] pointer-events-none" />
+      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 shadow-2xl z-20 bg-brand-500/5 backdrop-blur-xl border-r border-brand-500/30">
+        <div className="p-6 flex items-center gap-4 border-b border-white/10 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-full bg-white/5 backdrop-blur-sm -z-10" />
-          <div className="shrink-0 p-2 bg-white rounded-2xl shadow-inner flex items-center justify-center w-12 h-12">
+          <div className="shrink-0 p-1 bg-white rounded-full shadow-2xl flex items-center justify-center w-12 h-12 ring-2 ring-brand-500 transition-all group-hover:ring-lime overflow-hidden">
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} className="w-10 h-10 object-contain" alt="Logo" />
+              <img src={settings.logoUrl} className="w-10 h-10 object-contain rounded-full" alt="Logo" />
             ) : (
-              <Trophy className="w-8 h-8 opacity-20" style={{ color: settings.primaryColor }} />
+              <Trophy className="w-8 h-8 opacity-20" style={{ color: settings.primaryColor || '#0ea5e9' }} />
             )}
           </div>
           <div className="overflow-hidden">
             <h1 className="text-sm font-black tracking-tighter leading-tight uppercase" 
-                style={{ fontFamily: settings.fontFamily, color: 'white' }}>
+                style={{ fontFamily: settings.fontFamily || 'Orbitron', color: 'white' }}>
               {settings.name}
             </h1>
             <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] font-black mt-0.5">{currentUser.role} Portal</p>
@@ -181,7 +182,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
         <div className="p-5 border-t border-white/5 bg-brand-950/50">
            <div className="flex items-center gap-4 mb-6 px-2">
-              <div className="w-10 h-10 rounded-2xl bg-brand-800 border border-white/5 flex items-center justify-center text-gold font-black shadow-inner">{currentUser.username[0].toUpperCase()}</div>
+              <div className="w-10 h-10 rounded-full bg-brand-950 border border-brand-500/20 flex items-center justify-center text-brand-500 font-black shadow-2xl ring-2 ring-brand-500/10 transition-transform hover:scale-110">{currentUser.username[0].toUpperCase()}</div>
               <div className="overflow-hidden">
                 <p className="text-xs font-black text-white truncate uppercase tracking-tight">{currentUser.username}</p>
                 <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest mt-0.5">Authorization Level 4</p>
@@ -195,9 +196,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       </aside>
       <header className="md:hidden bg-brand-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-2xl">
          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl shadow-inner border border-white/10 flex items-center justify-center bg-white p-1">
+            <div className="w-10 h-10 rounded-full shadow-2xl border border-brand-500/20 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/10 hover:scale-105 transition-transform">
                 {settings.logoUrl ? (
-                    <img src={settings.logoUrl} className="w-8 h-8 object-contain" />
+                    <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-full" />
                 ) : (
                     <div className="p-2 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-6 h-6 text-white" /></div>
                 )}
@@ -214,10 +215,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8">
+      <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8 relative z-10">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.5)] bg-brand-900 border-t border-white/5" >
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-brand-500/10 backdrop-blur-xl border-t border-brand-500/30" >
         <div className="flex justify-around items-center h-16">
           {allNavItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
           {allNavItems.length > 4 && <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/40"><MoreHorizontal className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">More</span></button>}
@@ -227,10 +228,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-950/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
            <div className="flex justify-between items-center mb-12">
                 <div>
-                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white" style={{ fontFamily: 'Orbitron' }}>System <span className="text-lime">Matrix</span></h2>
-                    <p className="text-[10px] text-brand-600 font-black uppercase tracking-[0.3em] mt-2">Remote Access Interface</p>
+                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white leading-none">SYSTEM <span className="text-brand-500">MATRIX</span></h2>
+                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.3em] mt-3">Remote Access Interface</p>
                 </div>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-white/5 rounded-[2rem] text-brand-500 hover:text-white border border-white/10 shadow-2xl">
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-brand-500/10 rounded-[2rem] text-brand-500 hover:text-white border border-brand-500/30 shadow-2xl transition-all active:scale-90">
                     <X size={28} />
                 </button>
            </div>

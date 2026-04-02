@@ -225,12 +225,12 @@ export const AdminDashboard: React.FC = () => {
         {/* HUD Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-                { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-white', unit: 'ATHLETES', accent: 'bg-blue-500' },
+                { label: 'SQUAD SIZE', val: players.length, icon: Users, color: 'text-white', unit: 'ATHLETES', accent: 'bg-brand-500' },
                 { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-brand-500', unit: 'SEASON', accent: 'bg-brand-500' },
-                { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-cyan-400', unit: 'DAILY', accent: 'bg-cyan-400' },
+                { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-lime', unit: 'DAILY', accent: 'bg-lime' },
                 { label: 'ACTIVE CAMPAIGN', val: matches.length, icon: Target, color: 'text-red-500', unit: 'RECORDED', accent: 'bg-red-500' },
             ].map((hud, i) => (
-                <div key={i} className="bg-brand-900 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-white/10 hover:-translate-y-1 transition-all duration-500">
+                <div key={i} className="bg-brand-500/5 backdrop-blur-md p-8 rounded-[2.5rem] border border-brand-500/20 shadow-2xl relative overflow-hidden group hover:border-brand-500/50 hover:-translate-y-1 transition-all duration-500">
                     <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700 font-black"><hud.icon size={64} /></div>
                     <div className="flex items-center justify-between mb-4 relative z-10">
                         <div className={`px-3 py-1 rounded-full bg-brand-950 border border-white/5 flex items-center gap-2`}>
@@ -254,10 +254,10 @@ export const AdminDashboard: React.FC = () => {
             
             <div className="lg:col-span-8 space-y-8">
                 {/* Operations Agenda */}
-                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+                <section className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] border border-brand-500/30 overflow-hidden shadow-[0_0_50px_rgba(14,165,233,0.1)]">
                     <div className="bg-brand-950/50 px-8 py-6 border-b border-white/5 flex items-center justify-between">
                         <h3 className="text-sm font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
-                            <Clock size={16} className="text-gold" /> OPERATIONS AGENDA • TODAY
+                            <Clock size={16} className="text-brand-500" /> OPERATIONS AGENDA • TODAY
                         </h3>
                         <span className="text-[10px] font-black text-brand-500 uppercase">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</span>
                     </div>
@@ -265,17 +265,17 @@ export const AdminDashboard: React.FC = () => {
                         {todayEvents.length > 0 ? (
                             <div className="space-y-4">
                                 {todayEvents.map(ev => (
-                                    <div key={ev.id} className="flex items-center gap-6 p-4 bg-brand-950/30 rounded-2xl border border-white/5 hover:border-gold/30 transition-all group">
+                                    <div key={ev.id} className="flex items-center gap-6 p-4 bg-brand-950/30 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
                                         <div className="w-16 text-center border-r border-white/5 pr-6">
                                             <p className="text-xs font-black text-white">{ev.time}</p>
                                             <p className="text-[8px] font-bold text-brand-600 uppercase">Start</p>
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="text-sm font-black text-white group-hover:text-gold transition-colors italic uppercase">{ev.title}</h4>
+                                            <h4 className="text-sm font-black text-white group-hover:text-brand-500 transition-colors italic uppercase">{ev.title}</h4>
                                             <div className="flex items-center gap-3 text-[10px] font-bold text-brand-500 mt-1">
                                                 <MapPin size={10} /> {ev.location}
                                                 <span className="opacity-30">•</span>
-                                                <span className="text-gold opacity-100 uppercase">{ev.type}</span>
+                                                <span className="text-brand-500 opacity-100 uppercase">{ev.type}</span>
                                             </div>
                                         </div>
                                         <ChevronRight size={18} className="text-brand-800" />
@@ -292,14 +292,14 @@ export const AdminDashboard: React.FC = () => {
                 </section>
 
                 {/* Analytical Trend */}
-                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                <section className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] border border-brand-500/30 p-8 shadow-[0_0_50px_rgba(14,165,233,0.1)]">
                     <div className="flex justify-between items-center mb-8">
                          <h3 className="text-sm font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
-                            <Activity size={16} className="text-gold" /> ENGAGEMENT INDEX
+                            <Activity size={16} className="text-brand-500" /> ENGAGEMENT INDEX
                         </h3>
                         <div className="flex gap-4">
-                             <div className="flex items-center gap-2 text-[9px] font-black text-gold uppercase tracking-tighter">
-                                <div className="w-2 h-2 rounded-full bg-gold" /> ATTENDANCE
+                             <div className="flex items-center gap-2 text-[9px] font-black text-brand-500 uppercase tracking-tighter">
+                                <div className="w-2 h-2 rounded-full bg-brand-500" /> ATTENDANCE
                              </div>
                         </div>
                     </div>
@@ -308,15 +308,15 @@ export const AdminDashboard: React.FC = () => {
                             <AreaChart data={chartData}>
                                 <defs>
                                     <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.2}/>
-                                        <stop offset="95%" stopColor="#fbbf24" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#64748b', fontWeight: 900}} />
                                 <Tooltip 
                                     contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', color: '#fff' }}
                                 />
-                                <Area type="monotone" dataKey="Present" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorVisits)" />
+                                <Area type="monotone" dataKey="Present" stroke="#0EA5E9" strokeWidth={3} fillOpacity={1} fill="url(#colorVisits)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -326,23 +326,23 @@ export const AdminDashboard: React.FC = () => {
             {/* Sidebar Col: AI & Tools */}
             <div className="lg:col-span-4 space-y-8">
                 {/* AI Intelligence Hub */}
-                <section className="bg-brand-950/50 rounded-[2.5rem] border border-brand-500/20 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
-                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-gold/5 blur-[80px] rounded-full" />
-                    <div className="flex items-center gap-3 mb-6 relative">
-                        <div className="p-2.5 bg-brand-500/10 text-brand-500 rounded-2xl shadow-lg shadow-brand-500/10 border border-brand-500/20">
-                            <Brain size={20} />
+                <section className="bg-brand-500/20 backdrop-blur-2xl rounded-[2.5rem] border border-brand-500/50 p-8 shadow-3xl relative overflow-hidden flex flex-col h-full">
+                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/5 blur-[80px] rounded-full" />
+                        <div className="flex items-center gap-3 mb-6 relative">
+                            <div className="p-2.5 bg-brand-500/10 text-brand-500 rounded-2xl shadow-lg shadow-brand-500/10 border border-brand-500/20">
+                                <Brain size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-black text-white text-sm italic uppercase">AI STRATEGIST</h3>
+                                <p className="text-[8px] font-black text-brand-500 uppercase tracking-widest">Neural Logistics Processor</p>
+                            </div>
+                            <Sparkles className="ml-auto text-brand-500 opacity-50" size={14} />
                         </div>
-                        <div>
-                            <h3 className="font-black text-white text-sm italic uppercase">AI STRATEGIST</h3>
-                            <p className="text-[8px] font-black text-brand-500 uppercase tracking-widest">Neural Logistics Processor</p>
-                        </div>
-                        <Sparkles className="ml-auto text-gold opacity-50" size={14} />
-                    </div>
 
-                    <div className="flex-1 bg-brand-950/50 rounded-3xl p-6 mb-6 border border-white/5 overflow-y-auto max-h-[300px] text-xs leading-relaxed text-brand-300 custom-scrollbar relative">
+                    <div className="flex-1 bg-brand-900 rounded-3xl p-6 mb-6 border border-white/5 overflow-y-auto max-h-[300px] text-xs leading-relaxed text-brand-300 custom-scrollbar relative">
                         {isAnalyzing ? (
                             <div className="flex flex-col items-center justify-center h-full space-y-4">
-                                <Loader2 className="animate-spin text-gold w-8 h-8" />
+                                <Loader2 className="animate-spin text-brand-500 w-8 h-8" />
                                 <p className="text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] animate-pulse">Scanning Databases...</p>
                             </div>
                         ) : aiReport ? (
@@ -365,37 +365,37 @@ export const AdminDashboard: React.FC = () => {
                 </section>
 
                 {/* Quick Action Hub */}
-                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                <section className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] border border-brand-500/30 p-8 shadow-2xl">
                     <h3 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-2 flex items-center gap-2 italic">
-                        <Plus size={14} className="text-gold" /> OPERATIONS QUICK ACTION
+                        <Plus size={14} className="text-brand-500" /> OPERATIONS QUICK ACTION
                     </h3>
                     <div className="grid grid-cols-1 gap-2">
-                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-brand-500/30 hover:bg-brand-500/5 transition-all group">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Plus size={18} /></div>
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-colors"><Plus size={18} /></div>
                                 <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Enroll New Athlete</span>
                             </div>
-                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                            <ChevronRight size={16} className="text-brand-900 group-hover:text-brand-500" />
                         </button>
-                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-brand-500/30 hover:bg-brand-500/5 transition-all group">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Trophy size={18} /></div>
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-colors"><Trophy size={18} /></div>
                                 <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Log Match Result</span>
                             </div>
-                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                            <ChevronRight size={16} className="text-brand-900 group-hover:text-brand-500" />
                         </button>
-                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-gold/30 hover:bg-gold/5 transition-all group">
+                        <button className="flex items-center justify-between p-5 bg-brand-950/50 border border-white/5 rounded-2xl hover:border-brand-500/30 hover:bg-brand-500/5 transition-all group">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-gold/10 group-hover:text-gold transition-colors"><Bell size={18} /></div>
+                                <div className="p-3 bg-white/5 rounded-xl group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-colors"><Bell size={18} /></div>
                                 <span className="font-black text-white text-xs uppercase italic tracking-widest truncate">Broadcast Notice</span>
                             </div>
-                            <ChevronRight size={16} className="text-brand-800 group-hover:text-gold" />
+                            <ChevronRight size={16} className="text-brand-900 group-hover:text-brand-500" />
                         </button>
                     </div>
                 </section>
 
                 {/* DB Archive Tools */}
-                <section className="bg-brand-800 rounded-[2.5rem] border border-white/5 p-8 shadow-2xl">
+                <section className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] border border-brand-500/30 p-8 shadow-2xl">
                     <h4 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-6 ml-1 italic flex items-center justify-between">
                         STORAGE & PROTOCOLS
                         <Database size={12} className="text-brand-700" />
@@ -412,7 +412,7 @@ export const AdminDashboard: React.FC = () => {
                          {/* Engineering Tool: Sample Data moved here */}
                          <button 
                             onClick={handleSeedData} disabled={isSeeding}
-                            className="w-full py-3 bg-brand-950/20 border border-white/5 text-brand-600 rounded-xl hover:border-gold/30 hover:text-gold transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group"
+                            className="w-full py-3 bg-brand-950/20 border border-white/5 text-brand-600 rounded-xl hover:border-brand-500/30 hover:text-brand-500 transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group"
                          >
                             <Zap size={12} className={isSeeding ? 'animate-spin' : ''} />
                             {isSeeding ? 'SEEDING...' : 'INIT SAMPLE RECORDS'}
@@ -433,10 +433,10 @@ export const AdminDashboard: React.FC = () => {
         {showSettingsModal && (
             <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
                 <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl border border-white/10 flex flex-col max-h-[90vh] overflow-hidden relative">
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-30" />
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
                     
                     <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center">
-                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">IDENTITY <span className="text-gold">CONFIG</span></h3>
+                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">IDENTITY <span className="text-brand-500">CONFIG</span></h3>
                          <button onClick={() => setShowSettingsModal(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={24}/></button>
                     </div>
 
@@ -446,7 +446,7 @@ export const AdminDashboard: React.FC = () => {
                                 <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">ACADEMY DESIGNATION</label>
                                 <input 
                                     type="text" 
-                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none font-bold text-white shadow-inner"
+                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none font-bold text-white shadow-inner"
                                     value={settings.name}
                                     onChange={(e) => updateSetting('name', e.target.value)}
                                 />
@@ -454,7 +454,7 @@ export const AdminDashboard: React.FC = () => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">INTERFACE FONT</label>
                                 <select 
-                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-gold outline-none font-bold text-white shadow-inner appearance-none"
+                                    className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none font-bold text-white shadow-inner appearance-none"
                                     value={settings.fontFamily}
                                     onChange={(e) => updateSetting('fontFamily', e.target.value)}
                                 >
@@ -469,10 +469,10 @@ export const AdminDashboard: React.FC = () => {
                         <div className="bg-brand-800 p-8 rounded-3xl border border-white/5 space-y-8">
                              <div className="flex flex-col md:flex-row gap-10 items-center">
                                  <div className="relative group">
-                                     <div className="w-32 h-32 bg-brand-950 rounded-[2.5rem] border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden transition-all group-hover:border-gold/50 shadow-inner">
-                                         {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain p-4" /> : <ImageIcon size={32} className="text-brand-800" />}
+                                     <div className="w-32 h-32 bg-brand-950 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden transition-all group-hover:border-brand-500/50 shadow-inner">
+                                         {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain p-2" /> : <ImageIcon size={32} className="text-brand-800" />}
                                          <div onClick={() => logoInputRef.current?.click()} className="absolute inset-0 bg-brand-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                                             <Upload className="text-gold" size={24} />
+                                             <Upload className="text-brand-500" size={24} />
                                          </div>
                                      </div>
                                      <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={(e) => {
@@ -485,9 +485,9 @@ export const AdminDashboard: React.FC = () => {
                                      }} />
                                  </div>
                                  <div className="flex-1 w-full space-y-4">
-                                     <h4 className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">IDENTITY MARK (LOGO)</h4>
-                                     <p className="text-xs text-brand-500 italic font-medium">Upload a transparent SVG or high-res PNG. This mark will appear on all scout reports, match center headers, and the player portal.</p>
-                                     <button onClick={() => logoInputRef.current?.click()} className="w-full py-3 bg-brand-950 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-gold hover:text-brand-950 transition-all">REPLACE SIGNAL</button>
+                                     <h4 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em]">IDENTITY MARK (LOGO)</h4>
+                                     <p className="text-xs text-brand-400 italic font-medium">Upload a transparent SVG or high-res PNG. This mark will appear on all scout reports, match center headers, and the player portal.</p>
+                                     <button onClick={() => logoInputRef.current?.click()} className="w-full py-3 bg-brand-900 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all font-display italic">REPLACE SIGNAL</button>
                                  </div>
                              </div>
                         </div>
@@ -526,7 +526,7 @@ export const AdminDashboard: React.FC = () => {
                         <button onClick={() => setShowSettingsModal(false)} className="px-8 py-4 text-brand-500 font-bold hover:text-white transition-colors text-xs uppercase tracking-widest">Discard Changes</button>
                         <button 
                             onClick={saveSettings} disabled={!hasUnsavedSettings}
-                            className="flex-1 py-4 bg-gold text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-[0.2em] disabled:opacity-50"
+                            className="flex-1 py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-[0.2em] disabled:opacity-50"
                         >
                             <CheckCircle size={18} className="inline mr-2" />
                             DEPLOY IDENTITY
@@ -541,11 +541,11 @@ export const AdminDashboard: React.FC = () => {
             <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
                 <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-xl border border-white/10 flex flex-col max-h-[90vh] overflow-hidden">
                     <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center">
-                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">LOCAL <span className="text-gold">ARCHIVE</span></h3>
+                         <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">LOCAL <span className="text-brand-500">ARCHIVE</span></h3>
                          <button onClick={() => setShowLocalBackupsModal(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={24}/></button>
                     </div>
                     <div className="p-10 overflow-y-auto custom-scrollbar space-y-8">
-                        <button onClick={handleSaveLocalBackup} disabled={isSavingBackup} className="w-full py-4 bg-brand-800 border-2 border-dashed border-white/10 hover:border-gold/50 rounded-2xl text-brand-400 hover:text-white transition-all flex items-center justify-center gap-3">
+                        <button onClick={handleSaveLocalBackup} disabled={isSavingBackup} className="w-full py-4 bg-brand-800 border-2 border-dashed border-white/10 hover:border-brand-500/50 rounded-2xl text-brand-400 hover:text-white transition-all flex items-center justify-center gap-3">
                             {isSavingBackup ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
                             <span className="text-xs font-black uppercase tracking-widest">INITIALIZE NEW ARCHIVE</span>
                         </button>
@@ -560,7 +560,7 @@ export const AdminDashboard: React.FC = () => {
                                     <div className="flex gap-2">
                                         <button onClick={async () => {
                                             if(await StorageService.restoreBackup(backup.data)) window.location.reload();
-                                        }} className="px-4 py-2 bg-brand-950 text-gold rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-gold hover:text-brand-950 transition-all">RESTORE</button>
+                                        }} className="px-4 py-2 bg-brand-950 text-brand-500 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-brand-500 hover:text-brand-950 transition-all">RESTORE</button>
                                         <button onClick={async () => { 
                                             await StorageService.deleteLocalBackup(backup.id);
                                             await loadLocalBackups();
