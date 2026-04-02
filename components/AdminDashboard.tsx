@@ -210,8 +210,8 @@ export const AdminDashboard: React.FC = () => {
       }
   };
 
-  const saveSettings = () => {
-      StorageService.saveSettings(settings);
+  const saveSettings = async () => {
+      await StorageService.saveSettings(settings);
       setHasUnsavedSettings(false);
       setShowSettingsModal(false);
   };
@@ -419,6 +419,13 @@ export const AdminDashboard: React.FC = () => {
                             accept=".json" 
                             ref={fileInputRef}
                             onChange={handleFileSelect}
+                            className="hidden"
+                        />
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            ref={logoInputRef}
+                            onChange={handleLogoUpload}
                             className="hidden"
                         />
                         <button 
