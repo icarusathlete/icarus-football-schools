@@ -63,9 +63,23 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
 
   const finishSetup = async () => {
     setLoading(true);
-    await setDoc(doc(db, 'users', user.id), { ...user, onboardingComplete: true, specificRole: role }, { merge: true });
-    setLoading(false);
-    onComplete();
+    try {
+      const updatedUser = { 
+        ...user, 
+        fullName: user.fullName || user.username, // Fallback if not set
+        memberId: user.memberId || `M-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, // Generate if missing
+        onboardingComplete: true, 
+        specificRole: role 
+      };
+      
+      await setDoc(doc(db, 'users', user.id), updatedUser, { merge: true });
+      onComplete(updatedUser);
+    } catch (error) {
+      console.error("Error finishing setup:", error);
+      alert("Failed to save profile. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

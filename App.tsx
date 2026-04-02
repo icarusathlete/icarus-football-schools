@@ -115,12 +115,12 @@ const App: React.FC = () => {
   }
 
   if (!currentUser) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return <Login onLogin={handleLoginSuccess} />;
   }
 
   // Intercept if profile is incomplete
   if (!currentUser.fullName || !currentUser.memberId) {
-    return <Onboarding currentUser={currentUser} onComplete={(updated) => setCurrentUser(updated)} />;
+    return <Onboarding user={currentUser} onComplete={(updated: any) => setCurrentUser(updated)} />;
   }
 
   return (
