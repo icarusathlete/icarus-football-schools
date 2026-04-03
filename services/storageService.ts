@@ -68,6 +68,7 @@ const VENUES_KEY = 'icarus_venues';
 const BATCHES_KEY = 'icarus_batches';
 const DRILLS_KEY = 'icarus_drills';
 const POTM_KEY = 'icarus_potm_map';
+const FINALIZED_ROLLCALLS_KEY = 'icarus_finalized_rollcalls';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -163,6 +164,7 @@ export const StorageService = {
     syncCollection('batches', BATCHES_KEY);
     syncCollection('drills', DRILLS_KEY);
     syncCollection('potm', POTM_KEY, true);
+    syncCollection('finalized_rollcalls', FINALIZED_ROLLCALLS_KEY, true);
 
     if (user.role === 'admin' || user.role === 'coach') {
         syncCollection('users', USERS_KEY);
@@ -447,6 +449,33 @@ export const StorageService = {
         });
     });
     await Promise.all(promises);
+  },
+
+  isRollcallFinalized: (date: string): boolean => {
+      const storageRaw = localStorage.getItem(FINALIZED_ROLLCALLS_KEY);
+      if (!storageRaw) return false;
+      try {
+          const storage = JSON.parse(storageRaw);
+          return !!storage[date];
+      } catch (e) {
+          return false;
+      }
+  },
+
+  finalizeRollcall: async (date: string) => {
+      try {
+          await setDoc(doc(db, 'finalized_rollcalls', date), { finalized: true, timestamp: Date.now() });
+      } catch (error) {
+          handleFirestoreError(error, OperationType.WRITE, `finalized_rollcalls/${date}`);
+      }
+  },
+
+  unfinalizeRollcall: async (date: string) => {
+      try {
+          await deleteDoc(doc(db, 'finalized_rollcalls', date));
+      } catch (error) {
+          handleFirestoreError(error, OperationType.DELETE, `finalized_rollcalls/${date}`);
+      }
   },
   
   getUsers: (): User[] => JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
