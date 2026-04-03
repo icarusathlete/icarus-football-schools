@@ -61,28 +61,25 @@ export const CoachAttendance: React.FC = () => {
   }, [date]);
 
   const toggleStatus = (playerId: string) => {
+    let nextStatus = AttendanceStatus.PRESENT;
     setAttendance(prev => {
       const current = prev[playerId];
-      // Binary toggle: If not Absent, make Absent. If Absent, make Present.
-      const nextStatus = current === AttendanceStatus.ABSENT ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT;
+      nextStatus = current === AttendanceStatus.ABSENT ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT;
+      
+      // Auto-Sync Implementation
+      const records: AttendanceRecord[] = players.map(p => ({
+          id: Math.random().toString(36).substr(2, 9),
+          playerId: p.id,
+          date: date,
+          status: p.id === playerId ? nextStatus : prev[p.id]
+      }));
+      StorageService.saveAttendanceBatch(records);
+      
       return { ...prev, [playerId]: nextStatus };
     });
-    setSaved(false);
-  };
-
-  const saveAttendance = () => {
-    const records: AttendanceRecord[] = players.map(p => ({
-        id: Math.random().toString(36).substr(2, 9),
-        playerId: p.id,
-        date: date,
-        status: attendance[p.id]
-    }));
-    
-    StorageService.saveAttendanceBatch(records);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 1500);
   };
-
   const getStatusStyles = (status: AttendanceStatus) => {
     switch (status) {
       case AttendanceStatus.PRESENT: 
@@ -196,17 +193,18 @@ export const CoachAttendance: React.FC = () => {
             {filteredPlayers.map(player => {
                 const styles = getStatusStyles(attendance[player.id]);
                 const isRsvpYes = scheduledEvent?.rsvps?.[player.id] === 'attending';
+                const isPresent = attendance[player.id] === AttendanceStatus.PRESENT;
                 
                 return (
                     <div 
                         key={player.id}
                         onClick={() => toggleStatus(player.id)}
-                        className="relative bg-white rounded-[2.5rem] border border-brand-100 transition-all cursor-pointer group hover:border-brand-500 hover:shadow-2xl overflow-hidden p-8"
+                        className={`relative bg-white rounded-[2.5rem] border transition-all cursor-pointer group hover:shadow-2xl overflow-hidden p-8 ${isPresent ? 'border-brand-500 shadow-xl' : 'border-brand-100 hover:border-red-500/30'}`}
                     >
                         <div className="flex flex-col items-center text-center gap-6">
                             <div className="relative">
-                                <div className="w-24 h-24 rounded-3xl bg-brand-950 flex items-center justify-center overflow-hidden border-2 border-brand-500/20 group-hover:border-brand-500 transition-all shadow-xl">
-                                    <img src={player.photoUrl} className="w-full h-full object-cover" />
+                                <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center overflow-hidden border-2 transition-all shadow-xl ${isPresent ? 'bg-brand-950 border-brand-500' : 'bg-gray-100 border-gray-200 group-hover:border-red-500/20'}`}>
+                                    <img src={player.photoUrl} className={`w-full h-full object-cover ${isPresent ? '' : 'grayscale opacity-50 transition-all'}`} />
                                 </div>
                                 {isRsvpYes && (
                                     <div className="absolute -bottom-2 -right-2 bg-brand-500 text-brand-950 p-2 rounded-xl border-2 border-white shadow-xl" title="RSVP Confirmed">
@@ -216,21 +214,13 @@ export const CoachAttendance: React.FC = () => {
                             </div>
                             
                             <div className="space-y-1">
-                                <h4 className="font-black text-brand-950 text-lg uppercase italic tracking-tighter leading-none">{player.fullName}</h4>
+                                <h4 className={`font-black text-lg uppercase italic tracking-tighter leading-none transition-colors ${isPresent ? 'text-brand-950' : 'text-gray-400 group-hover:text-red-950'}`}>{player.fullName}</h4>
                                 <p className="text-[10px] text-brand-500 font-black uppercase tracking-widest italic">{player.position}</p>
                             </div>
  
-                            <div className={`w-full py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border text-center shadow-sm ${styles.badge}`}>
+                            <div className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border text-center shadow-sm ${styles.badge}`}>
                                 {styles.label}
                             </div>
-                        </div>
- 
-                        {/* Interactive Overlay */}
-                        <div className="absolute inset-0 bg-brand-950/95 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center p-8 text-center">
-                            <Zap size={32} className="text-brand-500 mb-4 animate-bounce" />
-                            <span className="text-[11px] font-black text-white uppercase tracking-[0.4em] italic leading-tight">
-                                INVOKE STATUS<br/>TRANSFORMATION
-                            </span>
                         </div>
                     </div>
                 );
@@ -244,16 +234,14 @@ export const CoachAttendance: React.FC = () => {
           )}
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-10 right-10 z-50">
-          <button 
-                onClick={saveAttendance}
-                className={`flex items-center gap-4 px-12 py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] transition-all shadow-3xl active:scale-95 group italic font-display border-2 ${saved ? 'bg-brand-950 text-brand-500 border-white/10' : 'bg-brand-500 text-brand-950 border-brand-500/20 hover:bg-brand-950 hover:text-brand-500 hover:border-white/10'}`}
-            >
-                {saved ? <CheckCircle className="w-6 h-6" /> : <Save className="w-6 h-6" />}
-                {saved ? 'DATA SECURED' : 'SYNC SQUAD LOG'}
-            </button>
-      </div>
+      {/* Auto-Sync Indicator */}
+      {saved && (
+          <div className="fixed bottom-10 right-10 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
+              <div className="bg-brand-950 text-brand-500 px-10 py-5 rounded-[2rem] border border-white/10 shadow-3xl font-black text-xs uppercase tracking-widest italic flex items-center gap-4">
+                  <CheckCircle className="w-5 h-5" /> AUTO-SYNCED TO CLOUD
+              </div>
+          </div>
+      )}
     </div>
   );
 };

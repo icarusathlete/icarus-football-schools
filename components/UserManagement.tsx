@@ -145,7 +145,7 @@ export const UserManagement: React.FC = () => {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3">
-                                            <h4 className="font-black text-brand-950 italic text-xl uppercase tracking-tighter leading-none">{user.username}</h4>
+                                            <h4 className="font-black text-white italic text-xl uppercase tracking-tighter leading-none">{user.username}</h4>
                                             <span className="text-[10px] font-black text-brand-500/40 uppercase tracking-widest font-mono">#{user.id.slice(-4)}</span>
                                         </div>
                                         <div className="flex items-center gap-3 mt-3">
