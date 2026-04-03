@@ -233,27 +233,27 @@ export const TrainingManager: React.FC = () => {
 
             {/* Drill Detail Modal */}
             {selectedDrill && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
-                    <div className="bg-brand-500/10 backdrop-blur-3xl w-full max-w-4xl h-[90vh] rounded-[4rem] shadow-3xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 duration-700 border border-brand-500/30">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white w-full max-w-4xl h-[90vh] rounded-[4rem] shadow-3xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 duration-700 border border-brand-100">
                         {/* Modal Header */}
-                        <div className="relative h-48 md:h-64 bg-brand-950 flex-shrink-0">
+                        <div className="relative h-48 md:h-64 bg-brand-50 flex-shrink-0 border-b border-brand-100">
                             {selectedDrill.imageUrl && (
-                                <img src={selectedDrill.imageUrl} className="w-full h-full object-cover opacity-40" />
+                                <img src={selectedDrill.imageUrl} className="w-full h-full object-cover opacity-20" />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-transparent to-transparent" />
-                            <button onClick={() => setSelectedDrill(null)} className="absolute top-4 right-4 p-2 bg-black/30 hover:bg-white hover:text-black text-white rounded-full transition-all backdrop-blur-sm z-20">
+                            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+                            <button onClick={() => setSelectedDrill(null)} className="absolute top-8 right-8 p-3 bg-brand-950 text-brand-500 rounded-full hover:scale-110 transition-all shadow-xl z-20">
                                 <X size={24} />
                             </button>
-                            <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <span className="px-3 py-1 bg-brand-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg">
+                            <div className="absolute bottom-0 left-0 p-10 w-full">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="px-3 py-1.5 bg-brand-500 text-brand-950 text-[10px] font-black uppercase tracking-widest rounded-lg italic">
                                         {selectedDrill.category}
                                     </span>
-                                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-white/20">
+                                    <span className="px-3 py-1.5 bg-brand-950 text-brand-500 text-[10px] font-black uppercase tracking-widest rounded-lg italic border border-white/10">
                                         {selectedDrill.difficulty}
                                     </span>
                                 </div>
-                                <h2 className="text-3xl md:text-4xl font-black text-white italic tracking-tight uppercase" style={{fontFamily: 'Orbitron'}}>
+                                <h2 className="text-4xl md:text-5xl font-black text-brand-950 italic tracking-tighter uppercase leading-none">
                                     {selectedDrill.title}
                                 </h2>
                             </div>

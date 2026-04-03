@@ -128,9 +128,9 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
   const getTypeStyles = (type: EventType) => {
       switch(type) {
-          case 'match': return { border: 'border-l-brand-500', bg: 'bg-brand-500/10', text: 'text-brand-500', icon: <Trophy size={14} className="text-brand-500" />, dot: 'bg-brand-500' };
-          case 'social': return { border: 'border-l-lime', bg: 'bg-lime/10', text: 'text-lime', icon: <PartyPopper size={14} className="text-lime" />, dot: 'bg-lime' };
-          default: return { border: 'border-l-brand-400', bg: 'bg-brand-400/10', text: 'text-brand-400', icon: <Zap size={14} className="text-brand-400" />, dot: 'bg-brand-400' };
+          case 'match': return { border: 'border-l-brand-500', bg: 'bg-brand-500/10', text: 'text-brand-950', icon: <Trophy size={14} className="text-brand-500" />, dot: 'bg-brand-500' };
+          case 'social': return { border: 'border-l-lime', bg: 'bg-lime/10', text: 'text-brand-950', icon: <PartyPopper size={14} className="text-lime" />, dot: 'bg-lime' };
+          default: return { border: 'border-l-brand-400', bg: 'bg-brand-50', text: 'text-brand-950', icon: <Zap size={14} className="text-brand-500" />, dot: 'bg-brand-500' };
       }
   };
 
@@ -150,42 +150,45 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
           const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
           days.push(
-              <div key={d} className={`h-20 md:h-32 p-1 md:p-2 border border-white/5 transition-colors hover:bg-brand-500/10 overflow-hidden ${isToday ? 'bg-brand-500/20 border-brand-500/50' : 'bg-brand-500/5'}`}>
-                  <div className="flex justify-between items-center mb-1">
-                      <span className={`text-xs font-black ${isToday ? 'text-brand-500' : 'text-brand-500'}`}>{d}</span>
-                      {isToday && <span className="text-[8px] font-black text-brand-500 uppercase tracking-tighter">Today</span>}
+              <div key={d} className={`h-24 md:h-36 p-2 md:p-3 border border-brand-100 transition-all hover:bg-brand-50 relative overflow-hidden group/day ${isToday ? 'bg-brand-50' : 'bg-white'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                      <span className={`text-xs font-black italic ${isToday ? 'text-brand-500' : 'text-brand-950'}`}>{d}</span>
+                      {isToday && <span className="text-[9px] font-black text-brand-500 uppercase tracking-widest italic">Live Day</span>}
                   </div>
-                  <div className="space-y-1 overflow-y-auto max-h-[80%] custom-scrollbar">
+                  <div className="space-y-1.5 overflow-y-auto max-h-[80%] custom-scrollbar relative z-10">
                       {dayEvents.map(e => {
                           const s = getTypeStyles(e.type);
                           return (
-                              <div key={e.id} onClick={() => handleEdit(e)} className={`px-1.5 py-0.5 rounded text-[8px] font-bold truncate cursor-pointer ${s.bg} ${s.text} border-l-2 ${s.border} hover:opacity-80`}>
+                              <div key={e.id} onClick={() => handleEdit(e)} className={`px-2 py-1.5 rounded-lg text-[9px] font-black truncate cursor-pointer ${s.bg} ${s.text} border-l-2 ${s.border} hover:scale-[1.02] transition-transform flex items-center gap-1.5 italic`}>
+                                  <div className={`w-1 h-1 rounded-full ${s.dot}`} />
                                   {e.title}
                               </div>
                           );
                       })}
                   </div>
+                  {isToday && <div className="absolute inset-0 border-2 border-brand-500/50 pointer-events-none" />}
               </div>
           );
       }
 
       return (
-          <div className="bg-brand-500/10 backdrop-blur-xl rounded-3xl border border-brand-500/30 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-brand-950/30">
-                  <h3 className="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest italic">
+          <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+              <div className="p-8 border-b border-brand-50 flex items-center justify-between bg-brand-50">
+                  <h3 className="text-xl font-black text-brand-950 flex items-center gap-3 uppercase tracking-tighter italic">
+                      <CalendarIcon size={24} className="text-brand-500" />
                       {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                   </h3>
                   <div className="flex gap-2">
-                      <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-white/10 rounded-xl text-brand-400 transition-colors"><ChevronLeft size={20}/></button>
-                      <button onClick={() => setCurrentMonth(new Date())} className="px-4 py-2 hover:bg-white/10 rounded-xl text-xs font-bold text-white uppercase tracking-widest transition-colors">Today</button>
-                      <button onClick={() => changeMonth(1)} className="p-2 hover:bg-white/10 rounded-xl text-brand-400 transition-colors"><ChevronRight size={20}/></button>
+                      <button onClick={() => changeMonth(-1)} className="w-12 h-12 flex items-center justify-center bg-white border border-brand-100 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-sm"><ChevronLeft size={20}/></button>
+                      <button onClick={() => setCurrentMonth(new Date())} className="px-6 py-2 bg-brand-950 text-brand-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all italic border border-white/10">Now</button>
+                      <button onClick={() => changeMonth(1)} className="w-12 h-12 flex items-center justify-center bg-white border border-brand-100 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-sm"><ChevronRight size={20}/></button>
                   </div>
               </div>
               <div className="overflow-x-auto custom-scrollbar">
-                  <div className="min-w-[320px]">
-                      <div className="grid grid-cols-7 border-b border-white/5 bg-brand-950/20">
-                          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-                              <div key={i} className="py-2 md:py-3 text-center text-[9px] md:text-[10px] font-black text-brand-500 uppercase tracking-widest">{d}</div>
+                  <div className="min-w-[600px]">
+                      <div className="grid grid-cols-7 border-b border-brand-100 bg-brand-950">
+                          {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d, i) => (
+                              <div key={i} className="py-4 text-center text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] font-mono">{d}</div>
                           ))}
                       </div>
                       <div className="grid grid-cols-7">
