@@ -216,43 +216,85 @@ export const PlayerManager: React.FC = () => {
           <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl animate-in fade-in">
               <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                      <thead className="bg-brand-50 border-b border-brand-100">
+                      <thead className="bg-brand-50/50 border-y border-brand-100">
                           <tr className="font-display italic">
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Player Details</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Contact</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Assignment</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-right">Actions</th>
+                              <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
+                              <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Expertise & Contact</th>
+                              <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Sector Alignment</th>
+                              <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
                           </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-50">
                           {filteredPlayers.map(p => (
-                              <tr key={p.id} className="hover:bg-brand-500/5 transition-all group">
-                                  <td className="px-10 py-6">
+                              <tr key={p.id} className="hover:bg-brand-50 transition-all duration-300 group border-b border-brand-50 last:border-0 hover:shadow-inner">
+                                  <td className="px-10 py-8">
                                       <div className="flex items-center gap-6">
-                                          <img src={p.photoUrl} className="w-16 h-16 rounded-full bg-brand-50 object-cover border-2 border-brand-100 group-hover:border-brand-500/50 transition-all shadow-lg" />
+                                          <div className="relative group/avatar">
+                                              <img 
+                                                src={p.photoUrl} 
+                                                className="w-18 h-18 rounded-3xl bg-brand-50 object-cover border-2 border-brand-500/20 shadow-lg group-hover:scale-105 transition-transform" 
+                                              />
+                                              <div className="absolute -bottom-2 -right-2 bg-brand-950 text-white p-1.5 rounded-xl border border-white/10 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                                  <Shield size={10} />
+                                              </div>
+                                          </div>
                                           <div>
-                                              <div className="font-black text-brand-950 italic text-base uppercase tracking-tight leading-none mb-2">{p.fullName}</div>
-                                              <div className="text-[10px] font-black text-brand-500 uppercase tracking-widest">{p.memberId}</div>
+                                              <div className="font-black text-brand-950 italic text-lg uppercase tracking-tight leading-none mb-2 hover:text-brand-500 transition-colors cursor-default">{p.fullName}</div>
+                                              <div className="inline-flex px-2 py-0.5 rounded-md bg-brand-50 text-[10px] font-black text-brand-500 uppercase tracking-widest border border-brand-100">{p.memberId}</div>
                                           </div>
                                       </div>
                                   </td>
-                                  <td className="px-10 py-6">
-                                      <div className="flex flex-col gap-2.5">
-                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-700 uppercase tracking-widest italic"><UserIcon size={14} className="text-brand-500" /> {p.position}</div>
-                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-400 tracking-widest uppercase italic"><Phone size={14} className="text-brand-500" /> {p.contactNumber}</div>
+                                  <td className="px-10 py-8">
+                                      <div className="flex flex-col gap-4">
+                                          <div className="flex items-center gap-3 text-[11px] font-black text-brand-950 uppercase tracking-widest italic drop-shadow-sm">
+                                              <div className="w-2 h-2 rounded-full bg-brand-500" />
+                                              {p.position}
+                                          </div>
+                                          <div className="flex items-center gap-3 text-[11px] font-black text-brand-950/60 tracking-widest uppercase italic">
+                                               <Phone size={14} className="text-brand-500/70" /> 
+                                               {p.contactNumber}
+                                          </div>
                                       </div>
                                   </td>
-                                  <td className="px-10 py-6">
-                                      <div className="flex flex-wrap gap-2">
-                                          {p.venue && <span className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-500 text-[10px] font-black uppercase tracking-widest border border-brand-100 italic">{p.venue}</span>}
-                                          {p.batch && <span className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-700 text-[10px] font-black uppercase tracking-widest border border-brand-100 italic">{p.batch}</span>}
+                                  <td className="px-10 py-8">
+                                      <div className="flex flex-col gap-2">
+                                          {p.venue && (
+                                              <div className="flex items-center gap-2 text-[10px] font-black text-brand-950/70 uppercase tracking-tighter italic">
+                                                  <MapPin size={12} className="text-brand-500" />
+                                                  {p.venue}
+                                              </div>
+                                          )}
+                                          {p.batch && (
+                                              <div className="flex items-center gap-2 text-[10px] font-black text-brand-500 uppercase tracking-tighter italic">
+                                                  <Zap size={12} className="text-brand-500/50" />
+                                                  {p.batch}
+                                              </div>
+                                          )}
                                       </div>
                                   </td>
-                                  <td className="px-10 py-6 text-right">
-                                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                          <button onClick={() => setViewingPerformance(p)} className="p-3.5 bg-brand-950 border border-white/10 text-brand-500 hover:text-white hover:bg-brand-500 rounded-xl transition-all shadow-xl"><Activity size={18} /></button>
-                                          <button onClick={() => openEditModal(p, 'player')} className="p-3.5 bg-brand-950 border border-white/10 text-brand-400 hover:text-white hover:bg-brand-800 rounded-xl transition-all shadow-xl"><Edit2 size={18} /></button>
-                                          <button onClick={() => handleSecureDelete(p, 'player')} className="p-3.5 bg-brand-950 border border-red-500/20 text-brand-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all shadow-xl"><Trash2 size={18} /></button>
+                                  <td className="px-10 py-8 text-right">
+                                      <div className="flex items-center justify-end gap-3 transition-all">
+                                          <button 
+                                               onClick={() => setViewingPerformance(p)} 
+                                               className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 border border-brand-100 hover:bg-brand-950 hover:text-brand-500 rounded-2xl transition-all shadow-md group/btn"
+                                               title="View Performance"
+                                          >
+                                              <Activity size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                          </button>
+                                          <button 
+                                               onClick={() => openEditModal(p, 'player')} 
+                                               className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 border border-brand-100 hover:bg-brand-950 hover:text-white rounded-2xl transition-all shadow-md group/btn"
+                                               title="Edit Record"
+                                          >
+                                              <Edit2 size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                          </button>
+                                          <button 
+                                               onClick={() => handleSecureDelete(p, 'player')} 
+                                               className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-700 border border-red-500/20 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-md group/btn"
+                                               title="Delete Athlete"
+                                          >
+                                              <Trash2 size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                          </button>
                                       </div>
                                   </td>
                                </tr>
