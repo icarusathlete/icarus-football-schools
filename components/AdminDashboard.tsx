@@ -240,7 +240,11 @@ export const AdminDashboard: React.FC = () => {
                             { fullName: "Vihaan Gujrati", parentName: "Mrs Vinni Gujrati", contactNumber: "+91 9717300014", email: "vinnigujrati21@gmail.com", address: "Park Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" }
                         ];
                         for (const p of roster) {
-                            await StorageService.addPlayer(p as any);
+                            // Unique Check: Skip if already exists by name/phone
+                            const exists = StorageService.findPlayerByName(p.fullName);
+                            if (!exists) {
+                                await StorageService.addPlayer(p as any);
+                            }
                         }
                         alert("Gaur City Roster Imported Successfully!");
                         window.location.reload();
@@ -447,9 +451,24 @@ export const AdminDashboard: React.FC = () => {
                             {isSeeding ? 'SEEDING...' : 'INIT SAMPLE RECORDS'}
                          </button>
 
-                         <button onClick={() => { setDeleteAction({ type: 'clear' }); setDeleteModalOpen(true); }} className="w-full py-3 bg-red-900/10 border border-red-900/30 text-red-500 rounded-xl hover:bg-red-900 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                             <Trash2 size={14} /> WIPE CORE
-                         </button>
+                          <button onClick={() => { setDeleteAction({ type: 'clear' }); setDeleteModalOpen(true); }} className="w-full py-3 bg-red-900/10 border border-red-900/30 text-red-500 rounded-xl hover:bg-red-900 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                              <Trash2 size={14} /> WIPE CORE
+                          </button>
+
+                          <div className="h-px bg-white/5 my-2" />
+                          <button 
+                             onClick={async () => {
+                                 if (await StorageService.deduplicatePlayers()) {
+                                     alert("Database Sanitized: Redundant athletes removed successfully.");
+                                     window.location.reload();
+                                 } else {
+                                     alert("No duplicates found. Database is already optimal.");
+                                 }
+                             }}
+                             className="w-full py-3 bg-brand-500/10 border border-brand-500/20 text-brand-500 rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                          >
+                             <CheckCircle size={14} /> CLEANUP REDUNDANT DATA
+                          </button>
                     </div>
                     <div className="mt-4 text-center">
                         <p className="text-[8px] font-black text-brand-700 uppercase tracking-[0.3em]">System: Secured & Encrypted</p>

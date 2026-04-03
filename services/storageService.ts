@@ -222,8 +222,38 @@ export const StorageService = {
         return newPlayer;
     } catch (error) {
         handleFirestoreError(error, OperationType.WRITE, `players/${newId}`);
-        throw error; // This line is technically unreachable as handleFirestoreError throws
+        throw error;
     }
+  },
+
+  findPlayerByName: (name: string): Player | undefined => {
+    const players = StorageService.getPlayers();
+    return players.find(p => p.fullName.toLowerCase().trim() === name.toLowerCase().trim());
+  },
+
+  deduplicatePlayers: async () => {
+    const players = StorageService.getPlayers();
+    const uniqueMap = new Map<string, Player>();
+    const toDelete: string[] = [];
+
+    players.forEach(p => {
+        const key = `${p.fullName.toLowerCase().trim()}-${p.contactNumber.trim()}`;
+        if (uniqueMap.has(key)) {
+            // If already exists, mark this ID for deletion
+            toDelete.push(p.id);
+        } else {
+            uniqueMap.set(key, p);
+        }
+    });
+
+    if (toDelete.length > 0) {
+        console.log(`Deduplicating: Removing ${toDelete.length} redundant records.`);
+        for (const id of toDelete) {
+            await StorageService.deletePlayer(id);
+        }
+        return true;
+    }
+    return false;
   },
 
   deletePlayer: async (playerId: string) => {
