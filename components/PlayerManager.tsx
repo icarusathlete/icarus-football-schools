@@ -201,34 +201,34 @@ export const PlayerManager: React.FC = () => {
   return (
     <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500/10 backdrop-blur-xl p-10 rounded-[3rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><Users size={160} className="text-white" /></div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500 p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-10 opacity-10"><Users size={160} className="text-white" /></div>
         <div className="relative z-10">
           <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
-             SQUAD <span className="text-brand-500">INTELLIGENCE</span>
+             SQUAD <span className="text-brand-950">MANAGEMENT</span>
           </h2>
-          <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Personnel Lifecycle Management Module</p>
+          <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Academy Roster & Staff Administration</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 relative z-10 w-full lg:w-auto">
             <div className="flex bg-brand-950 p-1.5 rounded-[1.5rem] border border-white/10 shadow-2xl flex-1 lg:flex-initial">
                 <button 
                     onClick={() => setActiveTab('players')}
-                    className={`px-10 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic flex-1 lg:flex-initial ${activeTab === 'players' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}
+                    className={`px-10 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic flex-1 lg:flex-initial ${activeTab === 'players' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
                 >
                     Athlete Roster
                 </button>
                 <button 
                     onClick={() => setActiveTab('coaches')}
-                    className={`px-10 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic flex-1 lg:flex-initial ${activeTab === 'coaches' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}
+                    className={`px-10 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic flex-1 lg:flex-initial ${activeTab === 'coaches' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
                 >
-                    Command Staff
+                    Coaching Staff
                 </button>
             </div>
             
             <button 
                 onClick={() => setIsImportModalOpen(true)}
-                className="bg-brand-500/10 text-brand-500 px-6 py-3.5 rounded-[1.5rem] border border-brand-500/30 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-brand-500 hover:text-brand-950 transition-all shadow-xl italic"
+                className="bg-white text-brand-950 px-6 py-3.5 rounded-[1.5rem] border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-xl italic"
             >
                 <Zap size={16} />
                 Bulk Import
@@ -237,13 +237,13 @@ export const PlayerManager: React.FC = () => {
       </div>
 
       {/* Filters Toolbar */}
-      <div className="bg-brand-500/10 backdrop-blur-xl p-4 rounded-[2rem] shadow-2xl border border-brand-500/30 flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-4 rounded-[2rem] shadow-xl border border-brand-100 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1 group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-500 group-focus-within:text-white transition-colors w-5 h-5" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 group-focus-within:text-brand-950 transition-colors w-5 h-5" />
               <input 
                 type="text" 
-                placeholder={`Search ${activeTab === 'players' ? 'athlete nomenclatures' : 'staff protocols'}...`} 
-                className="w-full pl-14 pr-6 py-4 bg-brand-950 border border-white/10 rounded-[1.25rem] outline-none focus:border-brand-500 transition-all text-xs font-black text-white placeholder:text-brand-700 italic"
+                placeholder={`Search ${activeTab === 'players' ? 'athletes' : 'staff members'}...`} 
+                className="w-full pl-14 pr-6 py-4 bg-brand-50/30 border border-brand-100 rounded-[1.25rem] outline-none focus:border-brand-500 transition-all text-xs font-black text-brand-950 placeholder:text-brand-300 italic"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -268,39 +268,39 @@ export const PlayerManager: React.FC = () => {
 
       {/* --- PLAYERS LIST --- */}
       {activeTab === 'players' && (
-          <div className="bg-brand-500/10 backdrop-blur-xl rounded-[3rem] border border-brand-500/30 overflow-hidden shadow-2xl animate-in fade-in active-tab-id">
+          <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl animate-in fade-in">
               <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                      <thead className="bg-brand-950 border-b border-white/5">
+                      <thead className="bg-brand-50 border-b border-brand-100">
                           <tr className="font-display italic">
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Operative Profile</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Operational Data</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Deployment Status</th>
-                              <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] text-right">System Overrides</th>
+                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Player Details</th>
+                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Contact</th>
+                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Assignment</th>
+                              <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-right">Actions</th>
                           </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className="divide-y divide-brand-50">
                           {filteredPlayers.map(p => (
                               <tr key={p.id} className="hover:bg-brand-500/5 transition-all group">
                                   <td className="px-10 py-6">
                                       <div className="flex items-center gap-6">
-                                          <img src={p.photoUrl} className="w-16 h-16 rounded-full bg-brand-950 object-cover border-2 border-white/10 group-hover:border-brand-500/50 transition-all shadow-xl" />
+                                          <img src={p.photoUrl} className="w-16 h-16 rounded-full bg-brand-50 object-cover border-2 border-brand-100 group-hover:border-brand-500/50 transition-all shadow-lg" />
                                           <div>
-                                              <div className="font-black text-white italic text-base uppercase tracking-tight leading-none mb-2">{p.fullName}</div>
+                                              <div className="font-black text-brand-950 italic text-base uppercase tracking-tight leading-none mb-2">{p.fullName}</div>
                                               <div className="text-[10px] font-black text-brand-500 uppercase tracking-widest">{p.memberId}</div>
                                           </div>
                                       </div>
                                   </td>
                                   <td className="px-10 py-6">
                                       <div className="flex flex-col gap-2.5">
-                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-400 uppercase tracking-widest italic"><UserIcon size={14} className="text-brand-500" /> {p.position}</div>
-                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-600 tracking-widest uppercase italic"><Phone size={14} className="text-brand-500" /> {p.contactNumber}</div>
+                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-700 uppercase tracking-widest italic"><UserIcon size={14} className="text-brand-500" /> {p.position}</div>
+                                          <div className="flex items-center gap-3 text-[10px] font-black text-brand-400 tracking-widest uppercase italic"><Phone size={14} className="text-brand-500" /> {p.contactNumber}</div>
                                       </div>
                                   </td>
                                   <td className="px-10 py-6">
                                       <div className="flex flex-wrap gap-2">
-                                          {p.venue && <span className="px-3 py-1.5 rounded-lg bg-brand-500/10 text-brand-500 text-[10px] font-black uppercase tracking-widest border border-brand-500/20 italic">{p.venue}</span>}
-                                          {p.batch && <span className="px-3 py-1.5 rounded-lg bg-brand-950 text-brand-400 text-[10px] font-black uppercase tracking-widest border border-white/10 italic">{p.batch}</span>}
+                                          {p.venue && <span className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-500 text-[10px] font-black uppercase tracking-widest border border-brand-100 italic">{p.venue}</span>}
+                                          {p.batch && <span className="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-700 text-[10px] font-black uppercase tracking-widest border border-brand-100 italic">{p.batch}</span>}
                                       </div>
                                   </td>
                                   <td className="px-10 py-6 text-right">
@@ -350,7 +350,7 @@ export const PlayerManager: React.FC = () => {
       {editingPlayer && (
           <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in">
               <div className="bg-brand-900 w-full max-w-3xl rounded-[4rem] border border-white/10 shadow-3xl overflow-hidden animate-in zoom-in-95">
-                  <div className="p-12 border-b border-white/5 flex justify-between items-center bg-brand-950/50"><h3 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">Update <span className="text-brand-500">Dossier</span></h3><button onClick={() => setEditingPlayer(null)} className="p-4 bg-brand-800 rounded-2xl text-brand-600 hover:text-white"><X size={28} /></button></div>
+                  <div className="p-12 border-b border-white/5 flex justify-between items-center bg-brand-950/50"><h3 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">Update <span className="text-brand-500">Profile</span></h3><button onClick={() => setEditingPlayer(null)} className="p-4 bg-brand-800 rounded-2xl text-brand-600 hover:text-white"><X size={28} /></button></div>
                   <form onSubmit={savePlayerChanges} className="p-12 space-y-12 h-[60vh] overflow-y-auto custom-scrollbar">
                       <div className="flex flex-col items-center mb-10"><div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}><img src={previewUrl || editingPlayer.photoUrl} className="w-40 h-40 rounded-full object-cover border-4 border-white/10 transition-all group-hover:border-brand-500" /><div className="absolute inset-0 bg-brand-950/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Camera className="text-brand-500" size={32} /></div><input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoChange} /></div></div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

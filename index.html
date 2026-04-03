@@ -20,23 +20,25 @@
 
     <style id="brand-styles">
       :root {
-        --brand-primary: #0ea5e9; /* Sky Blue */
-        --brand-secondary: #030712; /* Cosmic Deep Navy */
-        --brand-accent: #bef264; /* Lime Punch */
-        --brand-text: #f8fafc;
+        --brand-primary: #00C8FF; /* Sky Blue */
+        --brand-secondary: #0D1B8A; /* Deep Midnight */
+        --brand-accent: #C3F629; /* Vibrant Lime */
+        --brand-sky: #00C8FF; /* Sky Highlight */
+        --brand-bg: #FFFFFF;
+        --brand-text: #0D1B8A;
       }
       body { 
-        background-color: var(--brand-secondary); 
+        background-color: var(--brand-bg); 
         color: var(--brand-text);
       }
       /* Custom Micro-animations & utilities */
       .premium-card {
-        background: rgba(30, 41, 59, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-        transition: all 0.3s ease;
+        background: var(--brand-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2rem;
+        box-shadow: 0 20px 40px -15px rgba(0, 200, 255, 0.3);
+        transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        color: white;
       }
       .premium-card:hover {
         transform: translateY(-2px);
@@ -93,16 +95,16 @@
                  100: '#e0f2fe',
                  200: '#bae6fd',
                  300: '#7dd3fc',
-                 400: '#38bdf8',
-                 500: 'var(--brand-primary)',
-                 600: '#0284c7',
-                 700: '#0369a1',
-                 800: '#075985',
+                 400: '#40d5ff',
+                 500: '#00C8FF',
+                 600: '#00b4e6',
+                 700: '#00a0cc',
+                 800: '#008bb3',
                  900: 'var(--brand-secondary)',
-                 950: '#020617',
+                 950: '#0D1B8A',
               },
               lime: {
-                DEFAULT: '#bef264',
+                DEFAULT: '#C3F629',
                 glow: 'rgba(190, 242, 100, 0.5)'
               }
             },
@@ -134,7 +136,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="text-white antialiased select-none font-sans" style="background-color: var(--brand-secondary);">
+  <body class="text-brand-950 antialiased font-sans" style="background-color: var(--brand-bg);">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

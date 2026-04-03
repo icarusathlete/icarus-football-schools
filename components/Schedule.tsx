@@ -5,7 +5,7 @@ import {
     Calendar as CalendarIcon, Clock, MapPin, Plus, MonitorPlay, 
     Users, Coffee, Edit3, Trash2, X, Save, Trophy, ArrowRight, 
     ClipboardList, Check, User as UserIcon, Filter, Zap, 
-    PartyPopper, ChevronRight, ChevronLeft, LayoutList, Calendar
+    PartyPopper, ChevronRight, ChevronLeft, LayoutList, Calendar, History
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -150,7 +150,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
           const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
           days.push(
-              <div key={d} className={`h-24 md:h-32 p-2 border border-white/5 transition-colors hover:bg-brand-500/10 overflow-hidden ${isToday ? 'bg-brand-500/20 border-brand-500/50' : 'bg-brand-500/5'}`}>
+              <div key={d} className={`h-20 md:h-32 p-1 md:p-2 border border-white/5 transition-colors hover:bg-brand-500/10 overflow-hidden ${isToday ? 'bg-brand-500/20 border-brand-500/50' : 'bg-brand-500/5'}`}>
                   <div className="flex justify-between items-center mb-1">
                       <span className={`text-xs font-black ${isToday ? 'text-brand-500' : 'text-brand-500'}`}>{d}</span>
                       {isToday && <span className="text-[8px] font-black text-brand-500 uppercase tracking-tighter">Today</span>}
@@ -181,13 +181,17 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                       <button onClick={() => changeMonth(1)} className="p-2 hover:bg-white/10 rounded-xl text-brand-400 transition-colors"><ChevronRight size={20}/></button>
                   </div>
               </div>
-              <div className="grid grid-cols-7 border-b border-white/5 bg-brand-950/20">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                      <div key={d} className="py-3 text-center text-[10px] font-black text-brand-500 uppercase tracking-widest">{d}</div>
-                  ))}
-              </div>
-              <div className="grid grid-cols-7">
-                  {days}
+              <div className="overflow-x-auto custom-scrollbar">
+                  <div className="min-w-[320px]">
+                      <div className="grid grid-cols-7 border-b border-white/5 bg-brand-950/20">
+                          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                              <div key={i} className="py-2 md:py-3 text-center text-[9px] md:text-[10px] font-black text-brand-500 uppercase tracking-widest">{d}</div>
+                          ))}
+                      </div>
+                      <div className="grid grid-cols-7">
+                          {days}
+                      </div>
+                  </div>
               </div>
           </div>
       );
@@ -197,36 +201,37 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
     <div className="space-y-8 pb-24 animate-in fade-in duration-500">
       
       {/* Header & Controls */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div>
-          <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase">
-             TEAM <span className="text-brand-500">SCHEDULE</span>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-500 p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-10 opacity-10"><CalendarIcon size={160} className="text-white" /></div>
+        <div className="relative z-10 text-white">
+          <h2 className="text-4xl font-black italic tracking-tighter uppercase">
+             TEAM <span className="text-brand-950">SCHEDULE</span>
           </h2>
-          <p className="text-brand-400 font-medium mt-1">Orchestrate sessions, matches, and media events.</p>
+          <p className="font-black mt-1 uppercase text-[10px] tracking-[0.3em] opacity-80 italic">Academy Sessions, Matches, and Events</p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto relative z-10">
             {/* View Toggle */}
             <div className="flex bg-brand-950 p-1 rounded-xl border border-white/5">
-                <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}>
+                <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}>
                     <LayoutList size={14}/> List
                 </button>
-                <button onClick={() => setViewMode('calendar')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}>
+                <button onClick={() => setViewMode('calendar')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}>
                     <Calendar size={14}/> Calendar
                 </button>
             </div>
 
             <div className="flex flex-wrap gap-2">
                 {[
-                    { id: 'all', label: 'All', icon: Filter, active: 'bg-brand-500 text-brand-950 ring-2 ring-brand-500/20 shadow-lg shadow-brand-500/10' },
-                    { id: 'training', label: 'Training', icon: Zap, active: 'bg-lime text-brand-950 ring-2 ring-lime/20 shadow-lg shadow-lime/10' },
-                    { id: 'match', label: 'Matches', icon: Trophy, active: 'bg-brand-500 text-brand-950 ring-2 ring-brand-500/20 shadow-lg shadow-brand-500/10' },
-                    { id: 'social', label: 'Events', icon: PartyPopper, active: 'bg-brand-500/20 text-brand-500 ring-2 ring-brand-500/20 shadow-lg shadow-brand-500/10' }
+                    { id: 'all', label: 'All', icon: Filter, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
+                    { id: 'training', label: 'Training', icon: Zap, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
+                    { id: 'match', label: 'Matches', icon: Trophy, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
+                    { id: 'social', label: 'Events', icon: PartyPopper, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' }
                 ].map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? tab.active : 'bg-brand-800 text-brand-500 border border-transparent hover:border-white/10'}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? tab.active : 'text-white/40 hover:text-white'}`}
                     >
                         <tab.icon size={12} />
                         {tab.label}
@@ -238,10 +243,10 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
         {(role === 'admin' || role === 'coach') && (
             <button 
                 onClick={handleCreate}
-                className="hidden lg:flex items-center gap-2 bg-brand-500 text-brand-950 px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-500/20 font-black text-xs uppercase tracking-widest"
+                className="relative z-10 flex items-center gap-2 bg-white text-brand-950 px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg font-black text-xs uppercase tracking-widest italic"
             >
                 <Plus size={18} />
-                PLAN ACTIVITY
+                NEW ACTIVITY
             </button>
         )}
       </div>
@@ -249,10 +254,10 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       {viewMode === 'calendar' ? <CalendarView /> : (
           <div className="space-y-4">
               {filteredEvents.length === 0 && (
-                 <div className="bg-brand-500/10 backdrop-blur-xl border border-brand-500/30 rounded-[2.5rem] p-20 text-center flex flex-col items-center">
-                     <CalendarIcon size={48} className="text-brand-500 mb-4 opacity-20" />
-                     <h3 className="text-xl font-black text-white uppercase tracking-widest italic leading-none">OPERATIONS <span className="text-brand-500">SILENT</span></h3>
-                     <p className="text-brand-500 mt-4 text-[10px] font-black uppercase tracking-[0.2em] italic">No active missions detected for the current period.</p>
+                 <div className="bg-white border border-brand-100 rounded-[2.5rem] p-20 text-center flex flex-col items-center shadow-xl">
+                     <CalendarIcon size={48} className="text-brand-100 mb-4" />
+                     <h3 className="text-xl font-black text-brand-950 uppercase tracking-widest italic leading-none">NO <span className="text-brand-500">SCHEDULE</span></h3>
+                     <p className="text-brand-300 mt-4 text-[10px] font-black uppercase tracking-[0.2em] italic">No active events detected for the current period.</p>
                  </div>
               )}
 
@@ -268,14 +273,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                         className={`group relative bg-brand-500/10 backdrop-blur-md rounded-3xl border border-brand-500/20 hover:border-brand-500/40 transition-all duration-500 overflow-hidden flex flex-col md:flex-row ${isPast ? 'opacity-40 grayscale' : ''} border-l-4 ${s.border}`}
                       >
                           {/* Left: Date & Time */}
-                          <div className="w-full md:w-48 p-8 bg-brand-950/30 flex flex-row md:flex-col justify-between md:justify-center items-center gap-3 border-b md:border-b-0 md:border-r border-white/5">
+                          <div className="w-full md:w-48 p-8 bg-brand-50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-3 border-b md:border-b-0 md:border-r border-brand-100">
                               <div className="text-center">
-                                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-500">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
-                                  <div className="text-4xl font-black text-white leading-none my-1 tracking-tighter italic">{dateObj.getDate()}</div>
-                                  <span className="text-[10px] font-bold uppercase text-brand-500 tracking-[0.2em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-300">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
+                                  <div className="text-4xl font-black text-brand-950 leading-none my-1 tracking-tighter italic">{dateObj.getDate()}</div>
+                                  <span className="text-[10px] font-bold uppercase text-brand-400 tracking-[0.2em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
                               </div>
-                              <div className="h-10 w-px bg-white/5 hidden md:block my-2"></div>
-                              <div className="flex items-center gap-2 bg-brand-950 px-4 py-2 rounded-xl border border-white/10">
+                              <div className="h-10 w-px bg-brand-200 hidden md:block my-2"></div>
+                              <div className="flex items-center gap-2 bg-brand-950 px-4 py-2 rounded-xl border border-white/10 shadow-lg">
                                   <Clock size={14} className="text-brand-500" />
                                   <span className="text-xs font-black text-white">{event.time}</span>
                               </div>
@@ -289,14 +294,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                                   </span>
                               </div>
 
-                              <h3 className="text-2xl font-black text-white mb-3 group-hover:text-brand-500 transition-colors italic uppercase tracking-tight">
+                              <h3 className="text-2xl font-black text-brand-950 mb-3 group-hover:text-brand-500 transition-colors italic uppercase tracking-tight">
                                   {event.title}
                               </h3>
                               
                               <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-brand-400">
                                   <div className="flex items-center gap-2.5">
-                                      <div className="p-2 bg-brand-950 rounded-lg"><MapPin size={16} className="text-brand-500" /></div>
-                                      {event.location}
+                                      <div className="p-2 bg-brand-50 rounded-lg border border-brand-100"><MapPin size={16} className="text-brand-500" /></div>
+                                      <span className="text-brand-700">{event.location}</span>
                                   </div>
                                   
                                   {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
@@ -307,11 +312,11 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                                   )}
                                   
                                   {coach && (
-                                      <div className="flex items-center gap-3 pl-6 border-l border-white/5">
-                                          <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-8 h-8 rounded-full bg-brand-950 border border-white/10 object-cover shadow-lg" />
+                                      <div className="flex items-center gap-3 pl-6 border-l border-brand-100">
+                                          <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-8 h-8 rounded-full bg-brand-50 border border-brand-100 object-cover shadow-sm" />
                                           <div className="flex flex-col">
-                                            <span className="text-[10px] uppercase text-brand-500 font-black tracking-widest">Lead Strategist</span>
-                                            <span className="text-xs text-white">{coach.username}</span>
+                                            <span className="text-[10px] uppercase text-brand-300 font-black tracking-widest">Lead Coach</span>
+                                            <span className="text-xs text-brand-950 font-bold">{coach.username}</span>
                                           </div>
                                       </div>
                                   )}
@@ -320,20 +325,20 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
                           {/* Right: Actions */}
                           {(role === 'admin' || role === 'coach') && (
-                              <div className="p-6 md:p-8 flex flex-row md:flex-col items-center justify-center gap-3 bg-brand-950/20 border-t md:border-t-0 md:border-l border-white/5">
+                              <div className="p-6 md:p-8 flex flex-row md:flex-col items-center justify-center gap-3 bg-brand-50 border-t md:border-t-0 md:border-l border-brand-100">
                                  {!isPast ? (
                                      <>
-                                        <button onClick={() => handleEdit(event)} className="w-full md:w-auto p-4 bg-brand-900 border border-white/5 text-brand-400 rounded-2xl hover:text-brand-500 hover:border-brand-500/30 hover:bg-brand-500/5 transition-all shadow-xl group/btn" title="Refine Action">
+                                        <button onClick={() => handleEdit(event)} className="w-full md:w-auto p-4 bg-white border border-brand-100 text-brand-300 rounded-2xl hover:text-brand-500 hover:border-brand-500 hover:bg-brand-50 transition-all shadow-sm group/btn" title="Edit Event">
                                             <Edit3 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                         </button>
-                                        <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-auto p-4 bg-brand-900 border border-white/5 text-brand-400 rounded-2xl hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/5 transition-all shadow-xl group/btn" title="Abort Mission">
+                                        <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-auto p-4 bg-white border border-brand-100 text-brand-300 rounded-2xl hover:text-red-500 hover:border-red-500 hover:bg-red-50 transition-all shadow-sm group/btn" title="Delete Event">
                                             <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                         </button>
                                      </>
                                  ) : (
                                     <div className="text-center px-4">
-                                        <div className="p-4 bg-brand-900/50 rounded-2xl border border-white/5">
-                                            <History size={20} className="mx-auto text-brand-700" />
+                                        <div className="p-4 bg-brand-50 rounded-2xl border border-brand-100">
+                                            <History size={20} className="mx-auto text-brand-200" />
                                         </div>
                                     </div>
                                  )}
@@ -347,50 +352,50 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-brand-900 rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
-            <div className="bg-brand-950/50 px-10 py-6 border-b border-white/5 flex justify-between items-center relative">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
-                <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">{editingId ? 'Refine' : 'Formulate'} <span className="text-brand-500">Activity</span></h3>
-                <button type="button" onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={20}/></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-brand-100 flex flex-col max-h-[90vh]">
+            <div className="bg-brand-50 px-10 py-6 border-b border-brand-100 flex justify-between items-center relative">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-brand-500 opacity-30" />
+                <h3 className="font-black text-2xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'Edit' : 'New'} <span className="text-brand-500">Activity</span></h3>
+                <button type="button" onClick={() => setShowForm(false)} className="p-3 hover:bg-brand-100 rounded-full text-brand-300 transition-colors"><X size={20}/></button>
             </div>
             
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Activity Designation</label>
-                <input required type="text" placeholder="e.g. Tactical Drill 04 / Home Opener" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none font-bold text-white shadow-inner" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+                <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Activity Name</label>
+                <input required type="text" placeholder="e.g. Session 04 / Match vs City" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none font-bold text-brand-950 shadow-sm" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Deployment Date</label>
-                    <input required type="date" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-white shadow-inner" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Session Date</label>
+                    <input required type="date" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Start Time</label>
-                    <input required type="time" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-white shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
+                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Start Time</label>
+                    <input required type="time" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
                   </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Engagement Type</label>
-                    <select className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-white shadow-inner appearance-none" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
+                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Engagement Type</label>
+                    <select className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm appearance-none" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
                         <option value="training">Training</option>
                         <option value="match">Match</option>
                         <option value="social">Social/Event</option>
                     </select>
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Operational Zone</label>
-                    <input required type="text" placeholder="Pitch Alpha / VR Suite" className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-white shadow-inner" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
+                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Location</label>
+                    <input required type="text" placeholder="Pitch 1 / Ground 2" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                  </div>
               </div>
 
               <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Designated Strategist</label>
-                  <select className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-white shadow-inner appearance-none" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
-                      <option value="">Awaiting Assignment...</option>
+                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Lead Coach</label>
+                  <select className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm appearance-none" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
+                      <option value="">Select Coach...</option>
                       {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
                   </select>
               </div>
@@ -426,10 +431,10 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               )}
             </form>
 
-            <div className="px-10 py-6 border-t border-white/5 bg-brand-950/50 flex gap-4">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-500 font-black hover:text-white rounded-2xl transition-all text-xs uppercase tracking-[0.2em]">Abort</button>
-                <button onClick={handleSubmit} className="flex-1 py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em]">
-                    <Save size={18} /> {editingId ? 'Confirm Redesign' : 'Authorize Plan'}
+            <div className="px-10 py-6 border-t border-brand-100 bg-brand-50 flex gap-4">
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-xs uppercase tracking-[0.2em]">Cancel</button>
+                <button onClick={handleSubmit} className="flex-1 py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] italic">
+                    <Save size={18} /> {editingId ? 'Update Event' : 'Save Event'}
                 </button>
             </div>
           </div>

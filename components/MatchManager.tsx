@@ -154,11 +154,11 @@ export const MatchManager: React.FC = () => {
     return (
         <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
             {/* Header Section */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500/10 backdrop-blur-xl p-10 rounded-[3.5rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><Trophy size={160} className="text-white" /></div>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500 p-10 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Trophy size={160} className="text-white" /></div>
                 <div className="relative z-10">
                     <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
-                        MATCH <span className="text-brand-500">CENTER</span>
+                        MATCH <span className="text-brand-950">CENTER</span>
                         {matches.some(m => m.isLive) && (
                             <span className="flex h-4 w-4 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -166,25 +166,25 @@ export const MatchManager: React.FC = () => {
                             </span>
                         )}
                     </h1>
-                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Advanced Tactical Deployment Protocol</p>
+                    <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Academy Fixtures & Results Portal</p>
                 </div>
-                <button onClick={() => setShowForm(true)} className="relative z-10 bg-brand-500 text-brand-950 px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-brand-500/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic">
+                <button onClick={() => setShowForm(true)} className="relative z-10 bg-white text-brand-950 px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic">
                     <PlusCircle size={20} />
-                    INITIALIZE FIXTURE
+                    ADD RECORD
                 </button>
             </div>
 
             {/* Metrics Dashboard */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Ops Logged', val: matches.length, icon: History, color: 'text-brand-400' },
-                    { label: 'Victories', val: matches.filter(m => m.result === 'W').length, icon: Trophy, color: 'text-brand-500' },
-                    { label: 'Stalemates', val: matches.filter(m => m.result === 'D').length, icon: Activity, color: 'text-brand-400' },
-                    { label: 'Defeats', val: matches.filter(m => m.result === 'L').length, icon: Target, color: 'text-red-400' },
+                    { label: 'Played', val: matches.length, icon: History, color: 'text-brand-950' },
+                    { label: 'Wins', val: matches.filter(m => m.result === 'W').length, icon: Trophy, color: 'text-brand-950' },
+                    { label: 'Draws', val: matches.filter(m => m.result === 'D').length, icon: Activity, color: 'text-brand-950' },
+                    { label: 'Losses', val: matches.filter(m => m.result === 'L').length, icon: Target, color: 'text-red-900' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-brand-500/5 backdrop-blur-md p-6 rounded-3xl border border-brand-500/20 flex items-center justify-between shadow-inner transition-all hover:border-brand-500/50">
+                    <div key={i} className="bg-brand-500 p-6 rounded-3xl border border-white/10 flex items-center justify-between shadow-xl transition-all hover:scale-105">
                         <div>
-                            <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] mb-1 italic">{stat.label}</p>
+                            <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">{stat.label}</p>
                             <p className={`text-3xl font-black italic ${stat.color}`}>{stat.val}</p>
                         </div>
                         <stat.icon className={`w-8 h-8 ${stat.color} opacity-20`} />
@@ -265,11 +265,11 @@ export const MatchManager: React.FC = () => {
             )}
 
             {/* View Selection */}
-            <div className="bg-brand-500/10 backdrop-blur-md p-1.5 rounded-[2rem] border border-brand-500/30 flex w-fit shadow-2xl">
+            <div className="bg-brand-950 p-1.5 rounded-[2rem] border border-white/10 flex w-fit shadow-2xl">
                 {['results', 'fixtures'].map((tab) => (
-                    <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-brand-500 text-brand-950 shadow-xl shadow-brand-500/20' : 'text-brand-500 hover:text-white'}`}>
+                    <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-white text-brand-950 shadow-xl' : 'text-white/40 hover:text-white'}`}>
                         {tab === 'results' ? <History size={16} /> : <Calendar size={16} />}
-                        {tab === 'results' ? 'Holographic Log' : 'Deployment Schedule'}
+                        {tab === 'results' ? 'Match Results' : 'Upcoming Fixtures'}
                     </button>
                 ))}
             </div>
@@ -277,42 +277,42 @@ export const MatchManager: React.FC = () => {
             {/* Data Stream */}
             <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                    <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'PREVIOUS DEPLOYMENTS' : 'PENDING OPERATIONS'}</span>
-                    <div className="h-[1px] bg-white/5 w-full" />
+                    <span className="text-[10px] font-black text-brand-300 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'PREVIOUS MATCHES' : 'PENDING FIXTURES'}</span>
+                    <div className="h-[1px] bg-brand-100 w-full" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
                     {activeTab === 'results' ? (
                         matches.map(m => (
-                            <div key={m.id} className="group relative bg-brand-950 rounded-[2.5rem] border border-white/5 hover:border-brand-500/30 transition-all overflow-hidden p-8 lg:p-12 shadow-2xl hover:-translate-y-1">
-                                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${m.isLive ? 'bg-red-500 animate-pulse' : m.result === 'W' ? 'bg-brand-500 glow-brand-500' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-400'}`} />
+                            <div key={m.id} className="group relative bg-white rounded-[2.5rem] border border-brand-100 hover:border-brand-500 transition-all overflow-hidden p-8 lg:p-12 shadow-xl hover:-translate-y-1">
+                                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${m.isLive ? 'bg-red-500 animate-pulse' : m.result === 'W' ? 'bg-brand-500' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-400'}`} />
                                 <div className="flex flex-col lg:flex-row items-center gap-12">
                                     <div className="flex flex-col items-center lg:items-start min-w-[120px]">
-                                        <p className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] mb-2 italic">CYCLE {new Date(m.date).getFullYear()}</p>
-                                        <div className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                                        <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${m.result === 'W' ? 'text-brand-500' : m.result === 'L' ? 'text-red-500' : 'text-brand-400'}`}>{m.result === 'W' ? 'DOMINATION' : m.result === 'L' ? 'DATA LOSS' : 'NEUTRAL SCORE'}</span>
+                                        <p className="text-[10px] font-black text-brand-200 uppercase tracking-[0.3em] mb-2 italic">SEASON {new Date(m.date).getFullYear()}</p>
+                                        <div className="text-3xl font-black text-brand-950 italic uppercase tracking-tighter leading-none mb-2">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                        <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${m.result === 'W' ? 'text-brand-500' : m.result === 'L' ? 'text-red-500' : 'text-brand-400'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</span>
                                     </div>
                                     <div className="flex-1 flex flex-col md:flex-row items-center justify-between w-full gap-8">
                                         <div className="flex-1 text-center md:text-right space-y-2">
-                                            <p className="text-[9px] font-black text-brand-700 uppercase tracking-[0.4em] italic">ACADEMY ALPHA</p>
-                                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tight leading-none">{settings.name}</h3>
+                                            <p className="text-[9px] font-black text-brand-300 uppercase tracking-[0.4em] italic">ACADEMY</p>
+                                            <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tight leading-none">{settings.name}</h3>
                                         </div>
-                                        <div className="bg-brand-950 px-8 py-5 rounded-3xl border border-white/10 font-mono text-5xl font-black text-white shadow-3xl flex items-center gap-8 relative overflow-hidden">
+                                        <div className="bg-brand-50 px-8 py-5 rounded-3xl border border-brand-100 font-mono text-5xl font-black text-brand-950 shadow-inner flex items-center gap-8 relative overflow-hidden">
                                             <div className="absolute inset-0 bg-brand-500/5" />
-                                            <span className={m.result === 'W' ? 'text-brand-500 italic' : 'text-white'}>{m.scoreFor}</span>
-                                            <span className="text-brand-900 opacity-30 text-3xl">:</span>
-                                            <span className="text-brand-700">{m.scoreAgainst}</span>
+                                            <span className={m.result === 'W' ? 'text-brand-500 italic' : 'text-brand-950'}>{m.scoreFor}</span>
+                                            <span className="text-brand-100 text-3xl">:</span>
+                                            <span className="text-brand-300">{m.scoreAgainst}</span>
                                         </div>
                                         <div className="flex-1 text-center md:text-left space-y-2">
-                                            <p className="text-[9px] font-black text-brand-700 uppercase tracking-[0.4em] italic">OPPONENT OMEGA</p>
+                                            <p className="text-[9px] font-black text-brand-300 uppercase tracking-[0.4em] italic">OPPONENT</p>
                                             <h3 className="text-2xl font-black text-brand-400 italic uppercase tracking-tight leading-none opacity-60 group-hover:opacity-100 transition-opacity">{m.opponent}</h3>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
                                         {m.highlightsUrl && (
-                                            <button onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} className="p-4 bg-brand-950 text-brand-500 rounded-2xl hover:bg-brand-500 hover:text-brand-950 transition-all shadow-xl active:scale-90 border border-brand-500/20"><PlayCircle size={24} /></button>
+                                            <button onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} className="p-4 bg-brand-500 text-brand-950 rounded-2xl hover:scale-110 transition-all shadow-lg active:scale-90 border border-white/10"><PlayCircle size={24} /></button>
                                         )}
-                                        <button onClick={() => setActiveMatchId(m.id)} className="p-4 bg-brand-950 text-white rounded-2xl hover:border-brand-500 transition-all active:scale-90 opacity-40 hover:opacity-100 border border-white/5"><MessageSquare size={24} /></button>
+                                        <button onClick={() => setActiveMatchId(m.id)} className="p-4 bg-brand-50 text-brand-200 rounded-2xl hover:border-brand-500 hover:text-brand-500 transition-all active:scale-90 border border-brand-100"><MessageSquare size={24} /></button>
                                     </div>
                                 </div>
                             </div>

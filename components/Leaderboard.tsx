@@ -168,7 +168,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                             {/* P2 */}
                             {topThree[1] && (
-                                <div onClick={() => setViewingPlayer(topThree[1])} className="bg-brand-500/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-brand-500/30 flex flex-col items-center group cursor-pointer hover:border-brand-500/50 transition-all shadow-2xl order-2 md:order-1 h-[320px]">
+                                <div onClick={() => setViewingPlayer(topThree[1])} className="bg-brand-500/10 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-brand-500/30 flex flex-col items-center group cursor-pointer hover:border-brand-500/50 transition-all shadow-2xl order-2 md:order-1 min-h-[280px] md:h-[320px]">
                                     <div className="w-20 h-20 bg-brand-950 rounded-full border border-white/5 flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform">
                                         <img src={topThree[1].photoUrl} className="w-full h-full object-cover rounded-full" />
                                         <div className="absolute -top-2 -right-2 w-8 h-8 bg-brand-400 rounded-full flex items-center justify-center font-black text-white text-[10px] border-2 border-brand-800">2</div>
@@ -235,15 +235,15 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                              <div className="overflow-x-auto">
                                  <table className="w-full text-left border-collapse">
                                      <thead>
-                                         <tr className="bg-brand-900 text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] border-b border-white/5">
-                                             <th className="px-8 py-5 w-16 text-center">RANK</th>
-                                             <th className="px-8 py-5">PLAYER PROFILE</th>
-                                             <th className="px-6 py-5 text-center w-16">P</th>
-                                             <th className="px-6 py-5 text-center w-16">G</th>
-                                             <th className="px-6 py-5 text-center w-16">A</th>
-                                             <th className="px-6 py-5 text-center hidden md:table-cell">FORM CORE</th>
-                                             <th className="px-6 py-5 text-center w-20">AVG RTG</th>
-                                             <th className="px-8 py-5 text-center w-20 bg-brand-950/80">TOTAL PTS</th>
+                                         <tr className="bg-brand-950/80 text-[9px] font-black text-brand-500 uppercase tracking-[0.2em] border-b border-brand-500/20 shadow-inner">
+                                             <th className="px-4 md:px-8 py-5 w-16 text-center">RANK</th>
+                                             <th className="px-4 md:px-8 py-5">PLAYER PROFILE</th>
+                                             <th className="px-3 md:px-6 py-5 text-center w-12 md:w-16">P</th>
+                                             <th className="px-3 md:px-6 py-5 text-center w-12 md:w-16">G</th>
+                                             <th className="px-3 md:px-6 py-5 text-center w-12 md:w-16">A</th>
+                                             <th className="px-3 md:px-6 py-5 text-center hidden lg:table-cell">FORM CORE</th>
+                                             <th className="px-3 md:px-6 py-5 text-center w-16 md:w-20">AVG RTG</th>
+                                             <th className="px-4 md:px-8 py-5 text-center w-20 md:w-24 bg-brand-950/80">TOTAL PTS</th>
                                          </tr>
                                      </thead>
                                      <tbody className="divide-y divide-white/5">
@@ -283,7 +283,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                 ) : (
                     <div className="bg-brand-800/50 rounded-[3rem] p-32 border-2 border-dashed border-white/5 text-center flex flex-col items-center">
                         <Minus className="text-brand-800 w-16 h-16 mb-6" />
-                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">Deployment <span className="text-red-900">Inactive</span></h3>
+                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">Team Assignment <span className="text-red-900">Inactive</span></h3>
                         <p className="text-brand-500 mt-2 max-w-sm font-medium uppercase text-[10px] tracking-widest">No match telemetry detected for the selected period.</p>
                     </div>
                 )}

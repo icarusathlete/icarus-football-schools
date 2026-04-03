@@ -8,6 +8,8 @@ interface ConfirmModalProps {
   requireTypeToConfirm?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmText?: string;
+  type?: 'danger' | 'info';
 }
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -16,7 +18,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   message,
   requireTypeToConfirm,
   onConfirm,
-  onCancel
+  onCancel,
+  confirmText = "Verify & Execute",
+  type = "danger"
 }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -76,9 +80,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             <button
               onClick={handleConfirm}
               disabled={requireTypeToConfirm ? inputValue !== requireTypeToConfirm : false}
-              className="flex-1 py-4 px-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl shadow-red-600/20 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed transform active:scale-95"
+              className={`flex-1 py-4 px-6 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl transform active:scale-95 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed ${
+                type === 'danger' 
+                  ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' 
+                  : 'bg-brand-500 hover:bg-brand-600 text-brand-950 shadow-brand-500/20'
+              }`}
             >
-              Verify & Execute
+              {confirmText}
             </button>
           </div>
         </div>

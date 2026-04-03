@@ -308,60 +308,54 @@ export const PlayerRegistration: React.FC = () => {
   const getInputClass = (field: string) => `
     w-full rounded-2xl border p-4 text-sm outline-none transition-all duration-300 font-bold shadow-inner font-display italic
     ${errors[field] 
-        ? 'border-red-500/50 bg-red-500/5 text-brand-500 placeholder:text-red-500/30' 
-        : 'border-white/10 bg-brand-800 text-white placeholder:text-brand-700 focus:border-brand-500'
+        ? 'border-red-500 bg-red-50 text-red-900 placeholder:text-red-300' 
+        : 'border-brand-200 bg-white text-brand-950 placeholder:text-brand-300 focus:border-brand-500'
     }
   `;
 
   return (
     <div className="max-w-5xl mx-auto pb-32 space-y-10 animate-in fade-in duration-700 font-display">
         
-        {/* Mode Switcher */}
-        <div className="bg-brand-800 p-2 rounded-[3rem] shadow-2xl border border-white/5 flex flex-col sm:flex-row gap-2">
-            <button 
-                onClick={() => setMode('player')}
-                className={`flex-1 flex items-center justify-center gap-5 py-6 rounded-[2.5rem] transition-all duration-500 ${mode === 'player' ? 'bg-brand-500 text-brand-950 shadow-xl shadow-brand-500/20 scale-[1.02]' : 'hover:bg-white/5 text-brand-500 hover:text-white'}`}
-            >
-                <div className={`p-3 rounded-2xl ${mode === 'player' ? 'bg-brand-950/20' : 'bg-brand-950/40'}`}><User size={24} /></div>
-                <div className="text-left font-display italic">
-                    <div className="font-black uppercase tracking-[0.25em] text-[11px]">Athlete Enrollment</div>
-                    <div className={`text-[9px] font-bold uppercase tracking-widest mt-1 opacity-70`}>Initialize Commissioning</div>
-                </div>
-            </button>
-            <button 
-                onClick={() => setMode('coach')}
-                className={`flex-1 flex items-center justify-center gap-5 py-6 rounded-[2.5rem] transition-all duration-500 ${mode === 'coach' ? 'bg-brand-500 text-brand-950 shadow-xl shadow-brand-500/20 scale-[1.02]' : 'hover:bg-white/5 text-brand-500 hover:text-white'}`}
-            >
-                <div className={`p-3 rounded-2xl ${mode === 'coach' ? 'bg-brand-950/20' : 'bg-brand-950/40'}`}><UserCheck size={24} /></div>
-                <div className="text-left font-display italic">
-                    <div className="font-black uppercase tracking-[0.25em] text-[11px]">Staff Onboarding</div>
-                    <div className={`text-[9px] font-bold uppercase tracking-widest mt-1 opacity-70`}>Authorize Access Protocol</div>
-                </div>
-            </button>
+        {/* Mode Switcher - Compact Pill Design */}
+        <div className="flex justify-center mb-6">
+            <div className="bg-brand-950 p-1.5 rounded-[2rem] border border-white/10 flex gap-1 shadow-2xl relative z-10">
+                <button 
+                    onClick={() => setMode('player')}
+                    className={`px-8 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'player' ? 'bg-[#e0e7ff] text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
+                >
+                    Athletes
+                </button>
+                <button 
+                    onClick={() => setMode('coach')}
+                    className={`px-8 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'coach' ? 'bg-[#e0e7ff] text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
+                >
+                    Staff
+                </button>
+            </div>
         </div>
 
-      <div className="bg-brand-900 rounded-[4rem] shadow-2xl border border-white/5 overflow-hidden relative">
+      <div className="bg-white rounded-[4rem] shadow-2xl border border-brand-100 overflow-hidden relative">
         
         {/* Header Section */}
-        <div className="relative px-12 py-20 text-white overflow-hidden bg-brand-950/40 border-b border-white/5">
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/50 to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.08),transparent_70%)]" />
+        <div className="relative px-12 py-20 text-white overflow-hidden bg-brand-500 border-b border-white/10">
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-white/20" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_70%)]" />
           
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-6 text-brand-500 font-black uppercase tracking-[0.4em] text-[10px] bg-brand-900/80 w-fit px-5 py-2.5 rounded-full border border-brand-500/20 shadow-2xl italic">
-                <Shield size={14} className="animate-pulse" /> DATABASE INTAKE ACTIVE
+              <div className="flex items-center gap-3 mb-6 text-brand-950 font-black uppercase tracking-[0.4em] text-[10px] bg-white w-fit px-5 py-2.5 rounded-full border border-white/20 shadow-2xl italic">
+                <Shield size={14} className="animate-pulse" /> ACADEMY ROSTER MANAGEMENT
               </div>
-              <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase leading-[0.85] font-display">
-                {mode === 'player' ? 'ATHLETE ' : 'OFFICER '} <br/>
-                <span className="text-brand-500">
-                    {mode === 'player' ? 'REGISTRATION' : 'ONBOARDING'}
+              <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase leading-[0.85] font-display text-white">
+                {mode === 'player' ? 'ATHLETE ' : 'STAFF '} <br/>
+                <span className="text-brand-950">
+                    REGISTRATION
                 </span>
               </h2>
-              <p className="text-brand-400 text-sm mt-8 font-medium uppercase tracking-tight max-w-xl leading-relaxed italic border-l-2 border-brand-500/30 pl-8">
+              <p className="text-white/80 text-sm mt-8 font-medium uppercase tracking-tight max-w-xl leading-relaxed italic border-l-2 border-white/20 pl-8">
                   {mode === 'player' 
-                    ? 'Initialize new player profile in the Icarus tactical ecosystem. Immediate roster synchronization across all coaching stations.' 
-                    : 'Establish high-level access credentials for staff deployments and operational scope assignment.'}
+                    ? 'Register a new student athlete to the official academy roster. All profiles are synchronized across coaching consoles.' 
+                    : 'Create a new staff account with specific permissions, venue assignments, and management roles.'}
               </p>
             </div>
             
@@ -403,13 +397,13 @@ export const PlayerRegistration: React.FC = () => {
                         <div className="lg:col-span-4 flex flex-col items-center gap-10">
                         <div className="relative group">
                             <div className={`
-                                w-72 h-72 rounded-full bg-brand-800 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
-                                ${previewUrl ? 'border-brand-500 shadow-2xl scale-[1.02]' : 'border-white/5 group-hover:border-brand-500/50 group-hover:bg-brand-500/5'}
+                                w-72 h-72 rounded-full bg-brand-50 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
+                                ${previewUrl ? 'border-brand-500 shadow-2xl scale-[1.02]' : 'border-brand-200 group-hover:border-brand-500/50 group-hover:bg-brand-50'}
                             `}>
                                 {previewUrl ? (
                                     <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="flex flex-col items-center gap-5 text-brand-700 group-hover:text-brand-500 transition-colors">
+                                    <div className="flex flex-col items-center gap-5 text-brand-200 group-hover:text-brand-500 transition-colors">
                                         <Camera size={48} strokeWidth={1} />
                                         <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Initialize Avatar</span>
                                     </div>
@@ -421,17 +415,17 @@ export const PlayerRegistration: React.FC = () => {
                             </label>
                         </div>
                         <div className="text-center">
-                            <h4 className="font-black text-white italic uppercase tracking-tight text-lg font-display">Tactical <span className="text-brand-500">Asset Profile</span></h4>
-                            <p className="text-[11px] text-brand-500 font-bold uppercase tracking-[0.2em] mt-3 italic">Required for secure biometric verification.</p>
+                            <h4 className="font-black text-brand-950 italic uppercase tracking-tight text-lg font-display">ATHLETE <span className="text-brand-500">PROFILE MARK</span></h4>
+                            <p className="text-[11px] text-brand-600 font-bold uppercase tracking-[0.2em] mt-3 italic">Professional identification image.</p>
                         </div>
                         </div>
 
                         {/* Right Column: Details */}
                         <div className="lg:col-span-8 space-y-16">
                             <div className="space-y-10">
-                                <div className="flex items-center gap-5 border-b border-white/5 pb-4">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 flex items-center justify-center text-brand-500 border border-brand-500/20 shadow-inner"><User size={24} /></div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-400 italic">Personnel <span className="text-white">Credentials</span></h3>
+                                <div className="flex items-center gap-5 border-b border-brand-100 pb-4">
+                                <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-500 border border-brand-100 shadow-inner"><User size={24} /></div>
+                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-700 italic">Personnel <span className="text-brand-500">Credentials</span></h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-3 group">
@@ -448,7 +442,7 @@ export const PlayerRegistration: React.FC = () => {
                                             {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
                                                 <button key={pos} type="button" onClick={() => setFormData({...formData, position: pos as any})}
                                                     className={`py-4 px-8 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all duration-500 italic
-                                                        ${formData.position === pos ? 'bg-brand-500 border-brand-500 text-brand-950 shadow-2xl scale-[1.05]' : 'bg-brand-800 border-white/5 text-brand-500 hover:text-white'}`}
+                                                        ${formData.position === pos ? 'bg-brand-500 border-brand-500 text-brand-950 shadow-2xl scale-[1.05]' : 'bg-brand-50 border-brand-100 text-brand-400 hover:text-brand-950'}`}
                                                 >
                                                     {pos}
                                                 </button>
@@ -461,7 +455,7 @@ export const PlayerRegistration: React.FC = () => {
                             <div className="space-y-10">
                                 <div className="flex items-center gap-5 border-b border-white/5 pb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-brand-500/10 flex items-center justify-center text-brand-500 border border-brand-500/20 shadow-inner"><MapPin size={24} /></div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-400 italic">Deployment <span className="text-white">Mapping</span></h3>
+                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-400 italic">Team Assignment <span className="text-white">Mapping</span></h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-3 group">
@@ -538,17 +532,17 @@ export const PlayerRegistration: React.FC = () => {
 
       {/* Roster Table */}
       {mode === 'player' && players.length > 0 && (
-          <div className="bg-brand-900 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl mt-16 animate-in slide-in-from-bottom-12 duration-1000">
-            <div className="px-12 py-10 border-b border-white/5 bg-brand-950/50 flex justify-between items-center">
-                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Active <span className="text-brand-500 text-3xl ml-2">Squad</span></h3>
-                <span className="bg-brand-900 px-6 py-2.5 rounded-full border border-white/10 text-[10px] font-black text-brand-500 uppercase tracking-widest italic">{players.length} Total Operatives</span>
+          <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl mt-16 animate-in slide-in-from-bottom-12 duration-1000">
+            <div className="px-12 py-10 border-b border-brand-50 bg-brand-50/30 flex justify-between items-center">
+                <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tighter">Active <span className="text-brand-500 text-3xl ml-2">Squad</span></h3>
+                <span className="bg-white px-6 py-2.5 rounded-full border border-brand-100 text-[10px] font-black text-brand-700 uppercase tracking-widest italic">{players.length} Total Players</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                    <thead><tr className="bg-brand-950/80 border-b border-white/5 font-display"><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-600 italic">Operative Profile</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-600 italic">Clearance ID</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-600 italic">Deployment</th><th className="text-right px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-600 italic">Revocation</th></tr></thead>
-                    <tbody className="divide-y divide-white/5">
+                    <thead><tr className="bg-brand-50 border-b border-brand-100 font-display"><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Player Profile</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Member ID</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Team Assignment</th><th className="text-right px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Action</th></tr></thead>
+                    <tbody className="divide-y divide-brand-50">
                         {players.map(p => (
-                            <tr key={p.id} className="group hover:bg-brand-500/5 transition-all"><td className="px-10 py-6 flex items-center gap-6"><img src={p.photoUrl} className="w-12 h-12 rounded-full object-cover border-2 border-white/10 shadow-2xl" /><span className="font-black text-white uppercase italic tracking-tight">{p.fullName}</span></td><td className="px-10 py-6 font-mono text-xs text-brand-500">{p.memberId}</td><td className="px-10 py-6"><div className="text-xs font-black text-white uppercase italic tracking-widest">{p.venue}</div><div className="text-[10px] font-bold text-brand-600 mt-1 uppercase italic tracking-tighter">{p.batch} • {p.position}</div></td><td className="px-10 py-6 text-right"><button onClick={() => handleSecureDelete('player', p.id, p.fullName)} className="p-3 text-brand-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-500/20 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button></td></tr>
+                            <tr key={p.id} className="group hover:bg-brand-50/50 transition-all"><td className="px-10 py-6 flex items-center gap-6"><img src={p.photoUrl} className="w-12 h-12 rounded-full object-cover border-2 border-brand-100 shadow-lg" /><span className="font-black text-brand-950 uppercase italic tracking-tight">{p.fullName}</span></td><td className="px-10 py-6 font-mono text-xs text-brand-500">{p.memberId}</td><td className="px-10 py-6"><div className="text-xs font-black text-brand-950 uppercase italic tracking-widest">{p.venue}</div><div className="text-[10px] font-bold text-brand-500 mt-1 uppercase italic tracking-tighter">{p.batch} • {p.position}</div></td><td className="px-10 py-6 text-right"><button onClick={() => handleSecureDelete('player', p.id, p.fullName)} className="p-3 text-brand-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-500/20 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button></td></tr>
                         ))}
                     </tbody>
                 </table>

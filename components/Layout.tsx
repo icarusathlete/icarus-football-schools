@@ -42,15 +42,32 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
   </button>
 );
 
+const getShortLabel = (label: string) => {
+  const mapping: Record<string, string> = {
+    'Academy Hub': 'Hub',
+    'Squad Management': 'Squad',
+    'New Athlete': 'New',
+    'Finance Hub': 'Finance',
+    'Access Control': 'Access',
+    'Rankings': 'Rank',
+    'Match Center': 'Match',
+    'Scout Reports': 'Reports',
+    'Pro Analytics': 'Analytics'
+  };
+  return mapping[label] || label.split(' ')[0];
+};
+
 const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabChange }) => (
   <button
     onClick={() => onTabChange(item.id)}
-    className={`flex flex-col items-center justify-center py-2 px-1 flex-1 transition-all duration-500 ${
+    className={`flex flex-col items-center justify-center py-2 px-1 flex-1 min-w-0 transition-all duration-500 overflow-hidden ${
       activeTab === item.id ? 'text-brand-500 scale-105' : 'text-white/40 hover:text-white'
     }`}
   >
-    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-brand-500/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
-    <span className="text-[9px] font-black uppercase tracking-[0.2em] truncate w-full text-center">{item.label}</span>
+    <item.icon className={`w-5 h-5 mb-1 ${activeTab === item.id ? 'fill-brand-500/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className="text-[8px] font-black uppercase tracking-tight truncate w-full text-center">
+        {getShortLabel(item.label)}
+    </span>
   </button>
 );
 
@@ -100,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     ];
 
     const management = [
-      { id: 'admin', label: 'HQ Dashboard', icon: LayoutDashboard },
+      { id: 'admin', label: 'Academy Hub', icon: LayoutDashboard },
       { id: 'players', label: 'Squad Management', icon: UserCog },
       { id: 'register', label: 'New Athlete', icon: Users },
       { id: 'finance', label: 'Finance Hub', icon: DollarSign },
@@ -108,14 +125,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     ];
 
     if (currentUser.role === 'admin') {
-      sections.push({ title: 'COMMAND', items: management.slice(0, 5) });
-      sections.push({ title: 'OPERATIONS', items: operations });
-      sections.push({ title: 'INTELLIGENCE', items: intelligence });
-      sections.push({ title: 'ACADEMY CORE', items: core });
+      sections.push({ title: 'MANAGEMENT', items: management.slice(0, 5) });
+      sections.push({ title: 'ACADEMY TOOLS', items: operations });
+      sections.push({ title: 'ANALYTICS', items: intelligence });
+      sections.push({ title: 'GENERAL', items: core });
     } else if (currentUser.role === 'coach') {
-      sections.push({ title: 'OPERATIONS', items: operations });
-      sections.push({ title: 'INTELLIGENCE', items: intelligence });
-      sections.push({ title: 'ACADEMY CORE', items: core });
+      sections.push({ title: 'ACADEMY TOOLS', items: operations });
+      sections.push({ title: 'ANALYTICS', items: intelligence });
+      sections.push({ title: 'GENERAL', items: core });
     }
 
     return sections;
@@ -125,16 +142,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const allNavItems = navSections.flatMap(s => s.items);
 
   return (
-    <div className="min-h-screen bg-brand-950 flex flex-col md:flex-row text-brand-50 relative overflow-hidden">
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(14,165,233,0.1),transparent_50%)] pointer-events-none" />
-      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 shadow-2xl z-20 bg-brand-500/5 backdrop-blur-xl border-r border-brand-500/30">
+    <div className="min-h-screen bg-white flex flex-col md:flex-row text-brand-950 relative overflow-x-hidden">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,200,255,0.05),transparent_70%)] pointer-events-none" />
+      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 shadow-2xl z-20 bg-brand-950/80 backdrop-blur-xl border-r border-white/10">
         <div className="p-6 flex items-center gap-4 border-b border-white/10 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-full bg-white/5 backdrop-blur-sm -z-10" />
           <div className="shrink-0 p-1 bg-white rounded-full shadow-2xl flex items-center justify-center w-12 h-12 ring-2 ring-brand-500 transition-all group-hover:ring-lime overflow-hidden">
             {settings.logoUrl ? (
               <img src={settings.logoUrl} className="w-10 h-10 object-contain rounded-full" alt="Logo" />
             ) : (
-              <Trophy className="w-8 h-8 opacity-20" style={{ color: settings.primaryColor || '#0ea5e9' }} />
+              <Trophy className="w-8 h-8 opacity-20" style={{ color: settings.primaryColor || '#0066FF' }} />
             )}
           </div>
           <div className="overflow-hidden">
@@ -142,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 style={{ fontFamily: settings.fontFamily || 'Orbitron', color: 'white' }}>
               {settings.name}
             </h1>
-            <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] font-black mt-0.5">{currentUser.role} Portal</p>
+            <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] font-black mt-0.5">{currentUser.role} Management Center</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
@@ -164,11 +181,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <div className="mx-4 mb-6 p-5 bg-brand-950/50 rounded-2xl border border-white/5 shadow-inner">
                 <div className="flex items-center gap-2 mb-3">
                     <Database size={14} className="text-white/20" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Datastore Sync</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Database Sync</span>
                 </div>
                 <div className="flex items-center gap-2 mb-5">
                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                    <span className="text-[10px] text-white/60 font-black uppercase tracking-widest truncate">Live Terminal active</span>
+                    <span className="text-[10px] text-white/60 font-black uppercase tracking-widest truncate">Database Online</span>
                 </div>
                 <button 
                     onClick={() => StorageService.triggerBackupDownload()}
@@ -185,38 +202,38 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               <div className="w-10 h-10 rounded-full bg-brand-950 border border-brand-500/20 flex items-center justify-center text-brand-500 font-black shadow-2xl ring-2 ring-brand-500/10 transition-transform hover:scale-110">{currentUser.username[0].toUpperCase()}</div>
               <div className="overflow-hidden">
                 <p className="text-xs font-black text-white truncate uppercase tracking-tight">{currentUser.username}</p>
-                <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest mt-0.5">Authorization Level 4</p>
+                <p className="text-[8px] font-bold text-brand-600 uppercase tracking-widest mt-0.5">{currentUser.role === 'admin' ? 'Administrator Access' : 'Coach Portal Active'}</p>
               </div>
            </div>
            <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-white/5 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-brand-500">
              <LogOut size={16} strokeWidth={2.5} />
-             <span>Deauthorize</span>
+             <span>Sign Out</span>
            </button>
         </div>
       </aside>
-      <header className="md:hidden bg-brand-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-2xl">
-         <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full shadow-2xl border border-brand-500/20 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/10 hover:scale-105 transition-transform">
+      <header className="md:hidden bg-brand-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-2xl overflow-hidden">
+         <div className="flex items-center gap-4 overflow-hidden flex-1">
+            <div className="shrink-0 w-10 h-10 rounded-full shadow-2xl border border-brand-500/20 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/10 active:scale-95 transition-transform">
                 {settings.logoUrl ? (
                     <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-full" />
                 ) : (
                     <div className="p-2 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-6 h-6 text-white" /></div>
                 )}
             </div>
-            <div className="overflow-hidden">
-                <span className="font-black text-white tracking-tighter uppercase text-sm block leading-none" 
+            <div className="overflow-hidden flex-1">
+                <span className="font-black text-white tracking-tighter uppercase text-sm block leading-none truncate" 
                       style={{ fontFamily: settings.fontFamily }}>
                     {settings.name}
                 </span>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mt-1 block">Operational Hub</span>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
             </div>
          </div>
-         <button onClick={onLogout} className="p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5">
+         <button onClick={onLogout} className="shrink-0 p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5 ml-4">
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 overflow-y-auto h-[calc(100vh-60px)] md:h-screen pb-20 md:pb-8 relative z-10">
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative z-10 custom-scrollbar scroll-smooth box-border">
+        <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-brand-500/10 backdrop-blur-xl border-t border-brand-500/30" >
         <div className="flex justify-around items-center h-16">
@@ -228,8 +245,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-950/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
            <div className="flex justify-between items-center mb-12">
                 <div>
-                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white leading-none">SYSTEM <span className="text-brand-500">MATRIX</span></h2>
-                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.3em] mt-3">Remote Access Interface</p>
+                    <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white leading-none">ADMIN <span className="text-brand-500">DASHBOARD</span></h2>
+                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.3em] mt-3">Academy Management Portal</p>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-brand-500/10 rounded-[2rem] text-brand-500 hover:text-white border border-brand-500/30 shadow-2xl transition-all active:scale-90">
                     <X size={28} />
@@ -255,7 +272,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                <div className="mt-auto p-8 bg-brand-900/50 rounded-[3rem] border border-white/5 shadow-inner">
                     <div className="flex items-center gap-3 mb-6">
                         <Database className="text-lime" size={20} />
-                        <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Security Override</span>
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Database Tools</span>
                     </div>
                     <button 
                         onClick={() => StorageService.triggerBackupDownload()}

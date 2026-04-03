@@ -581,9 +581,9 @@ export const StorageService = {
     return {
       name: 'ACADEMY PORTAL',
       logoUrl: '',
-      primaryColor: '#0ea5e9', // Summer 2026 Sky Blue
-      secondaryColor: '#030712', // Summer 2026 Cosmic Deep Navy
-      fontFamily: 'Orbitron' // Summer 2026 Tactical Display Font
+      primaryColor: '#0066FF', // Tactical Blue
+      secondaryColor: '#0D1B8A', // Deep Midnight
+      fontFamily: 'Orbitron' 
     };
   },
   

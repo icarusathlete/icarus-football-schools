@@ -216,25 +216,25 @@ export const FinanceManager: React.FC = () => {
        {activeTab === 'tracking' ? (
          <>
             {/* Header Section */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500/10 backdrop-blur-xl p-10 rounded-[3rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><DollarSign size={160} className="text-white" /></div>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500 p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><DollarSign size={160} className="text-white" /></div>
                 <div className="relative z-10">
                     <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
-                        FINANCE <span className="text-brand-500">DECK</span>
+                        FINANCE <span className="text-brand-950">DECK</span>
                     </h1>
-                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Tactical Resource Synchronization Protocol</p>
+                    <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Academy Revenue & Fee Tracking System</p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-6 relative z-10 w-full lg:w-auto">
                     <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic ml-1">Archive Month</label>
+                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Archive Month</label>
                         <div className="relative">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500" />
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
                             <input 
                               type="month" 
                               value={month} 
                               onChange={e => setMonth(e.target.value)} 
-                              className="w-full sm:w-auto pl-12 pr-6 py-4 bg-brand-950 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono"
+                              className="w-full sm:w-auto pl-12 pr-6 py-4 bg-white border border-brand-200 rounded-2xl text-brand-950 font-black italic text-sm outline-none focus:border-brand-950 transition-all font-mono shadow-sm"
                             />
                         </div>
                     </div>
@@ -256,10 +256,10 @@ export const FinanceManager: React.FC = () => {
 
             {/* Search Bar */}
             <div className="relative group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 group-focus-within:text-white transition-colors w-5 h-5" />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-400 group-focus-within:text-brand-950 transition-colors w-5 h-5" />
                 <input 
-                  placeholder="Search operative nomenclature or member ID..." 
-                  className="w-full pl-16 pr-8 py-5 bg-brand-500/5 backdrop-blur-xl border border-brand-500/30 rounded-[2rem] shadow-2xl focus:border-brand-500 outline-none transition-all font-black text-xs text-white placeholder:text-brand-700 italic tracking-wider"
+                  placeholder="Search student athletes..." 
+                  className="w-full pl-16 pr-8 py-5 bg-white border border-brand-100 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-brand-950 placeholder:text-brand-200 italic tracking-wider"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -312,38 +312,38 @@ export const FinanceManager: React.FC = () => {
            </div>
            
             {/* Desktop Table View */}
-            <div className="bg-brand-500/10 backdrop-blur-xl rounded-[3rem] border border-brand-500/30 overflow-hidden shadow-3xl">
+            <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-brand-950/50 border-b border-white/5">
+                        <thead className="bg-brand-50 border-b border-brand-100 shadow-sm">
                             <tr className="font-display italic">
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Operative Profile</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Clearance ID</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Quota Assessment</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] text-center">Protocol Status</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-600 uppercase tracking-[0.3em] text-right">Overrides</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Player Profile</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Member ID</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Fee Status</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-center">Protocol</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-brand-50">
                             {filteredPlayers.map(p => {
                                 const status = getStatus(p.id);
                                 const statusVal = status?.status || 'PENDING';
                                 
                                 return (
-                                    <tr key={p.id} className="group hover:bg-brand-500/5 transition-all">
+                                    <tr key={p.id} className="group hover:bg-brand-50/50 transition-all">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-6">
-                                                <img src={p.photoUrl} className="w-12 h-12 rounded-full bg-brand-950 object-cover border-2 border-white/10 group-hover:border-brand-500/50 transition-all shadow-xl" />
+                                                <img src={p.photoUrl} className="w-12 h-12 rounded-full bg-brand-50 object-cover border-2 border-brand-100 group-hover:border-brand-500/50 transition-all shadow-lg" />
                                                 <div>
-                                                   <span className="font-black text-white italic text-base uppercase tracking-tight block">{p.fullName}</span>
+                                                   <span className="font-black text-brand-950 italic text-base uppercase tracking-tight block">{p.fullName}</span>
                                                    {status?.datePaid && (
-                                                       <span className="text-[9px] font-black text-brand-500 uppercase tracking-[2px] mt-1 italic">Clearance: {new Date(status.datePaid).toLocaleDateString()}</span>
+                                                       <span className="text-[9px] font-black text-brand-500 uppercase tracking-[2px] mt-1 italic">Paid: {new Date(status.datePaid).toLocaleDateString()}</span>
                                                    )}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6 text-brand-700 font-mono text-xs">{p.memberId}</td>
-                                        <td className="px-10 py-6 font-mono font-black text-white italic text-lg">₹2400</td>
+                                        <td className="px-10 py-6 text-brand-400 font-mono text-xs">{p.memberId}</td>
+                                        <td className="px-10 py-6 font-mono font-black text-brand-950 italic text-lg">₹2400</td>
                                         <td className="px-10 py-6 text-center">
                                             <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border italic ${
                                                 statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' : 
@@ -473,7 +473,7 @@ export const FinanceManager: React.FC = () => {
                             
                             <button 
                                  onClick={handleDownloadPDF}
-                                 className="w-full py-5 bg-brand-900 border border-white/10 text-brand-500 font-black rounded-2xl hover:bg-brand-800 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic"
+                                 className="w-full py-5 bg-brand-500/10 border border-brand-500/30 text-brand-500 font-black rounded-2xl hover:bg-brand-500/20 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic backdrop-blur-md shadow-xl"
                             >
                                 <Download size={20} />
                                 ARCHIVE PDF

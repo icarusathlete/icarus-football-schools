@@ -32,7 +32,7 @@ export const PerformanceHUD: React.FC = () => {
             <div className="flex items-center gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
                 <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isOnline ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {isOnline ? 'SIGNAL STABLE' : 'SIGNAL LOST'}
+                    {isOnline ? 'SYSTEM ONLINE' : 'CONNECTION LOST'}
                 </span>
             </div>
             
@@ -45,7 +45,7 @@ export const PerformanceHUD: React.FC = () => {
                     <Zap size={12} className={isOnline ? 'text-lime' : 'text-brand-800'} />
                 )}
                 <span className="text-[9px] font-black text-brand-600 uppercase tracking-widest">
-                    {isSyncing ? 'SYNCING...' : 'LIVE'}
+                    {isSyncing ? 'SYNCING...' : 'ACTIVE'}
                 </span>
             </div>
         </div>

@@ -103,7 +103,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 </h1>
                 <div className="flex items-center justify-center gap-4 mt-8">
                     <div className="h-[2px] w-12 bg-white/10" />
-                    <p className="text-brand-500 uppercase tracking-[0.5em] text-[10px] font-black italic">Tactical Command Interface</p>
+                    <p className="text-brand-500 uppercase tracking-[0.5em] text-[10px] font-black italic">Academy Management Portal</p>
                     <div className="h-[2px] w-12 bg-white/10" />
                 </div>
             </div>
@@ -112,11 +112,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <div className="bg-brand-950/50 p-12 text-center rounded-[3.8rem]">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-800 border border-white/10 mb-10">
                         <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_12px_#BEF264]" />
-                        <span className="text-[11px] font-black text-brand-500 uppercase tracking-widest leading-none">Security Uplink Established</span>
+                        <span className="text-[11px] font-black text-brand-500 uppercase tracking-widest leading-none">Secure Connection Established</span>
                     </div>
 
-                    <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Authorized <span className="text-brand-500">Access</span></h2>
-                    <p className="text-brand-600 text-[12px] font-bold uppercase tracking-widest mb-12 leading-relaxed max-w-sm mx-auto">Establish secure tactical uplink via encrypted Google authentication protocol</p>
+                    <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Secure <span className="text-brand-500">Portal</span></h2>
+                    <p className="text-brand-600 text-[12px] font-bold uppercase tracking-widest mb-12 leading-relaxed max-w-sm mx-auto">Access the academy management system via secure Google authentication</p>
                     
                     {error && (
                         <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 text-red-500 text-[12px] font-bold rounded-3xl flex items-center gap-4 animate-in fade-in zoom-in text-left leading-relaxed">
@@ -138,14 +138,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         ) : (
                             <>
                                 <Zap size={20} fill="currentColor" />
-                                <span>INITIALIZE LOGIN</span>
+                                <span>SIGN IN TO PORTAL</span>
                                 <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
                     </button>
 
                     <div className="mt-12 flex flex-col gap-6">
-                        <p className="text-[10px] font-black text-brand-800 uppercase tracking-[0.4em]">End-to-End Encryption Enabled • v2.0.26</p>
+                        <p className="text-[10px] font-black text-brand-800 uppercase tracking-[0.4em]">Secure End-to-End Environment • v2.0.26</p>
                         <div className="flex justify-center gap-2">
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-brand-800/50" />)}
                         </div>
@@ -155,7 +155,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             
             <div className="mt-16 flex flex-col items-center gap-6 relative z-10">
                 <p className="text-brand-800 text-[11px] font-black uppercase tracking-[0.5em] italic">
-                    &copy; 2026 {settings.name} CORE OPERATIONS
+                    &copy; 2026 {settings.name} MANAGEMENT SYSTEM
                 </p>
                 <div className="flex items-center gap-6 opacity-30">
                     <Shield size={20} className="text-white hover:text-brand-500 transition-colors cursor-help" />

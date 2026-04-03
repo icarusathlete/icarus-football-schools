@@ -87,7 +87,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
       if (noticeToDelete) {
           try {
               await StorageService.deleteNotice(noticeToDelete);
-              // Local state will update via Firebase sync listener
+              setNotices(StorageService.getNotices());
           } catch (err: any) {
               console.error("Error deleting notice:", err);
               alert("Failed to delete notice.");
@@ -155,7 +155,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                     <Shield className="w-12 h-12 text-white" />
                                 )}
                                 <div>
-                                    <h1 className="text-xl font-black text-white italic leading-none" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0]}</h1>
+                                    <h1 className="text-xl font-black text-white italic leading-none">{settings.name.split(' ')[0]}</h1>
                                     <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">{settings.name.split(' ').slice(1).join(' ') || 'Portal'}</p>
                                 </div>
                           </div>
@@ -173,8 +173,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       <div className="flex flex-col h-full font-sans text-gray-900 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {/* Decorative Header */}
                           <div className="h-64 bg-brand-950 relative overflow-hidden flex-shrink-0">
-                              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-                              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,200,255,0.1),transparent_70%)] opacity-20"></div>
                               
                               <div className="relative z-10 h-full flex flex-col justify-center px-16">
                                   <div className="flex items-center gap-4 mb-4">
@@ -186,7 +185,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                           )}
                                       </div>
                                       <div>
-                                          <h1 className="text-4xl font-black text-white italic tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{settings.name.split(' ')[0]}</h1>
+                                          <h1 className="text-4xl font-black text-white italic tracking-tighter">{settings.name.split(' ')[0]}</h1>
                                           <p className="text-brand-500 font-bold uppercase tracking-[0.3em] text-sm">Official Announcement</p>
                                       </div>
                                   </div>
@@ -242,40 +241,39 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           )}
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-brand-500/10 backdrop-blur-xl p-8 rounded-[2.5rem] border border-brand-500/30 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5"><Megaphone size={120} className="text-white" /></div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-500 p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10"><Megaphone size={120} className="text-white" /></div>
         <div className="relative z-10">
-          <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter" style={{ fontFamily: 'Orbitron' }}>
-             INTELLIGENCE <span className="text-brand-500">BULLETINS</span>
+          <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter">
+             ACADEMY <span className="text-brand-950">NEWS</span>
           </h2>
-          <p className="text-white/40 font-black uppercase text-[10px] tracking-widest mt-1">Official Directives • Tactical Briefings • Sector Updates</p>
+          <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.3em] mt-2 italic">Official Announcements • Schedule Updates • Academy Directives</p>
         </div>
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-3 bg-brand-500 text-brand-950 px-8 py-3.5 rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-brand-500/20 active:scale-95 z-10"
+            className="w-full lg:w-auto flex items-center justify-center gap-4 bg-white text-brand-950 px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-xs uppercase tracking-widest italic"
           >
             <Plus size={20} />
-            <span className="font-black text-[10px] uppercase tracking-[0.2em]">Broadcast Directive</span>
+            POST NEWS
           </button>
         )}
       </div>
 
       {showForm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/90 backdrop-blur-md animate-in fade-in duration-300">
-              <div className="bg-brand-900 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white/10">
-                  <div className="px-10 py-6 border-b border-white/5 flex justify-between items-center relative bg-brand-950/50">
-                      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
-                      <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">Draft <span className="text-brand-500">Intelligence Bulletin</span></h3>
-                      <button onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-brand-500 transition-colors"><X size={20} /></button>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+              <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-brand-100">
+                  <div className="px-10 py-8 border-b border-brand-50 flex justify-between items-center relative bg-brand-50">
+                      <h3 className="font-black text-2xl text-brand-950 italic uppercase tracking-tight">Create <span className="text-brand-500">Announcement</span></h3>
+                      <button onClick={() => setShowForm(false)} className="p-3 hover:bg-brand-100 rounded-full text-brand-300 transition-colors"><X size={20} /></button>
                   </div>
                   
-                  <form onSubmit={handlePost} className="p-10 space-y-10 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                  <form onSubmit={handlePost} className="p-10 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Directive Header (Title)</label>
+                          <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Headline</label>
                           <input 
-                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner transition-all placeholder:text-brand-700" 
-                            placeholder="e.g. MISSION: SUMMER CAMP REGISTRATION" 
+                            className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm transition-all placeholder:text-brand-100 uppercase italic text-sm" 
+                            placeholder="e.g. SUMMER CAMP REGISTRATION OPEN" 
                             value={newNotice.title} 
                             onChange={e => setNewNotice({...newNotice, title: e.target.value})} 
                             required 
@@ -283,10 +281,10 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       </div>
 
                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Bulletin Content</label>
+                          <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Message Body</label>
                           <textarea 
-                            className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner transition-all h-32 placeholder:text-brand-700 text-sm" 
-                            placeholder="Provide full intelligence briefing..." 
+                            className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm transition-all h-40 placeholder:text-brand-100 text-sm leading-relaxed" 
+                            placeholder="Details for the academy players & staff..." 
                             value={newNotice.content} 
                             onChange={e => setNewNotice({...newNotice, content: e.target.value})} 
                             required 
@@ -295,17 +293,17 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-2">
-                              <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Visual Asset (Poster)</label>
+                              <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Featured Image (Optional)</label>
                               <div 
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-500/5 transition-all h-32 relative overflow-hidden group shadow-inner bg-brand-800/50"
+                                className="border-2 border-dashed border-brand-100 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-32 relative overflow-hidden group shadow-sm bg-brand-50"
                               >
                                   {newNotice.imageUrl ? (
-                                      <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                                      <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                                   ) : (
-                                      <div className="text-center text-brand-600">
-                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-brand-500 opacity-50" />
-                                          <span className="text-[10px] font-black uppercase tracking-widest">Attach Media</span>
+                                      <div className="text-center">
+                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-brand-200" />
+                                          <span className="text-[10px] font-black uppercase tracking-widest text-brand-200">Upload Media</span>
                                       </div>
                                   )}
                                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -314,18 +312,18 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                           <div className="space-y-6">
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Tactical Auth (QR)</label>
+                                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Action Link (QR)</label>
                                   <div 
                                     onClick={() => qrInputRef.current?.click()}
-                                    className="border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-500/5 transition-all h-14 bg-brand-800 shadow-inner group"
+                                    className="border border-brand-100 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-14 bg-brand-50 shadow-sm group"
                                   >
                                       {newNotice.qrCodeUrl ? (
-                                          <div className="flex items-center gap-2 text-brand-500 font-black text-[10px] uppercase tracking-widest">
-                                              <QrCode size={16} /> QR Encrypted
+                                          <div className="flex items-center gap-2 text-brand-500 font-black text-[10px] uppercase tracking-widest italic">
+                                              <QrCode size={16} /> QR ATTACHED
                                           </div>
                                       ) : (
-                                          <div className="flex items-center gap-2 text-brand-600 text-[10px] font-black uppercase tracking-widest group-hover:text-brand-500 transition-colors">
-                                              <QrCode size={16} /> Data Link (QR)
+                                          <div className="flex items-center gap-2 text-brand-200 text-[10px] font-black uppercase tracking-widest group-hover:text-brand-500 transition-colors italic">
+                                              <QrCode size={16} /> LINK QR CODE
                                           </div>
                                       )}
                                       <input type="file" ref={qrInputRef} className="hidden" accept="image/*" onChange={handleQrUpload} />
@@ -334,22 +332,22 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                               <div className="flex gap-4">
                                   <div className="flex-1 space-y-2">
-                                      <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Threat Level</label>
+                                      <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Priority</label>
                                       <select 
-                                          className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner appearance-none text-xs" 
+                                          className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest" 
                                           value={newNotice.priority} 
                                           onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
                                       >
-                                          <option value="normal">Routine</option>
-                                          <option value="high">Critical</option>
+                                          <option value="normal">Normal</option>
+                                          <option value="high">High Priority</option>
                                       </select>
                                   </div>
                               </div>
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Authorized Signatory</label>
+                                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Posted By</label>
                                   <input 
-                                      className="w-full p-4 bg-brand-800 border border-white/10 rounded-2xl outline-none focus:border-brand-500 font-bold text-white shadow-inner text-xs placeholder:text-brand-700" 
-                                      placeholder="e.g. COMMANDER DAVID" 
+                                      className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic placeholder:text-brand-100" 
+                                      placeholder="e.g. ACADEMY MANAGEMENT" 
                                       value={newNotice.author} 
                                       onChange={e => setNewNotice({...newNotice, author: e.target.value})} 
                                   />
@@ -357,9 +355,9 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           </div>
                       </div>
 
-                      <div className="pt-8 flex justify-end gap-4 border-t border-white/5">
-                          <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-500 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-widest">Abort</button>
-                          <button type="submit" className="flex-[2] py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">Authorize Broadcast</button>
+                      <div className="pt-8 flex justify-end gap-4 border-t border-brand-50">
+                          <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Discard</button>
+                          <button type="submit" className="flex-[2] py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic">Publish News</button>
                       </div>
                   </form>
               </div>
@@ -369,71 +367,71 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
       {/* Notice Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {notices.map(notice => (
-              <div key={notice.id} className="bg-brand-500/10 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-brand-500/30 overflow-hidden flex flex-col group hover:border-brand-500/50 transition-all duration-500 hover:-translate-y-2 relative">
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-brand-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div key={notice.id} className="bg-white rounded-[2.5rem] shadow-xl border border-brand-100 overflow-hidden flex flex-col group hover:border-brand-500 transition-all duration-500 hover:-translate-y-2 relative">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-brand-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
                   
                   {/* Card Header Image */}
-                  <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-600 to-red-900' : 'bg-brand-950') : 'bg-brand-950'}`}>
+                  <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-500 to-red-800' : 'bg-brand-950') : 'bg-brand-950'}`}>
                       {notice.imageUrl ? (
-                          <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-70 group-hover:opacity-100" />
+                          <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-90 group-hover:opacity-100" />
                       ) : (
-                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
                               <Shield size={200} className="text-white" />
                           </div>
                       )}
                       
-                      <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent" />
 
                       {/* Badges */}
                       <div className="absolute top-6 left-6 flex gap-2">
-                          <span className="px-3 py-1 bg-brand-950/80 backdrop-blur-md text-brand-400 text-[8px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/10 shadow-xl">
+                          <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/20 shadow-xl italic">
                               {new Date(notice.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                       </div>
                       
                       {notice.priority === 'high' && (
                           <div className="absolute top-6 right-6">
-                              <div className="px-3 py-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-2xl flex items-center gap-2 animate-pulse">
-                                  <AlertCircle size={10} /> CRITICAL
+                              <div className="px-3 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-xl flex items-center gap-2 italic animate-pulse">
+                                  <AlertCircle size={10} /> HIGH PRIORITY
                               </div>
                           </div>
                       )}
                   </div>
 
-                  <div className="p-8 flex-1 flex flex-col relative bg-brand-900">
+                  <div className="p-8 flex-1 flex flex-col relative bg-white">
                       <div className="mb-6">
-                          <h3 className="text-xl font-black text-white italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>{notice.title}</h3>
-                          <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em]">
-                              <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#0ea5e9]" />
-                              Authorized by <span className="text-brand-300 ml-1">{notice.author}</span>
+                          <h3 className="text-xl font-black text-brand-950 italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight">{notice.title}</h3>
+                          <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em] italic">
+                              <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#00C8FF]" />
+                              Posted by <span className="text-brand-300 ml-1">{notice.author}</span>
                           </div>
                       </div>
                       
-                      <div className="text-brand-400 text-[12px] leading-relaxed mb-8 flex-1 line-clamp-4 font-medium italic opacity-80 border-l-2 border-white/5 pl-4">
+                      <div className="text-brand-950 text-[12px] leading-relaxed mb-8 flex-1 line-clamp-4 font-medium italic opacity-70 border-l-2 border-brand-100 pl-4">
                           {notice.content}
                       </div>
 
-                      <div className="flex items-center gap-4 pt-6 border-t border-white/5">
+                      <div className="flex items-center gap-4 pt-6 border-t border-brand-50">
                           <button 
                             onClick={() => initiateDownload(notice)}
                             disabled={downloadingId === notice.id}
-                            className="flex-1 py-3.5 bg-brand-950 border border-white/5 text-brand-400 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:bg-brand-500 hover:text-brand-950 hover:border-brand-500 transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-inner"
+                            className="flex-1 py-4 bg-brand-500 text-brand-950 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-lg italic"
                           >
-                              {downloadingId === notice.id ? (
-                                  <Loader2 size={14} className="animate-spin text-brand-500" />
-                              ) : (
-                                  <>
-                                    <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
-                                    Generate Brochure
-                                  </>
-                              )}
+                               {downloadingId === notice.id ? (
+                                   <Loader2 size={14} className="animate-spin text-brand-950" />
+                               ) : (
+                                   <>
+                                     <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
+                                     Download Flyer
+                                   </>
+                               )}
                           </button>
                           
                           {(role === 'admin' || role === 'coach') && (
                               <button 
                                 onClick={() => handleDeleteClick(notice.id)}
-                                className="p-3.5 bg-brand-950 border border-white/10 text-brand-600 rounded-xl hover:bg-red-600/10 hover:text-red-500 hover:border-red-500/30 transition-all"
-                                title="Revoke Directive"
+                                className="p-4 bg-brand-50 text-brand-100 rounded-xl hover:bg-red-50 hover:text-red-500 hover:border-red-500 transition-all border border-transparent italic"
+                                title="Delete Announcement"
                               >
                                   <X size={18} />
                               </button>
@@ -444,10 +442,10 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
           ))}
           
           {notices.length === 0 && (
-              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-600 bg-brand-500/5 backdrop-blur-xl rounded-[4rem] border-2 border-dashed border-brand-500/20">
-                  <Megaphone size={64} className="mb-6 opacity-5" />
-                  <h3 className="font-black text-brand-400 uppercase tracking-[0.4em] italic">Intelligence Void</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mt-2 opacity-50">No active bulletins in the datastore.</p>
+              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-100 bg-brand-50 rounded-[4rem] border-2 border-dashed border-brand-100">
+                  <Megaphone size={64} className="mb-6 opacity-10" />
+                  <h3 className="font-black text-brand-200 uppercase tracking-[0.4em] italic leading-tight">No Active News</h3>
+                  <p className="text-[10px] font-black uppercase tracking-widest mt-2 opacity-50 italic">The notice board is currently empty.</p>
               </div>
           )}
       </div>
@@ -459,9 +457,9 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
               setNoticeToDelete(null);
           }}
           onConfirm={confirmDelete}
-          title="REDLINE PROTOCOL"
-          message="Are you sure you want to revoke this directive? This action will permanently remove the bulletin from all terminal nodes."
-          confirmText="REVOKE"
+          title="DELETE ANNOUNCEMENT"
+          message="Are you sure you want to remove this message? This action is permanent and cannot be undone."
+          confirmText="DELETE"
           type="danger"
       />
     </div>
