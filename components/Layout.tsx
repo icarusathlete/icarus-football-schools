@@ -30,15 +30,15 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     onClick={() => onTabChange(item.id)}
     className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden ${
       activeTab === item.id 
-        ? 'bg-brand-500/10 text-brand-500 shadow-[0_0_30px_rgba(14,165,233,0.1)] border border-brand-500/20' 
-        : 'text-white/50 hover:bg-white/10 hover:text-white'
+        ? 'bg-brand-500/20 text-brand-500 shadow-[0_0_30px_rgba(14,165,233,0.15)] border border-brand-500/30' 
+        : 'text-white/60 hover:bg-white/10 hover:text-white'
     }`}
   >
     {activeTab === item.id && (
-      <div className="absolute left-0 top-3 bottom-3 w-1 bg-lime shadow-[0_0_15px_#bef264] rounded-r-full" />
+      <div className="absolute left-0 top-3 bottom-3 w-1.5 bg-brand-500 shadow-[0_0_15px_#00C8FF] rounded-r-full" />
     )}
-    <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/30 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className={`text-[11px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+    <item.icon className={`w-5 h-5 transition-all duration-500 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/40 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className={`text-[11px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-black opacity-80'}`}>{item.label}</span>
   </button>
 );
 
@@ -61,11 +61,11 @@ const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTab
   <button
     onClick={() => onTabChange(item.id)}
     className={`flex flex-col items-center justify-center py-2 px-1 flex-1 min-w-0 transition-all duration-500 overflow-hidden ${
-      activeTab === item.id ? 'text-brand-500 scale-105' : 'text-white/40 hover:text-white'
+      activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/50 hover:text-white'
     }`}
   >
-    <item.icon className={`w-5 h-5 mb-1 ${activeTab === item.id ? 'fill-brand-500/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className="text-[8px] font-black uppercase tracking-tight truncate w-full text-center">
+    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-brand-500/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className={`text-[9px] font-black uppercase tracking-tight truncate w-full text-center ${activeTab === item.id ? 'opacity-100' : 'opacity-60'}`}>
         {getShortLabel(item.label)}
     </span>
   </button>
@@ -235,10 +235,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative z-10 custom-scrollbar scroll-smooth box-border">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-brand-500/10 backdrop-blur-xl border-t border-brand-500/30" >
-        <div className="flex justify-around items-center h-16">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >
+        <div className="flex justify-around items-center h-20">
           {allNavItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
-          {allNavItems.length > 4 && <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/40"><MoreHorizontal className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">More</span></button>}
+          {allNavItems.length > 4 && (
+            <button 
+                onClick={() => setIsMobileMenuOpen(true)} 
+                className="flex flex-col items-center justify-center py-2 px-1 flex-1 text-white/50"
+            >
+                <MoreHorizontal className="w-7 h-7 mb-1" />
+                <span className="text-[9px] font-black uppercase tracking-tight opacity-60">More</span>
+            </button>
+          )}
         </div>
       </nav>
       {isMobileMenuOpen && (

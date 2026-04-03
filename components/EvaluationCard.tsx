@@ -80,7 +80,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   const CyberProgressBar = ({ value, label, color = 'bg-brand-500' }: { value: number, label: string, color?: string }) => (
       <div className="relative pt-1 group">
           <div className="flex justify-between items-end mb-1.5">
-              <span className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] group-hover:text-brand-500 transition-colors italic">{label}</span>
+              <span className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] group-hover:text-brand-500 transition-colors italic">{label}</span>
               <span className={`text-sm font-black italic text-brand-950`}>{value}</span>
           </div>
           <div className="h-2.5 w-full bg-brand-50 rounded-full overflow-hidden border border-brand-100 relative">
@@ -123,7 +123,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                     </h1>
                 </div>
                 <div className="text-right">
-                    <div className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em] mb-2 italic">MEMBER IDENTIFIER</div>
+                    <div className="text-[10px] font-black text-brand-950 uppercase tracking-[0.3em] mb-2 italic">MEMBER IDENTIFIER</div>
                     <div className="text-2xl text-brand-500 font-black tracking-widest leading-none">{player.memberId}</div>
                 </div>
             </div>

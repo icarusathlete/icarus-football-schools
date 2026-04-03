@@ -32,10 +32,6 @@ export const PlayerManager: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{item: Player | User, type: 'player' | 'coach'} | null>(null);
 
-  // Import State
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [importProgress, setImportProgress] = useState<{current: number, total: number} | null>(null);
-  const importFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadData();
@@ -153,50 +149,6 @@ export const PlayerManager: React.FC = () => {
       }
   };
 
-  const handleBulkImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      setImportProgress({ current: 0, total: 0 });
-      Papa.parse(file, {
-          header: true,
-          skipEmptyLines: true,
-          complete: async (results) => {
-              const rows = results.data as any[];
-              setImportProgress({ current: 0, total: rows.length });
-              
-              for (let i = 0; i < rows.length; i++) {
-                  const row = rows[i];
-                  const player: Omit<Player, 'id' | 'memberId' | 'registeredAt'> = {
-                      fullName: row['Player Name'] || 'Unknown Athlete',
-                      parentName: row['Billed To Name'] || 'Unknown Parent',
-                      contactNumber: row['Phone Number'] || 'N/A',
-                      address: row['Address'] || '',
-                      venue: row['Training Location'] || 'ICARUS CENTER',
-                      batch: row['Program'] || 'General Training',
-                      photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(row['Player Name'])}&background=0c4a6e&color=fff`,
-                      position: 'TBD',
-                      dateOfBirth: '2015-01-01', // Default standard
-                      email: row['Email'] || '',
-                      notes: `Head Coach: ${row['Head Coach'] || 'N/A'}\nTraining Days: ${row['Days'] || 'N/A'}\nFees Ending: ${row['Fees Ending'] || 'N/A'}`
-                  };
-
-                  try {
-                      await StorageService.addPlayer(player);
-                      setImportProgress(prev => prev ? { ...prev, current: i + 1 } : null);
-                  } catch (err) {
-                      console.error("Batch ingestion error:", err);
-                  }
-              }
-              
-              setTimeout(() => {
-                  setImportProgress(null);
-                  setIsImportModalOpen(false);
-                  loadData();
-              }, 1500);
-          }
-      });
-  };
 
   return (
     <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
@@ -226,13 +178,6 @@ export const PlayerManager: React.FC = () => {
                 </button>
             </div>
             
-            <button 
-                onClick={() => setIsImportModalOpen(true)}
-                className="bg-white text-brand-950 px-6 py-3.5 rounded-[1.5rem] border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-xl italic"
-            >
-                <Zap size={16} />
-                Bulk Import
-            </button>
         </div>
       </div>
 
@@ -384,57 +329,6 @@ export const PlayerManager: React.FC = () => {
 
       {viewingPerformance && <PlayerPerformanceModal player={viewingPerformance} onCancel={() => setViewingPerformance(null)} onUpdate={() => loadData()} />}
       
-      {/* Bulk Import Modal */}
-      {isImportModalOpen && (
-          <div className="fixed inset-0 z-[150] bg-brand-950/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in">
-              <div className="bg-brand-500/10 backdrop-blur-xl w-full max-w-xl rounded-[4rem] border border-brand-500/30 shadow-3xl overflow-hidden animate-in zoom-in-95">
-                  <div className="p-12 border-b border-white/5 flex justify-between items-center bg-brand-950/50">
-                      <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">DATA <span className="text-brand-500">INGESTION</span></h3>
-                      <button onClick={() => setIsImportModalOpen(false)} className="p-4 bg-brand-800/50 rounded-2xl text-brand-600 hover:text-white"><X size={28} /></button>
-                  </div>
-                  
-                  <div className="p-12 space-y-10 text-center">
-                      <div className="w-24 h-24 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto border-2 border-brand-500/20 shadow-[0_0_50px_rgba(14,165,233,0.15)]">
-                          <History size={40} className="text-brand-500 animate-pulse" />
-                      </div>
-                      
-                      <div>
-                          <p className="text-white font-black italic text-lg uppercase tracking-tight">Synchronize Local Datastore</p>
-                          <p className="text-brand-600 text-[10px] font-black uppercase tracking-widest mt-2">Target: Gaur City Roster Intelligence</p>
-                      </div>
-
-                      {importProgress ? (
-                          <div className="space-y-6">
-                              <div className="h-2 w-full bg-brand-950 rounded-full overflow-hidden border border-white/5 shadow-inner">
-                                  <div 
-                                    className="h-full bg-brand-500 transition-all duration-500 shadow-[0_0_15px_rgba(14,165,233,0.5)]" 
-                                    style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
-                                  />
-                              </div>
-                              <p className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] italic">
-                                  Indexing Records: {importProgress.current} / {importProgress.total} Complete
-                              </p>
-                          </div>
-                      ) : (
-                          <div className="space-y-8">
-                              <div 
-                                onClick={() => importFileInputRef.current?.click()}
-                                className="border-2 border-dashed border-brand-500/20 rounded-[2.5rem] p-12 cursor-pointer hover:border-brand-500/50 hover:bg-brand-500/5 transition-all group shadow-inner"
-                              >
-                                  <div className="text-brand-700 group-hover:text-brand-500 transition-colors">
-                                      <Search size={48} className="mx-auto mb-6 opacity-30" />
-                                      <p className="text-xs font-black uppercase tracking-widest leading-none mb-2">Select CSV Manifest</p>
-                                      <p className="text-[9px] font-bold opacity-50 italic uppercase tracking-widest">Supports .csv standard data packets</p>
-                                  </div>
-                                  <input type="file" ref={importFileInputRef} className="hidden" accept=".csv" onChange={handleBulkImport} />
-                              </div>
-                              <button onClick={() => setIsImportModalOpen(false)} className="text-[10px] font-black text-brand-600 hover:text-white uppercase tracking-[0.3em] italic transition-colors">Abort Ingestion Sequence</button>
-                          </div>
-                      )}
-                  </div>
-              </div>
-          </div>
-      )}
 
       <ConfirmModal isOpen={deleteModalOpen} title={`Revoke Personnel ${itemToDelete?.type}`} message={`Permanently remove officer/operative records? This operation is irreversible.`} onConfirm={confirmDelete} onCancel={() => {setDeleteModalOpen(false); setItemToDelete(null);}} requireTypeToConfirm="delete" />
 

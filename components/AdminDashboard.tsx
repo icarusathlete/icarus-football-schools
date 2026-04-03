@@ -214,48 +214,8 @@ export const AdminDashboard: React.FC = () => {
                     <Palette size={16} />
                     APPEARANCE SETTINGS
                 </button>
-                <button 
-                    onClick={async () => {
-                        const roster = [
-                            { fullName: "Aadi Malhotra", parentName: "Mrs Kavita Malhotra", contactNumber: "+91 9099288188", email: "drkavitagupta@gmail.com", address: "Tower, 7th Avenue, GC 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 01/07/2026" },
-                            { fullName: "Aadvik Singh", parentName: "Mr Siddharth Chetan", contactNumber: "+91 8588879881", email: "singhsidha@gmail.com", address: "7th Avenue Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Advik Kumar", parentName: "Mrs Tanishka Naskar", contactNumber: "+91 8447192100", email: "tanishkanaskar@gmail.com", address: "14th Avenue, Gaur City 2", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Anik Singh", parentName: "Mr Sanjay Singh", contactNumber: "+91 9711234554", email: "sanjay12312@gmail.com", address: "Park Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Aarav Sharma", parentName: "Mrs Sonia Panwar", contactNumber: "+91 9911113006", email: "soniapanwar3006@gmail.com", address: "4th Avenue, Gaur City", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/04/2026" },
-                            { fullName: "Atharv Srivastava", parentName: "Mrs Anupama Srivastava", contactNumber: "+91 8447055577", email: "", address: "Ajnara Gen-X, Noida", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 30/04/2026" },
-                            { fullName: "Dakshesh Pratap Singh", parentName: "Mr Tanmay Singh", contactNumber: "+91 7081521690", email: "tanmay.uflex@gmail.com", address: "1st Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Gurshaan Singh", parentName: "Mr Gurbhej Singh", contactNumber: "+91 9958255233", email: "mrsingh1422@gmail.com", address: "11th Avenue, Gaur City 2", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 30/04/2026" },
-                            { fullName: "Ibrahim Khan", parentName: "Mr Khawar Khan", contactNumber: "+91 9911030200", email: "khan_khawar_khan@hotmail.com", address: "Nirala greenshire, Noida", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Manas Gupta", parentName: "Mr Rishi Gupta", contactNumber: "+91 9871063235", email: "rishigupta5552@gmail.com", address: "Saya Zion, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Manheim Srivastava", parentName: "Mr Ritesh Kumar Srivastava", contactNumber: "+91 9513874009", email: "viti.esh19@gmail.com", address: "L-8, Amrapali Golf Homes", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 01/04/2026" },
-                            { fullName: "Reyaan Singh", parentName: "Mr Parul Chaudhary", contactNumber: "+91 9310748201", email: "Parulc1911@gmail.com", address: "Palm Olympia, Noida", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Reyansh Sharma", parentName: "Mr पवन Kumar Sharma", contactNumber: "+91 9910903653", email: "pawansharma07@gmail.com", address: "10075 ,Tower J, 14th Avenue, GC 2", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 27/09/2026" },
-                            { fullName: "Rhythm Garg", parentName: "Mrs Vishal Garg", contactNumber: "+91 9810455512", email: "me.jyotika@gmail.com", address: "C Tower, 7th Avenue, GC 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" },
-                            { fullName: "Shashwat Chaudhary", parentName: "Mr Manoj Chaudhary", contactNumber: "+91 9818321282", email: "choudharymannu7@gmail.com", address: "Saya Zion, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 13/07/2026" },
-                            { fullName: "Shivansh Chandraker", parentName: "Mr Raghuvendra Kumar", contactNumber: "+91 9485175415", email: "raghabadde@gmail.com", address: "6th Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 31/07/2026" },
-                            { fullName: "Shivay Bajaj", parentName: "Mr Parul Bajaj", contactNumber: "+91 9818043821", email: "bajajpassi@gmail.com", address: "Saya Zion, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 31/07/2026" },
-                            { fullName: "Sushant Chaudhary", parentName: "Mr Manoj Chaudhary", contactNumber: "+91 9818321282", email: "manojchoudhary23@gmail.com", address: "Saya Zion, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 13/07/2026" },
-                            { fullName: "Syed Baaman", parentName: "Mrs Sabiya Kirmani", contactNumber: "+91 9797001234", email: "sabiyakirmani.sk@gmail.com", address: "Park Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 31/07/2026" },
-                            { fullName: "Takshit Singh", parentName: "Mr Nitin Teotia", contactNumber: "+91 9540008836", email: "nitinteotia2341@gmail.com", address: "Saya Zion, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/07/2026" },
-                            { fullName: "Vihaan Gujrati", parentName: "Mrs Vinni Gujrati", contactNumber: "+91 9717300014", email: "vinnigujrati21@gmail.com", address: "Park Avenue, Gaur City 1", venue: "Playall, Gaur City Sports Complex", batch: "5 Days A Week (Mon-Fri)", dateOfBirth: "2015-01-01", position: "TBD", photoUrl: "", registeredAt: "2026-04-03", notes: "Coach: Abhishek Begal. Fees Ending: 28/02/2026" }
-                        ];
-                        for (const p of roster) {
-                            // Unique Check: Skip if already exists by name/phone
-                            const exists = StorageService.findPlayerByName(p.fullName);
-                            if (!exists) {
-                                await StorageService.addPlayer(p as any);
-                            }
-                        }
-                        alert("Gaur City Roster Imported Successfully!");
-                        window.location.reload();
-                    }}
-                    className="bg-brand-500 text-brand-950 px-5 py-3 rounded-2xl shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                >
-                    <Users size={16} />
-                    IMPORT GAUR CITY
-                </button>
                 <div className="relative group">
-                    <div className="bg-brand-950 p-3 rounded-2xl border border-white/5 text-brand-500 cursor-help">
+                    <div className="bg-brand-950 p-3 rounded-2xl border border-white/5 text-brand-500 cursor-help shadow-lg">
                         <Shield size={20} />
                     </div>
                 </div>
@@ -270,19 +230,19 @@ export const AdminDashboard: React.FC = () => {
                 { label: 'AVG ATTENDANCE', val: `${avgAttendance}%`, icon: Activity, color: 'text-brand-950', unit: 'DAILY', accent: 'bg-brand-950' },
                 { label: 'MATCHES RECORDED', val: matches.length, icon: Target, color: 'text-brand-950', unit: 'RECORDED', accent: 'bg-brand-950' },
             ].map((hud, i) => (
-                <div key={i} className="bg-brand-500 p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
+                <div key={i} className="bg-brand-500 p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-2 border-brand-950/20 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
                     <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-700 font-black text-brand-950"><hud.icon size={64} /></div>
                     <div className="flex items-center justify-between mb-4 relative z-10">
-                        <div className={`px-3 py-1 rounded-full bg-brand-950 border border-white/5 flex items-center gap-2`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${hud.accent.replace('brand-950', 'white')} animate-pulse`} />
-                            <span className="text-[8px] font-black text-white uppercase tracking-tight lg:tracking-[0.2em]">{hud.label}</span>
+                        <div className={`px-3 py-1 rounded-full bg-brand-950 border border-white/5 flex items-center gap-2 shadow-lg`}>
+                            <div className={`w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse`} />
+                            <span className="text-[8px] lg:text-[9px] font-black text-white uppercase tracking-tight lg:tracking-[0.2em]">{hud.label}</span>
                         </div>
-                        <span className="text-[9px] font-black text-brand-950 uppercase tracking-widest">{hud.unit}</span>
+                        <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest">{hud.unit}</span>
                     </div>
                     <div className="relative z-10">
-                        <p className={`text-3xl md:text-5xl font-black ${hud.color} tracking-tighter italic leading-none`} style={{ fontFamily: 'Orbitron' }}>{hud.val}</p>
-                        <div className="w-12 h-1 bg-brand-950/20 mt-4 rounded-full overflow-hidden">
-                            <div className={`h-full ${hud.accent} w-2/3 group-hover:w-full transition-all duration-1000 shadow-[0_0_10px_rgba(13,27,138,0.3)] opacity-50`} />
+                        <p className={`text-3xl md:text-5xl font-black ${hud.color} tracking-tighter italic leading-none drop-shadow-sm`} style={{ fontFamily: 'Orbitron' }}>{hud.val}</p>
+                        <div className="w-12 h-1.5 bg-brand-950/20 mt-4 rounded-full overflow-hidden">
+                            <div className={`h-full ${hud.accent} w-2/3 group-hover:w-full transition-all duration-1000 shadow-[0_0_10px_rgba(13,27,138,0.3)]`} />
                         </div>
                     </div>
                 </div>

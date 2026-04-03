@@ -270,7 +270,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                   
                   <form onSubmit={handlePost} className="p-10 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Headline</label>
+                          <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Headline</label>
                           <input 
                             className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm transition-all placeholder:text-brand-100 uppercase italic text-sm" 
                             placeholder="e.g. SUMMER CAMP REGISTRATION OPEN" 
@@ -281,7 +281,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                       </div>
 
                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Message Body</label>
+                          <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Message Body</label>
                           <textarea 
                             className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm transition-all h-40 placeholder:text-brand-100 text-sm leading-relaxed" 
                             placeholder="Details for the academy players & staff..." 
@@ -293,7 +293,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-2">
-                              <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Featured Image (Optional)</label>
+                              <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Featured Image (Optional)</label>
                               <div 
                                 onClick={() => fileInputRef.current?.click()}
                                 className="border-2 border-dashed border-brand-100 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-32 relative overflow-hidden group shadow-sm bg-brand-50"
@@ -312,7 +312,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                           <div className="space-y-6">
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Action Link (QR)</label>
+                                  <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Action Link (QR)</label>
                                   <div 
                                     onClick={() => qrInputRef.current?.click()}
                                     className="border border-brand-100 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-14 bg-brand-50 shadow-sm group"
@@ -332,7 +332,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
 
                               <div className="flex gap-4">
                                   <div className="flex-1 space-y-2">
-                                      <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Priority</label>
+                                      <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Priority</label>
                                       <select 
                                           className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest" 
                                           value={newNotice.priority} 
@@ -344,7 +344,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                                   </div>
                               </div>
                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Posted By</label>
+                                  <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Posted By</label>
                                   <input 
                                       className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic placeholder:text-brand-100" 
                                       placeholder="e.g. ACADEMY MANAGEMENT" 
@@ -403,7 +403,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                           <h3 className="text-xl font-black text-brand-950 italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight">{notice.title}</h3>
                           <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em] italic">
                               <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#00C8FF]" />
-                              Posted by <span className="text-brand-300 ml-1">{notice.author}</span>
+                              Posted by <span className="text-brand-950/60 ml-1">{notice.author}</span>
                           </div>
                       </div>
                       
