@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
 import { GeminiService } from '../services/geminiService';
 import { Player, AttendanceRecord, Match, AttendanceStatus, FeeRecord, ScheduleEvent, AcademySettings, EventType, Drill, User } from '../types';
-import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube } from 'lucide-react';
+import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2 } from 'lucide-react';
 import { EvaluationCard } from './EvaluationCard';
 import html2canvas from 'html2canvas';
 import { 
@@ -59,15 +59,15 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     const idCardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!user.linkedPlayerId) return;
+        if (!user?.linkedPlayerId) return;
         const allPlayers = StorageService.getPlayers();
         const p = allPlayers.find(pl => pl.id === user.linkedPlayerId);
         setPlayer(p || null);
         if (p) {
             const allAttendance = StorageService.getAttendance();
-            setAttendance(allAttendance.filter(a => a.playerId === user.linkedPlayerId));
+            setAttendance(allAttendance.filter(a => a.playerId === user?.linkedPlayerId));
             const allMatches = StorageService.getMatches();
-            setMatches(allMatches.filter(m => m.playerStats.some(s => s.playerId === user.linkedPlayerId)));
+            setMatches(allMatches.filter(m => m.playerStats.some(s => s.playerId === user?.linkedPlayerId)));
             const currentMonth = new Date().toISOString().slice(0, 7);
             const fees = StorageService.getFees();
             const myFee = fees.find(f => f.playerId === p.id && f.month === currentMonth);
@@ -97,7 +97,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     };
     const handleRSVP = (e: React.MouseEvent, eventId: string, status: 'attending' | 'declined') => {
         e.stopPropagation();
-        if (!user.linkedPlayerId) return;
+        if (!user?.linkedPlayerId) return;
         StorageService.toggleRSVP(eventId, user.linkedPlayerId, status);
         loadSchedule();
     };

@@ -151,10 +151,10 @@ export const UserManagement: React.FC = () => {
                                             }`}>
                                                 {user.role}
                                             </span>
-                                            {user.role === 'player' && user.linkedPlayerId && (
+                                            {user.role === 'player' && user?.linkedPlayerId && (
                                                 <span className="text-xs text-gray-500 flex items-center gap-1">
                                                     <Check size={12} className="text-green-500" />
-                                                    Linked: {players.find(p => p.id === user.linkedPlayerId)?.fullName || 'Unknown'}
+                                                    Linked: {players.find(p => p.id === user?.linkedPlayerId)?.fullName || 'Unknown'}
                                                 </span>
                                             )}
                                         </div>
