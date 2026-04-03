@@ -182,12 +182,13 @@ export const MatchManager: React.FC = () => {
                     { label: 'Draws', val: matches.filter(m => m.result === 'D').length, icon: Activity, color: 'text-brand-950' },
                     { label: 'Losses', val: matches.filter(m => m.result === 'L').length, icon: Target, color: 'text-red-900' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-brand-500 p-6 rounded-3xl border border-white/10 flex items-center justify-between shadow-xl transition-all hover:scale-105">
-                        <div>
-                            <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">{stat.label}</p>
-                            <p className={`text-3xl font-black italic ${stat.color}`}>{stat.val}</p>
+                    <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-brand-100 flex items-center justify-between shadow-xl transition-all hover:scale-105 group overflow-hidden">
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.22em] mb-2 italic drop-shadow-sm">{stat.label}</p>
+                            <p className="text-4xl font-black italic text-brand-950">{stat.val}</p>
                         </div>
-                        <stat.icon className={`w-8 h-8 ${stat.color} opacity-20`} />
+                        <stat.icon className={`w-14 h-14 ${stat.color} opacity-10 absolute -right-2 top-1/2 -translate-y-1/2 group-hover:opacity-20 transition-opacity`} />
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-500/20 group-hover:bg-brand-500 transition-colors" />
                     </div>
                 ))}
             </div>
@@ -277,42 +278,54 @@ export const MatchManager: React.FC = () => {
             {/* Data Stream */}
             <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                    <span className="text-[10px] font-black text-brand-300 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'PREVIOUS MATCHES' : 'PENDING FIXTURES'}</span>
-                    <div className="h-[1px] bg-brand-100 w-full" />
+                    <span className="text-[11px] font-black text-brand-950 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'OPERATIONAL DATA STREAM' : 'PENDING ENGAGEMENTS'}</span>
+                    <div className="h-[2px] bg-brand-500/20 w-full rounded-full" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
                     {activeTab === 'results' ? (
                         matches.map(m => (
-                            <div key={m.id} className="group relative bg-white rounded-[2.5rem] border border-brand-100 hover:border-brand-500 transition-all overflow-hidden p-8 lg:p-12 shadow-xl hover:-translate-y-1">
-                                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${m.isLive ? 'bg-red-500 animate-pulse' : m.result === 'W' ? 'bg-brand-500' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-400'}`} />
+                            <div key={m.id} className="group relative bg-white rounded-[2.5rem] border border-brand-100 hover:border-brand-500 transition-all duration-300 overflow-hidden p-8 lg:p-12 shadow-xl hover:-translate-y-1">
+                                <div className={`absolute left-0 top-0 bottom-0 w-2 ${m.isLive ? 'bg-red-600 animate-pulse' : m.result === 'W' ? 'bg-brand-500' : m.result === 'L' ? 'bg-red-900' : 'bg-brand-950'}`} />
                                 <div className="flex flex-col lg:flex-row items-center gap-12">
-                                    <div className="flex flex-col items-center lg:items-start min-w-[120px]">
-                                        <p className="text-[10px] font-black text-brand-200 uppercase tracking-[0.3em] mb-2 italic">SEASON {new Date(m.date).getFullYear()}</p>
-                                        <div className="text-3xl font-black text-brand-950 italic uppercase tracking-tighter leading-none mb-2">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                                        <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${m.result === 'W' ? 'text-brand-500' : m.result === 'L' ? 'text-red-500' : 'text-brand-400'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</span>
+                                    <div className="flex flex-col items-center lg:items-start min-w-[140px] border-r border-brand-50 pr-10">
+                                        <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-2 italic">SEASON {new Date(m.date).getFullYear()}</p>
+                                        <div className="text-3xl font-black text-brand-950 italic uppercase tracking-tighter leading-none mb-3">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                        <div className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.3em] italic border ${m.result === 'W' ? 'bg-brand-500/10 text-brand-500 border-brand-500/20' : m.result === 'L' ? 'bg-red-500/10 text-red-600 border-red-500/20' : 'bg-brand-950/10 text-brand-950 border-brand-950/20'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</div>
                                     </div>
                                     <div className="flex-1 flex flex-col md:flex-row items-center justify-between w-full gap-8">
                                         <div className="flex-1 text-center md:text-right space-y-2">
-                                            <p className="text-[9px] font-black text-brand-300 uppercase tracking-[0.4em] italic">ACADEMY</p>
-                                            <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tight leading-none">{settings.name}</h3>
+                                            <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">PRIMARY ASSET</p>
+                                            <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tight leading-none truncate">{settings.name}</h3>
                                         </div>
-                                        <div className="bg-brand-50 px-8 py-5 rounded-3xl border border-brand-100 font-mono text-5xl font-black text-brand-950 shadow-inner flex items-center gap-8 relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-brand-500/5" />
-                                            <span className={m.result === 'W' ? 'text-brand-500 italic' : 'text-brand-950'}>{m.scoreFor}</span>
-                                            <span className="text-brand-100 text-3xl">:</span>
-                                            <span className="text-brand-300">{m.scoreAgainst}</span>
+                                        <div className="bg-brand-950 px-10 py-6 rounded-[2rem] border border-white/10 font-mono text-6xl font-black text-white shadow-2xl flex items-center gap-10 relative overflow-hidden group/score">
+                                            <div className="absolute inset-0 bg-brand-500/5 group-hover/score:bg-brand-500/10 transition-colors" />
+                                            <span className={m.result === 'W' ? 'text-brand-500 italic drop-shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'text-white'}>{m.scoreFor}</span>
+                                            <span className="text-white/20 text-4xl">:</span>
+                                            <span className="text-white/60">{m.scoreAgainst}</span>
                                         </div>
                                         <div className="flex-1 text-center md:text-left space-y-2">
-                                            <p className="text-[9px] font-black text-brand-300 uppercase tracking-[0.4em] italic">OPPONENT</p>
-                                            <h3 className="text-2xl font-black text-brand-400 italic uppercase tracking-tight leading-none opacity-60 group-hover:opacity-100 transition-opacity">{m.opponent}</h3>
+                                            <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">TARGET FORCE</p>
+                                            <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tight opacity-40 group-hover:opacity-100 transition-opacity leading-none truncate leading-none">{m.opponent}</h3>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-4">
                                         {m.highlightsUrl && (
-                                            <button onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} className="p-4 bg-brand-500 text-brand-950 rounded-2xl hover:scale-110 transition-all shadow-lg active:scale-90 border border-white/10"><PlayCircle size={24} /></button>
+                                            <button 
+                                                onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} 
+                                                className="w-14 h-14 flex items-center justify-center bg-brand-500 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
+                                                title="Watch Highlights"
+                                            >
+                                                <Youtube size={24} className="group-hover/btn:scale-110 transition-transform" />
+                                            </button>
                                         )}
-                                        <button onClick={() => setActiveMatchId(m.id)} className="p-4 bg-brand-50 text-brand-200 rounded-2xl hover:border-brand-500 hover:text-brand-500 transition-all active:scale-90 border border-brand-100"><MessageSquare size={24} /></button>
+                                        <button 
+                                            onClick={() => setActiveMatchId(m.id)} 
+                                            className="w-14 h-14 flex items-center justify-center bg-brand-50 text-brand-950 border border-brand-100 hover:bg-brand-950 hover:text-white rounded-2xl transition-all shadow-xl active:scale-95 group/btn"
+                                            title="View Tactical Report"
+                                        >
+                                            <MonitorPlay size={24} className="group-hover/btn:scale-110 transition-transform" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>

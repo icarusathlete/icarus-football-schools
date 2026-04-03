@@ -131,52 +131,73 @@ export const UserManagement: React.FC = () => {
                         <div key={user.id} className="p-8 hover:bg-brand-500/5 transition-all group">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 rounded-full bg-brand-950 flex items-center justify-center text-xl font-black text-brand-800 overflow-hidden border-2 border-white/10 group-hover:border-brand-500/50 transition-all shadow-2xl">
-                                        {user.photoUrl ? (
-                                            <img src={user.photoUrl} alt={user.username} className="w-full h-full object-cover" />
-                                        ) : (
-                                            user.username.charAt(0).toUpperCase()
-                                        )}
+                                    <div className="relative group/avatar">
+                                        <div className="w-18 h-18 rounded-3xl bg-brand-950 flex items-center justify-center text-xl font-black text-brand-500 overflow-hidden border-2 border-brand-500/20 group-hover:border-brand-500 transition-all shadow-xl">
+                                            {user.photoUrl ? (
+                                                <img src={user.photoUrl} alt={user.username} className="w-full h-full object-cover" />
+                                            ) : (
+                                                user.username.charAt(0).toUpperCase()
+                                            )}
+                                        </div>
+                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-brand-500 rounded-lg flex items-center justify-center border border-white/10 shadow-lg">
+                                            <Shield size={12} className="text-brand-950" />
+                                        </div>
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3">
-                                            <h4 className="font-black text-white italic text-lg uppercase tracking-tight">{user.username}</h4>
-                                            {user.role === 'admin' && <Shield size={16} className="text-brand-500" />}
+                                            <h4 className="font-black text-brand-950 italic text-xl uppercase tracking-tighter leading-none">{user.username}</h4>
+                                            <span className="text-[10px] font-black text-brand-500/40 uppercase tracking-widest font-mono">#{user.id.slice(-4)}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] border italic ${
-                                                user.role === 'admin' ? 'bg-brand-500/10 text-brand-500 border-brand-500/30' :
-                                                user.role === 'coach' ? 'bg-brand-500/5 text-blue-400 border-blue-400/30' :
-                                                'bg-brand-900 text-brand-600 border-white/5'
+                                        <div className="flex items-center gap-3 mt-3">
+                                            <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm ${
+                                                user.role === 'admin' ? 'bg-brand-950 text-brand-500 border-white/10' :
+                                                user.role === 'coach' ? 'bg-brand-500/10 text-brand-950 border-brand-500/20' :
+                                                'bg-brand-50 text-brand-600 border-brand-100'
                                             }`}>
                                                 {user.role}
-                                            </span>
+                                            </div>
                                             {user.role === 'player' && user?.linkedPlayerId && (
-                                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                                    <Check size={12} className="text-green-500" />
-                                                    Linked: {players.find(p => p.id === user?.linkedPlayerId)?.fullName || 'Unknown'}
-                                                </span>
+                                                <div className="text-[10px] text-brand-950 font-black flex items-center gap-2 uppercase italic tracking-tighter opacity-60">
+                                                    <Check size={14} className="text-brand-500" />
+                                                    Linked: <span className="text-brand-500">{players.find(p => p.id === user?.linkedPlayerId)?.fullName || 'Unknown'}</span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3">
                                     {editingUserId === user.id ? (
                                         <>
-                                            <button onClick={() => handleSaveEdit(user.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Save">
-                                                <Check size={18} />
+                                            <button 
+                                                onClick={() => handleSaveEdit(user.id)} 
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-500 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
+                                                title="Save Changes"
+                                            >
+                                                <Check size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
-                                            <button onClick={handleCancelEdit} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Cancel">
-                                                <X size={18} />
+                                            <button 
+                                                onClick={handleCancelEdit} 
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-white transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
+                                                title="Cancel"
+                                            >
+                                                <X size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                         </>
                                     ) : (
                                         <>
-                                            <button onClick={() => handleEditClick(user)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Role">
-                                                <Edit2 size={18} />
+                                            <button 
+                                                onClick={() => handleEditClick(user)} 
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
+                                                title="Modify Permissions"
+                                            >
+                                                <Edit2 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
-                                            <button onClick={() => handleDeleteClick(user)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors" title="Revoke Access">
-                                                <Trash2 size={18} />
+                                            <button 
+                                                onClick={() => handleDeleteClick(user)} 
+                                                className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-100 group/btn"
+                                                title="Revoke Credentials"
+                                            >
+                                                <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                         </>
                                     )}

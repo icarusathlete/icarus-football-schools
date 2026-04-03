@@ -315,13 +315,13 @@ export const FinanceManager: React.FC = () => {
             <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-brand-50 border-b border-brand-100 shadow-sm">
+                        <thead className="bg-brand-50/50 border-y border-brand-100">
                             <tr className="font-display italic">
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Player Profile</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Member ID</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em]">Fee Status</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-center">Protocol</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] text-right">Actions</th>
+                                <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
+                                <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Internal ID</th>
+                                <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
+                                <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
+                                <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-brand-50">
@@ -331,36 +331,56 @@ export const FinanceManager: React.FC = () => {
                                 
                                 return (
                                     <tr key={p.id} className="group hover:bg-brand-50/50 transition-all">
-                                        <td className="px-10 py-6">
+                                        <td className="px-10 py-8">
                                             <div className="flex items-center gap-6">
-                                                <img src={p.photoUrl} className="w-12 h-12 rounded-full bg-brand-50 object-cover border-2 border-brand-100 group-hover:border-brand-500/50 transition-all shadow-lg" />
+                                                <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-50 object-cover border-2 border-brand-500/20 group-hover:border-brand-500 transition-all shadow-lg" />
                                                 <div>
-                                                   <span className="font-black text-brand-950 italic text-base uppercase tracking-tight block">{p.fullName}</span>
+                                                   <span className="font-black text-brand-950 italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
                                                    {status?.datePaid && (
-                                                       <span className="text-[9px] font-black text-brand-500 uppercase tracking-[2px] mt-1 italic">Paid: {new Date(status.datePaid).toLocaleDateString()}</span>
+                                                       <div className="inline-flex px-2 py-0.5 bg-brand-500/10 text-[9px] font-black text-brand-500 uppercase tracking-widest rounded-md border border-brand-500/20">
+                                                           SECURED: {new Date(status.datePaid).toLocaleDateString()}
+                                                       </div>
                                                    )}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6 text-brand-400 font-mono text-xs">{p.memberId}</td>
-                                        <td className="px-10 py-6 font-mono font-black text-brand-950 italic text-lg">₹2400</td>
-                                        <td className="px-10 py-6 text-center">
-                                            <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border italic ${
-                                                statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' : 
-                                                statusVal === 'OVERDUE' ? 'bg-red-900/30 text-red-500 border-red-500/30' : 
-                                                'bg-brand-950 text-brand-500 border-white/5'
+                                        <td className="px-10 py-8 text-brand-950 font-black text-[11px] uppercase tracking-widest italic opacity-40">{p.memberId}</td>
+                                        <td className="px-10 py-8 font-mono font-black text-brand-950 italic text-2xl tracking-tighter">₹2400</td>
+                                        <td className="px-10 py-8 text-center">
+                                            <div className={`inline-flex px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all ${
+                                                statusVal === 'PAID' ? 'bg-brand-500 text-brand-950 border-brand-500' : 
+                                                statusVal === 'OVERDUE' ? 'bg-red-600 text-white border-red-600' : 
+                                                'bg-brand-950 text-brand-500 border-white/10'
                                             }`}>
                                                 {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
-                                            </span>
+                                            </div>
                                         </td>
-                                        <td className="px-10 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                                <button onClick={() => openInvoiceGenerator(p)} className="p-3.5 bg-brand-950 border border-white/10 text-brand-500 hover:text-white hover:bg-brand-500 rounded-xl transition-all shadow-xl"><FileText size={18} /></button>
+                                        <td className="px-10 py-8 text-right">
+                                            <div className="flex items-center justify-end gap-3 transition-all">
+                                                <button 
+                                                    onClick={() => openInvoiceGenerator(p)} 
+                                                    className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
+                                                    title="Generate Receipt"
+                                                >
+                                                    <FileText size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                                </button>
                                                 {statusVal !== 'PAID' && (
-                                                    <button onClick={() => updateStatus(p.id, 'PAID')} className="p-3.5 bg-brand-950 border border-lime/20 text-lime hover:bg-lime hover:text-brand-950 rounded-xl transition-all shadow-xl"><Check size={18} /></button>
+                                                    <button 
+                                                        onClick={() => updateStatus(p.id, 'PAID')} 
+                                                        className="w-12 h-12 flex items-center justify-center bg-brand-500 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
+                                                        title="Approve Settlement"
+                                                    >
+                                                        <Check size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                                    </button>
                                                 )}
                                                 {statusVal !== 'OVERDUE' && (
-                                                    <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-3.5 bg-brand-950 border border-red-500/20 text-red-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all shadow-xl"><AlertCircle size={18} /></button>
+                                                    <button 
+                                                        onClick={() => updateStatus(p.id, 'OVERDUE')} 
+                                                        className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-100 group/btn"
+                                                        title="Mark Breakdown"
+                                                    >
+                                                        <AlertCircle size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                                    </button>
                                                 )}
                                             </div>
                                         </td>
