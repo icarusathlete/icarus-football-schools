@@ -296,36 +296,28 @@ export const FinanceManager: React.FC = () => {
                             const status = getStatus(p.id);
                             const statusVal = status?.status || 'PENDING';
                             return (
-                                <div key={p.id} className="bg-brand-500/10 backdrop-blur-md p-6 rounded-[2rem] border border-brand-500/20 shadow-2xl relative overflow-hidden group">
-                                    <div className={`absolute top-0 right-0 px-4 py-1.5 rounded-bl-2xl text-[9px] font-black tracking-widest uppercase border-b border-l border-white/10 ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
+                                <div key={p.id} className="bg-brand-500/10 backdrop-blur-md p-4 rounded-3xl border border-brand-500/20 shadow-2xl relative overflow-hidden group">
+                                    <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[8px] font-black tracking-widest uppercase border-b border-l border-white/10 ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
                                                 'bg-brand-900 text-brand-500'
                                         }`}>
                                         {statusVal === 'PAID' ? 'SECURED' : statusVal === 'OVERDUE' ? 'BREACH' : 'PENDING'}
                                     </div>
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <img src={p.photoUrl} className="w-16 h-16 rounded-full bg-brand-900 object-cover border-2 border-white/10" />
-                                        <div>
-                                            <h3 className="font-black text-white italic truncate">{p.fullName}</h3>
-                                            <p className="text-[10px] text-white/50 font-mono tracking-widest uppercase">{p.memberId}</p>
-                                            {status?.datePaid && (
-                                                <p className="text-[9px] font-black text-brand-500 mt-1 flex items-center gap-1 uppercase italic bg-brand-500/10 px-2 py-0.5 rounded-full w-fit border border-brand-500/20">
-                                                    <Check size={10} /> {new Date(status.datePaid).toLocaleDateString()}
-                                                </p>
-                                            )}
+                                    <div className="flex items-center gap-4 mb-4 mt-2">
+                                        <img src={p.photoUrl} className="w-12 h-12 rounded-2xl bg-brand-900 object-cover border-2 border-white/10" />
+                                        <div className="min-w-0">
+                                            <h3 className="font-black text-white italic truncate text-sm uppercase">{p.fullName}</h3>
+                                            <p className="text-[9px] text-white/50 font-mono tracking-widest uppercase truncate">{p.memberId}</p>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                                        <div className="font-mono font-black text-white italic text-xl">₹2400</div>
+                                    <div className="flex justify-between items-center pt-3 border-t border-white/5">
+                                        <div className="font-mono font-black text-white italic text-lg">₹2400</div>
                                         <div className="flex gap-2">
-                                            <button onClick={() => openInvoiceGenerator(p)} className="p-3 bg-brand-900 border border-white/5 text-brand-500 rounded-xl hover:text-white transition-all shadow-xl" title="Generate Invoice">
-                                                <FileText size={18} />
+                                            <button onClick={() => openInvoiceGenerator(p)} className="p-2.5 bg-brand-900 border border-white/5 text-brand-500 rounded-xl hover:text-white transition-all shadow-xl" title="Generate Invoice">
+                                                <FileText size={16} />
                                             </button>
                                             {statusVal !== 'PAID' && (
-                                                <button onClick={() => updateStatus(p.id, 'PAID')} className="p-3 bg-brand-900 border border-lime/20 text-lime rounded-xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl"><Check size={18} /></button>
-                                            )}
-                                            {statusVal !== 'OVERDUE' && (
-                                                <button onClick={() => updateStatus(p.id, 'OVERDUE')} className="p-3 bg-brand-900 border border-red-500/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-xl"><AlertCircle size={18} /></button>
+                                                <button onClick={() => updateStatus(p.id, 'PAID')} className="p-2.5 bg-brand-900 border border-lime/20 text-lime rounded-xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl"><Check size={16} /></button>
                                             )}
                                         </div>
                                     </div>
@@ -568,15 +560,11 @@ export const FinanceManager: React.FC = () => {
                                     <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
                                         {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '118px', left: '450px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
-                                            09AAHCI6679R1ZD
-                                        </span>
-
-                                        <span style={{ position: 'absolute', top: '140px', left: '472px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '468px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.invoiceNo.replace('INV-', '')}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '140px', left: '540px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '538px', fontSize: '9.5px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
 

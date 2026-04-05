@@ -298,7 +298,7 @@ export const MatchManager: React.FC = () => {
                                             <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">PRIMARY ASSET</p>
                                             <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tight leading-none truncate">{settings.name}</h3>
                                         </div>
-                                        <div className="bg-brand-950 px-10 py-6 rounded-[2rem] border border-white/10 font-mono text-6xl font-black text-white shadow-2xl flex items-center gap-10 relative overflow-hidden group/score">
+                                        <div className="bg-brand-950 px-6 md:px-10 py-4 md:py-6 rounded-[2rem] border border-white/10 font-mono text-4xl md:text-6xl font-black text-white shadow-2xl flex items-center gap-6 md:gap-10 relative overflow-hidden group/score">
                                             <div className="absolute inset-0 bg-brand-500/5 group-hover/score:bg-brand-500/10 transition-colors" />
                                             <span className={m.result === 'W' ? 'text-brand-500 italic drop-shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'text-white'}>{m.scoreFor}</span>
                                             <span className="text-white/20 text-4xl">:</span>

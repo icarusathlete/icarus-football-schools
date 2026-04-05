@@ -223,7 +223,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* HUD Quick Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
                 { label: 'TOTAL ATHLETES', val: players.length, icon: Users, color: 'text-brand-950', unit: 'ATHLETES', accent: 'bg-brand-950' },
                 { label: 'WIN RATIO', val: `${winRate}%`, icon: Trophy, color: 'text-brand-950', unit: 'SEASON', accent: 'bg-brand-950' },
