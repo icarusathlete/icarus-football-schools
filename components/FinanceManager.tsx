@@ -50,6 +50,30 @@ export const FinanceManager: React.FC = () => {
         validTill: '',
     });
 
+    // Mobile Scaling Logic (v18)
+    const [previewScale, setPreviewScale] = useState(1);
+    const previewContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const updateScale = () => {
+            if (!previewContainerRef.current) return;
+            // Get available width (subtracting padding)
+            const availableWidth = previewContainerRef.current.clientWidth - 48; // p-6 is 24px each side
+            const scale = Math.min(1, availableWidth / 595);
+            setPreviewScale(scale);
+        };
+
+        if (isInvoiceModalOpen) {
+            // Delay slightly to ensure DOM is painted
+            const timer = setTimeout(updateScale, 100);
+            window.addEventListener('resize', updateScale);
+            return () => {
+                clearTimeout(timer);
+                window.removeEventListener('resize', updateScale);
+            };
+        }
+    }, [isInvoiceModalOpen]);
+
     const loadData = () => {
         setPlayers(StorageService.getPlayers());
         setFees(StorageService.getFees());
@@ -502,104 +526,126 @@ export const FinanceManager: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Right Panel: Live Preview */}
-                        <div className="w-full md:w-2/3 bg-brand-900 p-6 overflow-y-auto flex items-start justify-center">
-                            <div
-                                ref={invoiceRef}
-                                style={{ position: 'relative', width: '595px', height: '842px', flexShrink: 0, overflow: 'hidden' }}
-                            >
-                                {/* ICARUS branded PNG background */}
-                                <img
-                                    src={invoiceTemplate || "/icarus-invoice.png?v=5"}
-                                    alt="Invoice Template"
-                                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }}
-                                    crossOrigin="anonymous"
-                                    onError={(e) => {
-                                        (e.currentTarget as HTMLImageElement).src = 'icarus-invoice.png';
+                        {/* Right Panel: Live Preview (Responsive Scaling) */}
+                        <div 
+                            ref={previewContainerRef}
+                            className="w-full md:w-2/3 bg-brand-900 p-6 overflow-y-auto flex items-start justify-center"
+                        >
+                            <div style={{ 
+                                width: '595px', 
+                                height: `${842 * previewScale}px`, 
+                                transition: 'height 0.3s ease-out',
+                                position: 'relative'
+                            }}>
+                                <div
+                                    ref={invoiceRef}
+                                    style={{ 
+                                        position: 'absolute', 
+                                        top: 0,
+                                        left: '50%',
+                                        width: '595px', 
+                                        height: '842px', 
+                                        flexShrink: 0, 
+                                        overflow: 'hidden',
+                                        transform: `scale(${previewScale})`,
+                                        transformOrigin: 'top center',
+                                        marginLeft: '-297.5px', // Center the 595px div
+                                        transition: 'transform 0.3s ease-out'
                                     }}
-                                />
+                                >
+                                    {/* ICARUS branded PNG background */}
+                                    <img
+                                        src={invoiceTemplate || "/icarus-invoice.png?v=5"}
+                                        alt="Invoice Template"
+                                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }}
+                                        crossOrigin="anonymous"
+                                        onError={(e) => {
+                                            (e.currentTarget as HTMLImageElement).src = 'icarus-invoice.png';
+                                        }}
+                                    />
 
-                                {/* Absolute-positioned data overlay (v16 GOLDILOCKS "UP AND LEFT" CALIBRATION) */}
-                                <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
+                                    {/* Absolute-positioned data overlay (v16 GOLDILOCKS "UP AND LEFT" CALIBRATION) */}
+                                    <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
-                                    {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                    <span style={{ position: 'absolute', top: '118px', left: '450px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
-                                        09AAHCI6679R1ZD
-                                    </span>
+                                        {/* ── HEADER BOX (Top Right) ────────────────── */}
+                                        <span style={{ position: 'absolute', top: '118px', left: '450px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                            09AAHCI6679R1ZD
+                                        </span>
 
-                                    <span style={{ position: 'absolute', top: '140px', left: '472px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
-                                        {invoiceForm.invoiceNo.replace('INV-', '')}
-                                    </span>
+                                        <span style={{ position: 'absolute', top: '140px', left: '472px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                            {invoiceForm.invoiceNo.replace('INV-', '')}
+                                        </span>
 
-                                    <span style={{ position: 'absolute', top: '140px', left: '540px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
-                                        {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
-                                    </span>
+                                        <span style={{ position: 'absolute', top: '140px', left: '540px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                            {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
+                                        </span>
 
-                                    {/* ── BILLED TO (Athlete Data) ─────────────────── */}
-                                    <span style={{ position: 'absolute', top: '218px', left: '110px', fontWeight: 700 }}>
-                                        {selectedPlayerForInvoice.parentName || ''}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '218px', left: '335px', fontWeight: 700 }}>
-                                        {(selectedPlayerForInvoice as any).email || ''}
-                                    </span>
+                                        {/* ── BILLED TO (Athlete Data) ─────────────────── */}
+                                        <span style={{ position: 'absolute', top: '218px', left: '110px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.parentName || ''}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '218px', left: '335px', fontWeight: 700 }}>
+                                            {(selectedPlayerForInvoice as any).email || ''}
+                                        </span>
 
-                                    <span style={{ position: 'absolute', top: '243px', left: '110px', fontWeight: 700 }}>
-                                        {selectedPlayerForInvoice.fullName}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '243px', left: '335px', fontSize: '9px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
-                                        {selectedPlayerForInvoice.address || ''}
-                                    </span>
+                                        <span style={{ position: 'absolute', top: '243px', left: '110px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.fullName}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '243px', left: '335px', fontSize: '9px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
+                                            {selectedPlayerForInvoice.address || ''}
+                                        </span>
 
-                                    <span style={{ position: 'absolute', top: '268px', left: '110px', fontWeight: 700 }}>
-                                        {selectedPlayerForInvoice.contactNumber || ''}
-                                    </span>
+                                        <span style={{ position: 'absolute', top: '268px', left: '110px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.contactNumber || ''}
+                                        </span>
 
-                                    {/* ── PROGRAM DETAILS ────────────────────────────── */}
-                                    <span style={{ position: 'absolute', top: '352px', left: '125px', fontWeight: 700 }}>
-                                        Monthly Elite Training
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '352px', left: '335px', fontWeight: 700 }}>
-                                        Mon – Fri
-                                    </span>
+                                        {/* ── PROGRAM DETAILS ────────────────────────────── */}
+                                        <span style={{ position: 'absolute', top: '352px', left: '125px', fontWeight: 700 }}>
+                                            Monthly Elite Training
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '352px', left: '335px', fontWeight: 700 }}>
+                                            Mon – Fri
+                                        </span>
 
-                                    <span style={{ position: 'absolute', top: '378px', left: '125px', fontSize: '9px', fontWeight: 700, maxWidth: '210px' }}>
-                                        Playall, Gaur City Sports Complex, Noida
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '378px', left: '335px', fontWeight: 700 }}>
-                                        Aditya Anand
-                                    </span>
+                                        <span style={{ position: 'absolute', top: '378px', left: '125px', fontSize: '9px', fontWeight: 700, maxWidth: '210px' }}>
+                                            Playall, Gaur City Sports Complex, Noida
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '378px', left: '335px', fontWeight: 700 }}>
+                                            Aditya Anand
+                                        </span>
 
-                                    {/* ── PAYMENT TABLE SUMMARY ─────────────────────────── */}
-                                    <span style={{ position: 'absolute', top: '500px', left: '488px', fontWeight: 800 }}>
-                                        ₹ {taxes.base}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '526px', left: '488px', fontWeight: 800 }}>
-                                        ₹ {taxes.cgst}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '552px', left: '488px', fontWeight: 800 }}>
-                                        ₹ {taxes.sgst}
-                                    </span>
-                                    {/* FINAL TOTAL — flush in the dark row */}
-                                    <span style={{ position: 'absolute', top: '578px', left: '488px', fontWeight: 850, color: '#fff', fontSize: '11.5px' }}>
-                                        ₹ {taxes.total}
-                                    </span>
+                                        {/* ── PAYMENT TABLE SUMMARY ─────────────────────────── */}
+                                        <span style={{ position: 'absolute', top: '500px', left: '488px', fontWeight: 800 }}>
+                                            ₹ {taxes.base}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '526px', left: '488px', fontWeight: 800 }}>
+                                            ₹ {taxes.cgst}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '552px', left: '488px', fontWeight: 800 }}>
+                                            ₹ {taxes.sgst}
+                                        </span>
+                                        {/* FINAL TOTAL — flush in the dark row */}
+                                        <span style={{ position: 'absolute', top: '578px', left: '488px', fontWeight: 850, color: '#fff', fontSize: '11.5px' }}>
+                                            ₹ {taxes.total}
+                                        </span>
 
-                                    {/* ── FOOTER ROW ─────────────────────────────────── */}
-                                    <span style={{ position: 'absolute', top: '615px', left: '105px', fontWeight: 800 }}>
-                                        {invoiceForm.paymentMode}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '615px', left: '280px', fontWeight: 800 }}>
-                                        {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
-                                    </span>
-                                    <span style={{ position: 'absolute', top: '615px', left: '460px', fontWeight: 800 }}>
-                                        {invoiceForm.validTill ? new Date(invoiceForm.validTill).toLocaleDateString('en-GB') : ''}
-                                    </span>
+                                        {/* ── FOOTER ROW ─────────────────────────────────── */}
+                                        <span style={{ position: 'absolute', top: '615px', left: '105px', fontWeight: 800 }}>
+                                            {invoiceForm.paymentMode}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '615px', left: '280px', fontWeight: 800 }}>
+                                            {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
+                                        </span>
+                                        <span style={{ position: 'absolute', top: '615px', left: '460px', fontWeight: 800 }}>
+                                            {invoiceForm.validTill ? new Date(invoiceForm.validTill).toLocaleDateString('en-GB') : ''}
+                                        </span>
 
-                                    {/* AMOUNT IN WORDS */}
-                                    <span style={{ position: 'absolute', top: '645px', left: '155px', fontSize: '10px', fontWeight: 900, color: '#1a365d' }}>
-                                        {numberToWords(invoiceForm.amount)}
-                                    </span>
+                                        {/* AMOUNT IN WORDS */}
+                                        <span style={{ position: 'absolute', top: '645px', left: '155px', fontSize: '10px', fontWeight: 900, color: '#1a365d' }}>
+                                            {numberToWords(invoiceForm.amount)}
+                                        </span>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
