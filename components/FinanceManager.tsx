@@ -250,7 +250,7 @@ export const FinanceManager: React.FC = () => {
                             <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Academy Revenue & Fee Tracking System</p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-6 relative z-10 w-full lg:w-auto">
+                        <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Archive Month</label>
                                 <div className="relative">
@@ -259,12 +259,12 @@ export const FinanceManager: React.FC = () => {
                                         type="month"
                                         value={month}
                                         onChange={e => setMonth(e.target.value)}
-                                        className="w-full sm:w-auto pl-12 pr-6 py-4 bg-white border border-brand-200 rounded-2xl text-brand-950 font-black italic text-sm outline-none focus:border-brand-950 transition-all font-mono shadow-sm"
+                                        className="w-full pl-12 pr-6 py-4 bg-white border border-brand-200 rounded-2xl text-brand-950 font-black italic text-sm outline-none focus:border-brand-950 transition-all font-mono shadow-sm"
                                     />
                                 </div>
                             </div>
 
-                            <div className="bg-brand-500/20 backdrop-blur-xl px-8 py-4 rounded-[2rem] border border-brand-500/40 shadow-inner flex items-center justify-between gap-10">
+                            <div className="bg-brand-500/20 backdrop-blur-xl px-8 py-5 rounded-[2rem] border border-brand-500/40 shadow-inner flex flex-row items-center justify-between gap-6 w-full sm:w-auto">
                                 <div>
                                     <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
                                     <div className="flex items-baseline gap-2">
@@ -291,7 +291,7 @@ export const FinanceManager: React.FC = () => {
                     </div>
 
                     {/* Mobile Card View (Hidden on MD+) */}
-                    <div className="md:hidden grid gap-4">
+                    <div className="md:hidden grid gap-6">
                         {filteredPlayers.map(p => {
                             const status = getStatus(p.id);
                             const statusVal = status?.status || 'PENDING';

@@ -46,20 +46,18 @@ function lsWriteMotm(date: string, playerId: string | null) {
   } catch { /* silent */ }
 }
 
-// ─── Toggle button (pure UI) ──────────────────────────────────────
+// ─── Toggle button (iOS Sliding Style) ────────────────────────────
 const ToggleButton = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
   <button type="button" onClick={onClick} aria-label={isPresent ? 'Mark absent' : 'Mark present'}
-    className={`relative flex items-center w-[5.25rem] h-8 rounded-full p-0.5 border-2 overflow-hidden flex-shrink-0 cursor-pointer select-none transition-all duration-500 hover:scale-105 active:scale-95 ${isPresent ? 'border-emerald-500 shadow-[0_0_12px_-3px_rgba(16,185,129,0.6)]' : 'border-rose-500 shadow-[0_0_12px_-3px_rgba(244,63,94,0.5)]'}`}>
+    className={`relative flex items-center w-12 h-6 rounded-full p-0.5 border overflow-hidden flex-shrink-0 cursor-pointer select-none transition-all duration-500 hover:scale-105 active:scale-95 ${isPresent ? 'border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'border-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.2)]'}`}>
     <span className={`absolute inset-0 transition-opacity duration-500 ${isPresent ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-    <span className={`relative z-10 w-6 h-6 rounded-full bg-white flex-shrink-0 flex items-center justify-center shadow-md transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isPresent ? 'translate-x-[3rem]' : 'translate-x-0'}`}>
-      {isPresent ? <CheckCircleIcon size={13} className="text-emerald-500" /> : <X size={13} className="text-rose-500" />}
+    <span className={`relative z-10 w-4.5 h-4.5 rounded-full bg-white flex-shrink-0 flex items-center justify-center shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isPresent ? 'translate-x-6' : 'translate-x-0'}`}>
+      {isPresent ? <CheckCircleIcon size={10} className="text-emerald-500" /> : <X size={10} className="text-rose-500" />}
     </span>
-    <span className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${isPresent ? 'opacity-0' : 'opacity-50'}`}><CheckCircleIcon size={9} className="text-white" /></span>
-    <span className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${isPresent ? 'opacity-50' : 'opacity-0'}`}><X size={9} className="text-white" /></span>
   </button>
 );
 
-// ─── Player card (Self-Governed State) ───────────────────────────
+// ─── Player card (Pocket View v20 — Compact Mode) ──────────────────
 const PlayerCard = memo(function PlayerCard({
   player, date, initialStatus, isMotm, onStatusChange, onSelectMotm,
 }: {
@@ -97,42 +95,47 @@ const PlayerCard = memo(function PlayerCard({
   const isPresent = status === AttendanceStatus.PRESENT;
 
   return (
-    <div className={`relative bg-white rounded-[2rem] border-2 p-4 flex flex-col items-center gap-3 transition-all duration-300 ${isMotm ? 'border-amber-400 shadow-[0_4px_24px_-4px_rgba(251,191,36,0.5)]' : isPresent ? 'border-emerald-500 shadow-[0_4px_20px_-6px_rgba(16,185,129,0.3)]' : 'border-brand-100 hover:border-rose-300/60'}`}>
+    <div className={`relative bg-white rounded-3xl border p-2 flex flex-col items-center gap-2 transition-all duration-300 ${
+      isMotm ? 'border-amber-400 shadow-[0_4px_16px_rgba(251,191,36,0.3)]' : 
+      isPresent ? 'border-emerald-300/60 shadow-[0_4px_12px_rgba(16,185,129,0.15)]' : 
+      'border-brand-50'
+    }`}>
 
-      {/* Trophy button — top right corner */}
-      <button
-        type="button"
-        onClick={handleMotm}
-        title={isMotm ? 'Remove MVP' : 'Set as Man of the Match'}
-        className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 ${isMotm ? 'bg-amber-400 text-white shadow-[0_0_10px_rgba(251,191,36,0.7)] rotate-0' : 'bg-brand-50 text-brand-300 hover:bg-amber-50 hover:text-amber-400 border border-brand-100'}`}
-      >
-        <Trophy size={13} className={isMotm ? 'fill-white' : ''} />
-      </button>
-
-      {/* MOTM crown ribbon */}
+      {/* MOTM crown ribbon (subtle indicator) */}
       {isMotm && (
-        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-[2rem] bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400" />
+        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-3xl bg-amber-400" />
       )}
 
-      <div className="relative mt-1">
-        <div className={`w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all duration-500 ${isMotm ? 'border-amber-400 scale-105 shadow-[0_0_16px_rgba(251,191,36,0.4)]' : isPresent ? 'border-emerald-500 scale-105 shadow-lg' : 'border-brand-100 shadow-sm'}`}>
+      <div className="relative mt-0.5">
+        <div 
+          onClick={handleMotm} // Allow toggling MOTM by clicking photo too for convenience
+          className={`w-14 h-14 rounded-2xl overflow-hidden border transition-all duration-500 cursor-pointer ${
+          isMotm ? 'border-amber-400 scale-105 shadow-md' : 
+          isPresent ? 'border-emerald-500' : 
+          'border-brand-100 opacity-60'
+        }`}>
           <img 
             src={player.photoUrl} 
             alt={player.fullName} 
             className={`w-full h-full object-cover transition-all duration-500 ${isPresent || isMotm ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`} 
           />
         </div>
-        {/* Present badge */}
-        <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg border-2 border-white flex items-center justify-center shadow-md transition-all duration-300 ${isPresent ? 'bg-emerald-500 scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
-          <CheckCircle2 size={13} className="text-white" />
-        </div>
+        {/* MVP Trophy Indicator */}
+        {isMotm && (
+          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center shadow-sm">
+            <Trophy size={9} className="fill-white text-white" />
+          </div>
+        )}
       </div>
 
       <div className="text-center w-full min-w-0">
-        <h4 className={`font-black text-[11px] uppercase italic tracking-tighter truncate transition-colors ${isMotm ? 'text-amber-600' : isPresent ? 'text-emerald-700' : 'text-brand-950'}`}>
+        <h4 className={`font-black text-[9px] uppercase italic tracking-tighter truncate leading-tight ${
+          isMotm ? 'text-amber-600' : 
+          isPresent ? 'text-emerald-700' : 
+          'text-brand-950 opacity-70'
+        }`}>
           {player.fullName.split(' ')[0]}
         </h4>
-        <p className="text-[8px] text-brand-400 font-bold uppercase tracking-[0.25em] italic mt-0.5">{player.position || 'TRAINEE'}</p>
       </div>
 
       <ToggleButton isPresent={isPresent} onClick={handleToggle} />
@@ -357,7 +360,7 @@ export const CoachAttendance: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 pb-10">
           {filteredPlayers.map(player => (
             <PlayerCard
               key={player.id}
