@@ -174,7 +174,7 @@ export const TrainingManager: React.FC = () => {
                             className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border italic ${
                                 filterCategory === cat 
                                 ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-lg' 
-                                : 'bg-brand-50 text-brand-400 border-brand-100 hover:text-brand-950 hover:bg-white'
+                                : 'bg-brand-50 text-brand-600 border-brand-100 hover:text-brand-950 hover:bg-white'
                             }`}
                         >
                             {cat}
@@ -216,9 +216,9 @@ export const TrainingManager: React.FC = () => {
                                 {drill.category}
                             </div>
                             <h3 className="text-xl font-black text-brand-950 mb-3 italic tracking-tight uppercase leading-tight group-hover:text-brand-500 transition-colors">{drill.title}</h3>
-                            <p className="text-xs text-brand-400 line-clamp-2 mb-6 flex-1 italic leading-relaxed">{drill.description}</p>
+                            <p className="text-xs text-brand-700 line-clamp-2 mb-6 flex-1 italic leading-relaxed">{drill.description}</p>
                             
-                            <div className="flex items-center justify-between pt-6 border-t border-brand-50 text-[10px] font-black text-brand-300 italic">
+                            <div className="flex items-center justify-between pt-6 border-t border-brand-50 text-[10px] font-black text-brand-600 italic">
                                 <div className="flex items-center gap-2 bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-100">
                                     <Clock size={14} /> {drill.duration} MINS
                                 </div>

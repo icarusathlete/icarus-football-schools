@@ -252,9 +252,9 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
         {(role === 'admin' || role === 'coach') && (
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="w-full lg:w-auto flex items-center justify-center gap-4 bg-white text-brand-950 px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-xs uppercase tracking-widest italic"
+            className="w-full lg:w-auto flex items-center justify-center gap-3 sm:gap-4 bg-white text-brand-950 px-6 sm:px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-[10px] sm:text-xs uppercase tracking-widest italic"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             POST NEWS
           </button>
         )}

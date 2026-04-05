@@ -1,116 +1,261 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Search, Download, CheckCircle, Calendar as CalendarIcon, Save, Zap, Filter, CheckCircle2, FileText, Edit3, ShieldCheck, ChevronDown, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import React, { useState, useCallback, memo, useRef, useMemo, useEffect } from 'react';
+import { Player, AttendanceRecord, AttendanceStatus } from '../types';
 import { StorageService } from '../services/storageService';
-import { Player, AttendanceRecord, AttendanceStatus, ScheduleEvent } from '../types';
+import { Users, Search, Calendar as CalendarIcon, CheckCircle2, ChevronDown, CheckCircle as CheckCircleIcon, X, Trophy } from 'lucide-react';
 
-export const CoachAttendance: React.FC = () => {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
-  const [saved, setSaved] = useState(false);
-  const [filter, setFilter] = useState('ALL'); // ALL, PRESENT, ABSENT
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [venueFilter, setVenueFilter] = useState<string>('all');
-  const [batchFilter, setBatchFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // RSVP State
-  const [scheduledEvent, setScheduledEvent] = useState<ScheduleEvent | undefined>(undefined);
-  const [rsvps, setRsvps] = useState<{attending: Player[], declined: Player[], pending: Player[]}>({ attending: [], declined: [], pending: [] });
+// ─── localStorage helpers ─────────────────────────────────────────
+const LS_KEY = 'icarus_attendance';
+const LS_MOTM_KEY = 'icarus_session_motm';
 
-  const loadData = () => {
-    // Load players
-    const allPlayers = StorageService.getPlayers();
-    setPlayers(allPlayers);
+function lsWrite(record: AttendanceRecord) {
+  try {
+    const all: AttendanceRecord[] = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const rest = all.filter(r => !(r.playerId === record.playerId && r.date === record.date));
+    localStorage.setItem(LS_KEY, JSON.stringify([...rest, record]));
+  } catch { /* silent */ }
+}
 
-    // Load existing attendance for this date
-    const existingRecords = StorageService.getDailyAttendance(date);
-    const initialStatus: Record<string, AttendanceStatus> = {};
-    
-    // Default to PRESENT for all if no record exists, otherwise load record
-    allPlayers.forEach(p => {
-        const record = existingRecords.find(r => r.playerId === p.id);
-        initialStatus[p.id] = record ? record.status : AttendanceStatus.PRESENT;
+function lsReadAll(playerIds: string[], date: string): Record<string, AttendanceStatus> {
+  try {
+    const all: AttendanceRecord[] = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const map: Record<string, AttendanceStatus> = {};
+    playerIds.forEach(id => {
+      const r = all.find(r => r.playerId === id && r.date === date);
+      map[id] = (r?.status as AttendanceStatus) ?? AttendanceStatus.ABSENT;
     });
-    
-    setAttendance(initialStatus);
-    setIsSubmitted(StorageService.isRollcallFinalized(date));
+    return map;
+  } catch {
+    const m: Record<string, AttendanceStatus> = {};
+    playerIds.forEach(id => { m[id] = AttendanceStatus.ABSENT; });
+    return m;
+  }
+}
 
-    // Load Schedule Event for this date to check RSVPs
-    const schedule = StorageService.getSchedule();
-    const event = schedule.find(e => e.date === date);
-    setScheduledEvent(event);
+function lsReadMotm(date: string): string | null {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}');
+    return stored[date] || null;
+  } catch { return null; }
+}
 
-    if (event) {
-        const attending: Player[] = [];
-        const declined: Player[] = [];
-        const pending: Player[] = [];
+function lsWriteMotm(date: string, playerId: string | null) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}');
+    if (playerId) stored[date] = playerId; else delete stored[date];
+    localStorage.setItem(LS_MOTM_KEY, JSON.stringify(stored));
+  } catch { /* silent */ }
+}
 
-        allPlayers.forEach(p => {
-            const status = event.rsvps?.[p.id];
-            if (status === 'attending') attending.push(p);
-            else if (status === 'declined') declined.push(p);
-            else pending.push(p);
-        });
+// ─── Toggle button (pure UI) ──────────────────────────────────────
+const ToggleButton = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
+  <button type="button" onClick={onClick} aria-label={isPresent ? 'Mark absent' : 'Mark present'}
+    className={`relative flex items-center w-[5.25rem] h-8 rounded-full p-0.5 border-2 overflow-hidden flex-shrink-0 cursor-pointer select-none transition-all duration-500 hover:scale-105 active:scale-95 ${isPresent ? 'border-emerald-500 shadow-[0_0_12px_-3px_rgba(16,185,129,0.6)]' : 'border-rose-500 shadow-[0_0_12px_-3px_rgba(244,63,94,0.5)]'}`}>
+    <span className={`absolute inset-0 transition-opacity duration-500 ${isPresent ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+    <span className={`relative z-10 w-6 h-6 rounded-full bg-white flex-shrink-0 flex items-center justify-center shadow-md transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isPresent ? 'translate-x-[3rem]' : 'translate-x-0'}`}>
+      {isPresent ? <CheckCircleIcon size={13} className="text-emerald-500" /> : <X size={13} className="text-rose-500" />}
+    </span>
+    <span className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${isPresent ? 'opacity-0' : 'opacity-50'}`}><CheckCircleIcon size={9} className="text-white" /></span>
+    <span className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity ${isPresent ? 'opacity-50' : 'opacity-0'}`}><X size={9} className="text-white" /></span>
+  </button>
+);
 
-        setRsvps({ attending, declined, pending });
-    } else {
-        setRsvps({ attending: [], declined: [], pending: [] });
-    }
-  };
+// ─── Player card (Self-Governed State) ───────────────────────────
+const PlayerCard = memo(function PlayerCard({
+  player, date, initialStatus, isMotm, onStatusChange, onSelectMotm,
+}: {
+  player: Player;
+  date: string;
+  initialStatus: AttendanceStatus;
+  isMotm: boolean;
+  onStatusChange: (playerId: string, status: AttendanceStatus) => void;
+  onSelectMotm: (playerId: string) => void;
+}) {
+  // Decentralized state — EACH card owns its own status
+  const [status, setStatus] = useState<AttendanceStatus>(initialStatus);
 
+  // Sync with prop when date or initialStatus changes (e.g. from parent/firestore)
   useEffect(() => {
-    loadData();
-    window.addEventListener('academy_data_update', loadData);
-    return () => window.removeEventListener('academy_data_update', loadData);
+    setStatus(initialStatus);
+  }, [initialStatus, date]);
+
+  const handleToggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); e.preventDefault();
+    const nextStatus = status === AttendanceStatus.PRESENT ? AttendanceStatus.ABSENT : AttendanceStatus.PRESENT;
+    
+    // 1. Immediate UI update
+    setStatus(nextStatus);
+    
+    // 2. Background persistence (Sync with Roster & Stats)
+    onStatusChange(player.id, nextStatus);
+  }, [player.id, status, onStatusChange]);
+
+  const handleMotm = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); e.preventDefault();
+    onSelectMotm(player.id);
+  }, [player.id, onSelectMotm]);
+
+  const isPresent = status === AttendanceStatus.PRESENT;
+
+  return (
+    <div className={`relative bg-white rounded-[2rem] border-2 p-4 flex flex-col items-center gap-3 transition-all duration-300 ${isMotm ? 'border-amber-400 shadow-[0_4px_24px_-4px_rgba(251,191,36,0.5)]' : isPresent ? 'border-emerald-500 shadow-[0_4px_20px_-6px_rgba(16,185,129,0.3)]' : 'border-brand-100 hover:border-rose-300/60'}`}>
+
+      {/* Trophy button — top right corner */}
+      <button
+        type="button"
+        onClick={handleMotm}
+        title={isMotm ? 'Remove MVP' : 'Set as Man of the Match'}
+        className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 ${isMotm ? 'bg-amber-400 text-white shadow-[0_0_10px_rgba(251,191,36,0.7)] rotate-0' : 'bg-brand-50 text-brand-300 hover:bg-amber-50 hover:text-amber-400 border border-brand-100'}`}
+      >
+        <Trophy size={13} className={isMotm ? 'fill-white' : ''} />
+      </button>
+
+      {/* MOTM crown ribbon */}
+      {isMotm && (
+        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-[2rem] bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400" />
+      )}
+
+      <div className="relative mt-1">
+        <div className={`w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all duration-500 ${isMotm ? 'border-amber-400 scale-105 shadow-[0_0_16px_rgba(251,191,36,0.4)]' : isPresent ? 'border-emerald-500 scale-105 shadow-lg' : 'border-brand-100 shadow-sm'}`}>
+          <img 
+            src={player.photoUrl} 
+            alt={player.fullName} 
+            className={`w-full h-full object-cover transition-all duration-500 ${isPresent || isMotm ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`} 
+          />
+        </div>
+        {/* Present badge */}
+        <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg border-2 border-white flex items-center justify-center shadow-md transition-all duration-300 ${isPresent ? 'bg-emerald-500 scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+          <CheckCircle2 size={13} className="text-white" />
+        </div>
+      </div>
+
+      <div className="text-center w-full min-w-0">
+        <h4 className={`font-black text-[11px] uppercase italic tracking-tighter truncate transition-colors ${isMotm ? 'text-amber-600' : isPresent ? 'text-emerald-700' : 'text-brand-950'}`}>
+          {player.fullName.split(' ')[0]}
+        </h4>
+        <p className="text-[8px] text-brand-400 font-bold uppercase tracking-[0.25em] italic mt-0.5">{player.position || 'TRAINEE'}</p>
+      </div>
+
+      <ToggleButton isPresent={isPresent} onClick={handleToggle} />
+    </div>
+  );
+},
+(prev, next) =>
+  prev.player.id === next.player.id &&
+  prev.date === next.date &&
+  prev.initialStatus === next.initialStatus &&
+  prev.isMotm === next.isMotm &&
+  prev.onStatusChange === next.onStatusChange &&
+  prev.onSelectMotm === next.onSelectMotm
+);
+
+// ─── Main component ───────────────────────────────────────────────
+export const CoachAttendance: React.FC = () => {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [date, setDate] = useState(todayStr);
+  const [players, setPlayers] = useState<Player[]>(() => StorageService.getPlayers());
+  const [liveStatuses, setLiveStatuses] = useState<Record<string, AttendanceStatus>>(() =>
+    lsReadAll(StorageService.getPlayers().map(p => p.id), todayStr)
+  );
+  const [motmId, setMotmId] = useState<string | null>(() => lsReadMotm(todayStr));
+
+  const [filter, setFilter] = useState('ALL');
+  const [venueFilter, setVenueFilter] = useState('all');
+  const [batchFilter, setBatchFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [rsvps, setRsvps] = useState<{ attending: Player[]; declined: Player[]; pending: Player[] }>({ attending: [], declined: [], pending: [] });
+  const recentToggles = useRef<Record<string, number>>({});
+
+  // Reload on date change
+  useEffect(() => {
+    const ps = StorageService.getPlayers();
+    setPlayers(ps);
+    setLiveStatuses(lsReadAll(ps.map(p => p.id), date));
+    setMotmId(lsReadMotm(date));
+    recentToggles.current = {};
+    const event = StorageService.getSchedule().find(e => e.date === date);
+    if (event) {
+      const a: Player[] = [], d: Player[] = [], pend: Player[] = [];
+      ps.forEach(p => { const s = event.rsvps?.[p.id]; if (s === 'attending') a.push(p); else if (s === 'declined') d.push(p); else pend.push(p); });
+      setRsvps({ attending: a, declined: d, pending: pend });
+    } else { setRsvps({ attending: [], declined: [], pending: [] }); }
   }, [date]);
 
-  const toggleStatus = (playerId: string) => {
-    let nextStatus = AttendanceStatus.PRESENT;
-    setAttendance(prev => {
-      const current = prev[playerId];
-      nextStatus = current === AttendanceStatus.ABSENT ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT;
-      
-      // Auto-Sync Implementation
-      const records: AttendanceRecord[] = players.map(p => ({
-          id: Math.random().toString(36).substr(2, 9),
-          playerId: p.id,
-          date: date,
-          status: p.id === playerId ? nextStatus : prev[p.id]
-      }));
-      StorageService.saveAttendanceBatch(records);
-      
-      return { ...prev, [playerId]: nextStatus };
+  // Firestore sync — Targeted Patching Logic
+  useEffect(() => {
+    const handler = () => {
+      const ps = StorageService.getPlayers();
+      setPlayers(ps);
+      const fromStorage = lsReadAll(ps.map(p => p.id), date);
+      const now = Date.now();
+
+      setLiveStatuses(prev => {
+        let hasChanged = false;
+        const next = { ...prev };
+        
+        ps.forEach(p => {
+          const storageStatus = fromStorage[p.id];
+          const currentStatus = prev[p.id];
+          
+          // Only sync if: 
+          // 1. Not toggled in last 3s
+          // 2. Storage value differs from current local value
+          if (now - (recentToggles.current[p.id] || 0) >= 3000) {
+            if (storageStatus !== currentStatus) {
+              next[p.id] = storageStatus;
+              hasChanged = true;
+            }
+          }
+        });
+
+        return hasChanged ? next : prev;
+      });
+    };
+    window.addEventListener('academy_data_update', handler);
+    return () => window.removeEventListener('academy_data_update', handler);
+  }, [date]);
+
+  // Attendance toggle — Decentralized Handler
+  const onStatusChange = useCallback((playerId: string, status: AttendanceStatus) => {
+    // 1. Notify parent of stat change (functional update for safety)
+    setLiveStatuses(prev => ({ ...prev, [playerId]: status }));
+    
+    // 2. Persistence Layer
+    const record: AttendanceRecord = { id: `${date}_${playerId}`, playerId, date, status };
+    lsWrite(record);
+    StorageService.saveAttendanceBatch([record]);
+  }, [date]);
+
+  // MOTM selection — only one at a time, click same to deselect
+  const onSelectMotm = useCallback((playerId: string) => {
+    setMotmId(prev => {
+      const next = prev === playerId ? null : playerId;
+      lsWriteMotm(date, next);
+      return next;
     });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  }, [date]);
 
-  const handleFinalize = async () => {
-    await StorageService.finalizeRollcall(date);
-    setIsSubmitted(true);
-  };
+  const presentCount = useMemo(() =>
+    Object.values(liveStatuses).filter(s => s === AttendanceStatus.PRESENT).length,
+    [liveStatuses]
+  );
 
-  const handleEdit = async () => {
-    await StorageService.unfinalizeRollcall(date);
-    setIsSubmitted(false);
-  };
-  const getStatusStyles = (status: AttendanceStatus) => {
-    switch (status) {
-      case AttendanceStatus.PRESENT: 
-      case AttendanceStatus.LATE:
-        return { bg: 'bg-brand-500/10', border: 'border-brand-500/20', text: 'text-brand-600', badge: 'bg-brand-500 text-brand-950 border-brand-500/20', label: 'PRESENT' };
-      case AttendanceStatus.ABSENT: 
-      case AttendanceStatus.EXCUSED:
-        return { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-600', badge: 'bg-red-600 text-white border-red-600/20', label: 'ABSENT' };
-      default: return { bg: 'bg-brand-50', border: 'border-brand-100', text: 'text-brand-400', badge: 'bg-brand-950 text-brand-500 border-white/5', label: 'UNKNOWN' };
-    }
-  };
+  const motmPlayer = useMemo(() =>
+    motmId ? players.find(p => p.id === motmId) || null : null,
+    [motmId, players]
+  );
 
-  const filteredPlayers = players.filter(p => {
-      if (filter === 'ALL') return true;
-      return attendance[p.id] === filter;
-  });
+  const filteredPlayers = useMemo(() =>
+    players.filter(p => {
+      const s = liveStatuses[p.id] ?? AttendanceStatus.ABSENT;
+      return (
+        (filter === 'ALL' || (filter === 'PRESENT' && s === AttendanceStatus.PRESENT) || (filter === 'ABSENT' && s === AttendanceStatus.ABSENT)) &&
+        (venueFilter === 'all' || p.venue === venueFilter) &&
+        (batchFilter === 'all' || p.batch === batchFilter) &&
+        (!searchQuery || p.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }),
+    [players, liveStatuses, filter, venueFilter, batchFilter, searchQuery]
+  );
 
   return (
     <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
@@ -118,215 +263,120 @@ export const CoachAttendance: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl font-black text-brand-950 italic uppercase tracking-tighter flex items-center gap-4">
-              DEPLOYMENT <span className="text-brand-500">LOG</span>
-              <CalendarIcon size={32} className="text-brand-500 opacity-30" />
+            DEPLOYMENT <span className="text-brand-500">LOG</span>
+            <CalendarIcon size={30} className="text-brand-500 opacity-20" />
           </h1>
-          <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Autonomous Session Verification & RSVP Intelligence</p>
+          <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Session Attendance · Live Sync</p>
         </div>
-        
-        <div className="flex items-center gap-4 bg-white p-2 rounded-[2rem] border border-brand-100 shadow-xl overflow-hidden group">
-             <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 hover:bg-brand-950 hover:text-brand-500 rounded-2xl transition-all shadow-sm active:scale-95 group/btn">
-                 <ChevronDown className="rotate-90 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-             </button>
-             <div className="px-6 text-center">
-                  <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">ARCHIVE DATE</p>
-                  <input 
-                      type="date" 
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="bg-transparent border-none outline-none text-sm font-black text-brand-950 w-32 cursor-pointer text-center font-mono italic"
-                  />
-             </div>
-             <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 hover:bg-brand-950 hover:text-brand-500 rounded-2xl transition-all shadow-sm active:scale-95 group/btn">
-                 <ChevronDown className="-rotate-90 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-             </button>
+        <div className="flex items-center gap-3 bg-white p-2 rounded-[2.5rem] border border-brand-100 shadow-xl">
+          <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="w-11 h-11 flex items-center justify-center bg-brand-50 rounded-full hover:bg-brand-950 hover:text-brand-500 transition-all active:scale-95"><ChevronDown className="rotate-90 w-4 h-4" /></button>
+          <div className="px-4 text-center">
+            <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">SESSION DATE</p>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-transparent border-none outline-none text-sm font-black text-brand-950 w-28 cursor-pointer text-center font-mono italic" />
+          </div>
+          <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="w-11 h-11 flex items-center justify-center bg-brand-50 rounded-full hover:bg-brand-950 hover:text-brand-500 transition-all active:scale-95"><ChevronDown className="-rotate-90 w-4 h-4" /></button>
         </div>
       </div>
 
-      {/* Stats Cluster */}
-      {scheduledEvent ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-10 rounded-[3rem] border border-brand-100 flex items-center justify-between group hover:border-brand-500 transition-all shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><CheckCircle2 size={80} className="text-brand-950" /></div>
-                  <div className="relative">
-                      <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-3 italic">CONFIRMED DEPLOY</p>
-                      <h3 className="text-5xl font-black text-brand-950 italic">{rsvps.attending.length}</h3>
-                  </div>
-                  <div className="w-18 h-18 rounded-[1.5rem] bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <CheckCircle2 size={36} />
-                  </div>
-              </div>
-              <div className="bg-white p-10 rounded-[3rem] border border-brand-100 flex items-center justify-between group hover:border-red-500 transition-all shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><CheckCircleIcon size={80} className="text-red-950" /></div>
-                  <div className="relative">
-                      <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-3 italic">DECLINED RSVP</p>
-                      <h3 className="text-5xl font-black text-brand-950 italic">{rsvps.declined.length}</h3>
-                  </div>
-                  <div className="w-18 h-18 rounded-[1.5rem] bg-red-500/10 text-red-600 border border-red-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <CheckCircleIcon size={36} />
-                  </div>
-              </div>
-              <div className="bg-white p-10 rounded-[3rem] border border-brand-100 flex items-center justify-between group hover:border-brand-950 transition-all shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity"><CheckCircleIcon size={80} className="text-brand-950" /></div>
-                  <div className="relative">
-                      <p className="text-[10px] font-black text-brand-950 uppercase tracking-[0.3em] mb-3 italic">AWAITING SIGNAL</p>
-                      <h3 className="text-5xl font-black text-brand-950 italic">{rsvps.pending.length}</h3>
-                  </div>
-                  <div className="w-18 h-18 rounded-[1.5rem] bg-brand-50 text-brand-950 border border-brand-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <CheckCircleIcon size={36} />
-                  </div>
-              </div>
-          </div>
-      ) : (
-          <div className="bg-brand-950 p-6 rounded-[2rem] border border-brand-500/10 flex items-center gap-4 text-brand-400 text-sm shadow-xl italic font-medium">
-              <div className="p-3 bg-brand-500/10 rounded-xl text-brand-500"><Zap size={20} /></div>
-              <span>No scheduled engagement detected. Attendance logging configured for ad-hoc session protocol.</span>
-          </div>
-      )}
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Present */}
+        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-emerald-400 transition-all">
+          <div><p className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-2 italic">PRESENT</p><h3 className="text-4xl font-black text-brand-950 italic">{presentCount}</h3></div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center"><CheckCircle2 size={24} /></div>
+        </div>
+        {/* Absent */}
+        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-rose-400 transition-all">
+          <div><p className="text-[9px] font-black text-rose-600 uppercase tracking-[0.3em] mb-2 italic">ABSENT</p><h3 className="text-4xl font-black text-brand-950 italic">{players.length - presentCount}</h3></div>
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center"><X size={24} /></div>
+        </div>
+        {/* Total */}
+        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-brand-400 transition-all">
+          <div><p className="text-[9px] font-black text-brand-500 uppercase tracking-[0.3em] mb-2 italic">TOTAL</p><h3 className="text-4xl font-black text-brand-950 italic">{players.length}</h3></div>
+          <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-500 border border-brand-100 flex items-center justify-center"><Users size={24} /></div>
+        </div>
 
-      {/* Roster Area */}
-      <div className="space-y-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
-              <h3 className="font-black text-brand-950 text-2xl uppercase italic tracking-tighter flex items-center gap-4 leading-none">
-                  <Users size={28} className="text-brand-500" />
-                  SQUAD <span className="text-brand-500">ROSTER</span>
-              </h3>
-              <div className="flex bg-brand-50 p-1.5 rounded-[1.5rem] border border-brand-100">
-                  {['ALL', 'PRESENT', 'ABSENT'].map(f => (
-                      <button 
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`text-[11px] font-black px-8 py-3 rounded-xl uppercase tracking-[0.2em] transition-all italic leading-none ${filter === f ? 'bg-brand-950 text-brand-500 shadow-xl' : 'text-brand-400 hover:text-brand-950'}`}
-                      >
-                          {f}
-                      </button>
-                  ))}
+        {/* MVP Spotlight — 4th stat card, lights up when MOTM is selected */}
+        <div className={`relative p-6 rounded-[2rem] border-2 flex items-center justify-between shadow-md transition-all duration-500 overflow-hidden ${motmPlayer ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-[0_4px_24px_-4px_rgba(251,191,36,0.4)]' : 'bg-white border-brand-100'}`}>
+          {/* Background glow when active */}
+          {motmPlayer && <div className="absolute inset-0 bg-gradient-to-br from-amber-400/10 to-yellow-300/5 pointer-events-none" />}
+          <div className="relative min-w-0 flex-1 pr-3">
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em] italic">MAN OF THE MATCH</p>
+            </div>
+            {motmPlayer ? (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <p className="text-lg font-black text-amber-800 italic uppercase tracking-tight truncate leading-tight">{motmPlayer.fullName.split(' ')[0]}</p>
+                <span className="inline-flex items-center gap-1 mt-1 bg-amber-400 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                  <Trophy size={8} className="fill-white" /> MVP
+                </span>
               </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* Submitted / Summary State */}
-            {isSubmitted ? (
-                <div className="lg:col-span-12">
-                    <div className="bg-white rounded-[4rem] border border-brand-100 shadow-3xl overflow-hidden p-12 md:p-20 relative animate-in zoom-in-95 duration-700">
-                        <div className="absolute top-0 right-0 p-12 opacity-5"><ShieldCheck size={240} className="text-brand-950" /></div>
-                        
-                        <div className="relative z-10 flex flex-col md:flex-row gap-12 md:items-center justify-between">
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-4 bg-brand-500 rounded-[2rem] text-brand-950 shadow-2xl">
-                                        <FileText size={32} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-3xl font-black text-brand-950 italic uppercase tracking-tighter leading-none">Session Rollcall Secured</h3>
-                                        <p className="text-brand-500 font-black uppercase text-xs tracking-widest mt-2 italic flex items-center gap-2">
-                                            <CheckCircle2 size={14} /> Finalized & Uploaded to Command Hub
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-10">
-                                    <div className="p-8 bg-brand-50 rounded-[2.5rem] border border-brand-100 shadow-sm group">
-                                        <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic mb-2">Total Strength</p>
-                                        <p className="text-5xl font-black text-brand-950 italic tracking-tighter">{players.length}</p>
-                                    </div>
-                                    <div className="p-8 bg-brand-500/10 rounded-[2.5rem] border border-brand-500/20 shadow-sm group">
-                                        <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest italic mb-2">Authenticated Present</p>
-                                        <p className="text-5xl font-black text-brand-950 italic tracking-tighter">
-                                            {Object.values(attendance).filter(s => s === AttendanceStatus.PRESENT).length}
-                                        </p>
-                                    </div>
-                                    <div className="p-8 bg-red-50 rounded-[2.5rem] border border-red-100 shadow-sm group">
-                                        <p className="text-[10px] font-black text-red-500 uppercase tracking-widest italic mb-2">Absence Log</p>
-                                        <p className="text-5xl font-black text-red-950 italic tracking-tighter">
-                                            {Object.values(attendance).filter(s => s === AttendanceStatus.ABSENT).length}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <button 
-                                    onClick={handleEdit}
-                                    className="px-10 py-5 bg-brand-950 text-brand-500 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-3 italic border border-white/10"
-                                >
-                                    <Edit3 size={18} /> Modify Session Records
-                                </button>
-                                <button className="px-10 py-5 bg-brand-50 text-brand-950 rounded-3xl font-black text-xs uppercase tracking-widest opacity-40 cursor-not-allowed italic flex items-center gap-3 border border-brand-100">
-                                    <Download size={18} /> Export Session Case File
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             ) : (
-                <>
-                {filteredPlayers.map(player => {
-                    const styles = getStatusStyles(attendance[player.id]);
-                    const isRsvpYes = scheduledEvent?.rsvps?.[player.id] === 'attending';
-                    const isPresent = attendance[player.id] === AttendanceStatus.PRESENT;
-                    
-                    return (
-                        <div 
-                            key={player.id}
-                            onClick={() => toggleStatus(player.id)}
-                            className={`relative bg-white rounded-[2.5rem] border transition-all cursor-pointer group hover:shadow-2xl overflow-hidden p-8 ${isPresent ? 'border-brand-500 shadow-xl' : 'border-brand-100 hover:border-red-500/30'}`}
-                        >
-                            <div className="flex flex-col items-center text-center gap-6">
-                                <div className="relative">
-                                    <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center overflow-hidden border-2 transition-all shadow-xl ${isPresent ? 'bg-brand-950 border-brand-500' : 'bg-gray-100 border-gray-200 group-hover:border-red-500/20'}`}>
-                                        <img src={player.photoUrl} className={`w-full h-full object-cover ${isPresent ? '' : 'grayscale opacity-50 transition-all'}`} />
-                                    </div>
-                                    {isRsvpYes && (
-                                        <div className="absolute -bottom-2 -right-2 bg-brand-500 text-brand-950 p-2 rounded-xl border-2 border-white shadow-xl" title="RSVP Confirmed">
-                                            <CheckCircle2 size={16} />
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                <div className="space-y-1">
-                                    <h4 className={`font-black text-lg uppercase italic tracking-tighter leading-none transition-colors ${isPresent ? 'text-brand-950' : 'text-gray-400 group-hover:text-red-950'}`}>{player.fullName}</h4>
-                                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-widest italic">{player.position}</p>
-                                </div>
-    
-                                <div className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border text-center shadow-sm ${styles.badge}`}>
-                                    {styles.label}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-                </>
+              <p className="text-sm font-black text-brand-300 italic">Not selected</p>
             )}
           </div>
-          
-          {filteredPlayers.length === 0 && (
-              <div className="text-center py-24 bg-brand-900/50 border-2 border-dashed border-white/5 rounded-[3rem]">
-                  <p className="text-brand-600 text-sm font-black uppercase tracking-widest italic">No matching personnel signals detected.</p>
-              </div>
-          )}
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${motmPlayer ? 'bg-amber-400 shadow-[0_0_16px_rgba(251,191,36,0.6)] text-white animate-pulse' : 'bg-brand-50 text-brand-300 border border-brand-100'}`}>
+            <Trophy size={22} className={motmPlayer ? 'fill-white' : ''} />
+          </div>
+        </div>
       </div>
 
-      {/* Submit Button Block */}
-      {!isSubmitted && (
-          <div className="fixed bottom-10 right-10 z-50 animate-in slide-in-from-bottom-2 duration-700">
-              <button 
-                    onClick={handleFinalize}
-                    className="flex items-center gap-4 px-14 py-7 bg-brand-950 text-brand-500 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] transition-all shadow-3xl hover:scale-105 active:scale-95 italic border border-white/10"
-                >
-                    <Save className="w-6 h-6" /> SUBMIT SQUAD ROLLCALL
-                </button>
-          </div>
+      {/* RSVP row */}
+      {(rsvps.attending.length + rsvps.declined.length + rsvps.pending.length > 0) && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-center"><p className="text-[9px] font-black text-emerald-700 uppercase tracking-widest italic mb-1">CONFIRMED</p><p className="text-2xl font-black text-emerald-800 italic">{rsvps.attending.length}</p></div>
+          <div className="bg-rose-50 p-4 rounded-2xl border border-rose-200 text-center"><p className="text-[9px] font-black text-rose-700 uppercase tracking-widest italic mb-1">DECLINED</p><p className="text-2xl font-black text-rose-800 italic">{rsvps.declined.length}</p></div>
+          <div className="bg-brand-50 p-4 rounded-2xl border border-brand-100 text-center"><p className="text-[9px] font-black text-brand-600 uppercase tracking-widest italic mb-1">PENDING</p><p className="text-2xl font-black text-brand-800 italic">{rsvps.pending.length}</p></div>
+        </div>
       )}
 
-      {/* Auto-Sync Indicator */}
-      {saved && (
-          <div className="fixed bottom-10 right-10 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
-              <div className="bg-brand-950 text-brand-500 px-10 py-5 rounded-[2rem] border border-white/10 shadow-3xl font-black text-xs uppercase tracking-widest italic flex items-center gap-4">
-                  <CheckCircle className="w-5 h-5" /> AUTO-SYNCED TO CLOUD
-              </div>
+      {/* Roster */}
+      <div className="space-y-5">
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <h3 className="font-black text-brand-950 text-xl uppercase italic tracking-tighter flex items-center gap-3 shrink-0">
+            <Users size={22} className="text-brand-500" />SQUAD <span className="text-brand-500">ROSTER</span>
+          </h3>
+          <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-3 bg-white p-2 rounded-[2rem] border border-brand-100 shadow-lg min-w-0">
+            <div className="relative flex-1 min-w-[160px]">
+              <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-400" />
+              <input type="text" placeholder="Search personnel…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-brand-50 border border-brand-100 rounded-xl py-3 pl-12 pr-5 text-[10px] font-black uppercase italic tracking-widest outline-none focus:border-brand-500" />
+            </div>
+            <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-brand-50 border border-brand-100 rounded-xl py-3 px-5 text-[10px] font-black uppercase italic tracking-widest outline-none cursor-pointer appearance-none">
+              <option value="all">ALL VENUES</option>
+              {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string}>{(v as string).toUpperCase()}</option>)}
+            </select>
+            <select value={batchFilter} onChange={e => setBatchFilter(e.target.value)} className="bg-brand-50 border border-brand-100 rounded-xl py-3 px-5 text-[10px] font-black uppercase italic tracking-widest outline-none cursor-pointer appearance-none">
+              <option value="all">ALL BATCHES</option>
+              {[...new Set(players.map(p => p.batch))].filter(Boolean).map(b => <option key={b as string} value={b as string}>{(b as string).toUpperCase()}</option>)}
+            </select>
+            <div className="flex bg-brand-50 p-1 rounded-xl border border-brand-100 shrink-0">
+              {['ALL', 'PRESENT', 'ABSENT'].map(f => (
+                <button key={f} onClick={() => setFilter(f)} className={`text-[9px] font-black px-5 py-2.5 rounded-lg uppercase tracking-[0.2em] transition-all italic ${filter === f ? 'bg-brand-950 text-brand-500 shadow-lg' : 'text-brand-400 hover:text-brand-950'}`}>{f}</button>
+              ))}
+            </div>
           </div>
-      )}
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {filteredPlayers.map(player => (
+            <PlayerCard
+              key={player.id}
+              player={player}
+              date={date}
+              initialStatus={liveStatuses[player.id] ?? AttendanceStatus.ABSENT}
+              isMotm={motmId === player.id}
+              onStatusChange={onStatusChange}
+              onSelectMotm={onSelectMotm}
+            />
+          ))}
+        </div>
+
+        {filteredPlayers.length === 0 && (
+          <div className="text-center py-20 border-2 border-dashed border-brand-100 rounded-[2rem]">
+            <p className="text-brand-400 text-sm font-black uppercase tracking-widest italic">No personnel match the current filter.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

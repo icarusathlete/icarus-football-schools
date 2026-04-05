@@ -43,6 +43,9 @@ service cloud.firestore {
     // Collection: potm
     // Fields: playerId, timestamp
     //
+    // Collection: finalized_rollcalls
+    // Fields: finalized, timestamp
+    //
     // ===============================================================
 
     // ===============================================================
@@ -191,6 +194,11 @@ service cloud.firestore {
     }
 
     match /potm/{monthId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isCoach();
+    }
+
+    match /finalized_rollcalls/{dateId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() || isCoach();
     }
