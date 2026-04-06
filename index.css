@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @theme {
   --color-brand-50: #f0f9ff;
@@ -16,9 +17,9 @@
   --color-lime-default: #C3F629;
   --color-lime-glow: rgba(195, 246, 41, 0.3);
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Montserrat", sans-serif;
-  --font-display: "Orbitron", sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
 
   --animate-spin-slow: spin 8s linear infinite;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -28,17 +29,23 @@
   --brand-primary: #00C8FF; /* Electric Cyan */
   --brand-secondary: #0D1B8A; /* Deep Midnight */
   --brand-accent: #C3F629; /* Neon Lime */
-  --brand-bg: #F8FAFC; /* Clean Light Background */
-  --brand-text: #0D1B8A;
+  --brand-bg: #00054e; /* Kinetic Midnight Foundation */
+  --brand-text: #dfe0ff;
   
-  /* Refined Glassmorphism (Professional Professional) */
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  /* Precision Glassmorphism (Digital Stadium Elite) */
+  --glass-bg: rgba(0, 5, 78, 0.6);
   --glass-border: rgba(0, 200, 255, 0.1);
-  --glass-blur: 16px;
+  --glass-blur: 24px;
   
-  /* Precision Glows */
-  --cyan-glow: 0 4px 20px rgba(0, 200, 255, 0.1);
-  --lime-glow: 0 4px 20px rgba(195, 246, 41, 0.1);
+  /* Tactical Surface Tokens */
+  --surface-low: #000965;
+  --surface-default: #000b70;
+  --surface-high: #061587;
+  --surface-bright: #1e2a95;
+
+  /* Performance Glows */
+  --cyan-glow: 0 0 30px rgba(0, 200, 255, 0.25);
+  --lime-glow: 0 0 30px rgba(195, 246, 41, 0.25);
 }
 
 body { 
@@ -54,21 +61,22 @@ body {
   overflow-x: hidden;
 }
 
-/* Refined Glassmorphism Utilities */
+/* Digital Stadium Glassmorphism */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  border-radius: 1rem; /* Slightly tighter rounding for professional look */
-  box-shadow: 0 2px 10px 0 rgba(13, 27, 138, 0.03);
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 0.5rem; /* Precise semi-sharp corners */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 200, 255, 0.25);
-  box-shadow: 0 8px 30px rgba(0, 200, 255, 0.08);
-  transform: translateY(-2px);
+  border-color: rgba(0, 200, 255, 0.3);
+  background: rgba(0, 5, 78, 0.7);
+  box-shadow: var(--cyan-glow);
+  transform: translateY(-4px) scale(1.01);
 }
 
 /* HUD Ghost Border */

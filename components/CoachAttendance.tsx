@@ -40,33 +40,23 @@ function lsReadMotm(date: string): string | null {
 
 // Removed local lsWriteMotm as we use StorageService.setMOTM
 
-// ─── Toggle button (iOS Sliding Style) ────────────────────────────
-// ─── Toggle button (Icarus Pro Pulse Style) ────────────────────────────
-const ToggleButton = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
+// ─── Digital Sliding Switch (Digital Stadium Elite) ──────────────────
+const DigitalSwitch = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
   <button 
     type="button" 
     onClick={onClick} 
-    aria-label={isPresent ? 'Mark absent' : 'Mark present'}
-    className={`relative flex items-center w-14 h-7 rounded-lg p-1 border transition-all duration-500 overflow-hidden group/toggle ${
-      isPresent 
-        ? 'border-brand-500/50 bg-brand-500/10 shadow-[0_0_15px_rgba(0,255,200,0.1)]' 
-        : 'border-white/5 bg-white/5'
+    className={`relative group flex items-center w-12 h-6 rounded-full transition-all duration-300 ${
+      isPresent ? 'bg-lime' : 'bg-white/10'
     }`}
   >
-    <div className={`absolute inset-0 transition-opacity duration-500 ${isPresent ? 'opacity-100 bg-gradient-to-r from-brand-500/20 to-transparent' : 'opacity-0'}`} />
-    <div className={`relative z-10 w-full flex items-center justify-between px-1`}>
-        <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${isPresent ? 'bg-brand-500 shadow-[0_0_8px_rgba(0,255,200,0.8)]' : 'bg-white/10'}`} />
-        <span className={`text-[7px] font-black uppercase tracking-widest transition-all duration-500 ${isPresent ? 'text-brand-500' : 'text-white/20'}`}>
-            {isPresent ? 'ACTIVE' : 'OFF'}
-        </span>
-    </div>
-    {/* Sliding indicator */}
-    <div className={`absolute bottom-0 left-0 h-0.5 bg-brand-500 transition-all duration-500 ${isPresent ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
+    <div className={`absolute inset-0 rounded-full transition-opacity duration-300 ${isPresent ? 'opacity-100 shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'opacity-0'}`} />
+    <div className={`absolute left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
+      isPresent ? 'translate-x-6' : 'translate-x-0'
+    } shadow-lg`} />
   </button>
 );
 
-// ─── Player card (Pocket View v20 — Compact Mode) ──────────────────
-// ─── Player card (Icarus Pro Pocket View) ──────────────────
+// ─── Player Card (Athlete Profile v2) ──────────────────
 const PlayerCard = memo(function PlayerCard({
   player, date, initialStatus, isMotm, onStatusChange, onSelectMotm,
 }: {
@@ -90,57 +80,59 @@ const PlayerCard = memo(function PlayerCard({
     onStatusChange(player.id, nextStatus);
   }, [player.id, status, onStatusChange]);
 
-  const handleMotm = useCallback((e: React.MouseEvent<HTMLObjectElement>) => {
-    e.stopPropagation(); e.preventDefault();
-    onSelectMotm(player.id);
-  }, [player.id, onSelectMotm]);
-
   const isPresent = status === AttendanceStatus.PRESENT;
 
   return (
-    <div className={`relative glass-card p-3 flex flex-col items-center gap-3 transition-all duration-500 group/card ${
-      isMotm ? 'ring-2 ring-brand-500 shadow-[0_0_25px_rgba(0,255,200,0.15)] bg-brand-500/5' : 
-      isPresent ? 'border-brand-500/30' : 
-      'opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
+    <div className={`relative flex flex-col p-4 glass-card bg-white/5 gap-4 overflow-hidden border-none group/card ${
+      isMotm ? 'ring-1 ring-lime/50 shadow-lime-glow' : ''
     }`}>
-      {/* Selection Glow */}
-      {isPresent && <div className="absolute inset-0 bg-brand-500/5 animate-pulse rounded-[1.5rem]" />}
+      {/* Dynamic Status Glow */}
+      <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 pointer-events-none ${
+        isPresent ? 'from-lime/10 to-transparent opacity-100' : 'opacity-0'
+      }`} />
 
-      <div className="relative">
+      <div className="flex gap-4 items-start relative z-10">
+        {/* Photo Container */}
         <div 
-          onClick={() => onSelectMotm(player.id)}
-          className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-500 cursor-pointer ${
-          isMotm ? 'border-brand-500 scale-110 shadow-[0_0_15px_rgba(0,255,200,0.3)]' : 
-          isPresent ? 'border-brand-500/50' : 
-          'border-white/10'
-        }`}>
+          onClick={handleToggle}
+          className={`shrink-0 w-16 h-20 bg-white/10 rounded overflow-hidden cursor-pointer transition-all duration-500 ${
+            isPresent ? 'ring-2 ring-lime shadow-lg' : 'grayscale opacity-70'
+          }`}
+        >
           <img 
             src={player.photoUrl} 
             alt={player.fullName} 
-            className={`w-full h-full object-cover transition-all duration-700 ${isPresent || isMotm ? 'scale-100' : 'scale-110'}`} 
+            className="w-full h-full object-cover" 
           />
         </div>
-        {/* MVP Badge */}
-        {isMotm && (
-          <div className="absolute -top-2 -right-2 w-7 h-7 rounded-lg bg-brand-500 text-brand-950 flex items-center justify-center shadow-2xl animate-bounce-subtle">
-            <Trophy size={14} strokeWidth={3} />
+
+        {/* Identity Details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start mb-1">
+            <span className="text-[7px] font-bold text-white/40 uppercase tracking-[0.2em] font-display">PNL-{player.id.slice(-4).toUpperCase()}</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onSelectMotm(player.id); }}
+              className={`transition-all duration-300 hover:scale-125 ${isMotm ? 'text-lime drop-shadow-[0_0_8px_rgba(195,246,41,0.5)]' : 'text-white/10 hover:text-white/30'}`}
+              title="Toggle Session MVP"
+            >
+              <Trophy size={14} />
+            </button>
           </div>
-        )}
+          <h4 className={`font-display font-bold text-[11px] uppercase tracking-tighter truncate leading-tight transition-colors ${
+            isPresent ? 'text-white' : 'text-white/50'
+          }`}>
+            {player.fullName}
+          </h4>
+          <p className="text-[8px] text-white/30 font-bold uppercase mt-1 italic tracking-widest">{player.batch || 'UNIT 01'}</p>
+        </div>
       </div>
 
-      <div className="text-center w-full min-w-0 relative z-10">
-        <h4 className={`font-display font-black text-[10px] uppercase italic tracking-tight truncate leading-none ${
-          isMotm ? 'text-brand-500' : 
-          isPresent ? 'text-white' : 
-          'text-white/40'
-        }`}>
-          {player.fullName.split(' ')[0]}
-        </h4>
-        <div className="h-0.5 w-4 bg-brand-500/20 mx-auto mt-1.5 rounded-full transition-all group-hover/card:w-8" />
-      </div>
-
-      <div className="relative z-10 transform scale-90">
-        <ToggleButton isPresent={isPresent} onClick={handleToggle} />
+      {/* Control Surface */}
+      <div className="flex items-center justify-between pt-2 mt-auto border-t border-white/5">
+        <span className={`text-[8px] font-bold tracking-widest transition-colors ${isPresent ? 'text-lime' : 'text-white/20'}`}>
+          {isPresent ? 'OPERATIONAL' : 'OFFLINE'}
+        </span>
+        <DigitalSwitch isPresent={isPresent} onClick={handleToggle} />
       </div>
     </div>
   );
@@ -274,97 +266,118 @@ export const CoachAttendance: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8 pb-32 animate-in fade-in duration-700">
-      {/* Header - Icarus Pro Hero */}
-      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-900 p-8 md:p-12 border border-white/10 shadow-2xl transition-all duration-500 hover:border-brand-500/30">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,255,200,0.05),transparent_50%)]" />
-        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-125 group-hover:rotate-0 duration-700">
-            <Users size={200} className="text-white" />
-        </div>
-        
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-lime/10 rounded-full border border-lime/20 text-[8px] font-black uppercase tracking-[0.3em] text-lime animate-pulse">Operational Roster</div>
-              <div className="w-1.5 h-1.5 rounded-full bg-lime shadow-[0_0_8px_rgba(195,246,41,0.5)]" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
-              DEPLOYMENT <span className="premium-gradient-text">LOG</span>
-            </h2>
-            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
-              Real-time synchronization and personnel management for peak performance tracking.
-            </p>
-          </div>
+    <div className="space-y-12 pb-32 animate-in fade-in duration-700">
+      {/* Asymmetrical Header - Digital Stadium Elite */}
+      <div className="relative pt-12 overflow-visible">
+        {/* Overlapping Background Geometry */}
+        <div className="absolute top-0 -left-8 w-1/2 h-full bg-surface-bright -skew-x-12 opacity-50 z-0" />
+        <div className="absolute top-8 left-0 w-3/4 h-24 bg-gradient-to-r from-lime/5 to-transparent blur-3xl z-0" />
 
-          <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-2xl">
-            <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all border border-white/5 text-white/40"><ChevronDown className="rotate-90 w-4 h-4" strokeWidth={3} /></button>
-            <div className="px-6 text-center">
-              <p className="text-[8px] font-black text-brand-500/60 uppercase tracking-widest mb-1 italic">ACTIVE WINDOW</p>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-transparent border-none outline-none text-sm font-display font-black text-white w-32 cursor-pointer text-center uppercase" />
+        <div className="relative z-10 px-4 md:px-0">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-0.5 bg-lime" />
+            <span className="font-display font-bold text-[10px] text-lime uppercase tracking-[0.4em]">Operational Unit Overview</span>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
+            <div>
+              <h2 className="text-6xl md:text-7xl font-display font-bold tracking-tight text-white uppercase leading-[0.85] italic">
+                OPERATIONAL<br />
+                <span className="text-lime">ROSTER</span>
+              </h2>
+              <div className="mt-6 flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded border border-white/10">
+                  <div className="w-2 h-2 bg-lime animate-pulse rounded-full" />
+                  <span className="text-[8px] font-bold text-white/60 tracking-widest uppercase">Live Connection</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded border border-white/10">
+                  <CalendarIcon size={10} className="text-white/40" />
+                  <span className="text-[8px] font-bold text-white/60 tracking-widest uppercase leading-none">{new Date(date).toLocaleDateString()}</span>
+                </div>
+              </div>
             </div>
-            <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all border border-white/5 text-white/40"><ChevronDown className="-rotate-90 w-4 h-4" strokeWidth={3} /></button>
+
+            {/* Date Selector HUD */}
+            <div className="flex items-center gap-2 p-1.5 bg-white/5 backdrop-blur-3xl rounded-lg border border-white/10">
+              <button 
+                onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} 
+                className="w-10 h-10 flex items-center justify-center bg-white/5 rounded hover:bg-white/10 transition-all text-white/40"
+              >
+                <ChevronDown className="rotate-90 w-4 h-4" />
+              </button>
+              <div className="px-4 text-center">
+                <input 
+                  type="date" 
+                  value={date} 
+                  onChange={e => setDate(e.target.value)} 
+                  className="bg-transparent border-none outline-none text-sm font-display font-bold text-white w-32 cursor-pointer text-center uppercase" 
+                />
+              </div>
+              <button 
+                onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} 
+                className="w-10 h-10 flex items-center justify-center bg-white/5 rounded hover:bg-white/10 transition-all text-white/40"
+              >
+                <ChevronDown className="-rotate-90 w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Modules - Icarus Pro High Density */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-slide-up">
+      {/* Performance Metrics - Tonal Surfaces */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up">
         {/* Present Card */}
-        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-brand-500/30">
+        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 bg-brand-500/5 rounded-xl flex items-center justify-center border border-brand-500/10 transition-transform group-hover:rotate-12">
-              <CheckCircle2 size={24} className="text-brand-500" />
+            <div className="w-8 h-8 flex items-center justify-center text-lime">
+              <CheckCircle2 size={24} />
             </div>
-            <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest opacity-40">Personnel</span>
+            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">In Field</span>
           </div>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">PRESENT</p>
-          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{presentCount}</h3>
+          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{presentCount}</h3>
+          <p className="text-[8px] font-bold text-lime mt-1 uppercase tracking-widest">PRESENT PERSONNEL</p>
         </div>
 
         {/* Absent Card */}
-        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-red-500/30">
+        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 bg-red-500/5 rounded-xl flex items-center justify-center border border-red-500/10 transition-transform group-hover:-rotate-12">
-              <X size={24} className="text-red-500" />
+            <div className="w-8 h-8 flex items-center justify-center text-rose-500">
+              <X size={24} />
             </div>
-            <span className="text-[8px] font-black text-red-500 uppercase tracking-widest opacity-40">Gap</span>
+            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Offline</span>
           </div>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">ABSENT</p>
-          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{players.length - presentCount}</h3>
+          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{players.length - presentCount}</h3>
+          <p className="text-[8px] font-bold text-rose-500/60 mt-1 uppercase tracking-widest">MISSING UNITS</p>
         </div>
 
         {/* Total Card */}
-        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-white/20">
+        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 transition-transform group-hover:scale-110">
-              <Users size={24} className="text-white/40" />
+            <div className="w-8 h-8 flex items-center justify-center text-white/20">
+              <Users size={24} />
             </div>
-            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest opacity-20">Capacity</span>
+            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Capacity</span>
           </div>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">TOTAL SQUAD</p>
-          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{players.length}</h3>
+          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{players.length}</h3>
+          <p className="text-[8px] font-bold text-white/30 mt-1 uppercase tracking-widest">TOTAL ROSTER</p>
         </div>
 
         {/* MVP Spotlight */}
-        <div className={`relative glass-card p-8 group transition-all duration-700 overflow-hidden ${motmPlayer ? 'ring-2 ring-brand-500/50' : ''}`}>
+        <div className={`relative p-6 rounded-lg transition-all duration-700 ${
+          motmPlayer ? 'bg-gradient-to-br from-lime/20 to-surface-bright ring-1 ring-lime/30' : 'bg-white/5 border border-dashed border-white/10'
+        }`}>
           {motmPlayer ? (
             <>
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent animate-pulse" />
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-brand-500 text-brand-950 rounded-xl flex items-center justify-center shadow-xl shadow-brand-500/20">
-                    <Trophy size={24} strokeWidth={3} />
-                  </div>
-                  <div className="px-3 py-1 bg-brand-500/20 rounded-full border border-brand-500/30 text-[8px] font-black text-brand-500 uppercase tracking-widest">MVP ASSIGNED</div>
-                </div>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-1 italic">SESSION LEAD</p>
-                <h3 className="text-2xl font-display font-black text-white italic truncate uppercase leading-tight">{motmPlayer.fullName.split(' ')[0]}</h3>
+              <div className="flex justify-between items-start mb-6">
+                <Trophy size={20} className="text-lime" />
+                <span className="text-[8px] font-black text-lime uppercase tracking-widest">MVP ACTIVE</span>
               </div>
+              <h3 className="text-xl font-display font-bold text-white tracking-tight uppercase truncate">{motmPlayer.fullName.split(' ')[0]}</h3>
+              <p className="text-[8px] font-bold text-white/40 mt-1 uppercase tracking-widest">SESSION LEAD</p>
             </>
           ) : (
-            <div className="h-full flex flex-col justify-center items-center opacity-20 border-dashed border-2 border-white/5 rounded-2xl border-white/10">
-              <Trophy size={32} className="text-white mb-3" strokeWidth={1} />
-              <span className="text-[10px] font-black uppercase tracking-widest">NO MVP SELECTED</span>
+            <div className="h-full flex flex-col justify-center items-center opacity-20">
+              <span className="text-[8px] font-black uppercase tracking-widest">Assignment Pending</span>
             </div>
           )}
         </div>
@@ -388,50 +401,56 @@ export const CoachAttendance: React.FC = () => {
         </div>
       )}
 
-      {/* Roster Controls */}
-      <div className="space-y-6">
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-end justify-between gap-6">
-          <div>
-            <h3 className="font-display font-black text-white text-2xl italic uppercase tracking-tight flex items-center gap-4">
-              <Users size={28} className="text-brand-500" />OPERATIONAL <span className="premium-gradient-text">ROSTER</span>
-            </h3>
-            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 italic ml-11">Total Unit Census: {filteredPlayers.length} Active Personnel</p>
+      {/* Roster Controls - HUD Filter Strip */}
+      <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded rotate-45 border border-white/10">
+            <Search size={14} className="-rotate-45 text-lime" />
+          </div>
+          <h3 className="font-display font-bold text-white text-lg tracking-tight uppercase italic">IDENTITY <span className="text-lime">FILTER</span></h3>
+        </div>
+        
+        <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-2 max-w-4xl">
+          <div className="relative flex-1 min-w-[200px]">
+            <input 
+              type="text" 
+              placeholder="GENETIC_SCANR (Search)..." 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              className="w-full bg-white/5 border border-white/10 rounded px-6 py-3 text-[10px] font-bold text-white uppercase tracking-widest italic outline-none focus:bg-white/10 focus:ring-1 focus:ring-lime transition-all" 
+            />
           </div>
           
-          <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-4 bg-brand-950/50 backdrop-blur-3xl p-3 rounded-2xl border border-white/5 shadow-2xl min-w-0">
-            <div className="relative flex-1 min-w-[200px] group">
-              <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 group-focus-within:scale-110 transition-transform" />
-              <input type="text" placeholder="IDENTITY FILTER…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-4 pl-14 pr-6 text-[10px] font-black text-white uppercase italic tracking-[0.2em] outline-none focus:border-brand-500/50 placeholder:text-white/10 transition-all font-display" />
-            </div>
-            
-            <div className="flex gap-2">
-                <div className="relative">
-                    <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-white/5 border border-white/5 rounded-xl py-4 px-6 text-[10px] font-black text-white uppercase italic tracking-widest outline-none cursor-pointer appearance-none pr-12 focus:border-brand-500/50 transition-all hover:bg-white/10">
-                      <option value="all">SQUARE DEPOT</option>
-                      {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string} className="bg-brand-900">{String(v).toUpperCase()}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500 opacity-50" size={14} />
-                </div>
-                
-                <div className="relative">
-                    <select value={batchFilter} onChange={e => setBatchFilter(e.target.value)} className="bg-white/5 border border-white/5 rounded-xl py-4 px-6 text-[10px] font-black text-white uppercase italic tracking-widest outline-none cursor-pointer appearance-none pr-12 focus:border-brand-500/50 transition-all hover:bg-white/10">
-                      <option value="all">OPS BATCH</option>
-                      {[...new Set(players.map(p => p.batch))].filter(Boolean).map(b => <option key={b as string} value={b as string} className="bg-brand-900">{String(b).toUpperCase()}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500 opacity-50" size={14} />
-                </div>
-            </div>
+          <div className="flex bg-white/5 p-1 rounded border border-white/10">
+            {['ALL', 'PRESENT', 'ABSENT'].map(f => (
+              <button 
+                key={f} 
+                onClick={() => setFilter(f)} 
+                className={`text-[8px] font-bold px-5 py-2 rounded uppercase tracking-widest transition-all ${
+                  filter === f ? 'bg-lime text-black font-extrabold active-selection' : 'text-white/40 hover:text-white'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
 
-            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 shrink-0 shadow-inner">
-              {['ALL', 'PRESENT', 'ABSENT'].map(f => (
-                <button key={f} onClick={() => setFilter(f)} className={`text-[9px] font-black px-6 py-3 rounded-lg uppercase tracking-[0.2em] transition-all duration-300 italic ${filter === f ? 'bg-brand-500 text-brand-950 shadow-xl shadow-brand-500/20' : 'text-white/20 hover:text-white hover:bg-white/5'}`}>{f}</button>
-              ))}
-            </div>
+          <div className="relative group">
+            <select 
+              value={venueFilter} 
+              onChange={e => setVenueFilter(e.target.value)} 
+              className="bg-white/5 border border-white/10 rounded py-3 px-6 text-[9px] font-bold text-white/60 uppercase tracking-widest outline-none cursor-pointer appearance-none pr-10 hover:bg-white/10 transition-all font-display"
+            >
+              <option value="all">SQUARE_DEPOT (All Venues)</option>
+              {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string} className="bg-surface-high">{String(v).toUpperCase()}</option>)}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20" size={12} />
           </div>
         </div>
+      </div>
 
-        {/* Players Grid - Pocket View Design */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 pb-20 animate-fade-in">
+        {/* Roster Grid - Tactical Athlete Rows */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xxl:grid-cols-6 gap-2 pb-20 animate-fade-in">
           {filteredPlayers.map(player => (
             <PlayerCard
               key={player.id}
@@ -454,6 +473,5 @@ export const CoachAttendance: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
   );
 };

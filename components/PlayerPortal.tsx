@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
 import { GeminiService } from '../services/geminiService';
 import { Player, AttendanceRecord, Match, AttendanceStatus, FeeRecord, ScheduleEvent, AcademySettings, EventType, Drill, User } from '../types';
-import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2 } from 'lucide-react';
+import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2, Users } from 'lucide-react';
+import { auth } from '../firebase';
 import { EvaluationCard } from './EvaluationCard';
 import html2canvas from 'html2canvas';
 import { 
@@ -175,7 +176,53 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
         return { color: 'Training Bib', style: 'bg-orange-500/5 text-orange-600 border-orange-500/10' };
     };
 
-    if (!player) return <div className="p-8 text-center text-brand-950 font-black uppercase tracking-widest italic py-40">Player profile not linked. Contact academy administration.</div>;
+    // Loading State while syncing player data
+    if (user?.linkedPlayerId && !player) {
+        return (
+            <div className="min-h-screen bg-[#00054e] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000">
+                <div className="relative w-32 h-32 mb-12">
+                    <div className="absolute inset-0 rounded-full border-4 border-[#C3F629]/10 border-t-[#C3F629] animate-spin-slow" />
+                    <div className="absolute inset-4 rounded-full border-4 border-[#00C8FF]/10 border-b-[#00C8FF] animate-spin-slow [animation-direction:reverse]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <Shield size={32} className="text-[#C3F629] animate-pulse-slow" />
+                    </div>
+                </div>
+                <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter italic mb-4">
+                    SYNCING <span className="text-[#C3F629]">PROFILE</span>
+                </h2>
+                <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#00C8FF] to-[#C3F629] animate-progress w-full" />
+                </div>
+                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mt-6 italic">Secure Channel Established - Fetching Athlete Data</p>
+            </div>
+        );
+    }
+
+    if (!player) {
+        return (
+            <div className="min-h-screen bg-[#00054e] flex items-center justify-center p-6">
+                <div className="glass-card p-12 max-w-md w-full text-center space-y-8 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity"><Users size={120} /></div>
+                    <div className="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto border border-rose-500/20 shadow-2xl">
+                        <Shield size={32} className="text-rose-500" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter italic">LINKAGE <span className="text-rose-500">REQUIRED</span></h2>
+                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic">Athlete Profile Not Synchronized</p>
+                    </div>
+                    <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-sm text-white/60 leading-relaxed italic">
+                        Your account is currently <span className="text-white font-bold">Unmapped</span> in our tactical database. Please contact an Administrator to link your login to your Player ID.
+                    </div>
+                    <button 
+                        onClick={() => auth.signOut()}
+                        className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white uppercase tracking-[0.3em] hover:bg-white/10 transition-all italic active:scale-95"
+                    >
+                        Terminate Session
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const presentCount = attendance.filter(a => a.status === AttendanceStatus.PRESENT || a.status === AttendanceStatus.LATE).length;
     const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;

@@ -146,20 +146,20 @@ export const UserManagement: React.FC = () => {
                                     <div>
                                         <div className="flex items-center gap-3">
                                             <h4 className="font-black text-white italic text-xl uppercase tracking-tighter leading-none">{user.username}</h4>
-                                            <span className="text-[10px] font-black text-brand-500/40 uppercase tracking-widest font-mono">#{user.id.slice(-4)}</span>
+                                            <span className="text-[10px] font-black text-lime/40 uppercase tracking-widest font-mono">#{user.id.slice(-4)}</span>
                                         </div>
                                         <div className="flex items-center gap-3 mt-3">
                                             <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm ${
                                                 user.role === 'admin' ? 'bg-brand-950 text-brand-500 border-white/10' :
                                                 user.role === 'coach' ? 'bg-brand-500/10 text-brand-950 border-brand-500/20' :
-                                                'bg-brand-50 text-brand-600 border-brand-100'
+                                                'bg-white/5 text-white/60 border-white/10'
                                             }`}>
                                                 {user.role}
                                             </div>
                                             {user.role === 'player' && user?.linkedPlayerId && (
-                                                <div className="text-[10px] text-brand-950 font-black flex items-center gap-2 uppercase italic tracking-tighter opacity-60">
-                                                    <Check size={14} className="text-brand-500" />
-                                                    Linked: <span className="text-brand-500">{players.find(p => p.id === user?.linkedPlayerId)?.fullName || 'Unknown'}</span>
+                                                <div className="text-[10px] text-white/40 font-black flex items-center gap-2 uppercase italic tracking-tighter">
+                                                    <Check size={14} className="text-lime" />
+                                                    Linked: <span className="text-lime">{players.find(p => p.id === user?.linkedPlayerId)?.fullName || 'Unknown'}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -206,32 +206,32 @@ export const UserManagement: React.FC = () => {
 
                             {/* Edit Form Inline */}
                             {editingUserId === user.id && (
-                                <div className="mt-6 p-6 bg-white border border-blue-100 rounded-xl shadow-sm space-y-4 animate-in fade-in slide-in-from-top-2">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1.5">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest">Role</label>
+                                <div className="mt-6 p-8 glass-card border-white/10 shadow-2xl relative overflow-hidden group/form bg-white/5 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3">
+                                            <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">System Role</label>
                                             <select 
-                                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none font-medium bg-white"
+                                                className="w-full bg-brand-950/50 border border-white/10 rounded-xl p-4 text-white font-bold outline-none focus:ring-2 focus:ring-lime/50 transition-all cursor-pointer uppercase text-xs"
                                                 value={editForm.role}
                                                 onChange={e => setEditForm({...editForm, role: e.target.value as any})}
                                             >
-                                                <option value="player">Student (Player Portal)</option>
-                                                <option value="coach">Coach (Team Manager)</option>
-                                                <option value="admin">Administrator</option>
+                                                <option value="player" className="bg-brand-950">Athlete (Player Portal)</option>
+                                                <option value="coach" className="bg-brand-950">Coach (Roster Manager)</option>
+                                                <option value="admin" className="bg-brand-950">System Admin</option>
                                             </select>
                                         </div>
 
                                         {editForm.role === 'player' && (
-                                            <div className="space-y-1.5">
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest">Link to Player Profile</label>
+                                            <div className="space-y-3 animate-in zoom-in-95 duration-500">
+                                                <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">Sync Athlete Profile</label>
                                                 <select 
-                                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none font-medium bg-white"
+                                                    className="w-full bg-brand-950/50 border border-white/10 rounded-xl p-4 text-white font-bold outline-none focus:ring-2 focus:ring-lime/50 transition-all cursor-pointer uppercase text-xs"
                                                     value={editForm.linkedPlayerId}
                                                     onChange={e => setEditForm({...editForm, linkedPlayerId: e.target.value})}
                                                 >
-                                                    <option value="">Select a player...</option>
+                                                    <option value="" className="bg-brand-950">Select profile to link...</option>
                                                     {players.map(p => (
-                                                        <option key={p.id} value={p.id}>{p.fullName} ({p.memberId})</option>
+                                                        <option key={p.id} value={p.id} className="bg-brand-950">{p.fullName} ({p.memberId})</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -239,10 +239,10 @@ export const UserManagement: React.FC = () => {
                                     </div>
 
                                     {editForm.role === 'coach' && (
-                                        <div className="space-y-4 pt-4 border-t border-gray-100">
-                                            <div className="space-y-2">
-                                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                                    <MapPin size={14} /> Assign Venues
+                                        <div className="space-y-6 pt-6 border-t border-white/5 animate-in slide-in-from-bottom-4 duration-500">
+                                            <div className="space-y-3">
+                                                <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">
+                                                    <MapPin size={14} className="text-brand-500" /> Authorized Venues
                                                 </label>
                                                 <div className="flex flex-wrap gap-2">
                                                     {venues.map(v => (
@@ -250,22 +250,22 @@ export const UserManagement: React.FC = () => {
                                                             key={v.id}
                                                             type="button"
                                                             onClick={() => toggleAssignment('venue', v.name)}
-                                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                                                            className={`px-4 py-2 rounded-xl text-[10px] font-black border transition-all uppercase tracking-widest ${
                                                                 editForm.assignedVenues?.includes(v.name)
-                                                                ? 'bg-brand-900 text-white border-brand-900'
-                                                                : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                                                                ? 'bg-lime text-brand-950 border-lime shadow-[0_0_15px_rgba(195,246,41,0.3)] scale-105'
+                                                                : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
                                                             }`}
                                                         >
                                                             {v.name}
                                                         </button>
                                                     ))}
-                                                    {venues.length === 0 && <span className="text-xs text-gray-400 italic">No venues defined.</span>}
+                                                    {venues.length === 0 && <span className="text-[10px] text-white/20 italic">No venues defined.</span>}
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                                    <Layers size={14} /> Assign Batches
+                                            <div className="space-y-3">
+                                                <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">
+                                                    <Layers size={14} className="text-brand-500" /> Operational Batches
                                                 </label>
                                                 <div className="flex flex-wrap gap-2">
                                                     {batches.map(b => (
@@ -273,16 +273,16 @@ export const UserManagement: React.FC = () => {
                                                             key={b.id}
                                                             type="button"
                                                             onClick={() => toggleAssignment('batch', b.name)}
-                                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                                                            className={`px-4 py-2 rounded-xl text-[10px] font-black border transition-all uppercase tracking-widest ${
                                                                 editForm.assignedBatches?.includes(b.name)
-                                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                                : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                                                                ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-[0_0_15px_rgba(0,200,255,0.3)] scale-105'
+                                                                : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
                                                             }`}
                                                         >
                                                             {b.name}
                                                         </button>
                                                     ))}
-                                                    {batches.length === 0 && <span className="text-xs text-gray-400 italic">No batches defined.</span>}
+                                                    {batches.length === 0 && <span className="text-[10px] text-white/20 italic">No batches defined.</span>}
                                                 </div>
                                             </div>
                                         </div>
