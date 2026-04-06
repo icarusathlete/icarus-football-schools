@@ -40,7 +40,14 @@ const App: React.FC = () => {
     const handleSettingsChange = () => setSettings(StorageService.getSettings());
     window.addEventListener('settingsChanged', handleSettingsChange);
 
+    // Safety timeout: If Firebase doesn't signal readiness in 10s, proceed regardless
+    const safetyTimeout = setTimeout(() => {
+      setIsAuthReady(true);
+    }, 10000);
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      clearTimeout(safetyTimeout);
+      
       if (firebaseUser) {
         // Fetch user role and subscribe to real-time metadata updates
         const userRef = doc(db, 'users', firebaseUser.uid);
@@ -57,15 +64,15 @@ const App: React.FC = () => {
               else if (userData.role === 'player') setActiveTab('player-dashboard');
             }
           }
+          setIsAuthReady(true);
         }, (error) => {
           console.error("User metadata sync error:", error);
           StorageService.stopFirebaseSync();
+          setIsAuthReady(true);
         });
         
-        return () => {
-          unsubUser();
-          StorageService.stopFirebaseSync();
-        };
+        // Correct cleanup: Use the effect's return, not the callback's return
+        return; 
       } else {
         setCurrentUser(null);
         StorageService.stopFirebaseSync();
@@ -75,6 +82,7 @@ const App: React.FC = () => {
     });
 
     return () => {
+      clearTimeout(safetyTimeout);
       unsubscribe();
       window.removeEventListener('settingsChanged', handleSettingsChange);
     };

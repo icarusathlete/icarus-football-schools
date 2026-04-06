@@ -22,18 +22,19 @@ enableMultiTabIndexedDbPersistence(db).catch((err) => {
     }
 });
 
-async function testConnection() {
-  try {
-    // Try to get a non-existent doc from server to test connection
-    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
-    console.log("Firestore connection test successful");
-  } catch (error) {
-    if(error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
+// Optional connection test to warm up Firestore
+const testConnection = async () => {
+  if (typeof window !== 'undefined') {
+    try {
+      await getDocFromServer(doc(db, '_connection_test_', 'ping'));
+      console.log("Firestore connection test successful");
+    } catch (error) {
+      if(error instanceof Error && error.message.includes('the client is offline')) {
+        console.error("Firestore is offline or blocked.");
+      }
     }
-    // Skip logging for other errors during connection test
   }
-}
+};
 testConnection();
 
 export const loginWithGoogle = async () => {
