@@ -306,80 +306,78 @@ export const PlayerRegistration: React.FC = () => {
   };
 
   const getInputClass = (field: string) => `
-    w-full rounded-2xl border p-4 text-sm outline-none transition-all duration-300 font-bold shadow-inner font-display italic
+    w-full rounded-md border p-3 text-[11px] outline-none transition-all duration-300 font-bold shadow-inner font-display italic
     ${errors[field] 
-        ? 'border-red-500 bg-red-50 text-red-900 placeholder:text-red-300' 
-        : 'border-brand-200 bg-white text-brand-950 placeholder:text-brand-300 focus:border-brand-500'
+        ? 'border-red-500/50 bg-red-500/5 text-red-200 placeholder:text-red-900/30' 
+        : 'border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-[#C3F629]/50'
     }
   `;
 
   return (
-    <div className="max-w-5xl mx-auto pb-32 space-y-10 animate-in fade-in duration-700 font-display">
+    <div className="max-w-6xl mx-auto pb-44 space-y-8 animate-in fade-in duration-700 font-display">
         
         {/* Mode Switcher - Compact Pill Design */}
-        <div className="flex justify-center mb-6">
-            <div className="bg-brand-950 p-1.5 rounded-[2rem] border border-white/10 flex gap-1 shadow-2xl relative z-10">
+        {/* Mode Switcher - Precision HUD Pill */}
+        <div className="flex justify-center mb-4">
+            <div className="bg-white/5 backdrop-blur-xl p-1 rounded-xl border border-white/10 flex gap-1 shadow-2xl relative z-10">
                 <button 
                     onClick={() => setMode('player')}
-                    className={`px-8 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'player' ? 'bg-[#e0e7ff] text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
+                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'player' ? 'bg-[#C3F629] text-[#00054e] shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
-                    Athletes
+                    ATHLETE_UNITS
                 </button>
                 <button 
                     onClick={() => setMode('coach')}
-                    className={`px-8 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'coach' ? 'bg-[#e0e7ff] text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}
+                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'coach' ? 'bg-[#C3F629] text-[#00054e] shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
-                    Staff
+                    STAFF_OFFICERS
                 </button>
             </div>
         </div>
 
-      <div className="bg-white rounded-[4rem] shadow-2xl border border-brand-100 overflow-hidden relative">
+      <div className="glass-card overflow-hidden relative border-none bg-surface-default/40">
         
-        {/* Header Section */}
-        <div className="relative px-12 py-20 text-white overflow-hidden bg-brand-500 border-b border-white/10">
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-white/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_70%)]" />
+        {/* Header Section - Tactical HUD */}
+        <div className="relative px-8 py-10 text-white overflow-hidden bg-[#00054e]/50 border-b border-white/5">
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C3F629]/20 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(195,246,41,0.05),transparent_70%)]" />
           
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-6 text-brand-950 font-black uppercase tracking-[0.4em] text-[10px] bg-white w-fit px-5 py-2.5 rounded-full border border-white/20 shadow-2xl italic">
-                <Shield size={14} className="animate-pulse" /> ACADEMY ROSTER MANAGEMENT
+              <div className="flex items-center gap-3 mb-4 text-[#C3F629] font-black uppercase tracking-[0.4em] text-[8px] italic">
+                <Shield size={12} className="animate-pulse" /> ACADEMY ROSTER MANAGEMENT
               </div>
-              <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase leading-[0.85] font-display text-white">
-                {mode === 'player' ? 'ATHLETE ' : 'STAFF '} <br/>
-                <span className="text-brand-950">
+              <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none font-display text-white">
+                {mode === 'player' ? 'ATHLETE ' : 'STAFF '} 
+                <span className="text-[#C3F629]">
                     REGISTRATION
                 </span>
               </h2>
-              <p className="text-white/80 text-sm mt-8 font-medium uppercase tracking-tight max-w-xl leading-relaxed italic border-l-2 border-white/20 pl-8">
-                  {mode === 'player' 
-                    ? 'Register a new student athlete to the official academy roster. All profiles are synchronized across coaching consoles.' 
-                    : 'Create a new staff account with specific permissions, venue assignments, and management roles.'}
-              </p>
             </div>
             
-            <div className="flex flex-col items-end gap-6 min-w-[320px]">
+            <div className="flex items-center gap-6">
                 {mode === 'player' && (
-                    <div className="bg-brand-950/90 backdrop-blur-2xl px-12 py-10 rounded-[3rem] border border-white/10 flex flex-col items-center shadow-3xl relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] mb-4 relative z-10 italic">MEMBER ID ALLOCATION</span>
-                        <span className="text-6xl font-black tracking-tighter text-white font-mono relative z-10 shadow-2xl">{nextId}</span>
+                    <div className="bg-[#1e2a95]/40 backdrop-blur-3xl px-8 py-6 rounded-xl border border-[#C3F629]/10 flex flex-col items-center shadow-2xl relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-[#C3F629]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-[8px] font-black text-[#C3F629]/50 uppercase tracking-[0.4em] mb-2 relative z-10 italic">MEMBER ID ALLOCATION</span>
+                        <span className="text-4xl font-black tracking-tighter text-white font-mono relative z-10 shadow-2xl">{nextId}</span>
+                        {/* Scanning Line Effect */}
+                        <div className="absolute h-0.5 w-full bg-[#C3F629]/20 top-0 left-0 animate-scan" />
                     </div>
                 )}
-                <div className="flex gap-4 flex-wrap justify-end">
+                <div className="flex flex-col gap-2">
                     <button 
                         onClick={() => setShowConfigModal(true)}
-                        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] bg-brand-900 border border-white/10 hover:border-brand-500 hover:text-white px-8 py-4 rounded-2xl transition-all shadow-xl group italic font-display"
+                        className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-white/5 border border-white/10 hover:border-[#C3F629]/50 hover:text-white px-6 py-3 rounded-lg transition-all group italic"
                     >
-                        <Settings size={16} className="group-hover:rotate-90 transition-transform" /> TAXONOMY MODULE
+                        <Settings size={14} className="group-hover:rotate-90 transition-transform" /> TAXONOMY MODULE
                     </button>
                     {mode === 'player' && (
                         <button 
                             onClick={() => csvInputRef.current?.click()}
-                            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] bg-brand-500 text-brand-950 px-8 py-4 rounded-2xl transition-all shadow-xl italic font-display hover:scale-105"
+                            className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-[#00C8FF] text-[#00054e] px-6 py-3 rounded-lg transition-all shadow-xl italic hover:scale-105 active:scale-95"
                         >
-                            <FileText size={16} /> DATA INGESTION
+                            <FileText size={14} /> DATA INGESTION
                             <input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvUpload} />
                         </button>
                     )}
@@ -389,160 +387,173 @@ export const PlayerRegistration: React.FC = () => {
         </div>
 
         {/* --- FORM CONTENT --- */}
-        <div className="p-12 md:p-16">
+        <div className="p-8">
             {mode === 'player' ? (
-                <form onSubmit={handlePlayerSubmit} className="space-y-16">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-                        {/* Left Column: Photo Upload */}
-                        <div className="lg:col-span-4 flex flex-col items-center gap-10">
-                        <div className="relative group">
-                            <div className={`
-                                w-72 h-72 rounded-full bg-brand-50 border-4 border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
-                                ${previewUrl ? 'border-brand-500 shadow-2xl scale-[1.02]' : 'border-brand-200 group-hover:border-brand-500/50 group-hover:bg-brand-50'}
-                            `}>
-                                {previewUrl ? (
-                                    <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="flex flex-col items-center gap-5 text-brand-200 group-hover:text-brand-500 transition-colors">
-                                        <Camera size={48} strokeWidth={1} />
-                                        <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Initialize Avatar</span>
-                                    </div>
-                                )}
+                <form onSubmit={handlePlayerSubmit} className="space-y-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        {/* Left Column: Photo & Basic Identity */}
+                        <div className="lg:col-span-4 space-y-8">
+                            <div className="relative group mx-auto w-fit">
+                                <div className={`
+                                    w-56 h-64 rounded-xl bg-white/5 border border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
+                                    ${previewUrl ? 'border-[#C3F629]/50 shadow-2xl scale-[1.02]' : 'border-white/10 group-hover:border-[#C3F629]/30'}
+                                `}>
+                                    {previewUrl ? (
+                                        <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-4 text-white/10 group-hover:text-[#C3F629]/40 transition-colors">
+                                            <Camera size={40} strokeWidth={1} />
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Initialize Avatar</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-[#C3F629] text-[#00054e] p-4 rounded-lg shadow-2xl hover:scale-110 active:scale-95 transition-all z-20">
+                                    <Upload size={18} />
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                                </label>
                             </div>
-                            <label className="absolute bottom-2 right-2 cursor-pointer bg-brand-500 text-brand-950 p-6 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all z-20">
-                                <Upload size={24} />
-                                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                            </label>
-                        </div>
-                        <div className="text-center">
-                            <h4 className="font-black text-brand-950 italic uppercase tracking-tight text-lg font-display">ATHLETE <span className="text-brand-500">PROFILE MARK</span></h4>
-                            <p className="text-[11px] text-brand-600 font-bold uppercase tracking-[0.2em] mt-3 italic">Professional identification image.</p>
-                        </div>
+                            
+                            <div className="space-y-6 bg-white/5 p-6 rounded-xl border border-white/5">
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.2em] ml-1">Athlete Full Name</label>
+                                    <input type="text" className={getInputClass('fullName')} value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} placeholder="NAME_ENTRY..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.2em] ml-1">Date of Birth</label>
+                                    <input type="date" className={getInputClass('dateOfBirth')} value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} />
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Right Column: Details */}
-                        <div className="lg:col-span-8 space-y-16">
-                            <div className="space-y-10">
-                                <div className="flex items-center gap-5 border-b border-brand-100 pb-4">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-500 border border-brand-100 shadow-inner"><User size={24} /></div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-700 italic">Personnel <span className="text-brand-500">Credentials</span></h3>
+                        {/* Right Column: Operational Config */}
+                        <div className="lg:col-span-8 space-y-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
+                                        <Shield size={14} className="text-[#C3F629]" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Field <span className="text-white">Assignment</span></h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
+                                            <button key={pos} type="button" onClick={() => setFormData({...formData, position: pos as any})}
+                                                className={`py-3 px-4 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border transition-all duration-300 italic
+                                                    ${formData.position === pos ? 'bg-[#C3F629] border-[#C3F629] text-[#00054e] shadow-lg' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
+                                            >
+                                                {pos}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div className="space-y-3 group">
-                                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Athlete Full Name</label>
-                                        <input type="text" className={getInputClass('fullName')} value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} placeholder="e.g. Leo Messi" />
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
+                                        <MapPin size={14} className="text-[#00C8FF]" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Zone <span className="text-white">Mapping</span></h3>
                                     </div>
-                                    <div className="space-y-3 group">
-                                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Date of Birth</label>
-                                        <input type="date" className={getInputClass('dateOfBirth')} value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} />
-                                    </div>
-                                    <div className="md:col-span-2 space-y-4">
-                                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Field Assignment</label>
-                                        <div className="flex flex-wrap gap-4">
-                                            {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
-                                                <button key={pos} type="button" onClick={() => setFormData({...formData, position: pos as any})}
-                                                    className={`py-4 px-8 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all duration-500 italic
-                                                        ${formData.position === pos ? 'bg-brand-500 border-brand-500 text-brand-950 shadow-2xl scale-[1.05]' : 'bg-brand-50 border-brand-100 text-brand-400 hover:text-brand-950'}`}
-                                                >
-                                                    {pos}
-                                                </button>
-                                            ))}
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Operational Sector (Venue)</label>
+                                            <select className={getInputClass('venue')} value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})}>
+                                                <option value="">Select Venue</option>
+                                                {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Division Assignment (Batch)</label>
+                                            <select className={getInputClass('batch')} value={formData.batch} onChange={e => setFormData({...formData, batch: e.target.value})}>
+                                                <option value="">Select Batch</option>
+                                                {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="space-y-10">
-                                <div className="flex items-center gap-5 border-b border-white/5 pb-4">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 flex items-center justify-center text-brand-500 border border-brand-500/20 shadow-inner"><MapPin size={24} /></div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-brand-400 italic">Team Assignment <span className="text-white">Mapping</span></h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div className="space-y-3 group">
-                                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Assigned Context (Venue)</label>
-                                        <select className={getInputClass('venue')} value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})}>
-                                            <option value="">Select Venue</option>
-                                            {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
-                                        </select>
+                                <div className="md:col-span-2 space-y-6">
+                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
+                                        <Phone size={14} className="text-[#C3F629]" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Contact <span className="text-white">Registry</span></h3>
                                     </div>
-                                    <div className="space-y-3 group">
-                                        <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1">Division (Batch)</label>
-                                        <select className={getInputClass('batch')} value={formData.batch} onChange={e => setFormData({...formData, batch: e.target.value})}>
-                                            <option value="">Select Batch</option>
-                                            {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
-                                        </select>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Guardian Name</label>
+                                            <input type="text" className={getInputClass('parentName')} value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="PRIMARY_CONTACT..." />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Contact Number</label>
+                                            <input type="text" className={getInputClass('contactNumber')} value={formData.contactNumber} onChange={e => setFormData({...formData, contactNumber: e.target.value})} placeholder="+91 XXX..." />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10">
-                        <div className="flex items-center gap-4 text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic">
-                            <Shield size={20} className="text-brand-500" />
-                            Secure Core Data Storage Persistence Active
+                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-3 text-[9px] font-black text-white/20 uppercase tracking-[0.3em] italic">
+                            <Zap size={14} className="text-[#C3F629]" />
+                            Secure Layer Persistent Storage Synchronized
                         </div>
                         <button type="submit" disabled={status === 'submitting'}
-                            className="bg-brand-500 text-brand-950 font-black py-6 px-20 rounded-[2.5rem] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-5 uppercase tracking-[0.3em] text-xs italic font-display"
+                            className="bg-[#C3F629] text-[#00054e] font-black py-4 px-12 rounded-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.3em] text-[10px] italic font-display"
                         >
-                            {status === 'submitting' ? <RefreshCw size={24} className="animate-spin" /> : <Save size={24} />}
+                            {status === 'submitting' ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
                             {status === 'submitting' ? 'SYNCHRONIZING...' : 'EXECUTE ENROLLMENT'}
                         </button>
                     </div>
                 </form>
             ) : (
-                <form onSubmit={handleCoachSubmit} className="max-w-3xl mx-auto space-y-16 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-                    <div className="text-center mb-16">
-                        <div className="w-24 h-24 bg-brand-500 border-4 border-brand-950 text-brand-950 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-brand-500/20">
-                            <UserCheck size={48} />
+                <form onSubmit={handleCoachSubmit} className="max-w-3xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+                    <div className="text-center mb-8">
+                        <div className="w-20 h-20 bg-[#C3F629] border-4 border-[#00054e] text-[#00054e] rounded-xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-[#C3F629]/20">
+                            <UserCheck size={40} />
                         </div>
-                        <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter font-display">Tactical <span className="text-brand-500">Officer Credentials</span></h3>
-                        <p className="text-brand-500 text-[11px] font-black uppercase tracking-[0.3em] mt-4 italic">Authorize encrypted command-level credentials</p>
+                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter font-display">Tactical <span className="text-[#C3F629]">Officer Credentials</span></h3>
+                        <p className="text-[#C3F629]/60 text-[9px] font-black uppercase tracking-[0.3em] mt-2 italic">Authorize encrypted command-level credentials</p>
                     </div>
 
-                    <div className="space-y-12 bg-brand-950/20 p-12 rounded-[3.5rem] border border-white/5 shadow-inner">
-                        <div className="flex flex-col items-center gap-8 mb-12">
+                    <div className="space-y-8 bg-white/5 p-8 rounded-xl border border-white/5 shadow-inner">
+                        <div className="flex flex-col items-center gap-6 mb-8">
                             <div className="relative group">
-                                <div className={`w-48 h-48 rounded-full bg-brand-900 border-2 border-dashed border-white/10 overflow-hidden transition-all duration-700 ${coachPreviewUrl ? 'border-brand-500 shadow-2xl scale-[1.02]' : 'group-hover:border-brand-500/50'}`}>
-                                    {coachPreviewUrl ? <img src={coachPreviewUrl} className="w-full h-full object-cover" /> : <Camera size={32} className="text-brand-800" />}
+                                <div className={`w-40 h-40 rounded-xl bg-white/5 border border-dashed border-white/10 overflow-hidden transition-all duration-700 ${coachPreviewUrl ? 'border-[#C3F629]/50 shadow-2xl scale-[1.02]' : 'group-hover:border-[#C3F629]/30'}`}>
+                                    {coachPreviewUrl ? <img src={coachPreviewUrl} className="w-full h-full object-cover" /> : <Camera size={24} className="text-white/10" />}
                                 </div>
-                                <label className="absolute -bottom-4 -right-4 cursor-pointer bg-brand-500 text-brand-950 p-5 rounded-2xl shadow-2xl"><Upload size={20} /><input type="file" className="hidden" onChange={handleCoachFileChange} /></label>
+                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-[#C3F629] text-[#00054e] p-4 rounded-lg shadow-2xl"><Upload size={16} /><input type="file" className="hidden" onChange={handleCoachFileChange} /></label>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="space-y-3"><label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">Command Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
-                            <div className="space-y-3"><label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">Access Key (PWD)</label><input type="text" className={getInputClass('password')} value={coachForm.password} onChange={e => setCoachForm({...coachForm, password: e.target.value})} /></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2"><label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em]">Command Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em]">Access Key (PWD)</label><input type="password" className={getInputClass('password')} value={coachForm.password} onChange={e => setCoachForm({...coachForm, password: e.target.value})} /></div>
                         </div>
                     </div>
 
-                    <div className="space-y-12 bg-brand-950/20 p-12 rounded-[3.5rem] border border-white/5 shadow-inner">
-                        <div className="space-y-6">
-                            <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] flex items-center gap-3"><Map size={18} /> Operational Sectors (Venues)</label>
-                            <div className="flex flex-wrap gap-3">
-                                {venues.map(v => <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${coachForm.assignedVenues.includes(v.name) ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-xl' : 'bg-brand-900 text-brand-700 border-white/5 hover:text-white'}`}>{v.name}</button>)}
+                    <div className="space-y-8 bg-white/5 p-8 rounded-xl border border-white/5 shadow-inner">
+                        <div className="space-y-4">
+                            <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em] flex items-center gap-3"><Map size={14} /> Operational Sectors (Venues)</label>
+                            <div className="flex flex-wrap gap-2">
+                                {venues.map(v => <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${coachForm.assignedVenues.includes(v.name) ? 'bg-[#C3F629] text-[#00054e] border-[#C3F629] shadow-xl' : 'bg-white/5 text-white/40 border-white/5 hover:text-white'}`}>{v.name}</button>)}
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" disabled={status === 'submitting'} className="w-full bg-brand-500 text-brand-950 font-black py-6 rounded-[2.5rem] shadow-2xl uppercase tracking-[0.4em] text-xs italic font-display hover:scale-105 transition-all">Authorize Commission</button>
+                    <button type="submit" disabled={status === 'submitting'} className="w-full bg-[#C3F629] text-[#00054e] font-black py-5 rounded-xl shadow-2xl uppercase tracking-[0.4em] text-[10px] italic font-display hover:scale-[1.01] transition-all">AUTHORIZE_COMMISSION</button>
                 </form>
             )}
         </div>
       </div>
 
-      {/* Roster Table */}
+      {/* Roster Table - Denser Desktop Layout */}
       {mode === 'player' && players.length > 0 && (
-          <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl mt-16 animate-in slide-in-from-bottom-12 duration-1000">
-            <div className="px-12 py-10 border-b border-brand-50 bg-brand-50/30 flex justify-between items-center">
-                <h3 className="text-2xl font-black text-brand-950 italic uppercase tracking-tighter">Active <span className="text-brand-500 text-3xl ml-2">Squad</span></h3>
-                <span className="bg-white px-6 py-2.5 rounded-full border border-brand-100 text-[10px] font-black text-brand-700 uppercase tracking-widest italic">{players.length} Total Players</span>
+          <div className="glass-card overflow-hidden mt-12 animate-in slide-in-from-bottom-8 duration-1000 bg-surface-default/40 border-none">
+            <div className="px-8 py-6 border-b border-white/5 bg-white/2 flex justify-between items-center">
+                <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Active <span className="text-[#C3F629] ml-2 underline underline-offset-8 decoration-2 whitespace-nowrap">TACTICAL_SQUAD</span></h3>
+                <span className="bg-white/5 px-4 py-1.5 rounded-full border border-white/10 text-[8px] font-black text-[#00C8FF] uppercase tracking-[0.2em] italic">{players.length} TOTAL_UNITS</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                    <thead><tr className="bg-brand-50 border-b border-brand-100 font-display"><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Player Profile</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Member ID</th><th className="px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Team Assignment</th><th className="text-right px-10 py-6 text-[10px] uppercase font-black tracking-[0.3em] text-brand-700 italic">Action</th></tr></thead>
-                    <tbody className="divide-y divide-brand-50">
+                    <thead><tr className="bg-white/2 border-b border-white/5 font-display"><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Profile_id</th><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Member_code</th><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Sector_mapping</th><th className="text-right px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Status</th></tr></thead>
+                    <tbody className="divide-y divide-white/2">
                         {players.map(p => (
-                            <tr key={p.id} className="group hover:bg-brand-50/50 transition-all"><td className="px-10 py-6 flex items-center gap-6"><img src={p.photoUrl} className="w-12 h-12 rounded-full object-cover border-2 border-brand-100 shadow-lg" /><span className="font-black text-brand-950 uppercase italic tracking-tight">{p.fullName}</span></td><td className="px-10 py-6 font-mono text-xs text-brand-500">{p.memberId}</td><td className="px-10 py-6"><div className="text-xs font-black text-brand-950 uppercase italic tracking-widest">{p.venue}</div><div className="text-[10px] font-bold text-brand-500 mt-1 uppercase italic tracking-tighter">{p.batch} • {p.position}</div></td><td className="px-10 py-6 text-right"><button onClick={() => handleSecureDelete('player', p.id, p.fullName)} className="p-3 text-brand-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-500/20 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button></td></tr>
+                            <tr key={p.id} className="group hover:bg-[#C3F629]/5 transition-all outline-none border-none"><td className="px-8 py-4 flex items-center gap-4"><div className="relative"><img src={p.photoUrl} className="w-10 h-10 rounded-lg object-cover border border-white/10 shadow-lg" /><div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#C3F629] border-2 border-[#00054e] rounded-full shadow-glow"></div></div><span className="font-black text-white uppercase italic tracking-tight text-xs">{p.fullName}</span></td><td className="px-8 py-4 font-mono text-[10px] text-[#00C8FF]/70">{p.memberId}</td><td className="px-8 py-4"><div className="text-[10px] font-black text-white/80 uppercase italic tracking-widest">{p.venue}</div><div className="text-[8px] font-bold text-[#C3F629]/60 mt-0.5 uppercase italic tracking-tighter">{p.batch} • {p.position}</div></td><td className="px-8 py-4 text-right"><button onClick={() => handleSecureDelete('player', p.id, p.fullName)} className="p-2 text-white/20 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all border border-white/5 hover:border-red-500/20 opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button></td></tr>
                         ))}
                     </tbody>
                 </table>
@@ -550,22 +561,22 @@ export const PlayerRegistration: React.FC = () => {
           </div>
       )}
 
-      {/* Taxonmy Modal */}
+      {/* Taxonomy Modal - Tactical Config */}
       {showConfigModal && (
-          <div className="fixed inset-0 z-[100] bg-brand-950/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in duration-300">
-              <div className="bg-brand-900 w-full max-w-3xl rounded-[4rem] border border-white/10 shadow-3xl relative overflow-hidden animate-in zoom-in-95 duration-500">
-                  <div className="bg-brand-950/50 p-12 border-b border-white/5 flex justify-between items-center">
-                    <div><h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">Global <span className="text-brand-500">Taxonomy</span></h3><p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.3em] mt-2 italic">Configure operational sectors & divisions</p></div>
-                    <button onClick={() => setShowConfigModal(false)} className="p-4 bg-brand-800 rounded-2xl text-brand-600 hover:text-white transition-all"><X size={28} /></button>
+          <div className="fixed inset-0 z-[100] bg-[#00054e]/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in duration-300">
+              <div className="glass-card w-full max-w-2xl rounded-xl border border-white/10 shadow-3xl relative overflow-hidden animate-in zoom-in-95 duration-500 bg-surface-default/90">
+                  <div className="bg-white/2 p-10 border-b border-white/5 flex justify-between items-center">
+                    <div><h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Global <span className="text-[#C3F629]">Taxonomy_module</span></h3><p className="text-[8px] text-white/30 font-black uppercase tracking-[0.3em] mt-1 italic">Configure operational sectors & divisions</p></div>
+                    <button onClick={() => setShowConfigModal(false)} className="p-3 bg-white/5 rounded-lg text-white/20 hover:text-[#C3F629] transition-all border border-white/10"><X size={20} /></button>
                   </div>
-                  <div className="flex bg-brand-950/30 p-3">
-                    {['venues', 'batches'].map(t => <button key={t} onClick={() => setConfigTab(t as any)} className={`flex-1 py-5 rounded-3xl text-[11px] font-black uppercase tracking-[0.3em] italic transition-all ${configTab === t ? 'bg-brand-500 text-brand-950 shadow-2xl scale-105' : 'text-brand-700 hover:text-white'}`}>{t === 'venues' ? 'Sectors (Venues)' : 'Divisions (Batches)'}</button>)}
+                  <div className="flex bg-white/2 p-2">
+                    {['venues', 'batches'].map(t => <button key={t} onClick={() => setConfigTab(t as any)} className={`flex-1 py-4 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] italic transition-all ${configTab === t ? 'bg-[#C3F629] text-[#00054e] shadow-lg scale-105' : 'text-white/30 hover:text-white'}`}>{t === 'venues' ? 'SECTORS_VENUES' : 'DIVISIONS_BATCHES'}</button>)}
                   </div>
-                  <div className="p-12 space-y-10 h-[500px] overflow-y-auto custom-scrollbar">
-                    <div className="flex gap-4"><input type="text" className={getInputClass('newItem')} value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="Define new parameter..." /><button onClick={handleAddItem} className="bg-brand-500 text-brand-950 px-10 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all text-xs italic">Deploy</button></div>
-                    <div className="grid grid-cols-1 gap-4">
+                  <div className="p-10 space-y-8 h-[400px] overflow-y-auto custom-scrollbar">
+                    <div className="flex gap-3"><input type="text" className={getInputClass('newItem')} value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="DEFINE_NEW_PARAM..." /><button onClick={handleAddItem} className="bg-[#C3F629] text-[#00054e] px-8 rounded-lg font-black uppercase tracking-widest hover:scale-105 transition-all text-[9px] italic">DEPLOY</button></div>
+                    <div className="grid grid-cols-1 gap-3">
                         {(configTab === 'venues' ? venues : batches).map(item => (
-                            <div key={item.id} className="p-6 bg-brand-950/50 rounded-3xl border border-white/5 flex justify-between items-center group hover:border-brand-500/20 transition-all"><span className="font-black text-white uppercase italic tracking-widest text-xs">{item.name}</span><button onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)} className="p-3 text-brand-800 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button></div>
+                            <div key={item.id} className="p-5 bg-white/2 rounded-lg border border-white/5 flex justify-between items-center group hover:border-[#C3F629]/20 transition-all"><span className="font-black text-white/80 uppercase italic tracking-widest text-[10px]">{item.name}</span><button onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)} className="p-2 text-white/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button></div>
                         ))}
                     </div>
                   </div>
