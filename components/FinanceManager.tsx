@@ -560,30 +560,30 @@ export const FinanceManager: React.FC = () => {
                                     <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
                                         {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '141px', left: '468px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '394px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.invoiceNo.replace('INV-', '')}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '141px', left: '538px', fontSize: '9.5px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '500px', fontSize: '9.5px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
 
                                         {/* ── BILLED TO (Athlete Data) ─────────────────── */}
-                                        <span style={{ position: 'absolute', top: '218px', left: '110px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '218px', left: '106px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.parentName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '218px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '218px', left: '331px', fontWeight: 700 }}>
                                             {(selectedPlayerForInvoice as any).email || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '243px', left: '110px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '243px', left: '106px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.fullName}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '243px', left: '335px', fontSize: '9px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
+                                        <span style={{ position: 'absolute', top: '243px', left: '331px', fontSize: '9px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
                                             {selectedPlayerForInvoice.address || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '268px', left: '110px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '268px', left: '106px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.contactNumber || ''}
                                         </span>
 

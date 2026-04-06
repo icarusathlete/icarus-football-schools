@@ -67,7 +67,7 @@ const LAST_INVOICE_KEY = 'icarus_last_invoice_id';
 const VENUES_KEY = 'icarus_venues';
 const BATCHES_KEY = 'icarus_batches';
 const DRILLS_KEY = 'icarus_drills';
-const POTM_KEY = 'icarus_potm_map';
+const SESSION_MOTM_KEY = 'icarus_session_motm';
 const FINALIZED_ROLLCALLS_KEY = 'icarus_finalized_rollcalls';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -163,7 +163,7 @@ export const StorageService = {
     syncCollection('venues', VENUES_KEY);
     syncCollection('batches', BATCHES_KEY);
     syncCollection('drills', DRILLS_KEY);
-    syncCollection('potm', POTM_KEY, true);
+    syncCollection('session_motm', SESSION_MOTM_KEY, true);
     syncCollection('finalized_rollcalls', FINALIZED_ROLLCALLS_KEY, true);
 
     if (user.role === 'admin' || user.role === 'coach') {
@@ -322,20 +322,20 @@ export const StorageService = {
       }
   },
 
-  setPOTM: async (playerId: string, month: string) => {
+  setMOTM: async (playerId: string, date: string) => {
       try {
-        await setDoc(doc(db, 'potm', month), { playerId, timestamp: Date.now() });
+        await setDoc(doc(db, 'session_motm', date), { playerId, timestamp: Date.now() });
       } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `potm/${month}`);
+        handleFirestoreError(error, OperationType.WRITE, `session_motm/${date}`);
       }
   },
 
-  getPOTM: (month: string): { playerId: string, timestamp: number } | null => {
-      const storageRaw = localStorage.getItem(POTM_KEY);
+  getMOTM: (date: string): { playerId: string, timestamp: number } | null => {
+      const storageRaw = localStorage.getItem(SESSION_MOTM_KEY);
       if (!storageRaw) return null;
       try {
           const storage = JSON.parse(storageRaw);
-          return storage[month] || null;
+          return storage[date] || null;
       } catch (e) {
           return null;
       }
@@ -449,6 +449,22 @@ export const StorageService = {
         });
     });
     await Promise.all(promises);
+  },
+
+  savePlayerSelfCheckIn: async (playerId: string, date: string) => {
+    const id = `${date}_${playerId}`;
+    const record: AttendanceRecord = {
+      id,
+      playerId,
+      date,
+      status: AttendanceStatus.PRESENT,
+      notes: 'Self Check-In'
+    };
+    try {
+      await setDoc(doc(db, 'attendance', id), record);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `attendance/${id}`);
+    }
   },
 
   isRollcallFinalized: (date: string): boolean => {
@@ -803,12 +819,12 @@ export const StorageService = {
             handleFirestoreError(error, OperationType.WRITE, 'settings/academy');
           }
       }
-      if (data[POTM_KEY]) {
-          for (const month of Object.keys(data[POTM_KEY])) {
+      if (data[SESSION_MOTM_KEY]) {
+          for (const date of Object.keys(data[SESSION_MOTM_KEY])) {
               try {
-                await setDoc(doc(db, 'potm', month), data[POTM_KEY][month]);
+                await setDoc(doc(db, 'session_motm', date), data[SESSION_MOTM_KEY][date]);
               } catch (error) {
-                handleFirestoreError(error, OperationType.WRITE, `potm/${month}`);
+                handleFirestoreError(error, OperationType.WRITE, `session_motm/${date}`);
               }
           }
       }

@@ -38,26 +38,35 @@ function lsReadMotm(date: string): string | null {
   } catch { return null; }
 }
 
-function lsWriteMotm(date: string, playerId: string | null) {
-  try {
-    const stored = JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}');
-    if (playerId) stored[date] = playerId; else delete stored[date];
-    localStorage.setItem(LS_MOTM_KEY, JSON.stringify(stored));
-  } catch { /* silent */ }
-}
+// Removed local lsWriteMotm as we use StorageService.setMOTM
 
 // ─── Toggle button (iOS Sliding Style) ────────────────────────────
+// ─── Toggle button (Icarus Pro Pulse Style) ────────────────────────────
 const ToggleButton = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
-  <button type="button" onClick={onClick} aria-label={isPresent ? 'Mark absent' : 'Mark present'}
-    className={`relative flex items-center w-12 h-6 rounded-full p-0.5 border overflow-hidden flex-shrink-0 cursor-pointer select-none transition-all duration-500 hover:scale-105 active:scale-95 ${isPresent ? 'border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'border-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.2)]'}`}>
-    <span className={`absolute inset-0 transition-opacity duration-500 ${isPresent ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-    <span className={`relative z-10 w-4.5 h-4.5 rounded-full bg-white flex-shrink-0 flex items-center justify-center shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isPresent ? 'translate-x-6' : 'translate-x-0'}`}>
-      {isPresent ? <CheckCircleIcon size={10} className="text-emerald-500" /> : <X size={10} className="text-rose-500" />}
-    </span>
+  <button 
+    type="button" 
+    onClick={onClick} 
+    aria-label={isPresent ? 'Mark absent' : 'Mark present'}
+    className={`relative flex items-center w-14 h-7 rounded-lg p-1 border transition-all duration-500 overflow-hidden group/toggle ${
+      isPresent 
+        ? 'border-brand-500/50 bg-brand-500/10 shadow-[0_0_15px_rgba(0,255,200,0.1)]' 
+        : 'border-white/5 bg-white/5'
+    }`}
+  >
+    <div className={`absolute inset-0 transition-opacity duration-500 ${isPresent ? 'opacity-100 bg-gradient-to-r from-brand-500/20 to-transparent' : 'opacity-0'}`} />
+    <div className={`relative z-10 w-full flex items-center justify-between px-1`}>
+        <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${isPresent ? 'bg-brand-500 shadow-[0_0_8px_rgba(0,255,200,0.8)]' : 'bg-white/10'}`} />
+        <span className={`text-[7px] font-black uppercase tracking-widest transition-all duration-500 ${isPresent ? 'text-brand-500' : 'text-white/20'}`}>
+            {isPresent ? 'ACTIVE' : 'OFF'}
+        </span>
+    </div>
+    {/* Sliding indicator */}
+    <div className={`absolute bottom-0 left-0 h-0.5 bg-brand-500 transition-all duration-500 ${isPresent ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
   </button>
 );
 
 // ─── Player card (Pocket View v20 — Compact Mode) ──────────────────
+// ─── Player card (Icarus Pro Pocket View) ──────────────────
 const PlayerCard = memo(function PlayerCard({
   player, date, initialStatus, isMotm, onStatusChange, onSelectMotm,
 }: {
@@ -68,10 +77,8 @@ const PlayerCard = memo(function PlayerCard({
   onStatusChange: (playerId: string, status: AttendanceStatus) => void;
   onSelectMotm: (playerId: string) => void;
 }) {
-  // Decentralized state — EACH card owns its own status
   const [status, setStatus] = useState<AttendanceStatus>(initialStatus);
 
-  // Sync with prop when date or initialStatus changes (e.g. from parent/firestore)
   useEffect(() => {
     setStatus(initialStatus);
   }, [initialStatus, date]);
@@ -79,15 +86,11 @@ const PlayerCard = memo(function PlayerCard({
   const handleToggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); e.preventDefault();
     const nextStatus = status === AttendanceStatus.PRESENT ? AttendanceStatus.ABSENT : AttendanceStatus.PRESENT;
-    
-    // 1. Immediate UI update
     setStatus(nextStatus);
-    
-    // 2. Background persistence (Sync with Roster & Stats)
     onStatusChange(player.id, nextStatus);
   }, [player.id, status, onStatusChange]);
 
-  const handleMotm = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMotm = useCallback((e: React.MouseEvent<HTMLObjectElement>) => {
     e.stopPropagation(); e.preventDefault();
     onSelectMotm(player.id);
   }, [player.id, onSelectMotm]);
@@ -95,50 +98,50 @@ const PlayerCard = memo(function PlayerCard({
   const isPresent = status === AttendanceStatus.PRESENT;
 
   return (
-    <div className={`relative bg-white rounded-3xl border p-2 flex flex-col items-center gap-2 transition-all duration-300 ${
-      isMotm ? 'border-amber-400 shadow-[0_4px_16px_rgba(251,191,36,0.3)]' : 
-      isPresent ? 'border-emerald-300/60 shadow-[0_4px_12px_rgba(16,185,129,0.15)]' : 
-      'border-brand-50'
+    <div className={`relative glass-card p-3 flex flex-col items-center gap-3 transition-all duration-500 group/card ${
+      isMotm ? 'ring-2 ring-brand-500 shadow-[0_0_25px_rgba(0,255,200,0.15)] bg-brand-500/5' : 
+      isPresent ? 'border-brand-500/30' : 
+      'opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
     }`}>
+      {/* Selection Glow */}
+      {isPresent && <div className="absolute inset-0 bg-brand-500/5 animate-pulse rounded-[1.5rem]" />}
 
-      {/* MOTM crown ribbon (subtle indicator) */}
-      {isMotm && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-3xl bg-amber-400" />
-      )}
-
-      <div className="relative mt-0.5">
+      <div className="relative">
         <div 
-          onClick={handleMotm} // Allow toggling MOTM by clicking photo too for convenience
-          className={`w-14 h-14 rounded-2xl overflow-hidden border transition-all duration-500 cursor-pointer ${
-          isMotm ? 'border-amber-400 scale-105 shadow-md' : 
-          isPresent ? 'border-emerald-500' : 
-          'border-brand-100 opacity-60'
+          onClick={() => onSelectMotm(player.id)}
+          className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-500 cursor-pointer ${
+          isMotm ? 'border-brand-500 scale-110 shadow-[0_0_15px_rgba(0,255,200,0.3)]' : 
+          isPresent ? 'border-brand-500/50' : 
+          'border-white/10'
         }`}>
           <img 
             src={player.photoUrl} 
             alt={player.fullName} 
-            className={`w-full h-full object-cover transition-all duration-500 ${isPresent || isMotm ? 'grayscale-0 opacity-100' : 'grayscale opacity-50'}`} 
+            className={`w-full h-full object-cover transition-all duration-700 ${isPresent || isMotm ? 'scale-100' : 'scale-110'}`} 
           />
         </div>
-        {/* MVP Trophy Indicator */}
+        {/* MVP Badge */}
         {isMotm && (
-          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center shadow-sm">
-            <Trophy size={9} className="fill-white text-white" />
+          <div className="absolute -top-2 -right-2 w-7 h-7 rounded-lg bg-brand-500 text-brand-950 flex items-center justify-center shadow-2xl animate-bounce-subtle">
+            <Trophy size={14} strokeWidth={3} />
           </div>
         )}
       </div>
 
-      <div className="text-center w-full min-w-0">
-        <h4 className={`font-black text-[9px] uppercase italic tracking-tighter truncate leading-tight ${
-          isMotm ? 'text-amber-600' : 
-          isPresent ? 'text-emerald-700' : 
-          'text-brand-950 opacity-70'
+      <div className="text-center w-full min-w-0 relative z-10">
+        <h4 className={`font-display font-black text-[10px] uppercase italic tracking-tight truncate leading-none ${
+          isMotm ? 'text-brand-500' : 
+          isPresent ? 'text-white' : 
+          'text-white/40'
         }`}>
           {player.fullName.split(' ')[0]}
         </h4>
+        <div className="h-0.5 w-4 bg-brand-500/20 mx-auto mt-1.5 rounded-full transition-all group-hover/card:w-8" />
       </div>
 
-      <ToggleButton isPresent={isPresent} onClick={handleToggle} />
+      <div className="relative z-10 transform scale-90">
+        <ToggleButton isPresent={isPresent} onClick={handleToggle} />
+      </div>
     </div>
   );
 },
@@ -159,7 +162,10 @@ export const CoachAttendance: React.FC = () => {
   const [liveStatuses, setLiveStatuses] = useState<Record<string, AttendanceStatus>>(() =>
     lsReadAll(StorageService.getPlayers().map(p => p.id), todayStr)
   );
-  const [motmId, setMotmId] = useState<string | null>(() => lsReadMotm(todayStr));
+  const [motmId, setMotmId] = useState<string | null>(() => {
+    const data = StorageService.getMOTM(todayStr);
+    return data?.playerId || null;
+  });
 
   const [filter, setFilter] = useState('ALL');
   const [venueFilter, setVenueFilter] = useState('all');
@@ -173,7 +179,8 @@ export const CoachAttendance: React.FC = () => {
     const ps = StorageService.getPlayers();
     setPlayers(ps);
     setLiveStatuses(lsReadAll(ps.map(p => p.id), date));
-    setMotmId(lsReadMotm(date));
+    const motm = StorageService.getMOTM(date);
+    setMotmId(motm?.playerId || null);
     recentToggles.current = {};
     const event = StorageService.getSchedule().find(e => e.date === date);
     if (event) {
@@ -196,13 +203,12 @@ export const CoachAttendance: React.FC = () => {
         const next = { ...prev };
         
         ps.forEach(p => {
-          const storageStatus = fromStorage[p.id];
+          const storageStatus = fromStorage[p.id] || AttendanceStatus.ABSENT;
           const currentStatus = prev[p.id];
           
-          // Only sync if: 
-          // 1. Not toggled in last 3s
-          // 2. Storage value differs from current local value
-          if (now - (recentToggles.current[p.id] || 0) >= 3000) {
+          // Protection window: Ignore incoming sync if we recently toggled this player (5s guard)
+          const lastToggleTime = recentToggles.current[p.id] || 0;
+          if (now - lastToggleTime >= 5000) {
             if (storageStatus !== currentStatus) {
               next[p.id] = storageStatus;
               hasChanged = true;
@@ -218,24 +224,31 @@ export const CoachAttendance: React.FC = () => {
   }, [date]);
 
   // Attendance toggle — Decentralized Handler
-  const onStatusChange = useCallback((playerId: string, status: AttendanceStatus) => {
-    // 1. Notify parent of stat change (functional update for safety)
+  const onStatusChange = useCallback(async (playerId: string, status: AttendanceStatus) => {
+    // 1. Mark as pending locally (timestamp)
+    recentToggles.current[playerId] = Date.now();
+    
+    // 2. Update UI instantly
     setLiveStatuses(prev => ({ ...prev, [playerId]: status }));
     
-    // 2. Persistence Layer
+    // 3. Update localStorage optimistically
     const record: AttendanceRecord = { id: `${date}_${playerId}`, playerId, date, status };
     lsWrite(record);
-    StorageService.saveAttendanceBatch([record]);
+    
+    // 4. Persistence to Firestore
+    try {
+      await StorageService.saveAttendanceBatch([record]);
+    } catch (error) {
+      console.error("Attendance save failed:", error);
+      // Optional: revert local state on failure
+    }
   }, [date]);
 
-  // MOTM selection — only one at a time, click same to deselect
-  const onSelectMotm = useCallback((playerId: string) => {
-    setMotmId(prev => {
-      const next = prev === playerId ? null : playerId;
-      lsWriteMotm(date, next);
-      return next;
-    });
-  }, [date]);
+  const onSelectMotm = useCallback(async (playerId: string) => {
+    const next = motmId === playerId ? null : playerId;
+    setMotmId(next);
+    await StorageService.setMOTM(next || '', date);
+  }, [date, motmId]);
 
   const presentCount = useMemo(() =>
     Object.values(liveStatuses).filter(s => s === AttendanceStatus.PRESENT).length,
@@ -261,106 +274,164 @@ export const CoachAttendance: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-brand-950 italic uppercase tracking-tighter flex items-center gap-4">
-            DEPLOYMENT <span className="text-brand-500">LOG</span>
-            <CalendarIcon size={30} className="text-brand-500 opacity-20" />
-          </h1>
-          <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Session Attendance · Live Sync</p>
+    <div className="space-y-8 pb-32 animate-in fade-in duration-700">
+      {/* Header - Icarus Pro Hero */}
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-900 p-8 md:p-12 border border-white/10 shadow-2xl transition-all duration-500 hover:border-brand-500/30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,255,200,0.05),transparent_50%)]" />
+        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-125 group-hover:rotate-0 duration-700">
+            <Users size={200} className="text-white" />
         </div>
-        <div className="flex items-center gap-3 bg-white p-2 rounded-[2.5rem] border border-brand-100 shadow-xl">
-          <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="w-11 h-11 flex items-center justify-center bg-brand-50 rounded-full hover:bg-brand-950 hover:text-brand-500 transition-all active:scale-95"><ChevronDown className="rotate-90 w-4 h-4" /></button>
-          <div className="px-4 text-center">
-            <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">SESSION DATE</p>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-transparent border-none outline-none text-sm font-black text-brand-950 w-28 cursor-pointer text-center font-mono italic" />
-          </div>
-          <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="w-11 h-11 flex items-center justify-center bg-brand-50 rounded-full hover:bg-brand-950 hover:text-brand-500 transition-all active:scale-95"><ChevronDown className="-rotate-90 w-4 h-4" /></button>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Present */}
-        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-emerald-400 transition-all">
-          <div><p className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-2 italic">PRESENT</p><h3 className="text-4xl font-black text-brand-950 italic">{presentCount}</h3></div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center"><CheckCircle2 size={24} /></div>
-        </div>
-        {/* Absent */}
-        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-rose-400 transition-all">
-          <div><p className="text-[9px] font-black text-rose-600 uppercase tracking-[0.3em] mb-2 italic">ABSENT</p><h3 className="text-4xl font-black text-brand-950 italic">{players.length - presentCount}</h3></div>
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center"><X size={24} /></div>
-        </div>
-        {/* Total */}
-        <div className="bg-white p-6 rounded-[2rem] border border-brand-100 flex items-center justify-between shadow-md hover:border-brand-400 transition-all">
-          <div><p className="text-[9px] font-black text-brand-500 uppercase tracking-[0.3em] mb-2 italic">TOTAL</p><h3 className="text-4xl font-black text-brand-950 italic">{players.length}</h3></div>
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-500 border border-brand-100 flex items-center justify-center"><Users size={24} /></div>
-        </div>
-
-        {/* MVP Spotlight — 4th stat card, lights up when MOTM is selected */}
-        <div className={`relative p-6 rounded-[2rem] border-2 flex items-center justify-between shadow-md transition-all duration-500 overflow-hidden ${motmPlayer ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-[0_4px_24px_-4px_rgba(251,191,36,0.4)]' : 'bg-white border-brand-100'}`}>
-          {/* Background glow when active */}
-          {motmPlayer && <div className="absolute inset-0 bg-gradient-to-br from-amber-400/10 to-yellow-300/5 pointer-events-none" />}
-          <div className="relative min-w-0 flex-1 pr-3">
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em] italic">MAN OF THE MATCH</p>
+        
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="px-3 py-1 bg-lime/10 rounded-full border border-lime/20 text-[8px] font-black uppercase tracking-[0.3em] text-lime animate-pulse">Operational Roster</div>
+              <div className="w-1.5 h-1.5 rounded-full bg-lime shadow-[0_0_8px_rgba(195,246,41,0.5)]" />
             </div>
-            {motmPlayer ? (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <p className="text-lg font-black text-amber-800 italic uppercase tracking-tight truncate leading-tight">{motmPlayer.fullName.split(' ')[0]}</p>
-                <span className="inline-flex items-center gap-1 mt-1 bg-amber-400 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
-                  <Trophy size={8} className="fill-white" /> MVP
-                </span>
-              </div>
-            ) : (
-              <p className="text-sm font-black text-brand-300 italic">Not selected</p>
-            )}
+            <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
+              DEPLOYMENT <span className="premium-gradient-text">LOG</span>
+            </h2>
+            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
+              Real-time synchronization and personnel management for peak performance tracking.
+            </p>
           </div>
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${motmPlayer ? 'bg-amber-400 shadow-[0_0_16px_rgba(251,191,36,0.6)] text-white animate-pulse' : 'bg-brand-50 text-brand-300 border border-brand-100'}`}>
-            <Trophy size={22} className={motmPlayer ? 'fill-white' : ''} />
+
+          <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-2xl">
+            <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all border border-white/5 text-white/40"><ChevronDown className="rotate-90 w-4 h-4" strokeWidth={3} /></button>
+            <div className="px-6 text-center">
+              <p className="text-[8px] font-black text-brand-500/60 uppercase tracking-widest mb-1 italic">ACTIVE WINDOW</p>
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-transparent border-none outline-none text-sm font-display font-black text-white w-32 cursor-pointer text-center uppercase" />
+            </div>
+            <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl hover:bg-brand-500 hover:text-brand-950 transition-all border border-white/5 text-white/40"><ChevronDown className="-rotate-90 w-4 h-4" strokeWidth={3} /></button>
           </div>
         </div>
       </div>
 
-      {/* RSVP row */}
+      {/* Stats Modules - Icarus Pro High Density */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-slide-up">
+        {/* Present Card */}
+        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-brand-500/30">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-12 h-12 bg-brand-500/5 rounded-xl flex items-center justify-center border border-brand-500/10 transition-transform group-hover:rotate-12">
+              <CheckCircle2 size={24} className="text-brand-500" />
+            </div>
+            <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest opacity-40">Personnel</span>
+          </div>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">PRESENT</p>
+          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{presentCount}</h3>
+        </div>
+
+        {/* Absent Card */}
+        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-red-500/30">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-12 h-12 bg-red-500/5 rounded-xl flex items-center justify-center border border-red-500/10 transition-transform group-hover:-rotate-12">
+              <X size={24} className="text-red-500" />
+            </div>
+            <span className="text-[8px] font-black text-red-500 uppercase tracking-widest opacity-40">Gap</span>
+          </div>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">ABSENT</p>
+          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{players.length - presentCount}</h3>
+        </div>
+
+        {/* Total Card */}
+        <div className="glass-card p-8 group transition-all duration-500 hover:ring-1 hover:ring-white/20">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 transition-transform group-hover:scale-110">
+              <Users size={24} className="text-white/40" />
+            </div>
+            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest opacity-20">Capacity</span>
+          </div>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1 italic">TOTAL SQUAD</p>
+          <h3 className="text-5xl font-display font-black text-white italic tracking-tighter">{players.length}</h3>
+        </div>
+
+        {/* MVP Spotlight */}
+        <div className={`relative glass-card p-8 group transition-all duration-700 overflow-hidden ${motmPlayer ? 'ring-2 ring-brand-500/50' : ''}`}>
+          {motmPlayer ? (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent animate-pulse" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-brand-500 text-brand-950 rounded-xl flex items-center justify-center shadow-xl shadow-brand-500/20">
+                    <Trophy size={24} strokeWidth={3} />
+                  </div>
+                  <div className="px-3 py-1 bg-brand-500/20 rounded-full border border-brand-500/30 text-[8px] font-black text-brand-500 uppercase tracking-widest">MVP ASSIGNED</div>
+                </div>
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-1 italic">SESSION LEAD</p>
+                <h3 className="text-2xl font-display font-black text-white italic truncate uppercase leading-tight">{motmPlayer.fullName.split(' ')[0]}</h3>
+              </div>
+            </>
+          ) : (
+            <div className="h-full flex flex-col justify-center items-center opacity-20 border-dashed border-2 border-white/5 rounded-2xl border-white/10">
+              <Trophy size={32} className="text-white mb-3" strokeWidth={1} />
+              <span className="text-[10px] font-black uppercase tracking-widest">NO MVP SELECTED</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* RSVP Integration - Subtle Glass Bars */}
       {(rsvps.attending.length + rsvps.declined.length + rsvps.pending.length > 0) && (
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-center"><p className="text-[9px] font-black text-emerald-700 uppercase tracking-widest italic mb-1">CONFIRMED</p><p className="text-2xl font-black text-emerald-800 italic">{rsvps.attending.length}</p></div>
-          <div className="bg-rose-50 p-4 rounded-2xl border border-rose-200 text-center"><p className="text-[9px] font-black text-rose-700 uppercase tracking-widest italic mb-1">DECLINED</p><p className="text-2xl font-black text-rose-800 italic">{rsvps.declined.length}</p></div>
-          <div className="bg-brand-50 p-4 rounded-2xl border border-brand-100 text-center"><p className="text-[9px] font-black text-brand-600 uppercase tracking-widest italic mb-1">PENDING</p><p className="text-2xl font-black text-brand-800 italic">{rsvps.pending.length}</p></div>
+        <div className="grid grid-cols-3 gap-6 animate-fade-in">
+          <div className="glass-card bg-emerald-500/5 p-5 border-emerald-500/20 flex flex-col items-center justify-center gap-1 group hover:bg-emerald-500/10 transition-colors">
+            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic opacity-60">CONFIRMED</span>
+            <span className="text-3xl font-display font-black text-emerald-500 group-hover:scale-110 transition-transform">{rsvps.attending.length}</span>
+          </div>
+          <div className="glass-card bg-rose-500/5 p-5 border-rose-500/20 flex flex-col items-center justify-center gap-1 group hover:bg-rose-500/10 transition-colors">
+            <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest italic opacity-60">DECLINED</span>
+            <span className="text-3xl font-display font-black text-rose-500 group-hover:scale-110 transition-transform">{rsvps.declined.length}</span>
+          </div>
+          <div className="glass-card bg-white/5 p-5 border-white/10 flex flex-col items-center justify-center gap-1 group hover:bg-white/10 transition-colors">
+            <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">PENDING</span>
+            <span className="text-3xl font-display font-black text-white/60 group-hover:scale-110 transition-transform">{rsvps.pending.length}</span>
+          </div>
         </div>
       )}
 
-      {/* Roster */}
-      <div className="space-y-5">
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
-          <h3 className="font-black text-brand-950 text-xl uppercase italic tracking-tighter flex items-center gap-3 shrink-0">
-            <Users size={22} className="text-brand-500" />SQUAD <span className="text-brand-500">ROSTER</span>
-          </h3>
-          <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-3 bg-white p-2 rounded-[2rem] border border-brand-100 shadow-lg min-w-0">
-            <div className="relative flex-1 min-w-[160px]">
-              <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-400" />
-              <input type="text" placeholder="Search personnel…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-brand-50 border border-brand-100 rounded-xl py-3 pl-12 pr-5 text-[10px] font-black uppercase italic tracking-widest outline-none focus:border-brand-500" />
+      {/* Roster Controls */}
+      <div className="space-y-6">
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-end justify-between gap-6">
+          <div>
+            <h3 className="font-display font-black text-white text-2xl italic uppercase tracking-tight flex items-center gap-4">
+              <Users size={28} className="text-brand-500" />OPERATIONAL <span className="premium-gradient-text">ROSTER</span>
+            </h3>
+            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 italic ml-11">Total Unit Census: {filteredPlayers.length} Active Personnel</p>
+          </div>
+          
+          <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-4 bg-brand-950/50 backdrop-blur-3xl p-3 rounded-2xl border border-white/5 shadow-2xl min-w-0">
+            <div className="relative flex-1 min-w-[200px] group">
+              <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 group-focus-within:scale-110 transition-transform" />
+              <input type="text" placeholder="IDENTITY FILTER…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-4 pl-14 pr-6 text-[10px] font-black text-white uppercase italic tracking-[0.2em] outline-none focus:border-brand-500/50 placeholder:text-white/10 transition-all font-display" />
             </div>
-            <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-brand-50 border border-brand-100 rounded-xl py-3 px-5 text-[10px] font-black uppercase italic tracking-widest outline-none cursor-pointer appearance-none">
-              <option value="all">ALL VENUES</option>
-              {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string}>{(v as string).toUpperCase()}</option>)}
-            </select>
-            <select value={batchFilter} onChange={e => setBatchFilter(e.target.value)} className="bg-brand-50 border border-brand-100 rounded-xl py-3 px-5 text-[10px] font-black uppercase italic tracking-widest outline-none cursor-pointer appearance-none">
-              <option value="all">ALL BATCHES</option>
-              {[...new Set(players.map(p => p.batch))].filter(Boolean).map(b => <option key={b as string} value={b as string}>{(b as string).toUpperCase()}</option>)}
-            </select>
-            <div className="flex bg-brand-50 p-1 rounded-xl border border-brand-100 shrink-0">
+            
+            <div className="flex gap-2">
+                <div className="relative">
+                    <select value={venueFilter} onChange={e => setVenueFilter(e.target.value)} className="bg-white/5 border border-white/5 rounded-xl py-4 px-6 text-[10px] font-black text-white uppercase italic tracking-widest outline-none cursor-pointer appearance-none pr-12 focus:border-brand-500/50 transition-all hover:bg-white/10">
+                      <option value="all">SQUARE DEPOT</option>
+                      {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string} className="bg-brand-900">{String(v).toUpperCase()}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500 opacity-50" size={14} />
+                </div>
+                
+                <div className="relative">
+                    <select value={batchFilter} onChange={e => setBatchFilter(e.target.value)} className="bg-white/5 border border-white/5 rounded-xl py-4 px-6 text-[10px] font-black text-white uppercase italic tracking-widest outline-none cursor-pointer appearance-none pr-12 focus:border-brand-500/50 transition-all hover:bg-white/10">
+                      <option value="all">OPS BATCH</option>
+                      {[...new Set(players.map(p => p.batch))].filter(Boolean).map(b => <option key={b as string} value={b as string} className="bg-brand-900">{String(b).toUpperCase()}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500 opacity-50" size={14} />
+                </div>
+            </div>
+
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 shrink-0 shadow-inner">
               {['ALL', 'PRESENT', 'ABSENT'].map(f => (
-                <button key={f} onClick={() => setFilter(f)} className={`text-[9px] font-black px-5 py-2.5 rounded-lg uppercase tracking-[0.2em] transition-all italic ${filter === f ? 'bg-brand-950 text-brand-500 shadow-lg' : 'text-brand-400 hover:text-brand-950'}`}>{f}</button>
+                <button key={f} onClick={() => setFilter(f)} className={`text-[9px] font-black px-6 py-3 rounded-lg uppercase tracking-[0.2em] transition-all duration-300 italic ${filter === f ? 'bg-brand-500 text-brand-950 shadow-xl shadow-brand-500/20' : 'text-white/20 hover:text-white hover:bg-white/5'}`}>{f}</button>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 pb-10">
+        {/* Players Grid - Pocket View Design */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 pb-20 animate-fade-in">
           {filteredPlayers.map(player => (
             <PlayerCard
               key={player.id}
@@ -375,8 +446,11 @@ export const CoachAttendance: React.FC = () => {
         </div>
 
         {filteredPlayers.length === 0 && (
-          <div className="text-center py-20 border-2 border-dashed border-brand-100 rounded-[2rem]">
-            <p className="text-brand-400 text-sm font-black uppercase tracking-widest italic">No personnel match the current filter.</p>
+          <div className="text-center py-24 glass-card border-dashed">
+             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search size={32} className="text-white/10" />
+             </div>
+             <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] italic drop-shadow-sm">No personnel match current filters</p>
           </div>
         )}
       </div>

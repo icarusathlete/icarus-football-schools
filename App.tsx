@@ -6,7 +6,7 @@ import { StorageService } from './services/storageService';
 import { User } from './types';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { LoadingList } from './components/ui/LoadingSkeleton';
 
 // Lazy Loaded Components
@@ -40,23 +40,36 @@ const App: React.FC = () => {
     const handleSettingsChange = () => setSettings(StorageService.getSettings());
     window.addEventListener('settingsChanged', handleSettingsChange);
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Fetch user role from Firestore
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          const userData = { id: userDoc.id, ...userDoc.data() } as User;
-          setCurrentUser(userData);
-          StorageService.startFirebaseSync(userData);
-          
-          // Default tabs based on role
-          if (userData.role === 'admin') setActiveTab('admin');
-          else if (userData.role === 'coach') setActiveTab('schedule');
-          else if (userData.role === 'player') setActiveTab('player-dashboard');
-        }
+        // Fetch user role and subscribe to real-time metadata updates
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        const unsubUser = onSnapshot(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const userData = { id: snapshot.id, ...snapshot.data() } as User;
+            setCurrentUser(userData);
+            StorageService.startFirebaseSync(userData);
+            
+            // Default tabs based on role — only if exactly matching a default
+            if (activeTab === '') {
+              if (userData.role === 'admin') setActiveTab('admin');
+              else if (userData.role === 'coach') setActiveTab('schedule');
+              else if (userData.role === 'player') setActiveTab('player-dashboard');
+            }
+          }
+        }, (error) => {
+          console.error("User metadata sync error:", error);
+          StorageService.stopFirebaseSync();
+        });
+        
+        return () => {
+          unsubUser();
+          StorageService.stopFirebaseSync();
+        };
       } else {
         setCurrentUser(null);
         StorageService.stopFirebaseSync();
+        setIsAuthReady(true);
       }
       setIsAuthReady(true);
     });
@@ -67,9 +80,24 @@ const App: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const applySettings = (settingsData: any) => {
+      const root = document.documentElement;
+      if (settingsData.primaryColor) root.style.setProperty('--brand-primary', settingsData.primaryColor);
+      if (settingsData.secondaryColor) root.style.setProperty('--brand-secondary', settingsData.secondaryColor);
+      
+      // Update font if needed (index.css currently uses Inter/Orbitron by default)
+      if (settingsData.fontFamily) {
+         root.style.fontFamily = `'${settingsData.fontFamily}', ${root.style.fontFamily}`;
+      }
+    };
+
+    applySettings(settings);
+  }, [settings]);
+
   const handleLoginSuccess = (user: User) => {
       setCurrentUser(user);
-      StorageService.startFirebaseSync(user);
+      // Removed StorageService.startFirebaseSync from here; handled by onAuthStateChanged
       if (user.role === 'admin') setActiveTab('admin');
       else if (user.role === 'coach') setActiveTab('schedule');
       else if (user.role === 'player') setActiveTab('player-dashboard');

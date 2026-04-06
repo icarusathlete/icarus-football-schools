@@ -6,6 +6,8 @@ export interface User {
   username: string;
   password: string; // Stored as plain text for this demo environment only
   role: Role;
+  fullName?: string; // Corrected field for profile completion
+  memberId?: string; // Corrected field for profile completion
   linkedPlayerId?: string; // For student accounts
   photoUrl?: string; // Coach/Admin Profile Photo
   // For Coaches

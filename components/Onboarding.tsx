@@ -40,7 +40,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
               const newPlayerRef = doc(collection(db, 'players'));
               batch.set(newPlayerRef, {
                 id: newPlayerRef.id,
-                name: row.name,
+                fullName: row.fullName || row.name,
                 squadId: row.squadId || 'unassigned',
                 position: row.position || 'Unknown',
                 createdAt: new Date().toISOString(),
@@ -64,8 +64,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
   const finishSetup = async () => {
     setLoading(true);
     try {
-      const updatedUser = { 
+      const updatedUser: User = { 
         ...user, 
+        role: (role === 'academy_director' ? 'admin' : 'coach') as any,
         fullName: user.fullName || user.username,
         memberId: user.memberId || `M-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
         onboardingComplete: true, 
@@ -86,103 +87,119 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-950 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full p-10 relative overflow-hidden border border-white/5 shadow-2xl bg-brand-900 rounded-[3rem]">
-        {/* Top Progress Bar */}
-        <div className="absolute top-0 left-0 right-0 flex h-1">
+    <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6">
+      <div className="glass-card max-w-2xl w-full p-12 relative overflow-hidden border-brand-500/5 shadow-xl bg-white/80">
+        {/* Refined Progress Indicator */}
+        <div className="absolute top-0 left-0 right-0 flex h-1.5 gap-1 px-1 pt-1">
             {[1,2,3].map(i => (
-                <div key={i} className={`flex-1 transition-all duration-500 ${step >= i ? 'bg-brand-500' : 'bg-white/10'}`} />
+                <div key={i} className={`flex-1 transition-all duration-700 rounded-full ${step >= i ? 'bg-brand-500' : 'bg-brand-900/5'}`} />
             ))}
         </div>
 
         {/* Step 1: Role Selection */}
         {step === 1 && (
-          <div className="animate-slide-up space-y-8">
+          <div className="animate-fade-in space-y-10">
              <div className="text-center">
-               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Initialize <span className="text-brand-500">Access</span></h2>
-               <p className="text-brand-400 font-medium">Select your primary designation within the academy.</p>
+               <h2 className="text-3xl font-black text-brand-900 uppercase tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                 INITIALIZE <span className="premium-gradient-text">ACCESS</span>
+               </h2>
+               <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-900/40">Select primary academy designation</p>
              </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <button onClick={() => handleRoleSelect('head_coach')} className="p-8 bg-brand-950/50 border border-white/10 rounded-[2rem] hover:border-brand-500 hover:bg-brand-500/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
-                 <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-brand-500/20 group-hover:text-brand-500 w-fit transition-colors"><Shield size={28} /></div>
-                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Head Coach</h3><p className="text-xs text-brand-400 font-medium leading-relaxed mt-1">Full control over squad training, match fixtures, and attendance analytics.</p></div>
-                 {role === 'head_coach' && <div className="absolute top-4 right-4 text-brand-500"><Check size={20} /></div>}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <button onClick={() => handleRoleSelect('head_coach')} className="glass-card p-8 border-brand-900/5 hover:border-brand-500/30 transition-all flex flex-col gap-5 group text-left relative overflow-hidden bg-white/50">
+                 <div className="p-3.5 bg-brand-900/5 rounded-lg group-hover:bg-brand-500 group-hover:text-white w-fit transition-all text-brand-900/40"><Shield size={24} /></div>
+                 <div>
+                    <h3 className="font-black text-brand-900 uppercase tracking-tight text-sm">HEAD COACH</h3>
+                    <p className="text-[10px] text-brand-900/40 font-bold leading-relaxed mt-2 uppercase tracking-wide">Squad training, fixtures, and performance metrics.</p>
+                 </div>
+                 {role === 'head_coach' && <div className="absolute top-6 right-6 text-brand-500"><Check size={18} strokeWidth={3} /></div>}
                </button>
-               <button onClick={() => handleRoleSelect('academy_director')} className="p-8 bg-brand-950/50 border border-white/10 rounded-[2rem] hover:border-brand-500 hover:bg-brand-500/5 transition-all flex flex-col gap-4 group text-left relative overflow-hidden">
-                 <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-brand-500/20 group-hover:text-brand-500 w-fit transition-colors"><Users size={28} /></div>
-                 <div><h3 className="font-black text-white uppercase italic tracking-tight text-lg">Director</h3><p className="text-xs text-brand-400 font-medium leading-relaxed mt-1">High-level oversight including financial reporting, registration, and system logs.</p></div>
-                 {role === 'academy_director' && <div className="absolute top-4 right-4 text-brand-500"><Check size={20} /></div>}
+               <button onClick={() => handleRoleSelect('academy_director')} className="glass-card p-8 border-brand-900/5 hover:border-brand-500/30 transition-all flex flex-col gap-5 group text-left relative overflow-hidden bg-white/50">
+                 <div className="p-3.5 bg-brand-900/5 rounded-lg group-hover:bg-brand-500 group-hover:text-white w-fit transition-all text-brand-900/40"><Users size={24} /></div>
+                 <div>
+                    <h3 className="font-black text-brand-900 uppercase tracking-tight text-sm">DIRECTOR</h3>
+                    <p className="text-[10px] text-brand-900/40 font-bold leading-relaxed mt-2 uppercase tracking-wide">Oversight, registry management, and system logs.</p>
+                 </div>
+                 {role === 'academy_director' && <div className="absolute top-6 right-6 text-brand-500"><Check size={18} strokeWidth={3} /></div>}
                </button>
              </div>
-             <div className="flex justify-center pt-4">
-                <button onClick={() => setStep(2)} className="text-[10px] font-black text-brand-600 hover:text-white uppercase tracking-[0.2em] transition-colors">Skip for now</button>
+             <div className="flex justify-center">
+                <button onClick={() => setStep(2)} className="text-[9px] font-black text-brand-900/30 hover:text-brand-500 uppercase tracking-[0.25em] transition-all">DEFER CONFIGURATION</button>
              </div>
           </div>
         )}
 
         {/* Step 2: Squad Import */}
         {step === 2 && (
-          <div className="animate-slide-up space-y-8">
+          <div className="animate-fade-in space-y-10">
              <div className="text-center">
-               <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2">Deploy <span className="text-brand-500">Squad</span></h2>
-               <p className="text-brand-400 font-medium tracking-tight">Batch-import your athletes via CSV for immediate analysis.</p>
+               <h2 className="text-3xl font-black text-brand-900 uppercase tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                 DEPLOY <span className="premium-gradient-text">DATAFEED</span>
+               </h2>
+               <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-900/40">Batch-import athlete records via CSV</p>
              </div>
              
-             <div className="border-2 border-dashed border-white/10 rounded-[3rem] p-16 text-center hover:border-brand-500/50 transition-all bg-brand-950/50 relative group cursor-pointer shadow-inner">
+             <div className="glass-card border-dashed border-2 border-brand-500/10 p-16 text-center hover:border-brand-500/40 transition-all bg-brand-900/[0.02] relative group cursor-pointer">
                <input type="file" accept=".csv" onChange={handleFileUpload} disabled={loading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-               <div className="w-20 h-20 bg-brand-900 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-2xl">
-                <UploadCloud size={32} className="text-brand-500 group-hover:text-brand-400" />
+               <div className="w-16 h-16 bg-brand-900 text-brand-500 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg transition-all">
+                <UploadCloud size={28} />
                </div>
-               <h3 className="font-black text-xl text-white italic uppercase tracking-tight mb-2">Drop CSV Archive</h3>
-               <p className="text-xs text-brand-400 font-medium">Expected format: <span className="text-brand-300">name, squadId, position</span></p>
-               {loading && <div className="absolute inset-0 bg-brand-950/90 backdrop-blur-md flex flex-col items-center justify-center rounded-[3rem]">
-                  <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4" />
-                  <p className="text-xs font-black text-brand-500 uppercase tracking-widest">Processing Ledger...</p>
+               <h3 className="font-black text-lg text-brand-900 uppercase tracking-tight mb-2">UPLOAD LEDGER</h3>
+               <p className="text-[9px] text-brand-900/40 font-bold uppercase tracking-widest leading-relaxed">Expected: name, squadId, position</p>
+               {loading && <div className="absolute inset-0 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 border-2 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4" />
+                  <p className="text-[9px] font-black text-brand-900 uppercase tracking-[0.2em]">Processing Matrix...</p>
                </div>}
              </div>
              
-             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-500 hover:text-white font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all font-display italic">Manual Setup <ChevronRight size={14}/></button>
+             <button onClick={() => setStep(3)} className="w-full py-4 text-brand-900/30 hover:text-brand-900 font-black text-[9px] uppercase tracking-[0.25em] flex items-center justify-center gap-2 transition-all">
+                MANUAL ENTRY PROTOCOL <ChevronRight size={14}/>
+             </button>
           </div>
         )}
 
         {/* Step 3: Complete Moment */}
         {step === 3 && (
-            <div className="animate-fade-in text-center space-y-8 py-12">
+            <div className="animate-fade-in text-center space-y-10 py-8">
                 {loading ? (
                     <div className="flex flex-col items-center space-y-8">
-                        <div className="w-24 h-24 bg-brand-500/5 rounded-full flex items-center justify-center relative">
-                            <div className="absolute inset-0 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
-                            <Trophy className="text-brand-500 animate-pulse" size={40} />
+                        <div className="w-20 h-20 bg-brand-500/5 rounded-full flex items-center justify-center relative">
+                            <div className="absolute inset-0 border-2 border-brand-500/10 border-t-brand-500 rounded-full animate-spin" />
+                            <Trophy className="text-brand-500" size={32} />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-display font-black text-white italic uppercase tracking-tight">Initializing <span className="text-brand-500">HQ</span></h2>
-                            <p className="text-brand-400 text-sm mt-2 animate-pulse">Syncing academy data and finalizing profile...</p>
+                            <h2 className="text-3xl font-black text-brand-900 uppercase tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                SYNCING <span className="premium-gradient-text">CORE</span>
+                            </h2>
+                            <p className="text-[9px] font-bold text-brand-900/30 uppercase tracking-[0.2em] mt-3">Finalizing academy encryption...</p>
                         </div>
                     </div>
                 ) : (
                     <>
-                        <div className="w-24 h-24 bg-lime/20 text-lime rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(190,242,100,0.2)]">
-                            <Check size={48} strokeWidth={4} />
+                        <div className="w-20 h-20 bg-brand-500/10 text-brand-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
+                            <Check size={36} strokeWidth={3} />
                         </div>
                         <div>
-                            <h2 className="text-4xl font-display font-black text-white italic uppercase tracking-tight mb-2 flex items-center justify-center gap-3">Academy <span className="text-brand-500">Ready</span></h2>
-                            {importedCount > 0 ? (
-                                <p className="text-brand-400 font-medium uppercase text-[10px] tracking-[0.3em] font-display">{importedCount} Athlete records successfully deployed</p>
-                            ) : (
-                                <p className="text-brand-400 font-medium font-display uppercase text-[10px] tracking-widest">Core configuration successful.</p>
-                            )}
+                            <h2 className="text-3xl font-black text-brand-900 uppercase tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                ACADEMY <span className="premium-gradient-text">ONLINE</span>
+                            </h2>
+                            <p className="text-[9px] font-bold text-brand-900/40 uppercase tracking-[0.3em]">
+                                {importedCount > 0 ? `${importedCount} ATHLETE RECORDS DEPLOYED` : 'SYSTEM INITIALIZATION SUCCESSFUL'}
+                            </p>
                         </div>
                         <button 
                             onClick={finishSetup}
-                            className="w-full bg-brand-500 hover:bg-brand-400 text-brand-950 font-black px-12 py-5 rounded-[2rem] shadow-2xl shadow-brand-500/20 transition-all uppercase tracking-[0.25em] text-xs hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 font-display italic"
+                            className="w-full bg-brand-900 text-white font-black px-10 py-5 rounded-xl shadow-lg hover:bg-brand-950 transition-all uppercase tracking-[0.25em] text-[10px] flex items-center justify-center gap-3"
+                            style={{ fontFamily: 'Orbitron, sans-serif' }}
                         >
-                            <Zap size={16} fill="currentColor" /> Enter Academy Portal
+                            <Zap size={14} className="text-brand-500" fill="currentColor" /> ENTER COMMAND CENTER
                         </button>
                     </>
                 )}
             </div>
         )}
-      </Card>
+      </div>
     </div>
+
   );
 };

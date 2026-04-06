@@ -7,461 +7,461 @@ import html2canvas from 'html2canvas';
 import { ConfirmModal } from './ConfirmModal';
 
 interface NoticeBoardProps {
-  role: Role;
+    role: Role;
 }
 
 export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
-  const [notices, setNotices] = useState<Announcement[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [newNotice, setNewNotice] = useState<{
-      title: string, 
-      content: string, 
-      priority: 'normal' | 'high', 
-      author: string, 
-      imageUrl: string,
-      qrCodeUrl: string
-  }>({ 
-      title: '', content: '', priority: 'normal', author: '', imageUrl: '', qrCodeUrl: '' 
-  });
-  const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  
-  // Delete State
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [noticeToDelete, setNoticeToDelete] = useState<string | null>(null);
-  
-  // Ref for the hidden brochure container
-  const brochureRef = useRef<HTMLDivElement>(null);
-  // State to hold the specific notice being rendered into the brochure template
-  const [brochureData, setBrochureData] = useState<Announcement | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const qrInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setNotices(StorageService.getNotices());
-    const handleSettings = () => setSettings(StorageService.getSettings());
-    window.addEventListener('settingsChanged', handleSettings);
-    return () => window.removeEventListener('settingsChanged', handleSettings);
-  }, []);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              setNewNotice(prev => ({ ...prev, imageUrl: reader.result as string }));
-          };
-          reader.readAsDataURL(file);
-      }
-  };
-
-  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              setNewNotice(prev => ({ ...prev, qrCodeUrl: reader.result as string }));
-          };
-          reader.readAsDataURL(file);
-      }
-  };
-
-  const handlePost = (e: React.FormEvent) => {
-    e.preventDefault();
-    StorageService.addNotice({ 
-        ...newNotice, 
-        author: newNotice.author || (role === 'admin' ? 'Academy Management' : 'Coach') 
+    const [notices, setNotices] = useState<Announcement[]>([]);
+    const [showForm, setShowForm] = useState(false);
+    const [newNotice, setNewNotice] = useState<{
+        title: string,
+        content: string,
+        priority: 'normal' | 'high',
+        author: string,
+        imageUrl: string,
+        qrCodeUrl: string
+    }>({
+        title: '', content: '', priority: 'normal', author: '', imageUrl: '', qrCodeUrl: ''
     });
-    setNotices(StorageService.getNotices());
-    setShowForm(false);
-    setNewNotice({ title: '', content: '', priority: 'normal', author: '', imageUrl: '', qrCodeUrl: '' });
-  };
+    const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const handleDeleteClick = (id: string) => {
-      setNoticeToDelete(id);
-      setDeleteModalOpen(true);
-  };
+    // Delete State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [noticeToDelete, setNoticeToDelete] = useState<string | null>(null);
 
-  const confirmDelete = async () => {
-      if (noticeToDelete) {
-          try {
-              await StorageService.deleteNotice(noticeToDelete);
-              setNotices(StorageService.getNotices());
-          } catch (err: any) {
-              console.error("Error deleting notice:", err);
-              alert("Failed to delete notice.");
-          } finally {
-              setDeleteModalOpen(false);
-              setNoticeToDelete(null);
-          }
-      }
-  };
+    // Ref for the hidden brochure container
+    const brochureRef = useRef<HTMLDivElement>(null);
+    // State to hold the specific notice being rendered into the brochure template
+    const [brochureData, setBrochureData] = useState<Announcement | null>(null);
 
-  // Trigger the download process
-  const initiateDownload = async (notice: Announcement) => {
-      setBrochureData(notice);
-      setDownloadingId(notice.id);
-      
-      // Wait for React to render the brochure template
-      setTimeout(async () => {
-          if (brochureRef.current) {
-              try {
-                  const canvas = await html2canvas(brochureRef.current, {
-                      scale: 2, // High resolution
-                      useCORS: true,
-                      backgroundColor: '#ffffff'
-                  });
-                  
-                  const link = document.createElement('a');
-                  link.download = `Brochure_${notice.title.replace(/\s+/g, '_')}.png`;
-                  link.href = canvas.toDataURL('image/png');
-                  link.click();
-              } catch (err) {
-                  console.error("Brochure generation failed", err);
-                  alert("Could not generate brochure.");
-              } finally {
-                  setDownloadingId(null);
-                  setBrochureData(null);
-              }
-          }
-      }, 500);
-  };
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const qrInputRef = useRef<HTMLInputElement>(null);
 
-  return (
-    <div className="space-y-8 pb-12 animate-in fade-in duration-500">
-      
-      {/* Hidden Brochure Template - Rendered off-screen */}
-      <div className="fixed left-[-9999px] top-0">
-          {brochureData && (
-              <div 
-                ref={brochureRef} 
-                className="w-[800px] h-[1132px] bg-white relative flex flex-col overflow-hidden"
-              >
-                  {/* SCENARIO A: Full Image Poster Mode */}
-                  {brochureData.imageUrl ? (
-                      <div className="absolute inset-0 w-full h-full">
-                          <img 
-                            src={brochureData.imageUrl} 
-                            className="w-full h-full object-cover" 
-                            alt="Full Poster"
-                          />
-                          
-                          {/* Branding Overlay (Top Right) */}
-                          <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-3">
-                                {settings.logoUrl ? (
-                                    <img src={settings.logoUrl} className="w-12 h-12 rounded-full object-contain" />
-                                ) : (
-                                    <Shield className="w-12 h-12 text-white" />
-                                )}
-                                <div>
-                                    <h1 className="text-xl font-black text-white italic leading-none">{settings.name.split(' ')[0]}</h1>
-                                    <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">{settings.name.split(' ').slice(1).join(' ') || 'Portal'}</p>
+    useEffect(() => {
+        setNotices(StorageService.getNotices());
+        const handleSettings = () => setSettings(StorageService.getSettings());
+        window.addEventListener('settingsChanged', handleSettings);
+        return () => window.removeEventListener('settingsChanged', handleSettings);
+    }, []);
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewNotice(prev => ({ ...prev, imageUrl: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewNotice(prev => ({ ...prev, qrCodeUrl: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handlePost = (e: React.FormEvent) => {
+        e.preventDefault();
+        StorageService.addNotice({
+            ...newNotice,
+            author: newNotice.author || (role === 'admin' ? 'Academy Management' : 'Coach')
+        });
+        setNotices(StorageService.getNotices());
+        setShowForm(false);
+        setNewNotice({ title: '', content: '', priority: 'normal', author: '', imageUrl: '', qrCodeUrl: '' });
+    };
+
+    const handleDeleteClick = (id: string) => {
+        setNoticeToDelete(id);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (noticeToDelete) {
+            try {
+                await StorageService.deleteNotice(noticeToDelete);
+                setNotices(StorageService.getNotices());
+            } catch (err: any) {
+                console.error("Error deleting notice:", err);
+                alert("Failed to delete notice.");
+            } finally {
+                setDeleteModalOpen(false);
+                setNoticeToDelete(null);
+            }
+        }
+    };
+
+    // Trigger the download process
+    const initiateDownload = async (notice: Announcement) => {
+        setBrochureData(notice);
+        setDownloadingId(notice.id);
+
+        // Wait for React to render the brochure template
+        setTimeout(async () => {
+            if (brochureRef.current) {
+                try {
+                    const canvas = await html2canvas(brochureRef.current, {
+                        scale: 2, // High resolution
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = `Brochure_${notice.title.replace(/\s+/g, '_')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (err) {
+                    console.error("Brochure generation failed", err);
+                    alert("Could not generate brochure.");
+                } finally {
+                    setDownloadingId(null);
+                    setBrochureData(null);
+                }
+            }
+        }, 500);
+    };
+
+    return (
+        <div className="space-y-8 pb-12 animate-in fade-in duration-500">
+
+            {/* Hidden Brochure Template - Rendered off-screen */}
+            <div className="fixed left-[-9999px] top-0">
+                {brochureData && (
+                    <div
+                        ref={brochureRef}
+                        className="w-[800px] h-[1132px] bg-white relative flex flex-col overflow-hidden"
+                    >
+                        {/* SCENARIO A: Full Image Poster Mode */}
+                        {brochureData.imageUrl ? (
+                            <div className="absolute inset-0 w-full h-full">
+                                <img
+                                    src={brochureData.imageUrl}
+                                    className="w-full h-full object-cover"
+                                    alt="Full Poster"
+                                />
+
+                                {/* Branding Overlay (Top Right) */}
+                                <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-3">
+                                    {settings.logoUrl ? (
+                                        <img src={settings.logoUrl} className="w-12 h-12 rounded-full object-contain" />
+                                    ) : (
+                                        <Shield className="w-12 h-12 text-white" />
+                                    )}
+                                    <div>
+                                        <h1 className="text-xl font-black text-white italic leading-none">{settings.name.split(' ')[0]}</h1>
+                                        <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">{settings.name.split(' ').slice(1).join(' ') || 'Portal'}</p>
+                                    </div>
                                 </div>
-                          </div>
 
-                          {/* QR Code Overlay (Bottom Right) */}
-                          {brochureData.qrCodeUrl && (
-                              <div className="absolute bottom-8 right-8 bg-white p-3 rounded-2xl shadow-2xl border-4 border-white/20 backdrop-blur-sm">
-                                  <img src={brochureData.qrCodeUrl} className="w-32 h-32 object-contain" />
-                                  <p className="text-center text-xs font-bold text-gray-900 mt-2 uppercase tracking-wide">Scan Me</p>
-                              </div>
-                          )}
-                      </div>
-                  ) : (
-                      /* SCENARIO B: Clean & Beautiful Text-Based Brochure */
-                      <div className="flex flex-col h-full font-sans text-gray-900 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
-                          {/* Decorative Header */}
-                          <div className="h-64 bg-brand-950 relative overflow-hidden flex-shrink-0">
-                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,200,255,0.1),transparent_70%)] opacity-20"></div>
-                              
-                              <div className="relative z-10 h-full flex flex-col justify-center px-16">
-                                  <div className="flex items-center gap-4 mb-4">
-                                      <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-                                          {settings.logoUrl ? (
-                                              <img src={settings.logoUrl} className="w-10 h-10 rounded-full object-contain" />
-                                          ) : (
-                                              <Shield className="w-10 h-10 text-brand-500" />
-                                          )}
-                                      </div>
-                                      <div>
-                                          <h1 className="text-4xl font-black text-white italic tracking-tighter">{settings.name.split(' ')[0]}</h1>
-                                          <p className="text-brand-500 font-bold uppercase tracking-[0.3em] text-sm">Official Announcement</p>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div className="absolute bottom-0 left-0 w-full h-12 bg-white" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0)' }}></div>
-                          </div>
+                                {/* QR Code Overlay (Bottom Right) */}
+                                {brochureData.qrCodeUrl && (
+                                    <div className="absolute bottom-8 right-8 bg-white p-3 rounded-2xl shadow-2xl border-4 border-white/20 backdrop-blur-sm">
+                                        <img src={brochureData.qrCodeUrl} className="w-32 h-32 object-contain" />
+                                        <p className="text-center text-xs font-bold text-gray-900 mt-2 uppercase tracking-wide">Scan Me</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            /* SCENARIO B: Clean & Beautiful Text-Based Brochure */
+                            <div className="flex flex-col h-full font-sans text-gray-900 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+                                {/* Decorative Header */}
+                                <div className="h-64 bg-brand-950 relative overflow-hidden flex-shrink-0">
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,200,255,0.1),transparent_70%)] opacity-20"></div>
 
-                          {/* Main Content */}
-                          <div className="flex-1 px-16 py-8">
-                              <div className="flex items-center justify-between border-b-2 border-gray-100 pb-6 mb-8">
-                                  <div>
-                                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Date</p>
-                                      <p className="text-xl font-bold text-gray-800">{new Date(brochureData.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                  </div>
-                                  <div className="text-right">
-                                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">From</p>
-                                      <p className="text-xl font-bold text-gray-800">{brochureData.author}</p>
-                                  </div>
-                              </div>
+                                    <div className="relative z-10 h-full flex flex-col justify-center px-16">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+                                                {settings.logoUrl ? (
+                                                    <img src={settings.logoUrl} className="w-10 h-10 rounded-full object-contain" />
+                                                ) : (
+                                                    <Shield className="w-10 h-10 text-brand-500" />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h1 className="text-4xl font-black text-white italic tracking-tighter">{settings.name.split(' ')[0]}</h1>
+                                                <p className="text-brand-500 font-bold uppercase tracking-[0.3em] text-sm">Official Announcement</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 w-full h-12 bg-white" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0)' }}></div>
+                                </div>
 
-                              <h2 className="text-5xl font-black text-brand-950 mb-8 leading-tight tracking-tight">{brochureData.title}</h2>
-                              
-                              <div className="prose prose-xl prose-brand max-w-none text-brand-900 font-medium leading-relaxed whitespace-pre-wrap">
-                                  {brochureData.content}
-                              </div>
-                          </div>
+                                {/* Main Content */}
+                                <div className="flex-1 px-16 py-8">
+                                    <div className="flex items-center justify-between border-b-2 border-gray-100 pb-6 mb-8">
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                            <p className="text-xl font-bold text-gray-800">{new Date(brochureData.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">From</p>
+                                            <p className="text-xl font-bold text-gray-800">{brochureData.author}</p>
+                                        </div>
+                                    </div>
 
-                          {/* Footer */}
-                          <div className="bg-brand-50 px-16 py-12 border-t border-brand-100 mt-auto">
-                              <div className="flex justify-between items-end">
-                                  <div>
-                                      <h3 className="font-bold text-brand-950 text-lg mb-1">{settings.name}</h3>
-                                      <p className="text-gray-500 text-sm">Official Academy Hub</p>
-                                      <p className="text-gray-500 text-sm mt-4">{settings.name.toLowerCase().replace(/\s+/g, '')}.com</p>
-                                  </div>
-                                  <div className="text-right">
-                                      <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block">
-                                          {brochureData.qrCodeUrl ? (
-                                              <img src={brochureData.qrCodeUrl} className="w-24 h-24 object-contain" />
-                                          ) : (
-                                              <div className="w-24 h-24 bg-brand-100 flex items-center justify-center text-brand-300">
-                                                  <Share2 size={32} />
-                                              </div>
-                                          )}
-                                      </div>
-                                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Scan for details</p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  )}
-              </div>
-          )}
-      </div>
+                                    <h2 className="text-5xl font-black text-brand-950 mb-8 leading-tight tracking-tight">{brochureData.title}</h2>
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-500 p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10"><Megaphone size={120} className="text-white" /></div>
-        <div className="relative z-10">
-          <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter">
-             ACADEMY <span className="text-brand-950">NEWS</span>
-          </h2>
-          <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.3em] mt-2 italic">Official Announcements • Schedule Updates • Academy Directives</p>
+                                    <div className="prose prose-xl prose-brand max-w-none text-brand-900 font-medium leading-relaxed whitespace-pre-wrap">
+                                        {brochureData.content}
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="bg-brand-50 px-16 py-12 border-t border-brand-100 mt-auto">
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <h3 className="font-bold text-brand-950 text-lg mb-1">{settings.name}</h3>
+                                            <p className="text-gray-500 text-sm">Official Academy Hub</p>
+                                            <p className="text-gray-500 text-sm mt-4">{settings.name.toLowerCase().replace(/\s+/g, '')}.com</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block">
+                                                {brochureData.qrCodeUrl ? (
+                                                    <img src={brochureData.qrCodeUrl} className="w-24 h-24 object-contain" />
+                                                ) : (
+                                                    <div className="w-24 h-24 bg-brand-100 flex items-center justify-center text-brand-300">
+                                                        <Share2 size={32} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Scan for details</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-500 p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-10"><Megaphone size={120} className="text-white" /></div>
+                <div className="relative z-10">
+                    <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter">
+                        ACADEMY <span className="text-brand-950">NEWS</span>
+                    </h2>
+                    <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.3em] mt-2 italic">Official Announcements • Schedule Updates • Academy Directives</p>
+                </div>
+                {(role === 'admin' || role === 'coach') && (
+                    <button
+                        onClick={() => setShowForm(!showForm)}
+                        className="w-full lg:w-auto flex items-center justify-center gap-3 sm:gap-4 bg-white text-brand-950 px-6 sm:px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-[10px] sm:text-xs uppercase tracking-widest italic"
+                    >
+                        <Plus size={18} />
+                        POST NEWS
+                    </button>
+                )}
+            </div>
+
+            {showForm && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-brand-100">
+                        <div className="px-10 py-8 border-b border-brand-50 flex justify-between items-center relative bg-brand-50">
+                            <h3 className="font-black text-2xl text-brand-950 italic uppercase tracking-tight">Create <span className="text-brand-500">Announcement</span></h3>
+                            <button onClick={() => setShowForm(false)} className="p-3 hover:bg-brand-100 rounded-full text-brand-300 transition-colors"><X size={20} /></button>
+                        </div>
+
+                        <form onSubmit={handlePost} className="p-10 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Headline</label>
+                                <input
+                                    className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm transition-all placeholder:text-brand-100 uppercase italic text-sm"
+                                    placeholder="e.g. SUMMER CAMP REGISTRATION OPEN"
+                                    value={newNotice.title}
+                                    onChange={e => setNewNotice({ ...newNotice, title: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Message Body</label>
+                                <textarea
+                                    className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm transition-all h-40 placeholder:text-brand-100 text-sm leading-relaxed"
+                                    placeholder="Details for the academy players & staff..."
+                                    value={newNotice.content}
+                                    onChange={e => setNewNotice({ ...newNotice, content: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Featured Image (Optional)</label>
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="border-2 border-dashed border-brand-100 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-32 relative overflow-hidden group shadow-sm bg-brand-50"
+                                    >
+                                        {newNotice.imageUrl ? (
+                                            <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+                                        ) : (
+                                            <div className="text-center">
+                                                <ImageIcon className="w-8 h-8 mx-auto mb-2 text-brand-200" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-brand-200">Upload Media</span>
+                                            </div>
+                                        )}
+                                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Action Link (QR)</label>
+                                        <div
+                                            onClick={() => qrInputRef.current?.click()}
+                                            className="border border-brand-100 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-14 bg-brand-50 shadow-sm group"
+                                        >
+                                            {newNotice.qrCodeUrl ? (
+                                                <div className="flex items-center gap-2 text-brand-500 font-black text-[10px] uppercase tracking-widest italic">
+                                                    <QrCode size={16} /> QR ATTACHED
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-brand-200 text-[10px] font-black uppercase tracking-widest group-hover:text-brand-500 transition-colors italic">
+                                                    <QrCode size={16} /> LINK QR CODE
+                                                </div>
+                                            )}
+                                            <input type="file" ref={qrInputRef} className="hidden" accept="image/*" onChange={handleQrUpload} />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <div className="flex-1 space-y-2">
+                                            <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Priority</label>
+                                            <select
+                                                className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest"
+                                                value={newNotice.priority}
+                                                onChange={e => setNewNotice({ ...newNotice, priority: e.target.value as any })}
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="high">High Priority</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Posted By</label>
+                                        <input
+                                            className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic placeholder:text-brand-100"
+                                            placeholder="e.g. ACADEMY MANAGEMENT"
+                                            value={newNotice.author}
+                                            onChange={e => setNewNotice({ ...newNotice, author: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-8 flex justify-end gap-4 border-t border-brand-50">
+                                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Discard</button>
+                                <button type="submit" className="flex-[2] py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic">Publish News</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Notice Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {notices.map(notice => (
+                    <div key={notice.id} className="bg-white rounded-[2.5rem] shadow-xl border border-brand-100 overflow-hidden flex flex-col group hover:border-brand-500 transition-all duration-500 hover:-translate-y-2 relative">
+                        <div className="absolute top-0 left-0 w-full h-[2px] bg-brand-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+
+                        {/* Card Header Image */}
+                        <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-500 to-red-800' : 'bg-brand-950') : 'bg-brand-950'}`}>
+                            {notice.imageUrl ? (
+                                <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-90 group-hover:opacity-100" />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
+                                    <Shield size={200} className="text-white" />
+                                </div>
+                            )}
+
+                            <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent" />
+
+                            {/* Badges */}
+                            <div className="absolute top-6 left-6 flex gap-2">
+                                <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/20 shadow-xl italic">
+                                    {new Date(notice.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </span>
+                            </div>
+
+                            {notice.priority === 'high' && (
+                                <div className="absolute top-6 right-6">
+                                    <div className="px-3 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-xl flex items-center gap-2 italic animate-pulse">
+                                        <AlertCircle size={10} /> HIGH PRIORITY
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-8 flex-1 flex flex-col relative bg-white">
+                            <div className="mb-6">
+                                <h3 className="text-xl font-black text-brand-950 italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight">{notice.title}</h3>
+                                <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em] italic">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#00C8FF]" />
+                                    Posted by <span className="text-brand-950/60 ml-1">{notice.author}</span>
+                                </div>
+                            </div>
+
+                            <div className="text-brand-950 text-[12px] leading-relaxed mb-8 flex-1 line-clamp-4 font-medium italic opacity-70 border-l-2 border-brand-100 pl-4">
+                                {notice.content}
+                            </div>
+
+                            <div className="flex items-center gap-4 pt-6 border-t border-brand-50">
+                                <button
+                                    onClick={() => initiateDownload(notice)}
+                                    disabled={downloadingId === notice.id}
+                                    className="flex-1 py-4 bg-brand-500 text-brand-950 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-lg italic"
+                                >
+                                    {downloadingId === notice.id ? (
+                                        <Loader2 size={14} className="animate-spin text-brand-950" />
+                                    ) : (
+                                        <>
+                                            <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
+                                            Download Flyer
+                                        </>
+                                    )}
+                                </button>
+
+                                {(role === 'admin' || role === 'coach') && (
+                                    <button
+                                        onClick={() => handleDeleteClick(notice.id)}
+                                        className="p-4 bg-brand-50 text-brand-100 rounded-xl hover:bg-red-50 hover:text-red-500 hover:border-red-500 transition-all border border-transparent italic"
+                                        title="Delete Announcement"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {notices.length === 0 && (
+                    <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-100 bg-brand-50 rounded-[4rem] border-2 border-dashed border-brand-100">
+                        <Megaphone size={64} className="mb-6 opacity-10" />
+                        <h3 className="font-black text-brand-200 uppercase tracking-[0.4em] italic leading-tight">No Active News</h3>
+                        <p className="text-[10px] font-black uppercase tracking-widest mt-2 opacity-50 italic">The notice board is currently empty.</p>
+                    </div>
+                )}
+            </div>
+
+            <ConfirmModal
+                isOpen={deleteModalOpen}
+                onCancel={() => {
+                    setDeleteModalOpen(false);
+                    setNoticeToDelete(null);
+                }}
+                onConfirm={confirmDelete}
+                title="DELETE ANNOUNCEMENT"
+                message="Are you sure you want to remove this message? This action is permanent and cannot be undone."
+                confirmText="DELETE"
+                type="danger"
+            />
         </div>
-        {(role === 'admin' || role === 'coach') && (
-          <button 
-            onClick={() => setShowForm(!showForm)}
-            className="w-full lg:w-auto flex items-center justify-center gap-3 sm:gap-4 bg-white text-brand-950 px-6 sm:px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-[10px] sm:text-xs uppercase tracking-widest italic"
-          >
-            <Plus size={18} />
-            POST NEWS
-          </button>
-        )}
-      </div>
-
-      {showForm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-              <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-brand-100">
-                  <div className="px-10 py-8 border-b border-brand-50 flex justify-between items-center relative bg-brand-50">
-                      <h3 className="font-black text-2xl text-brand-950 italic uppercase tracking-tight">Create <span className="text-brand-500">Announcement</span></h3>
-                      <button onClick={() => setShowForm(false)} className="p-3 hover:bg-brand-100 rounded-full text-brand-300 transition-colors"><X size={20} /></button>
-                  </div>
-                  
-                  <form onSubmit={handlePost} className="p-10 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Headline</label>
-                          <input 
-                            className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm transition-all placeholder:text-brand-100 uppercase italic text-sm" 
-                            placeholder="e.g. SUMMER CAMP REGISTRATION OPEN" 
-                            value={newNotice.title} 
-                            onChange={e => setNewNotice({...newNotice, title: e.target.value})} 
-                            required 
-                          />
-                      </div>
-
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Message Body</label>
-                          <textarea 
-                            className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm transition-all h-40 placeholder:text-brand-100 text-sm leading-relaxed" 
-                            placeholder="Details for the academy players & staff..." 
-                            value={newNotice.content} 
-                            onChange={e => setNewNotice({...newNotice, content: e.target.value})} 
-                            required 
-                          />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div className="space-y-2">
-                              <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Featured Image (Optional)</label>
-                              <div 
-                                onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-brand-100 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-32 relative overflow-hidden group shadow-sm bg-brand-50"
-                              >
-                                  {newNotice.imageUrl ? (
-                                      <img src={newNotice.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
-                                  ) : (
-                                      <div className="text-center">
-                                          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-brand-200" />
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-brand-200">Upload Media</span>
-                                      </div>
-                                  )}
-                                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
-                              </div>
-                          </div>
-
-                          <div className="space-y-6">
-                              <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Action Link (QR)</label>
-                                  <div 
-                                    onClick={() => qrInputRef.current?.click()}
-                                    className="border border-brand-100 rounded-2xl p-4 flex items-center justify-center gap-3 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all h-14 bg-brand-50 shadow-sm group"
-                                  >
-                                      {newNotice.qrCodeUrl ? (
-                                          <div className="flex items-center gap-2 text-brand-500 font-black text-[10px] uppercase tracking-widest italic">
-                                              <QrCode size={16} /> QR ATTACHED
-                                          </div>
-                                      ) : (
-                                          <div className="flex items-center gap-2 text-brand-200 text-[10px] font-black uppercase tracking-widest group-hover:text-brand-500 transition-colors italic">
-                                              <QrCode size={16} /> LINK QR CODE
-                                          </div>
-                                      )}
-                                      <input type="file" ref={qrInputRef} className="hidden" accept="image/*" onChange={handleQrUpload} />
-                                  </div>
-                              </div>
-
-                              <div className="flex gap-4">
-                                  <div className="flex-1 space-y-2">
-                                      <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Priority</label>
-                                      <select 
-                                          className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest" 
-                                          value={newNotice.priority} 
-                                          onChange={e => setNewNotice({...newNotice, priority: e.target.value as any})}
-                                      >
-                                          <option value="normal">Normal</option>
-                                          <option value="high">High Priority</option>
-                                      </select>
-                                  </div>
-                              </div>
-                              <div className="space-y-2">
-                                  <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] ml-1">Posted By</label>
-                                  <input 
-                                      className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic placeholder:text-brand-100" 
-                                      placeholder="e.g. ACADEMY MANAGEMENT" 
-                                      value={newNotice.author} 
-                                      onChange={e => setNewNotice({...newNotice, author: e.target.value})} 
-                                  />
-                              </div>
-                          </div>
-                      </div>
-
-                      <div className="pt-8 flex justify-end gap-4 border-t border-brand-50">
-                          <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Discard</button>
-                          <button type="submit" className="flex-[2] py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic">Publish News</button>
-                      </div>
-                  </form>
-              </div>
-          </div>
-      )}
-
-      {/* Notice Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {notices.map(notice => (
-                <div key={notice.id} className="bg-white rounded-[2.5rem] shadow-xl border border-brand-100 overflow-hidden flex flex-col group hover:border-brand-500 transition-all duration-500 hover:-translate-y-2 relative">
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-brand-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-                  
-                  {/* Card Header Image */}
-                  <div className={`h-52 relative overflow-hidden ${!notice.imageUrl ? (notice.priority === 'high' ? 'bg-gradient-to-br from-red-500 to-red-800' : 'bg-brand-950') : 'bg-brand-950'}`}>
-                      {notice.imageUrl ? (
-                          <img src={notice.imageUrl} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-90 group-hover:opacity-100" />
-                      ) : (
-                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
-                              <Shield size={200} className="text-white" />
-                          </div>
-                      )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent" />
-
-                      {/* Badges */}
-                      <div className="absolute top-6 left-6 flex gap-2">
-                          <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg border border-white/20 shadow-xl italic">
-                              {new Date(notice.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </span>
-                      </div>
-                      
-                      {notice.priority === 'high' && (
-                          <div className="absolute top-6 right-6">
-                              <div className="px-3 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-xl flex items-center gap-2 italic animate-pulse">
-                                  <AlertCircle size={10} /> HIGH PRIORITY
-                              </div>
-                          </div>
-                      )}
-                  </div>
-
-                  <div className="p-8 flex-1 flex flex-col relative bg-white">
-                      <div className="mb-6">
-                          <h3 className="text-xl font-black text-brand-950 italic leading-tight mb-3 group-hover:text-brand-500 transition-colors uppercase tracking-tight">{notice.title}</h3>
-                          <div className="flex items-center gap-2 text-[9px] text-brand-500 font-black uppercase tracking-[0.2em] italic">
-                              <div className="w-1.5 h-1.5 rounded-full bg-brand-500/50 shadow-[0_0_8px_#00C8FF]" />
-                              Posted by <span className="text-brand-950/60 ml-1">{notice.author}</span>
-                          </div>
-                      </div>
-                      
-                      <div className="text-brand-950 text-[12px] leading-relaxed mb-8 flex-1 line-clamp-4 font-medium italic opacity-70 border-l-2 border-brand-100 pl-4">
-                          {notice.content}
-                      </div>
-
-                      <div className="flex items-center gap-4 pt-6 border-t border-brand-50">
-                          <button 
-                            onClick={() => initiateDownload(notice)}
-                            disabled={downloadingId === notice.id}
-                            className="flex-1 py-4 bg-brand-500 text-brand-950 font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group/btn shadow-lg italic"
-                          >
-                               {downloadingId === notice.id ? (
-                                   <Loader2 size={14} className="animate-spin text-brand-950" />
-                               ) : (
-                                   <>
-                                     <Download size={16} className="transition-transform group-hover/btn:translate-y-[-2px]" />
-                                     Download Flyer
-                                   </>
-                               )}
-                          </button>
-                          
-                          {(role === 'admin' || role === 'coach') && (
-                              <button 
-                                onClick={() => handleDeleteClick(notice.id)}
-                                className="p-4 bg-brand-50 text-brand-100 rounded-xl hover:bg-red-50 hover:text-red-500 hover:border-red-500 transition-all border border-transparent italic"
-                                title="Delete Announcement"
-                              >
-                                  <X size={18} />
-                              </button>
-                          )}
-                      </div>
-                  </div>
-              </div>
-          ))}
-          
-          {notices.length === 0 && (
-              <div className="col-span-full py-40 text-center flex flex-col items-center justify-center text-brand-100 bg-brand-50 rounded-[4rem] border-2 border-dashed border-brand-100">
-                  <Megaphone size={64} className="mb-6 opacity-10" />
-                  <h3 className="font-black text-brand-200 uppercase tracking-[0.4em] italic leading-tight">No Active News</h3>
-                  <p className="text-[10px] font-black uppercase tracking-widest mt-2 opacity-50 italic">The notice board is currently empty.</p>
-              </div>
-          )}
-      </div>
-
-      <ConfirmModal
-          isOpen={deleteModalOpen}
-          onCancel={() => {
-              setDeleteModalOpen(false);
-              setNoticeToDelete(null);
-          }}
-          onConfirm={confirmDelete}
-          title="DELETE ANNOUNCEMENT"
-          message="Are you sure you want to remove this message? This action is permanent and cannot be undone."
-          confirmText="DELETE"
-          type="danger"
-      />
-    </div>
-  );
+    );
 };

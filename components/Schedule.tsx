@@ -201,243 +201,293 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   };
 
   return (
-    <div className="space-y-8 pb-24 animate-in fade-in duration-500">
+    <div className="space-y-8 pb-24 animate-in fade-in duration-700">
       
-      {/* Header & Controls */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-500 p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-10 opacity-10"><CalendarIcon size={160} className="text-white" /></div>
-        <div className="relative z-10 text-white">
-          <h2 className="text-4xl font-black italic tracking-tighter uppercase">
-             TEAM <span className="text-brand-950">SCHEDULE</span>
-          </h2>
-          <p className="font-black mt-1 uppercase text-[10px] tracking-[0.3em] opacity-80 italic">Academy Sessions, Matches, and Events</p>
+      {/* Header & Controls - Icarus Pro Hero */}
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-900 p-8 md:p-12 border border-white/10 shadow-2xl transition-all duration-500 hover:border-brand-500/30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,200,255,0.08),transparent_50%)]" />
+        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-125 group-hover:rotate-0 duration-700">
+            <CalendarIcon size={200} className="text-white" />
         </div>
+        
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500 animate-pulse">Live Operations</div>
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
+              MISSION <span className="premium-gradient-text">CONTROL</span>
+            </h2>
+            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
+              Orchestrating elite development through precise session planning and scheduling.
+            </p>
+          </div>
 
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto relative z-10">
-            {/* View Toggle */}
-            <div className="flex bg-brand-950 p-1 rounded-xl border border-white/5">
-                <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}>
-                    <LayoutList size={14}/> List
+          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+            {/* View Toggle - Glass Pill */}
+            <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner">
+                <button 
+                  onClick={() => setViewMode('list')} 
+                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20 scale-105' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                    <LayoutList size={14} strokeWidth={2.5} /> LIST
                 </button>
-                <button onClick={() => setViewMode('calendar')} className={`px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-white text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}>
-                    <Calendar size={14}/> Calendar
+                <button 
+                  onClick={() => setViewMode('calendar')} 
+                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20 scale-105' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                >
+                    <Calendar size={14} strokeWidth={2.5} /> CALENDAR
                 </button>
             </div>
 
+            {/* Filter Hub */}
             <div className="flex flex-wrap gap-2">
                 {[
-                    { id: 'all', label: 'All', icon: Filter, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
-                    { id: 'training', label: 'Training', icon: Zap, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
-                    { id: 'match', label: 'Matches', icon: Trophy, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' },
-                    { id: 'social', label: 'Events', icon: PartyPopper, active: 'bg-white text-brand-950 ring-2 ring-white/20 shadow-lg' }
+                    { id: 'all', label: 'ALL', icon: Filter },
+                    { id: 'training', label: 'TRAINING', icon: Zap },
+                    { id: 'match', label: 'MATCHES', icon: Trophy },
+                    { id: 'social', label: 'SOCIAL', icon: PartyPopper }
                 ].map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? tab.active : 'text-white/40 hover:text-white'}`}
+                        className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-white text-brand-950 border-white shadow-xl shadow-white/5 scale-105' : 'text-white/20 border-white/5 hover:border-white/20 hover:text-white'}`}
                     >
-                        <tab.icon size={12} />
+                        <tab.icon size={12} strokeWidth={activeTab === tab.id ? 3 : 2} />
                         {tab.label}
                     </button>
                 ))}
             </div>
-        </div>
 
-        {(role === 'admin' || role === 'coach') && (
-            <button 
-                onClick={handleCreate}
-                className="relative z-10 flex items-center gap-2 bg-white text-brand-950 px-6 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg font-black text-xs uppercase tracking-widest italic"
-            >
-                <Plus size={18} />
-                NEW ACTIVITY
-            </button>
+            {(role === 'admin' || role === 'coach') && (
+                <button 
+                    onClick={handleCreate}
+                    className="flex items-center gap-2.5 bg-lime text-brand-950 px-8 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-lime/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto lg:ml-0"
+                >
+                    <Plus size={18} strokeWidth={3} />
+                    ADD INTENT
+                </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="animate-slide-up">
+        {viewMode === 'calendar' ? <CalendarView /> : (
+            <div className="grid grid-cols-1 gap-6">
+                {filteredEvents.length === 0 && (
+                   <div className="glass-card p-24 text-center flex flex-col items-center border-dashed">
+                       <div className="w-20 h-20 bg-brand-500/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-white/5">
+                           <CalendarIcon size={32} className="text-brand-500/20" />
+                       </div>
+                       <h3 className="text-2xl font-display font-black text-white/20 uppercase tracking-[0.2em] italic leading-none">NO ACTIVE MISSIONS</h3>
+                       <p className="text-white/10 mt-4 text-[9px] font-black uppercase tracking-[0.3em] italic">The operational timeline is currently clear.</p>
+                   </div>
+                )}
+
+                {filteredEvents.map((event) => {
+                    const isPast = isEventPast(event.date, event.time);
+                    const dateObj = new Date(event.date);
+                    const coach = coaches.find(c => c.id === event.leadCoachId);
+                    const s = getTypeStyles(event.type);
+
+                    return (
+                        <div 
+                          key={event.id} 
+                          className={`group glass-card overflow-hidden flex flex-col md:flex-row transition-all duration-500 hover:ring-2 hover:ring-brand-500/30 ${isPast ? 'opacity-30' : ''}`}
+                        >
+                            {/* Temporal Anchor */}
+                            <div className="w-full md:w-56 p-8 bg-brand-900/50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-4 border-b md:border-b-0 md:border-r border-white/5 relative">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_50%)]" />
+                                <div className="text-center relative z-10">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-500">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
+                                    <div className="text-5xl font-display font-black text-white leading-none my-2 tracking-tighter italic drop-shadow-2xl">
+                                        {dateObj.getDate()}
+                                    </div>
+                                    <span className="text-[9px] font-bold uppercase text-white/30 tracking-[0.25em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                                </div>
+                                <div className="h-px w-10 bg-white/10 hidden md:block" />
+                                <div className="flex items-center gap-2.5 bg-brand-950 px-5 py-2.5 rounded-xl border border-white/10 shadow-2xl group-hover:border-brand-500/50 transition-colors">
+                                    <Clock size={14} className="text-brand-500" />
+                                    <span className="text-xs font-display font-black text-white">{event.time}</span>
+                                </div>
+                            </div>
+
+                            {/* Mission Specs */}
+                            <div className="flex-1 p-8 md:p-10 flex flex-col justify-center relative overflow-hidden">
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/5 blur-3xl rounded-full" />
+                                
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2.5 bg-brand-950 border border-white/10`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${s.dot} shadow-[0_0_8px_currentColor]`} />
+                                        <span className="text-white/60">{event.type}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-white/20 group-hover:text-brand-500 transition-colors">
+                                        <ArrowRight size={16} />
+                                    </div>
+                                </div>
+
+                                <h3 className="text-3xl font-display font-black text-white mb-6 group-hover:premium-gradient-text transition-all duration-500 italic uppercase tracking-tight leading-tight">
+                                    {event.title}
+                                </h3>
+                                
+                                <div className="flex flex-wrap items-center gap-8">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center transition-transform group-hover:rotate-12">
+                                          <MapPin size={18} className="text-brand-500" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none mb-1">LOCATION</span>
+                                            <span className="text-sm text-white/80 font-bold uppercase tracking-wide">{event.location}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-brand-500/5 rounded-xl border border-brand-500/20 flex items-center justify-center">
+                                              <ClipboardList size={18} className="text-brand-500" />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest leading-none mb-1">TACTICAL LOAD</span>
+                                                <span className="text-sm text-white/80 font-bold">{event.drillIds.length} EVALUATED DRILLS</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {coach && (
+                                        <div className="flex items-center gap-4 pl-8 border-l border-white/5">
+                                            <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-10 h-10 rounded-xl bg-brand-900 border border-white/10 object-cover shadow-2xl ring-2 ring-white/5 group-hover:ring-brand-500/30 transition-all" />
+                                            <div className="flex flex-col">
+                                              <span className="text-[8px] uppercase text-white/20 font-black tracking-widest leading-none mb-1">MISSION LEAD</span>
+                                              <span className="text-sm text-brand-500 font-black italic uppercase italic">{coach.username}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Tactical Actions */}
+                            {(role === 'admin' || role === 'coach') && (
+                                <div className="p-8 md:p-10 flex flex-row md:flex-col items-center justify-center gap-4 bg-brand-950/40 border-t md:border-t-0 md:border-l border-white/5">
+                                   {!isPast ? (
+                                       <>
+                                          <button onClick={() => handleEdit(event)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white/5 border border-white/5 text-white/40 rounded-2xl hover:text-brand-500 hover:border-brand-500 hover:bg-brand-500/10 transition-all shadow-sm group/btn active:scale-90" title="Edit Intent">
+                                              <Edit3 size={20} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
+                                          </button>
+                                          <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white/5 border border-white/5 text-white/40 rounded-2xl hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all shadow-sm group/btn active:scale-90" title="Abort Mission">
+                                              <Trash2 size={20} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
+                                          </button>
+                                       </>
+                                   ) : (
+                                      <div className="text-center">
+                                          <div className="w-14 h-14 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center grayscale">
+                                              <History size={20} className="text-white/20" />
+                                          </div>
+                                      </div>
+                                   )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
         )}
       </div>
 
-      {viewMode === 'calendar' ? <CalendarView /> : (
-          <div className="space-y-4">
-              {filteredEvents.length === 0 && (
-                 <div className="bg-white border border-brand-100 rounded-[2.5rem] p-20 text-center flex flex-col items-center shadow-xl">
-                     <CalendarIcon size={48} className="text-brand-100 mb-4" />
-                     <h3 className="text-xl font-black text-brand-950 uppercase tracking-widest italic leading-none">NO <span className="text-brand-500">SCHEDULE</span></h3>
-                     <p className="text-brand-300 mt-4 text-[10px] font-black uppercase tracking-[0.2em] italic">No active events detected for the current period.</p>
-                 </div>
-              )}
-
-              {filteredEvents.map((event) => {
-                  const isPast = isEventPast(event.date, event.time);
-                  const dateObj = new Date(event.date);
-                  const coach = coaches.find(c => c.id === event.leadCoachId);
-                  const s = getTypeStyles(event.type);
-
-                  return (
-                      <div 
-                        key={event.id} 
-                        className={`group relative bg-brand-500/10 backdrop-blur-md rounded-3xl border border-brand-500/20 hover:border-brand-500/40 transition-all duration-500 overflow-hidden flex flex-col md:flex-row ${isPast ? 'opacity-40 grayscale' : ''} border-l-4 ${s.border}`}
-                      >
-                          {/* Left: Date & Time */}
-                          <div className="w-full md:w-48 p-8 bg-brand-50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-3 border-b md:border-b-0 md:border-r border-brand-100">
-                              <div className="text-center">
-                                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-300">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
-                                  <div className="text-4xl font-black text-brand-950 leading-none my-1 tracking-tighter italic">{dateObj.getDate()}</div>
-                                  <span className="text-[10px] font-bold uppercase text-brand-400 tracking-[0.2em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
-                              </div>
-                              <div className="h-10 w-px bg-brand-200 hidden md:block my-2"></div>
-                              <div className="flex items-center gap-2 bg-brand-950 px-4 py-2 rounded-xl border border-white/10 shadow-lg">
-                                  <Clock size={14} className="text-brand-500" />
-                                  <span className="text-xs font-black text-white">{event.time}</span>
-                              </div>
-                          </div>
-
-                          {/* Middle: Content */}
-                          <div className="flex-1 p-8 flex flex-col justify-center relative">
-                              <div className="absolute top-8 right-8 hidden md:block">
-                                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${s.bg} ${s.text} border border-${s.text}/20`}>
-                                      {s.icon} {event.type}
-                                  </span>
-                              </div>
-
-                              <h3 className="text-2xl font-black text-brand-950 mb-3 group-hover:text-brand-500 transition-colors italic uppercase tracking-tight">
-                                  {event.title}
-                              </h3>
-                              
-                              <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-brand-400">
-                                  <div className="flex items-center gap-2.5">
-                                      <div className="p-2 bg-brand-50 rounded-lg border border-brand-100"><MapPin size={16} className="text-brand-500" /></div>
-                                      <span className="text-brand-700">{event.location}</span>
-                                  </div>
-                                  
-                                  {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
-                                      <div className="flex items-center gap-2.5">
-                                          <div className="p-2 bg-brand-500/10 rounded-lg text-brand-500"><ClipboardList size={16} /></div>
-                                          <span className="text-xs uppercase tracking-widest">{event.drillIds.length} DRILLS ASSIGNED</span>
-                                      </div>
-                                  )}
-                                  
-                                  {coach && (
-                                      <div className="flex items-center gap-3 pl-6 border-l border-brand-100">
-                                          <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-8 h-8 rounded-full bg-brand-50 border border-brand-100 object-cover shadow-sm" />
-                                          <div className="flex flex-col">
-                                            <span className="text-[10px] uppercase text-brand-300 font-black tracking-widest">Lead Coach</span>
-                                            <span className="text-xs text-brand-950 font-bold">{coach.username}</span>
-                                          </div>
-                                      </div>
-                                  )}
-                              </div>
-                          </div>
-
-                          {/* Right: Actions */}
-                          {(role === 'admin' || role === 'coach') && (
-                              <div className="p-6 md:p-8 flex flex-row md:flex-col items-center justify-center gap-3 bg-brand-50 border-t md:border-t-0 md:border-l border-brand-100">
-                                 {!isPast ? (
-                                     <>
-                                        <button onClick={() => handleEdit(event)} className="w-full md:w-auto p-4 bg-white border border-brand-100 text-brand-300 rounded-2xl hover:text-brand-500 hover:border-brand-500 hover:bg-brand-50 transition-all shadow-sm group/btn" title="Edit Event">
-                                            <Edit3 size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                        </button>
-                                        <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-auto p-4 bg-white border border-brand-100 text-brand-300 rounded-2xl hover:text-red-500 hover:border-red-500 hover:bg-red-50 transition-all shadow-sm group/btn" title="Delete Event">
-                                            <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                        </button>
-                                     </>
-                                 ) : (
-                                    <div className="text-center px-4">
-                                        <div className="p-4 bg-brand-50 rounded-2xl border border-brand-100">
-                                            <History size={20} className="mx-auto text-brand-200" />
-                                        </div>
-                                    </div>
-                                 )}
-                              </div>
-                          )}
-                      </div>
-                  );
-              })}
-          </div>
-      )}
-
-      {/* Modal Form */}
+      {/* Modal Form - Glassmorphic Overhaul */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-brand-100 flex flex-col max-h-[90vh]">
-            <div className="bg-brand-50 px-10 py-6 border-b border-brand-100 flex justify-between items-center relative">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-brand-500 opacity-30" />
-                <h3 className="font-black text-2xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'Edit' : 'New'} <span className="text-brand-500">Activity</span></h3>
-                <button type="button" onClick={() => setShowForm(false)} className="p-3 hover:bg-brand-100 rounded-full text-brand-300 transition-colors"><X size={20}/></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="bg-brand-900/90 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+            <div className="bg-gradient-to-r from-brand-950 to-brand-900 px-10 py-8 border-b border-white/5 flex justify-between items-center relative">
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50" />
+                <div>
+                   <h3 className="font-display font-black text-3xl text-white italic uppercase tracking-tight">{editingId ? 'RE-ENGAGE' : 'INITIATE'} <span className="premium-gradient-text uppercase">ACTIVITY</span></h3>
+                   <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mt-1">Operational Parameters Configuration</p>
+                </div>
+                <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 transition-colors border border-white/5"><X size={20} strokeWidth={3} /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Activity Name</label>
-                <input required type="text" placeholder="e.g. Session 04 / Match vs City" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none font-bold text-brand-950 shadow-sm" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ArrowRight size={10} strokeWidth={4} /> MISSION DESIGNATION</label>
+                <input required type="text" placeholder="e.g. TACTICAL SESSION 04" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none font-display font-black text-white text-lg placeholder:text-white/10 shadow-inner group" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Session Date</label>
-                    <input required type="date" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+              <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">TEMPORAL DATE</label>
+                    <input required type="date" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner uppercase" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Start Time</label>
-                    <input required type="time" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">TIMESTAMP</label>
+                    <input required type="time" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-display font-black text-white shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
                   </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Engagement Type</label>
-                    <select className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm appearance-none" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
-                        <option value="training">Training</option>
-                        <option value="match">Match</option>
-                        <option value="social">Social/Event</option>
-                    </select>
+              <div className="grid grid-cols-2 gap-8">
+                 <div className="space-y-3">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">ENGAGEMENT MODE</label>
+                    <div className="relative">
+                        <select className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner appearance-none uppercase" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
+                            <option value="training">Training</option>
+                            <option value="match">Match</option>
+                            <option value="social">Social/Event</option>
+                        </select>
+                        <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500 rotate-90" size={16} />
+                    </div>
                  </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Location</label>
-                    <input required type="text" placeholder="Pitch 1 / Ground 2" className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
+                 <div className="space-y-3">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">COORDINATES</label>
+                    <input required type="text" placeholder="BASE CAMP / SECTOR 7" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner placeholder:text-white/10 uppercase" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                  </div>
               </div>
 
-              <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em] ml-1">Lead Coach</label>
-                  <select className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl focus:border-brand-500 outline-none text-sm font-bold text-brand-950 shadow-sm appearance-none" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
-                      <option value="">Select Coach...</option>
-                      {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
-                  </select>
+              <div className="space-y-3">
+                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">COMMANDING OFFICER</label>
+                  <div className="relative">
+                      <select className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner appearance-none uppercase" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
+                          <option value="">AWAITING ASSIGNMENT...</option>
+                          {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
+                      </select>
+                      <UserIcon className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
+                  </div>
               </div>
 
               {form.type === 'training' && (
-                  <div className="pt-6 border-t border-white/5 animate-in slide-in-from-top-4">
-                      <div className="flex justify-between items-end mb-4">
-                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"><ClipboardList size={14} className="text-brand-500" /> Tactical Components</label>
-                          <span className="text-[9px] font-black text-brand-500 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">{form.drillIds.length} SELECTED</span>
+                  <div className="pt-10 border-t border-white/5 animate-in slide-in-from-top-4">
+                      <div className="flex justify-between items-end mb-6">
+                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ClipboardList size={14} className="text-brand-500" /> TACTICAL LOADOUT</label>
+                          <span className="text-[9px] font-black text-lime bg-lime/10 px-4 py-1.5 rounded-full border border-lime/20 shadow-[0_0_15px_rgba(195,246,41,0.1)]">{form.drillIds.length} DRILLS TARGETED</span>
                       </div>
                       
-                      <div className="bg-brand-950/20 border border-white/5 rounded-3xl p-3 max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="grid grid-cols-1 gap-3 max-h-72 overflow-y-auto custom-scrollbar pr-2 p-1">
                           {drills.length > 0 ? (
-                              <div className="space-y-2">
-                                  {drills.map(drill => {
-                                      const isSelected = form.drillIds.includes(drill.id);
-                                      return (
-                                          <div key={drill.id} onClick={() => toggleDrill(drill.id)} className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-brand-500/10 border-brand-500/30 shadow-lg shadow-brand-500/5' : 'bg-brand-900/50 border-white/5 hover:border-white/10'}`}>
-                                              <div className="flex flex-col">
-                                                  <span className={`text-sm font-black italic uppercase ${isSelected ? 'text-brand-500' : 'text-white'}`}>{drill.title}</span>
-                                                  <span className="text-[9px] text-brand-500 font-bold uppercase tracking-[0.15em]">{drill.category} • {drill.duration} MIN</span>
-                                              </div>
-                                              {isSelected && <div className="bg-brand-500 text-brand-950 p-1 rounded-lg"><Check size={12} strokeWidth={4} /></div>}
+                              drills.map(drill => {
+                                  const isSelected = form.drillIds.includes(drill.id);
+                                  return (
+                                      <div key={drill.id} onClick={() => toggleDrill(drill.id)} className={`flex items-center justify-between p-5 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-brand-500/20 border-brand-500/50 shadow-xl shadow-brand-500/5' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
+                                          <div className="flex flex-col">
+                                              <span className={`text-sm font-display font-black italic uppercase ${isSelected ? 'text-brand-500' : 'text-white'}`}>{drill.title}</span>
+                                              <span className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">{drill.category} • {drill.duration} MIN BURST</span>
                                           </div>
-                                      );
-                                  })}
-                              </div>
+                                          {isSelected && <div className="bg-brand-500 text-brand-950 p-1.5 rounded-xl"><Check size={12} strokeWidth={4} /></div>}
+                                      </div>
+                                  );
+                              })
                           ) : (
-                              <p className="text-center text-xs text-brand-600 py-6 italic font-medium">Drill database empty. Initialize from Training module.</p>
+                              <p className="text-center text-[10px] text-white/20 py-8 italic font-black uppercase tracking-[0.2em]">Drill database offline. Initialize from Training module.</p>
                           )}
                       </div>
                   </div>
               )}
             </form>
 
-            <div className="px-10 py-6 border-t border-brand-100 bg-brand-50 flex gap-4">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-xs uppercase tracking-[0.2em]">Cancel</button>
-                <button onClick={handleSubmit} className="flex-1 py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] italic">
-                    <Save size={18} /> {editingId ? 'Update Event' : 'Save Event'}
+            <div className="px-10 py-8 border-t border-white/5 bg-brand-950/50 flex gap-6">
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-white/20 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] font-display">ABORT</button>
+                <button onClick={handleSubmit} className="flex-[2] py-5 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-2xl shadow-brand-500/20 hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.3em] italic font-display border border-white/20">
+                    <Save size={20} strokeWidth={3} /> {editingId ? 'COMMAND UPDATE' : 'INITIALIZE MISSION'}
                 </button>
             </div>
           </div>
@@ -451,8 +501,8 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               setEventToDelete(null);
           }}
           onConfirm={confirmDelete}
-          title="Abort Operation"
-          message="Are you sure you want to permanently remove this activity? All assigned drills and data links will be severed."
+          title="CRITICAL ABORT"
+          message="Are you sure you want to permanently decommission this mission? All tactical drill links and session data will be purged from the timeline."
       />
     </div>
   );

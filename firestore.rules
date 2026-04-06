@@ -143,7 +143,12 @@ service cloud.firestore {
 
     match /attendance/{recordId} {
       allow read: if isAuthenticated();
-      allow create, update: if (isAdmin() || isCoach()) && isValidAttendance(request.resource.data);
+      allow create, update: if (isAdmin() || isCoach()) || 
+                             (isAuthenticated() && 
+                              exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+                              request.resource.data.playerId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linkedPlayerId &&
+                              request.resource.data.status == 'PRESENT' &&
+                              isValidAttendance(request.resource.data));
       allow delete: if isAdmin();
     }
 
@@ -194,6 +199,11 @@ service cloud.firestore {
     }
 
     match /potm/{monthId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isCoach();
+    }
+
+    match /session_motm/{sessionId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() || isCoach();
     }

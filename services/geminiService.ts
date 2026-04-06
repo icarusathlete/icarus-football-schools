@@ -2,11 +2,11 @@
 import { GoogleGenAI } from "@google/genai";
 import { Player, AttendanceRecord, Match } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
 
 export const GeminiService = {
   analyzeAttendance: async (players: Player[], attendance: AttendanceRecord[], academyName: string = "Academy Portal") => {
-    if (!process.env.API_KEY) throw new Error("Gemini API Key is missing.");
+    if (!import.meta.env.VITE_GEMINI_API_KEY) throw new Error("Gemini API Key is missing.");
 
     const summaryData = players.map(p => {
         const records = attendance.filter(a => a.playerId === p.id);
@@ -42,7 +42,7 @@ export const GeminiService = {
   },
 
   generateReportCard: async (player: Player, attendance: AttendanceRecord[], matches: Match[]) => {
-     if (!process.env.API_KEY) throw new Error("Gemini API Key is missing.");
+     if (!import.meta.env.VITE_GEMINI_API_KEY) throw new Error("Gemini API Key is missing.");
 
      // Calculate stats
      const playerMatches = matches.filter(m => m.playerStats.some(s => s.playerId === player.id));
@@ -91,7 +91,7 @@ export const GeminiService = {
   },
 
   analyzeMatchPerformance: async (player: Player, match: Match, academyName: string = "Academy Portal") => {
-    if (!process.env.API_KEY) throw new Error("Gemini API Key is missing.");
+    if (!import.meta.env.VITE_GEMINI_API_KEY) throw new Error("Gemini API Key is missing.");
 
     const stats = match.playerStats.find(s => s.playerId === player.id);
     if (!stats) return "<p>No stats found for this match.</p>";

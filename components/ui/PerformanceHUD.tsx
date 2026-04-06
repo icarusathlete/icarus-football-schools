@@ -28,24 +28,24 @@ export const PerformanceHUD: React.FC = () => {
     }, []);
 
     return (
-        <div className="flex items-center gap-3 bg-brand-500/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-brand-500/20 shadow-2xl">
-            <div className="flex items-center gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
-                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isOnline ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {isOnline ? 'SYSTEM ONLINE' : 'CONNECTION LOST'}
+        <div className="flex items-center gap-4 px-5 py-3 rounded-xl border border-brand-900/5 bg-brand-900/5 shadow-inner transition-all hover:bg-brand-900/10">
+            <div className="flex items-center gap-2.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-brand-500 animate-pulse' : 'bg-red-400'}`} />
+                <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${isOnline ? 'text-brand-900/60' : 'text-red-400'}`}>
+                    {isOnline ? 'SYSTEM ACTIVE' : 'CONNECTION OFFLINE'}
                 </span>
             </div>
             
-            <div className="h-3 w-px bg-white/10" />
+            <div className="h-3 w-px bg-brand-900/10" />
             
-            <div className="flex items-center gap-2 px-1">
+            <div className="flex items-center gap-2.5">
                 {isSyncing ? (
-                    <RefreshCw size={12} className="text-brand-500 animate-spin" />
+                    <div className="w-3 h-3 border-2 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
                 ) : (
-                    <Zap size={12} className={isOnline ? 'text-lime' : 'text-brand-800'} />
+                    <Zap size={10} className={isOnline ? 'text-brand-500' : 'text-brand-900/10'} fill={isOnline ? 'currentColor' : 'none'} />
                 )}
-                <span className="text-[9px] font-black text-brand-600 uppercase tracking-widest">
-                    {isSyncing ? 'SYNCING...' : 'ACTIVE'}
+                <span className="text-[8px] font-black text-brand-900/30 uppercase tracking-[0.25em]">
+                    {isSyncing ? 'SYNCING MATRIX' : 'ENCRYPTED'}
                 </span>
             </div>
         </div>

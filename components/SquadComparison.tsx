@@ -199,10 +199,12 @@ export const SquadComparison: React.FC = () => {
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-brand-700 relative">
                                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
-                                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[{subject:'Pace', A:50},{subject:'Shooting', A:60},{subject:'Passing', A:40},{subject:'Physical', A:70},{subject:'Mental', A:50}]} width={500} height={500}>
-                                        <PolarGrid stroke="white" />
-                                        <Radar name="Demo" dataKey="A" stroke="white" fill="white" />
-                                    </RadarChart>
+                                     <ResponsiveContainer width="100%" height="100%" id="demo-radar-placeholder">
+                                         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[{subject:'Pace', A:50},{subject:'Shooting', A:60},{subject:'Passing', A:40},{subject:'Physical', A:70},{subject:'Mental', A:50}]}>
+                                            <PolarGrid stroke="white" />
+                                            <Radar name="Demo" dataKey="A" stroke="white" fill="white" />
+                                        </RadarChart>
+                                     </ResponsiveContainer>
                                 </div>
                                 <div className="relative z-10 flex flex-col items-center bg-brand-950/20 p-12 rounded-[3.5rem] backdrop-blur-md border border-white/5 shadow-2xl">
                                     <Activity size={64} className="mb-6 text-brand-500 opacity-20 animate-pulse" />
