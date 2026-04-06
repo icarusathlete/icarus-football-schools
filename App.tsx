@@ -47,6 +47,7 @@ const App: React.FC = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       clearTimeout(safetyTimeout);
+      setIsAuthReady(true); // Signal ready as soon as we know the auth status
       
       if (firebaseUser) {
         // Fetch user role and subscribe to real-time metadata updates
@@ -64,21 +65,16 @@ const App: React.FC = () => {
               else if (userData.role === 'player') setActiveTab('player-dashboard');
             }
           }
-          setIsAuthReady(true);
         }, (error) => {
           console.error("User metadata sync error:", error);
           StorageService.stopFirebaseSync();
-          setIsAuthReady(true);
         });
         
-        // Correct cleanup: Use the effect's return, not the callback's return
         return; 
       } else {
         setCurrentUser(null);
         StorageService.stopFirebaseSync();
-        setIsAuthReady(true);
       }
-      setIsAuthReady(true);
     });
 
     return () => {
