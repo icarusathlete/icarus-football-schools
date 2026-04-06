@@ -51,61 +51,53 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-brand-900 w-full max-w-3xl rounded-3xl shadow-[0_0_50px_rgba(30,41,59,0.8)] overflow-hidden flex flex-col max-h-[90vh] border border-white/10">
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in">
+      <div className="bg-white w-full max-w-3xl rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90vh] border border-slate-200">
         
         {/* HEADER */}
-        <div className="bg-brand-800 px-8 py-6 flex justify-between items-center relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/5 blur-3xl -z-10 rounded-full" />
-           <div className="flex items-center gap-6">
-              <img src={player.photoUrl} className="w-16 h-16 rounded-full border-2 border-brand-500 shadow-lg object-cover" />
+        <div className="bg-slate-900 px-8 py-8 flex justify-between items-center relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 blur-3xl -z-10 rounded-full" />
+           <div className="flex items-center gap-6 relative z-10">
+              <img src={player.photoUrl} className="w-16 h-16 rounded-2xl border-2 border-white/20 shadow-xl object-cover bg-white/5" />
               <div>
-                  <h3 className="font-bold text-2xl text-white tracking-tight">{player.fullName}</h3>
-                  <div className="flex gap-2 items-center mt-1">
-                      <span className="text-xs bg-white/10 text-brand-300 px-2 py-0.5 rounded uppercase tracking-wider font-bold">{player.position}</span>
-                      <span className="text-xs text-brand-400 font-mono">{player.memberId}</span>
+                  <h3 className="font-black text-2xl text-white italic uppercase tracking-tight leading-none mb-2">{player.fullName}</h3>
+                  <div className="flex gap-2 items-center">
+                      <span className="text-[9px] bg-brand-500 text-slate-900 px-3 py-1 rounded-full uppercase tracking-widest font-black italic">{player.position}</span>
+                      <span className="text-[10px] text-white/40 font-black tracking-widest uppercase italic bg-white/5 px-3 py-1 rounded-full border border-white/10">{player.memberId}</span>
                   </div>
               </div>
            </div>
-           <button onClick={onCancel} className="p-2 hover:bg-white/10 rounded-full text-brand-400 hover:text-white transition-all">
+           <button onClick={onCancel} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-white transition-all border border-white/10 shadow-lg relative z-10">
               <X size={24} />
            </button>
         </div>
 
         {/* TABS */}
-        <div className="flex bg-brand-900 px-8 py-2 border-b border-white/5 gap-6 text-sm font-bold uppercase tracking-wider">
-           <button 
-             onClick={() => setActiveTab('timeline')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'timeline' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
-           >
-             Dev. Timeline
-           </button>
-           <button 
-             onClick={() => setActiveTab('kpis')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'kpis' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
-           >
-             Position KPIs
-           </button>
-           <button 
-             onClick={() => setActiveTab('attachments')} 
-             className={`pb-3 pt-3 border-b-2 transition-colors ${activeTab === 'attachments' ? 'border-brand-500 text-brand-500' : 'border-transparent text-brand-400 hover:text-brand-300'}`}
-           >
-             Media Vault
-           </button>
+        <div className="flex bg-slate-50 px-8 border-b border-slate-200 gap-8 text-[10px] font-black uppercase tracking-[0.2em] italic">
+           {['timeline', 'kpis', 'attachments'].map((tab) => (
+               <button 
+                 key={tab}
+                 onClick={() => setActiveTab(tab as any)} 
+                 className={`pb-5 pt-6 border-b-2 transition-all relative ${activeTab === tab ? 'border-brand-500 text-brand-500' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+               >
+                 {tab === 'timeline' ? 'Progress Timeline' : tab === 'kpis' ? 'Performance Stats' : 'Photos & Videos'}
+                 {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 shadow-[0_-4px_10px_rgba(14,165,233,0.5)]" />}
+               </button>
+           ))}
         </div>
 
         {/* CONTENT */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar-light relative text-left">
            
            {activeTab === 'timeline' && (
-               <div className="space-y-6 animate-fade-in pl-4 border-l-2 border-brand-800 ml-4">
+               <div className="space-y-8 animate-in slide-in-from-left-4 duration-300 pl-4 border-l-2 border-slate-100 ml-4">
                   {milestones.map((m, i) => (
                       <div key={i} className="relative">
-                          <div className="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-brand-500 shadow-[0_0_10px_rgba(14,165,233,0.5)] -ml-px" />
-                          <div className="pl-6">
-                              <div className="text-xs font-bold text-brand-400 uppercase tracking-widest">{new Date(m.date).toLocaleDateString()}</div>
-                              <h4 className="text-lg font-bold text-white mt-1">{m.title}</h4>
-                              <p className="text-brand-300 text-sm mt-1">{m.desc}</p>
+                          <div className="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-brand-500 shadow-[0_0_15px_rgba(14,165,233,0.6)] border-2 border-white transition-transform hover:scale-125" />
+                          <div className="pl-6 group">
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-1">{new Date(m.date).toLocaleDateString()}</div>
+                              <h4 className="text-lg font-black text-slate-900 uppercase italic tracking-tight group-hover:text-brand-500 transition-colors">{m.title}</h4>
+                              <p className="text-slate-500 text-[13px] font-bold mt-2 leading-relaxed italic">{m.desc}</p>
                           </div>
                       </div>
                   ))}
@@ -113,80 +105,83 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
            )}
 
            {activeTab === 'kpis' && (
-               <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div className="md:col-span-2 mb-4 bg-brand-800/50 p-4 rounded-xl border border-white/5 flex items-center gap-3">
-                       <Target className="text-brand-500" size={24} />
+               <div className="animate-in slide-in-from-right-4 duration-300 grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="md:col-span-2 mb-4 bg-brand-50 p-6 rounded-[1.5rem] border border-brand-100 flex items-center gap-4">
+                       <div className="p-3 bg-brand-500 rounded-2xl text-white shadow-lg shadow-brand-500/20"><Target size={24} /></div>
                        <div>
-                           <div className="text-white font-bold">{player.position} Metrics</div>
-                           <div className="text-xs text-brand-400">Key performance indicators tracked for this position.</div>
+                           <div className="text-slate-900 font-black italic uppercase tracking-tight">{player.position} Stats</div>
+                           <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Key performance indicators for this player.</div>
                        </div>
                    </div>
                    {getKPIs().map((kpi, i) => (
-                       <div key={i} className="bg-brand-800 p-6 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
-                           <div className="text-3xl font-black text-white">{kpi.val}</div>
-                           <div className="text-xs uppercase tracking-widest text-brand-400 mt-2 font-bold">{kpi.label}</div>
+                       <div key={i} className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 flex flex-col justify-center items-center text-center group hover:border-brand-500/20 transition-all hover:bg-white hover:shadow-xl">
+                           <div className="text-4xl font-black text-slate-900 italic tracking-tighter group-hover:text-brand-500 transition-colors">{kpi.val}</div>
+                           <div className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mt-3 font-black italic">{kpi.label}</div>
                        </div>
                    ))}
                </div>
            )}
 
            {activeTab === 'attachments' && (
-               <div className="animate-fade-in space-y-8">
-                   <div className="grid grid-cols-2 gap-4">
+               <div className="animate-in slide-in-from-bottom-4 duration-300 space-y-10">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                        {player.attachments?.map((att, i) => (
-                           <div key={i} className="bg-brand-800 border border-white/10 rounded-xl overflow-hidden group">
+                           <div key={i} className="bg-white border border-slate-100 rounded-[1.5rem] overflow-hidden group shadow-sm hover:shadow-xl transition-all">
                                {att.type === 'image' ? (
-                                   <div className="h-32 bg-brand-950 relative overflow-hidden">
-                                       <img src={att.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                       <div className="absolute top-2 right-2 p-1 bg-black/50 backdrop-blur rounded"><ImageIcon size={12} className="text-white"/></div>
+                                   <div className="h-40 bg-slate-100 relative overflow-hidden">
+                                       <img src={att.url} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                       <div className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md rounded-xl border border-white/20"><ImageIcon size={14} className="text-white"/></div>
                                    </div>
                                ) : (
-                                   <div className="h-32 bg-brand-950 flex items-center justify-center relative">
-                                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center"><Video className="text-white" /></div>
+                                   <div className="h-40 bg-slate-900 flex items-center justify-center relative">
+                                        <div className="w-14 h-14 rounded-full bg-brand-500/20 flex items-center justify-center border border-brand-500/30"><Video className="text-brand-500" /></div>
+                                        <div className="absolute top-4 right-4 p-2 bg-white/10 rounded-xl"><Video size={14} className="text-white"/></div>
                                    </div>
                                )}
-                               <div className="p-3">
-                                   <div className="text-sm font-bold text-white truncate">{att.note || 'Untitled Attachment'}</div>
-                                   <div className="text-[10px] text-brand-400 uppercase tracking-widest mt-1">{new Date(att.date).toLocaleDateString()}</div>
+                               <div className="p-5">
+                                   <div className="text-[13px] font-black text-slate-900 italic uppercase tracking-tight truncate mb-1">{att.note || 'Untitled Note'}</div>
+                                   <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">{new Date(att.date).toLocaleDateString()}</div>
                                </div>
                            </div>
                        ))}
                        {(!player.attachments || player.attachments.length === 0) && (
-                           <div className="col-span-2 p-8 border border-dashed border-white/10 rounded-xl text-center text-brand-500 font-bold flex flex-col items-center">
-                               <Paperclip className="mb-2 opacity-50" size={32} />
-                               No attachments yet
+                           <div className="col-span-2 p-12 border-2 border-dashed border-slate-100 rounded-[2rem] text-center text-slate-300 font-black uppercase tracking-widest flex flex-col items-center italic">
+                               <Paperclip className="mb-4 opacity-20" size={48} />
+                               No photos or videos added yet
                            </div>
                        )}
                    </div>
 
                    {/* Add new attachment form */}
-                   <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                       <h4 className="text-white font-bold mb-4 flex items-center gap-2"><Paperclip size={16}/> Add Attachment</h4>
-                       <div className="space-y-4">
-                           <div className="flex gap-4">
-                               <label className="flex items-center gap-2 text-sm text-brand-300">
-                                   <input type="radio" checked={newAttachmentType==='image'} onChange={()=>setNewAttachmentType('image')} className="accent-brand-500"/> Image
-                               </label>
-                               <label className="flex items-center gap-2 text-sm text-brand-300">
-                                   <input type="radio" checked={newAttachmentType==='video'} onChange={()=>setNewAttachmentType('video')} className="accent-brand-500"/> Video URL
-                               </label>
+                   <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-inner">
+                       <h4 className="text-slate-900 font-black italic uppercase tracking-tight mb-6 flex items-center gap-3"><Paperclip size={20} className="text-brand-500" /> Add Record</h4>
+                       <div className="space-y-6">
+                           <div className="flex gap-6">
+                               {['image', 'video'].map((type) => (
+                                   <label key={type} className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest italic cursor-pointer group">
+                                       <input type="radio" checked={newAttachmentType === type} onChange={() => setNewAttachmentType(type as any)} className="w-4 h-4 accent-brand-500" />
+                                       <span className={`${newAttachmentType === type ? 'text-brand-500' : 'group-hover:text-slate-700'} transition-colors`}>{type.toUpperCase()} TYPE</span>
+                                   </label>
+                               ))}
                            </div>
-                           <input 
-                             type="text" 
-                             placeholder={newAttachmentType === 'image' ? 'Image URL (e.g. from Firebase Storage)' : 'YouTube Video URL'} 
-                             value={newAttachmentUrl}
-                             onChange={e=>setNewAttachmentUrl(e.target.value)}
-                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-brand-500"
-                           />
-                           <input 
-                             type="text" 
-                             placeholder="Note / Description (Optional)" 
-                             value={newAttachmentNote}
-                             onChange={e=>setNewAttachmentNote(e.target.value)}
-                             className="w-full bg-brand-900 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-brand-500"
-                           />
-                           <button onClick={handleAddAttachment} className="bg-brand-500 text-brand-950 font-black rounded-xl px-8 py-3 text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-brand-500/10">
-                               UPLOAD TO VAULT
+                           <div className="grid grid-cols-1 gap-4">
+                               <input 
+                                 type="text" 
+                                 placeholder={newAttachmentType === 'image' ? 'IMAGE URL' : 'VIDEO URL'} 
+                                 value={newAttachmentUrl}
+                                 onChange={e=>setNewAttachmentUrl(e.target.value)}
+                                 className="w-full bg-white border border-slate-200 rounded-xl p-5 text-slate-900 text-xs font-black italic uppercase tracking-widest outline-none focus:border-brand-500 shadow-sm"
+                               />
+                               <input 
+                                 type="text" 
+                                 placeholder="NOTES (OPTIONAL)" 
+                                 value={newAttachmentNote}
+                                 onChange={e=>setNewAttachmentNote(e.target.value)}
+                                 className="w-full bg-white border border-slate-200 rounded-xl p-5 text-slate-900 text-xs font-black italic uppercase tracking-widest outline-none focus:border-brand-500 shadow-sm"
+                               />
+                           </div>
+                           <button onClick={handleAddAttachment} className="w-full py-5 bg-brand-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-[1.02] active:scale-95 shadow-2xl shadow-brand-500/20 italic">
+                               SAVE TO PROFILE
                            </button>
                        </div>
                    </div>

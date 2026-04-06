@@ -30,12 +30,12 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     onClick={() => onTabChange(item.id)}
     className={`w-full flex items-center space-x-3 px-5 py-4 rounded-xl transition-all duration-300 group relative ${
       activeTab === item.id 
-        ? 'bg-brand-900 text-white shadow-lg shadow-brand-900/10' 
-        : 'text-brand-900/40 hover:bg-brand-900/5 hover:text-brand-900'
+        ? 'bg-brand-500/10 text-brand-500 shadow-lg shadow-brand-500/10 border border-brand-500/20' 
+        : 'text-white/40 hover:bg-white/5 hover:text-white'
     }`}
   >
-    <item.icon className={`w-4 h-4 transition-all duration-300 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-brand-900/30 group-hover:text-brand-900 group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className={`text-[9px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+    <item.icon className={`w-4 h-4 transition-all duration-300 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/20 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className={`text-[9px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black text-brand-500' : 'font-bold'}`}>{item.label}</span>
     {activeTab === item.id && (
       <div className="absolute right-4 w-1 h-1 rounded-full bg-brand-500 animate-pulse" />
     )}
@@ -142,10 +142,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const allNavItems = navSections.flatMap(s => s.items);
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row text-brand-900 relative overflow-x-hidden">
-      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 z-20 bg-white border-r border-brand-900/5 shadow-sm">
-        <div className="p-8 flex items-center gap-4 border-b border-brand-900/5 relative overflow-hidden group">
-          <div className="shrink-0 p-1.5 bg-brand-900 rounded-lg shadow-sm flex items-center justify-center w-10 h-10 ring-1 ring-white/10 overflow-hidden">
+    <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row relative overflow-x-hidden">
+      <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 z-20 bg-brand-secondary border-r border-white/5 shadow-2xl text-white">
+        <div className="p-8 flex items-center gap-4 border-b border-white/5 relative overflow-hidden group">
+          <div className="shrink-0 p-1.5 bg-brand-primary rounded-lg shadow-sm flex items-center justify-center w-10 h-10 ring-1 ring-white/10 overflow-hidden">
             {settings.logoUrl ? (
               <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-md" alt="Logo" />
             ) : (
@@ -153,11 +153,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             )}
           </div>
           <div className="overflow-hidden">
-            <h1 className="text-xs font-black tracking-tighter leading-tight uppercase text-brand-900" 
+            <h1 className="text-xs font-black tracking-tighter leading-tight uppercase text-white" 
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               {settings.name}
             </h1>
-            <p className="text-[8px] text-brand-900/30 uppercase tracking-[0.25em] font-bold mt-1 leading-none">{currentUser.role} PORTAL</p>
+            <p className="text-[8px] text-white/30 uppercase tracking-[0.25em] font-bold mt-1 leading-none">{currentUser.role} PORTAL</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
@@ -195,17 +195,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             </div>
         )}
 
-        <div className="p-6 border-t border-brand-900/5 bg-brand-900/5">
+        <div className="p-6 border-t border-white/5 bg-white/5">
            <div className="flex items-center gap-3 mb-5 px-1">
-              <div className="w-8 h-8 rounded-lg bg-brand-900 flex items-center justify-center text-brand-500 shadow-sm transition-transform hover:scale-110">
+              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-brand-secondary shadow-sm transition-transform hover:scale-110">
                 <span className="text-[10px] font-black">{currentUser.username[0].toUpperCase()}</span>
               </div>
               <div className="overflow-hidden">
-                <p className="text-[9px] font-black text-brand-900 truncate uppercase tracking-wider">{currentUser.username}</p>
-                <p className="text-[7px] font-bold text-brand-900/30 uppercase tracking-[0.2em] mt-0.5">AUTHORISED {currentUser.role}</p>
+                <p className="text-[9px] font-black text-white truncate uppercase tracking-wider">{currentUser.username}</p>
+                <p className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] mt-0.5">{currentUser.role.toUpperCase()} PORTAL</p>
               </div>
            </div>
-           <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-brand-900/5 hover:bg-red-500/5 hover:text-red-500 hover:border-red-500/10 transition-all text-[8px] font-black uppercase tracking-[0.25em] text-brand-900/20">
+           <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/5 hover:bg-red-500/5 hover:text-red-500 hover:border-red-500/10 transition-all text-[8px] font-black uppercase tracking-[0.25em] text-white/20">
              <LogOut size={12} />
              <span>Sign Out</span>
            </button>
@@ -232,7 +232,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative z-10 custom-scrollbar scroll-smooth box-border">
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative z-10 bg-white text-slate-900 custom-scrollbar scroll-smooth box-border">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >
@@ -286,7 +286,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                         onClick={() => StorageService.triggerBackupDownload()}
                         className="w-full py-5 bg-brand-500 text-brand-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand-500/10"
                     >
-                        <Download size={20} /> Synchronize All Data
+                        <Download size={20} /> Export Academy Data
                     </button>
                </div>
            )}

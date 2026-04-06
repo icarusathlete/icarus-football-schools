@@ -112,7 +112,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <div className="bg-brand-950/50 p-12 text-center rounded-[3.8rem]">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-800 border border-white/10 mb-10">
                         <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_12px_#BEF264]" />
-                        <span className="text-[11px] font-black text-brand-500 uppercase tracking-widest leading-none">Secure Connection Established</span>
+                        <span className="text-[11px] font-black text-brand-500 uppercase tracking-widest leading-none">Portal Ready</span>
                     </div>
 
                     <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Secure <span className="text-brand-500">Portal</span></h2>
@@ -145,7 +145,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     </button>
 
                     <div className="mt-12 flex flex-col gap-6">
-                        <p className="text-[10px] font-black text-brand-800 uppercase tracking-[0.4em]">Secure End-to-End Environment • v2.0.26</p>
+                        <p className="text-[10px] font-black text-brand-800 uppercase tracking-[0.4em]">Academy Management System • v2.0.26</p>
                         <div className="flex justify-center gap-2">
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-brand-800/50" />)}
                         </div>

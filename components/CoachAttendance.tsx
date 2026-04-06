@@ -1,477 +1,258 @@
-import React, { useState, useCallback, memo, useRef, useMemo, useEffect } from 'react';
-import { Player, AttendanceRecord, AttendanceStatus } from '../types';
+import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
-import { Users, Search, Calendar as CalendarIcon, CheckCircle2, ChevronDown, CheckCircle as CheckCircleIcon, X, Trophy } from 'lucide-react';
+import { Player, Venue, Batch, AttendanceRecord, User } from '../types';
+import { 
+    Search, MapPin, Layers, Check, X, Calendar, 
+    Save, Filter, Map, Users, ChevronRight, 
+    Zap, Activity, Shield, Command, Radio
+} from 'lucide-react';
 
-// ─── localStorage helpers ─────────────────────────────────────────
-const LS_KEY = 'icarus_attendance';
-const LS_MOTM_KEY = 'icarus_session_motm';
-
-function lsWrite(record: AttendanceRecord) {
-  try {
-    const all: AttendanceRecord[] = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    const rest = all.filter(r => !(r.playerId === record.playerId && r.date === record.date));
-    localStorage.setItem(LS_KEY, JSON.stringify([...rest, record]));
-  } catch { /* silent */ }
-}
-
-function lsReadAll(playerIds: string[], date: string): Record<string, AttendanceStatus> {
-  try {
-    const all: AttendanceRecord[] = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    const map: Record<string, AttendanceStatus> = {};
-    playerIds.forEach(id => {
-      const r = all.find(r => r.playerId === id && r.date === date);
-      map[id] = (r?.status as AttendanceStatus) ?? AttendanceStatus.ABSENT;
-    });
-    return map;
-  } catch {
-    const m: Record<string, AttendanceStatus> = {};
-    playerIds.forEach(id => { m[id] = AttendanceStatus.ABSENT; });
-    return m;
-  }
-}
-
-function lsReadMotm(date: string): string | null {
-  try {
-    const stored = JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}');
-    return stored[date] || null;
-  } catch { return null; }
-}
-
-// Removed local lsWriteMotm as we use StorageService.setMOTM
-
-// ─── Digital Sliding Switch (Digital Stadium Elite) ──────────────────
-const DigitalSwitch = ({ isPresent, onClick }: { isPresent: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) => (
-  <button 
-    type="button" 
-    onClick={onClick} 
-    className={`relative group flex items-center w-12 h-6 rounded-full transition-all duration-300 ${
-      isPresent ? 'bg-lime' : 'bg-white/10'
-    }`}
-  >
-    <div className={`absolute inset-0 rounded-full transition-opacity duration-300 ${isPresent ? 'opacity-100 shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'opacity-0'}`} />
-    <div className={`absolute left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-      isPresent ? 'translate-x-6' : 'translate-x-0'
-    } shadow-lg`} />
-  </button>
-);
-
-// ─── Player Card (Athlete Profile v2) ──────────────────
-const PlayerCard = memo(function PlayerCard({
-  player, date, initialStatus, isMotm, onStatusChange, onSelectMotm,
-}: {
-  player: Player;
-  date: string;
-  initialStatus: AttendanceStatus;
-  isMotm: boolean;
-  onStatusChange: (playerId: string, status: AttendanceStatus) => void;
-  onSelectMotm: (playerId: string) => void;
-}) {
-  const [status, setStatus] = useState<AttendanceStatus>(initialStatus);
-
-  useEffect(() => {
-    setStatus(initialStatus);
-  }, [initialStatus, date]);
-
-  const handleToggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); e.preventDefault();
-    const nextStatus = status === AttendanceStatus.PRESENT ? AttendanceStatus.ABSENT : AttendanceStatus.PRESENT;
-    setStatus(nextStatus);
-    onStatusChange(player.id, nextStatus);
-  }, [player.id, status, onStatusChange]);
-
-  const isPresent = status === AttendanceStatus.PRESENT;
-
-  return (
-    <div className={`relative flex flex-col p-4 glass-card bg-white/5 gap-4 overflow-hidden border-none group/card ${
-      isMotm ? 'ring-1 ring-lime/50 shadow-lime-glow' : ''
-    }`}>
-      {/* Dynamic Status Glow */}
-      <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 pointer-events-none ${
-        isPresent ? 'from-lime/10 to-transparent opacity-100' : 'opacity-0'
-      }`} />
-
-      <div className="flex gap-4 items-start relative z-10">
-        {/* Photo Container */}
-        <div 
-          onClick={handleToggle}
-          className={`shrink-0 w-16 h-20 bg-white/10 rounded overflow-hidden cursor-pointer transition-all duration-500 ${
-            isPresent ? 'ring-2 ring-lime shadow-lg' : 'grayscale opacity-70'
-          }`}
-        >
-          <img 
-            src={player.photoUrl} 
-            alt={player.fullName} 
-            className="w-full h-full object-cover" 
-          />
-        </div>
-
-        {/* Identity Details */}
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-1">
-            <span className="text-[7px] font-bold text-white/40 uppercase tracking-[0.2em] font-display">PNL-{player.id.slice(-4).toUpperCase()}</span>
-            <button 
-              onClick={(e) => { e.stopPropagation(); onSelectMotm(player.id); }}
-              className={`transition-all duration-300 hover:scale-125 ${isMotm ? 'text-lime drop-shadow-[0_0_8px_rgba(195,246,41,0.5)]' : 'text-white/10 hover:text-white/30'}`}
-              title="Toggle Session MVP"
-            >
-              <Trophy size={14} />
-            </button>
-          </div>
-          <h4 className={`font-display font-bold text-[11px] uppercase tracking-tighter truncate leading-tight transition-colors ${
-            isPresent ? 'text-white' : 'text-white/50'
-          }`}>
-            {player.fullName}
-          </h4>
-          <p className="text-[8px] text-white/30 font-bold uppercase mt-1 italic tracking-widest">{player.batch || 'UNIT 01'}</p>
-        </div>
-      </div>
-
-      {/* Control Surface */}
-      <div className="flex items-center justify-between pt-2 mt-auto border-t border-white/5">
-        <span className={`text-[8px] font-bold tracking-widest transition-colors ${isPresent ? 'text-lime' : 'text-white/20'}`}>
-          {isPresent ? 'OPERATIONAL' : 'OFFLINE'}
-        </span>
-        <DigitalSwitch isPresent={isPresent} onClick={handleToggle} />
-      </div>
-    </div>
-  );
-},
-(prev, next) =>
-  prev.player.id === next.player.id &&
-  prev.date === next.date &&
-  prev.initialStatus === next.initialStatus &&
-  prev.isMotm === next.isMotm &&
-  prev.onStatusChange === next.onStatusChange &&
-  prev.onSelectMotm === next.onSelectMotm
-);
-
-// ─── Main component ───────────────────────────────────────────────
 export const CoachAttendance: React.FC = () => {
-  const todayStr = new Date().toISOString().split('T')[0];
-  const [date, setDate] = useState(todayStr);
-  const [players, setPlayers] = useState<Player[]>(() => StorageService.getPlayers());
-  const [liveStatuses, setLiveStatuses] = useState<Record<string, AttendanceStatus>>(() =>
-    lsReadAll(StorageService.getPlayers().map(p => p.id), todayStr)
-  );
-  const [motmId, setMotmId] = useState<string | null>(() => {
-    const data = StorageService.getMOTM(todayStr);
-    return data?.playerId || null;
-  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
+  
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedVenue, setSelectedVenue] = useState('');
+  const [selectedBatch, setSelectedBatch] = useState('');
+  
+  const [attendance, setAttendance] = useState<Record<string, 'present' | 'absent' | 'none'>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const [filter, setFilter] = useState('ALL');
-  const [venueFilter, setVenueFilter] = useState('all');
-  const [batchFilter, setBatchFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [rsvps, setRsvps] = useState<{ attending: Player[]; declined: Player[]; pending: Player[] }>({ attending: [], declined: [], pending: [] });
-  const recentToggles = useRef<Record<string, number>>({});
-
-  // Reload on date change
   useEffect(() => {
-    const ps = StorageService.getPlayers();
-    setPlayers(ps);
-    setLiveStatuses(lsReadAll(ps.map(p => p.id), date));
-    const motm = StorageService.getMOTM(date);
-    setMotmId(motm?.playerId || null);
-    recentToggles.current = {};
-    const event = StorageService.getSchedule().find(e => e.date === date);
-    if (event) {
-      const a: Player[] = [], d: Player[] = [], pend: Player[] = [];
-      ps.forEach(p => { const s = event.rsvps?.[p.id]; if (s === 'attending') a.push(p); else if (s === 'declined') d.push(p); else pend.push(p); });
-      setRsvps({ attending: a, declined: d, pending: pend });
-    } else { setRsvps({ attending: [], declined: [], pending: [] }); }
-  }, [date]);
+    const user = StorageService.getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
+      const allVenues = StorageService.getVenues();
+      const isAdmin = user.role === 'admin';
+      
+      // Safety: Ensure assignedVenues is an array for non-admins
+      const assignedVenues = isAdmin ? allVenues : allVenues.filter(v => (user.assignedVenues || []).includes(v.name));
+      setVenues(assignedVenues);
+      if (assignedVenues.length > 0) setSelectedVenue(assignedVenues[0].name);
 
-  // Firestore sync — Targeted Patching Logic
-  useEffect(() => {
-    const handler = () => {
-      const ps = StorageService.getPlayers();
-      setPlayers(ps);
-      const fromStorage = lsReadAll(ps.map(p => p.id), date);
-      const now = Date.now();
-
-      setLiveStatuses(prev => {
-        let hasChanged = false;
-        const next = { ...prev };
-        
-        ps.forEach(p => {
-          const storageStatus = fromStorage[p.id] || AttendanceStatus.ABSENT;
-          const currentStatus = prev[p.id];
-          
-          // Protection window: Ignore incoming sync if we recently toggled this player (5s guard)
-          const lastToggleTime = recentToggles.current[p.id] || 0;
-          if (now - lastToggleTime >= 5000) {
-            if (storageStatus !== currentStatus) {
-              next[p.id] = storageStatus;
-              hasChanged = true;
-            }
-          }
-        });
-
-        return hasChanged ? next : prev;
-      });
-    };
-    window.addEventListener('academy_data_update', handler);
-    return () => window.removeEventListener('academy_data_update', handler);
-  }, [date]);
-
-  // Attendance toggle — Decentralized Handler
-  const onStatusChange = useCallback(async (playerId: string, status: AttendanceStatus) => {
-    // 1. Mark as pending locally (timestamp)
-    recentToggles.current[playerId] = Date.now();
-    
-    // 2. Update UI instantly
-    setLiveStatuses(prev => ({ ...prev, [playerId]: status }));
-    
-    // 3. Update localStorage optimistically
-    const record: AttendanceRecord = { id: `${date}_${playerId}`, playerId, date, status };
-    lsWrite(record);
-    
-    // 4. Persistence to Firestore
-    try {
-      await StorageService.saveAttendanceBatch([record]);
-    } catch (error) {
-      console.error("Attendance save failed:", error);
-      // Optional: revert local state on failure
+      const allBatches = StorageService.getBatches();
+      // Safety: Ensure assignedBatches is an array for non-admins
+      const assignedBatches = isAdmin ? allBatches : allBatches.filter(b => (user.assignedBatches || []).includes(b.name));
+      setBatches(assignedBatches);
+      if (assignedBatches.length > 0) setSelectedBatch(assignedBatches[0].name);
     }
-  }, [date]);
+  }, []);
 
-  const onSelectMotm = useCallback(async (playerId: string) => {
-    const next = motmId === playerId ? null : playerId;
-    setMotmId(next);
-    await StorageService.setMOTM(next || '', date);
-  }, [date, motmId]);
+  useEffect(() => {
+    if (selectedVenue && selectedBatch) {
+      const allPlayers = StorageService.getPlayers();
+      const filtered = allPlayers.filter(p => p.venue === selectedVenue && p.batch === selectedBatch);
+      setPlayers(filtered);
+      
+      const records = StorageService.getAttendance();
+      const dayRecords = records.filter(r => r.date === selectedDate && r.venue === selectedVenue && r.batch === selectedBatch);
+      
+      const initialAttendance: Record<string, 'present' | 'absent' | 'none'> = {};
+      filtered.forEach(p => {
+        const record = dayRecords.find(r => r.playerId === p.id);
+        initialAttendance[p.id] = record ? (record.status as 'present' | 'absent') : 'none';
+      });
+      setAttendance(initialAttendance);
+    }
+  }, [selectedDate, selectedVenue, selectedBatch]);
 
-  const presentCount = useMemo(() =>
-    Object.values(liveStatuses).filter(s => s === AttendanceStatus.PRESENT).length,
-    [liveStatuses]
+  const toggleAttendance = (playerId: string, status: 'present' | 'absent') => {
+    setAttendance(prev => ({
+      ...prev,
+      [playerId]: prev[playerId] === status ? 'none' : status
+    }));
+    setSaveStatus('idle');
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const recordsToSave: AttendanceRecord[] = players
+        .filter(p => attendance[p.id] !== 'none')
+        .map(p => ({
+          id: `${p.id}-${selectedDate}`,
+          playerId: p.id,
+          playerName: p.fullName,
+          date: selectedDate,
+          status: attendance[p.id] as 'present' | 'absent',
+          venue: selectedVenue,
+          batch: selectedBatch,
+          markedBy: currentUser?.username || 'unknown',
+          timestamp: Date.now()
+        }));
+      
+      await StorageService.saveAttendanceBatch(recordsToSave);
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch (error) {
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const filteredPlayers = players.filter(p => 
+    p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.memberId.toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const motmPlayer = useMemo(() =>
-    motmId ? players.find(p => p.id === motmId) || null : null,
-    [motmId, players]
-  );
-
-  const filteredPlayers = useMemo(() =>
-    players.filter(p => {
-      const s = liveStatuses[p.id] ?? AttendanceStatus.ABSENT;
-      return (
-        (filter === 'ALL' || (filter === 'PRESENT' && s === AttendanceStatus.PRESENT) || (filter === 'ABSENT' && s === AttendanceStatus.ABSENT)) &&
-        (venueFilter === 'all' || p.venue === venueFilter) &&
-        (batchFilter === 'all' || p.batch === batchFilter) &&
-        (!searchQuery || p.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }),
-    [players, liveStatuses, filter, venueFilter, batchFilter, searchQuery]
-  );
+  const stats = {
+    total: players.length,
+    present: Object.values(attendance).filter(s => s === 'present').length,
+    absent: Object.values(attendance).filter(s => s === 'absent').length,
+    pending: players.length - Object.values(attendance).filter(s => s !== 'none').length
+  };
 
   return (
-    <div className="space-y-12 pb-32 animate-in fade-in duration-700">
-      {/* Asymmetrical Header - Digital Stadium Elite */}
-      <div className="relative pt-12 overflow-visible">
-        {/* Overlapping Background Geometry */}
-        <div className="absolute top-0 -left-8 w-1/2 h-full bg-surface-bright -skew-x-12 opacity-50 z-0" />
-        <div className="absolute top-8 left-0 w-3/4 h-24 bg-gradient-to-r from-lime/5 to-transparent blur-3xl z-0" />
-
-        <div className="relative z-10 px-4 md:px-0">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-0.5 bg-lime" />
-            <span className="font-display font-bold text-[10px] text-lime uppercase tracking-[0.4em]">Operational Unit Overview</span>
-          </div>
+    <div className="space-y-6 pb-32 animate-in fade-in duration-700 font-display">
+      {/* Attendance Header */}
+      <div className="bg-brand-500 p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Command size={140} className="text-white" /></div>
           
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
-            <div>
-              <h2 className="text-6xl md:text-7xl font-display font-bold tracking-tight text-white uppercase leading-[0.85] italic">
-                OPERATIONAL<br />
-                <span className="text-lime">ROSTER</span>
+          <div className="relative z-10 space-y-3">
+              <div className="flex items-center gap-2 mb-2 px-3 py-1 bg-brand-950/10 w-fit rounded-full border border-black/5">
+                  <Radio size={12} className="text-brand-950 animate-pulse" />
+                  <p className="text-[9px] font-black text-brand-950 uppercase tracking-[0.4em]">Daily Attendance</p>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none mb-1">
+                 Attendance <span className="text-brand-950 font-black">Sheet</span>
               </h2>
-              <div className="mt-6 flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded border border-white/10">
-                  <div className="w-2 h-2 bg-lime animate-pulse rounded-full" />
-                  <span className="text-[8px] font-bold text-white/60 tracking-widest uppercase">Live Connection</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded border border-white/10">
-                  <CalendarIcon size={10} className="text-white/40" />
-                  <span className="text-[8px] font-bold text-white/60 tracking-widest uppercase leading-none">{new Date(date).toLocaleDateString()}</span>
-                </div>
+              <div className="flex flex-wrap items-center gap-4 text-brand-900/60 font-black uppercase text-[10px] tracking-widest italic">
+                  <span className="flex items-center gap-2 bg-brand-950/10 px-3 py-1 rounded-lg border border-black/5"><Calendar size={12}/> {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                  <span className="flex items-center gap-2 opacity-50"><Activity size={12}/> Status: Training in Progress</span>
               </div>
-            </div>
-
-            {/* Date Selector HUD */}
-            <div className="flex items-center gap-2 p-1.5 bg-white/5 backdrop-blur-3xl rounded-lg border border-white/10">
-              <button 
-                onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]); }} 
-                className="w-10 h-10 flex items-center justify-center bg-white/5 rounded hover:bg-white/10 transition-all text-white/40"
-              >
-                <ChevronDown className="rotate-90 w-4 h-4" />
-              </button>
-              <div className="px-4 text-center">
-                <input 
-                  type="date" 
-                  value={date} 
-                  onChange={e => setDate(e.target.value)} 
-                  className="bg-transparent border-none outline-none text-sm font-display font-bold text-white w-32 cursor-pointer text-center uppercase" 
-                />
-              </div>
-              <button 
-                onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]); }} 
-                className="w-10 h-10 flex items-center justify-center bg-white/5 rounded hover:bg-white/10 transition-all text-white/40"
-              >
-                <ChevronDown className="-rotate-90 w-4 h-4" />
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full md:w-auto">
+              <div className="bg-white/40 p-4 rounded-3xl border border-white/20 backdrop-blur-xl flex-1 md:w-32 lg:w-40 text-center group hover:bg-white/60 transition-all shadow-lg shadow-black/5">
+                  <p className="text-[9px] font-black text-brand-950/40 uppercase tracking-widest mb-1 group-hover:text-brand-950/60">PRESENT</p>
+                  <p className="text-2xl font-black text-brand-950 italic leading-none">{stats.present}<span className="text-brand-950/20 text-xs ml-1">/{stats.total}</span></p>
+              </div>
+              <div className="bg-white/40 p-4 rounded-3xl border border-white/20 backdrop-blur-xl flex-1 md:w-32 lg:w-40 text-center group hover:bg-white/60 transition-all shadow-lg shadow-black/5">
+                  <p className="text-[9px] font-black text-brand-950/40 uppercase tracking-widest mb-1 group-hover:text-red-500/60">ABSENT</p>
+                  <p className="text-2xl font-black text-red-600 italic leading-none">{stats.absent}</p>
+              </div>
+          </div>
       </div>
 
-      {/* Performance Metrics - Tonal Surfaces */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up">
-        {/* Present Card */}
-        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
-          <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 flex items-center justify-center text-lime">
-              <CheckCircle2 size={24} />
-            </div>
-            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">In Field</span>
-          </div>
-          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{presentCount}</h3>
-          <p className="text-[8px] font-bold text-lime mt-1 uppercase tracking-widest">PRESENT PERSONNEL</p>
-        </div>
-
-        {/* Absent Card */}
-        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
-          <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 flex items-center justify-center text-rose-500">
-              <X size={24} />
-            </div>
-            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Offline</span>
-          </div>
-          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{players.length - presentCount}</h3>
-          <p className="text-[8px] font-bold text-rose-500/60 mt-1 uppercase tracking-widest">MISSING UNITS</p>
-        </div>
-
-        {/* Total Card */}
-        <div className="relative p-6 bg-white/5 rounded-lg group transition-all duration-500 hover:bg-white/10">
-          <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 flex items-center justify-center text-white/20">
-              <Users size={24} />
-            </div>
-            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Capacity</span>
-          </div>
-          <h3 className="text-4xl font-display font-bold text-white tracking-tighter">{players.length}</h3>
-          <p className="text-[8px] font-bold text-white/30 mt-1 uppercase tracking-widest">TOTAL ROSTER</p>
-        </div>
-
-        {/* MVP Spotlight */}
-        <div className={`relative p-6 rounded-lg transition-all duration-700 ${
-          motmPlayer ? 'bg-gradient-to-br from-lime/20 to-surface-bright ring-1 ring-lime/30' : 'bg-white/5 border border-dashed border-white/10'
-        }`}>
-          {motmPlayer ? (
-            <>
-              <div className="flex justify-between items-start mb-6">
-                <Trophy size={20} className="text-lime" />
-                <span className="text-[8px] font-black text-lime uppercase tracking-widest">MVP ACTIVE</span>
+      {/* Filters (Mobile Optimized) */}
+      <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col xl:flex-row gap-6 relative z-10 border-white/5">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div className="relative group flex-1">
+                  <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" />
+                  <select 
+                    className="w-full pl-14 pr-10 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic appearance-none cursor-pointer"
+                    value={selectedVenue}
+                    onChange={(e) => setSelectedVenue(e.target.value)}
+                  >
+                      {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+                  </select>
+                  <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 rotate-90" />
               </div>
-              <h3 className="text-xl font-display font-bold text-white tracking-tight uppercase truncate">{motmPlayer.fullName.split(' ')[0]}</h3>
-              <p className="text-[8px] font-bold text-white/40 mt-1 uppercase tracking-widest">SESSION LEAD</p>
-            </>
-          ) : (
-            <div className="h-full flex flex-col justify-center items-center opacity-20">
-              <span className="text-[8px] font-black uppercase tracking-widest">Assignment Pending</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* RSVP Integration - Subtle Glass Bars */}
-      {(rsvps.attending.length + rsvps.declined.length + rsvps.pending.length > 0) && (
-        <div className="grid grid-cols-3 gap-6 animate-fade-in">
-          <div className="glass-card bg-emerald-500/5 p-5 border-emerald-500/20 flex flex-col items-center justify-center gap-1 group hover:bg-emerald-500/10 transition-colors">
-            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic opacity-60">CONFIRMED</span>
-            <span className="text-3xl font-display font-black text-emerald-500 group-hover:scale-110 transition-transform">{rsvps.attending.length}</span>
-          </div>
-          <div className="glass-card bg-rose-500/5 p-5 border-rose-500/20 flex flex-col items-center justify-center gap-1 group hover:bg-rose-500/10 transition-colors">
-            <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest italic opacity-60">DECLINED</span>
-            <span className="text-3xl font-display font-black text-rose-500 group-hover:scale-110 transition-transform">{rsvps.declined.length}</span>
-          </div>
-          <div className="glass-card bg-white/5 p-5 border-white/10 flex flex-col items-center justify-center gap-1 group hover:bg-white/10 transition-colors">
-            <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">PENDING</span>
-            <span className="text-3xl font-display font-black text-white/60 group-hover:scale-110 transition-transform">{rsvps.pending.length}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Roster Controls - HUD Filter Strip */}
-      <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 pb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded rotate-45 border border-white/10">
-            <Search size={14} className="-rotate-45 text-lime" />
-          </div>
-          <h3 className="font-display font-bold text-white text-lg tracking-tight uppercase italic">IDENTITY <span className="text-lime">FILTER</span></h3>
-        </div>
-        
-        <div className="flex-1 flex flex-wrap lg:flex-nowrap items-center gap-2 max-w-4xl">
-          <div className="relative flex-1 min-w-[200px]">
-            <input 
-              type="text" 
-              placeholder="GENETIC_SCANR (Search)..." 
-              value={searchQuery} 
-              onChange={e => setSearchQuery(e.target.value)} 
-              className="w-full bg-white/5 border border-white/10 rounded px-6 py-3 text-[10px] font-bold text-white uppercase tracking-widest italic outline-none focus:bg-white/10 focus:ring-1 focus:ring-lime transition-all" 
-            />
+              <div className="relative group flex-1">
+                  <Layers className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" />
+                  <select 
+                    className="w-full pl-14 pr-10 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic appearance-none cursor-pointer"
+                    value={selectedBatch}
+                    onChange={(e) => setSelectedBatch(e.target.value)}
+                  >
+                      {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+                  </select>
+                  <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 rotate-90" />
+              </div>
+              <div className="relative group flex-[1.5]">
+                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                  <input 
+                    type="text" 
+                    placeholder="Search players..." 
+                    className="w-full pl-14 pr-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-slate-900 placeholder:text-slate-300 italic uppercase tracking-widest shadow-inner"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+              </div>
           </div>
           
-          <div className="flex bg-white/5 p-1 rounded border border-white/10">
-            {['ALL', 'PRESENT', 'ABSENT'].map(f => (
-              <button 
-                key={f} 
-                onClick={() => setFilter(f)} 
-                className={`text-[8px] font-bold px-5 py-2 rounded uppercase tracking-widest transition-all ${
-                  filter === f ? 'bg-lime text-black font-extrabold active-selection' : 'text-white/40 hover:text-white'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative group">
-            <select 
-              value={venueFilter} 
-              onChange={e => setVenueFilter(e.target.value)} 
-              className="bg-white/5 border border-white/10 rounded py-3 px-6 text-[9px] font-bold text-white/60 uppercase tracking-widest outline-none cursor-pointer appearance-none pr-10 hover:bg-white/10 transition-all font-display"
-            >
-              <option value="all">SQUARE_DEPOT (All Venues)</option>
-              {[...new Set(players.map(p => p.venue))].filter(Boolean).map(v => <option key={v as string} value={v as string} className="bg-surface-high">{String(v).toUpperCase()}</option>)}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20" size={12} />
-          </div>
-        </div>
+          <button 
+              onClick={handleSave}
+              disabled={isSaving || stats.pending === stats.total}
+              className={`px-12 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl relative overflow-hidden group ${
+                saveStatus === 'success' ? 'bg-emerald-500 text-white' : 
+                saveStatus === 'error' ? 'bg-red-500 text-white' : 
+                'bg-brand-500 text-white disabled:opacity-30 disabled:grayscale'
+              }`}
+          >
+              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              {isSaving ? (
+                <Zap className="animate-spin" size={18} />
+              ) : saveStatus === 'success' ? (
+                <Check size={18} />
+              ) : (
+                <Save size={18} />
+              )}
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10">
+                {isSaving ? 'SAVING...' : saveStatus === 'success' ? 'SUCCESS' : 'SAVE ATTENDANCE'}
+              </span>
+          </button>
       </div>
 
-        {/* Roster Grid - Tactical Athlete Rows */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xxl:grid-cols-6 gap-2 pb-20 animate-fade-in">
-          {filteredPlayers.map(player => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              date={date}
-              initialStatus={liveStatuses[player.id] ?? AttendanceStatus.ABSENT}
-              isMotm={motmId === player.id}
-              onStatusChange={onStatusChange}
-              onSelectMotm={onSelectMotm}
-            />
+      {/* Player List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-slide-up">
+          {filteredPlayers.map(p => (
+              <div key={p.id} className={`glass-card p-5 transition-all duration-500 relative group border-slate-100 hover:shadow-xl ${attendance[p.id] === 'present' ? 'ring-2 ring-brand-500/20 bg-brand-50/30' : attendance[p.id] === 'absent' ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-slate-50/50'}`}>
+                  <div className="flex items-center gap-4 mb-5">
+                      <div className="relative">
+                          <img src={p.photoUrl} className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200 group-hover:border-brand-500 transition-all shadow-md" />
+                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[p.id] === 'present' ? 'bg-brand-500 text-white' : attendance[p.id] === 'absent' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
+                              <Shield size={10} />
+                          </div>
+                      </div>
+                      <div className="min-w-0">
+                          <h4 className="font-black text-slate-900 italic text-sm uppercase truncate leading-tight mb-1">{p.fullName}</h4>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.memberId}</p>
+                      </div>
+                  </div>
+
+                  {/* Present/Absent Toggle */}
+                  <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 overflow-hidden transition-all">
+                      <button 
+                          onClick={() => toggleAttendance(p.id, 'present')}
+                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === 'present' ? 'bg-brand-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                          <Check size={12} className={attendance[p.id] === 'present' ? 'animate-bounce' : ''} />
+                          <span className="text-[8px] font-black uppercase tracking-widest italic">PRESENT</span>
+                      </button>
+                      <button 
+                          onClick={() => toggleAttendance(p.id, 'absent')}
+                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === 'absent' ? 'bg-red-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                          <X size={12} className={attendance[p.id] === 'absent' ? 'animate-pulse' : ''} />
+                          <span className="text-[8px] font-black uppercase tracking-widest italic">ABSENT</span>
+                      </button>
+                  </div>
+
+                  {/* Player Stats Line */}
+                  <div className="mt-4 flex items-center justify-between px-1">
+                      <div className="flex gap-1">
+                          {[1,2,3,4,5].map(i => (
+                              <div key={i} className={`w-3 h-1 rounded-full ${attendance[p.id] === 'present' ? 'bg-brand-500/40 animate-pulse' : 'bg-slate-200'}`} style={{ animationDelay: `${i*100}ms` }} />
+                          ))}
+                      </div>
+                      <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] italic">VENUE: {(p.venue || 'N/A').split(' ')[0]}</p>
+                  </div>
+              </div>
           ))}
-        </div>
-
-        {filteredPlayers.length === 0 && (
-          <div className="text-center py-24 glass-card border-dashed">
-             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search size={32} className="text-white/10" />
-             </div>
-             <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] italic drop-shadow-sm">No personnel match current filters</p>
-          </div>
-        )}
       </div>
+
+      {filteredPlayers.length === 0 && (
+          <div className="py-32 flex flex-col items-center justify-center space-y-6 glass-card rounded-[3rem] border-dashed border-slate-200 animate-pulse">
+              <Users size={64} className="text-slate-100" />
+              <p className="text-xs font-black text-slate-300 uppercase tracking-[0.5em] italic">No Players Found in Selection</p>
+          </div>
+      )}
+    </div>
   );
 };

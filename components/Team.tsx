@@ -9,7 +9,7 @@ interface TeamProps {
 }
 
 const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
-    <div className="flex-shrink-0 w-72 h-96 relative rounded-3xl overflow-hidden group snap-center shadow-2xl transition-transform duration-500 hover:scale-[1.02] border border-gray-800 bg-slate-900">
+    <div className="flex-shrink-0 w-72 h-96 relative rounded-[2.5rem] overflow-hidden group snap-center shadow-2xl transition-all duration-500 hover:scale-[1.02] border border-white/5 hover:border-brand-primary/50 bg-brand-950">
         {/* Background Image */}
         <img 
             src={player.photoUrl} 
@@ -19,10 +19,10 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
         />
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/40 to-transparent opacity-90" />
 
         {/* Card Content */}
-        <div className="absolute inset-0 p-6 flex flex-col justify-end">
+        <div className="absolute inset-0 p-8 flex flex-col justify-end">
             <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 <div className="flex items-center justify-between mb-2">
                     <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-[10px] font-black uppercase tracking-widest backdrop-blur-md">
@@ -43,19 +43,19 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
                     <span className="flex items-center gap-1"><MapPin size={12} className="text-brand-500" /> {player.venue || 'General'}</span>
                 </div>
 
-                {/* Mini Stats (Mocked or Real if available) */}
-                <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                {/* Mini Stats (v2 Tactical Overhaul) */}
+                <div className="grid grid-cols-3 gap-3 border-t border-white/5 pt-6 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
                     <div className="text-center">
-                        <div className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Rating</div>
-                        <div className="text-lg font-black text-yellow-400">{player.evaluation?.overallRating || '-'}</div>
+                        <div className="text-[8px] text-brand-primary/40 uppercase font-black tracking-widest italic">Rating</div>
+                        <div className="text-xl font-black text-brand-primary italic">{player.evaluation?.overallRating || '-'}</div>
                     </div>
-                    <div className="text-center border-l border-white/10">
-                        <div className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Age</div>
-                        <div className="text-lg font-black text-white">{new Date().getFullYear() - new Date(player.dateOfBirth).getFullYear()}</div>
+                    <div className="text-center border-l border-white/5">
+                        <div className="text-[8px] text-brand-primary/40 uppercase font-black tracking-widest italic">Age</div>
+                        <div className="text-xl font-black text-white italic">{new Date().getFullYear() - new Date(player.dateOfBirth).getFullYear()}</div>
                     </div>
-                    <div className="text-center border-l border-white/10">
-                        <div className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Form</div>
-                        <div className="text-lg font-black text-green-400">8.5</div>
+                    <div className="text-center border-l border-white/5">
+                        <div className="text-[8px] text-brand-primary/40 uppercase font-black tracking-widest italic">Form</div>
+                        <div className="text-xl font-black text-lime italic">8.5</div>
                     </div>
                 </div>
             </div>
@@ -64,70 +64,70 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
 );
 
 const CoachCard: React.FC<{ user: User }> = ({ user }) => (
-    <div className="flex-shrink-0 w-72 bg-white rounded-[2rem] overflow-hidden shadow-lg border border-gray-100 group relative hover:shadow-2xl transition-all duration-300 snap-center flex flex-col">
+    <div className="flex-shrink-0 w-72 bg-brand-950 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 group relative hover:border-brand-primary/30 transition-all duration-500 snap-center flex flex-col">
         {/* Background Pattern / Header */}
-        <div className="h-28 bg-slate-900 relative overflow-hidden flex-shrink-0">
+        <div className="h-32 bg-brand-900 relative overflow-hidden flex-shrink-0">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-            <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-brand-primary/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
             
             {/* Staff Badge */}
-            <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                <Shield size={10} className="text-cyan-400" /> Official Staff
+            <div className="absolute top-6 right-6 bg-brand-950/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl text-[9px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2 shadow-xl italic">
+                <Shield size={12} className="text-brand-primary" /> OFFICIAL_STAFF
             </div>
         </div>
 
         {/* Profile Image - Floating */}
-        <div className="relative -mt-12 px-6 flex justify-between items-end">
+        <div className="relative -mt-16 px-8 flex justify-between items-end">
             <div className="relative">
-                <div className="w-24 h-24 rounded-2xl p-1 bg-white shadow-xl">
+                <div className="w-28 h-28 rounded-3xl p-1 bg-brand-950 shadow-3xl border border-white/5">
                     <img 
-                        src={user.photoUrl || `https://ui-avatars.com/api/?name=${user.username}&background=0c4a6e&color=fff&size=256`} 
-                        className="w-full h-full object-cover rounded-xl bg-gray-50"
+                        src={user.photoUrl || `https://ui-avatars.com/api/?name=${user.username}&background=050505&color=fff&size=256`} 
+                        className="w-full h-full object-cover rounded-2xl bg-brand-900"
                         alt={user.username}
-                        onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.username}&background=0c4a6e&color=fff&size=256`; }}
+                        onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.username}&background=050505&color=fff&size=256`; }}
                     />
                 </div>
                 {/* Online/Status Indicator */}
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-[3px] border-white rounded-full"></div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-lime border-[4px] border-brand-950 rounded-full shadow-xl"></div>
             </div>
             
             {/* Quick Action */}
-            <button className="mb-1 p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-colors border border-slate-100">
-                <Mail size={20} />
+            <button className="mb-2 p-3.5 bg-brand-900 text-brand-primary rounded-2xl hover:bg-brand-primary hover:text-brand-950 transition-all border border-white/5 shadow-xl">
+                <Mail size={18} />
             </button>
         </div>
 
         {/* Info Section */}
-        <div className="p-6 pt-4 flex-1">
-            <h3 className="text-xl font-black text-slate-900 leading-tight">{user.username}</h3>
-            <p className="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-5">Senior Coach</p>
+        <div className="p-8 pt-6 flex-1 bg-brand-950">
+            <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-tight mb-1">{user.username}</h3>
+            <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.3em] mb-8 italic">HEAD_TACTICIAN</p>
 
             {/* Assignments / Specialization */}
-            <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                    <div className="p-2 bg-gray-50 rounded-lg text-gray-400 mt-0.5 border border-gray-100">
+            <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-brand-900 rounded-xl text-brand-primary mt-0.5 border border-white/5 shadow-inner">
                         <MapPin size={14} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Assigned Venues</p>
-                        <p className="text-xs font-bold text-gray-700 leading-snug line-clamp-2">
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1 italic">Sector Authorization</p>
+                        <p className="text-xs font-black text-white leading-snug italic uppercase">
                             {user.assignedVenues && user.assignedVenues.length > 0 
-                                ? user.assignedVenues.join(', ') 
-                                : 'General Roving'}
+                                ? user.assignedVenues.join(' // ') 
+                                : 'CENTRAL_ROVING'}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                    <div className="p-2 bg-gray-50 rounded-lg text-gray-400 mt-0.5 border border-gray-100">
+                <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-brand-900 rounded-xl text-brand-primary mt-0.5 border border-white/5 shadow-inner">
                         <Layers size={14} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Squad Responsibility</p>
-                        <p className="text-xs font-bold text-gray-700 leading-snug line-clamp-2">
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1 italic">Squad Protocols</p>
+                        <p className="text-xs font-black text-white leading-snug italic uppercase">
                             {user.assignedBatches && user.assignedBatches.length > 0 
-                                ? user.assignedBatches.join(', ') 
-                                : 'All Academy'}
+                                ? user.assignedBatches.join(' // ') 
+                                : 'FULL_ACADEMY_SYNC'}
                         </p>
                     </div>
                 </div>
@@ -135,10 +135,10 @@ const CoachCard: React.FC<{ user: User }> = ({ user }) => (
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center mt-auto">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono">ID: {user.id.substring(0,6).toUpperCase()}</span>
-            <span className="text-[10px] font-bold text-green-600 flex items-center gap-1.5 uppercase tracking-wider bg-green-50 px-2 py-1 rounded-md border border-green-100">
-                <CheckCircle2 size={10} /> Certified
+        <div className="bg-brand-900/50 px-8 py-5 border-t border-white/5 flex justify-between items-center mt-auto backdrop-blur-md">
+            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] italic font-mono">NODE_{user.id.substring(0,8).toUpperCase()}</span>
+            <span className="text-[9px] font-black text-lime flex items-center gap-2 uppercase tracking-[0.3em] italic bg-lime/10 px-3 py-1.5 rounded-xl border border-lime/20 shadow-xl shadow-lime/5">
+                <CheckCircle2 size={10} /> VERIFIED
             </span>
         </div>
     </div>
@@ -219,41 +219,45 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-500">
             
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'Orbitron' }}>
-                        TEAM <span className="text-brand-500">HUB</span>
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-brand-500 p-10 rounded-[3.5rem] border border-white/10 shadow-3xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none"><Shield size={160} className="text-white" /></div>
+                <div className="relative z-10 space-y-2">
+                    <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
+                        TEAM <span className="text-brand-950">HUB</span>
                     </h1>
-                    <p className="text-gray-500 font-medium mt-2">
+                    <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">
                         {currentUser.role === 'coach' 
-                            ? 'Manage your assigned squads.' 
-                            : myPlayerProfile ? `Squad Roster: ${myPlayerProfile.batch} Batch` : 'Academy Roster & Staff'}
+                            ? 'OPERATIONAL_SQUAD_MANAGEMENT' 
+                            : myPlayerProfile ? `SQUAD_ROSTER_STREAM // ${myPlayerProfile.batch}` : 'TACTICAL_NETWORK_PERSONNEL'}
                     </p>
                 </div>
                 
-                {/* Filter Toggle for Admins Only (Coaches see their assigned list) */}
+                {/* Filter Toggle (Admin Protocol) */}
                 {(currentUser.role === 'admin') && (
-                    <div className="bg-white p-1 rounded-xl border border-gray-200 shadow-sm flex">
-                        <button className="px-4 py-2 bg-brand-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-md">
-                            All Players
+                    <div className="bg-brand-950 p-1.5 rounded-2xl border border-white/10 flex shadow-2xl relative z-10 h-fit">
+                        <button className="px-8 py-3 bg-brand-primary text-brand-secondary rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl italic transition-all">
+                            TOTAL_FORCE
                         </button>
-                        <button className="px-4 py-2 text-gray-500 hover:text-gray-900 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">
-                            By Batch
+                        <button className="px-8 py-3 text-white/40 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic">
+                            BATCH_SYNC
                         </button>
                     </div>
                 )}
             </div>
 
             {/* Coaches Section */}
-            <section className="space-y-6">
+            <section className="space-y-8 animate-in slide-in-from-bottom-8 duration-700">
                 <div className="flex items-center justify-between px-2">
-                    <h2 className="text-lg font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                        <Shield className="text-brand-500" size={18} /> Coaching Staff
-                    </h2>
-                    <div className="flex gap-2">
-                        <button onClick={() => scroll(coachScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronLeft size={20} /></button>
-                        <button onClick={() => scroll(coachScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronRight size={20} /></button>
+                    <div className="space-y-1">
+                        <h2 className="text-xl font-black text-white uppercase italic tracking-[0.3em] flex items-center gap-3">
+                            <Shield className="text-brand-primary" size={20} /> COMMAND <span className="text-brand-primary">PERSONNEL</span>
+                        </h2>
+                        <div className="h-1 w-24 bg-brand-primary/20 rounded-full" />
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => scroll(coachScrollRef, 'left')} className="p-3 rounded-2xl bg-brand-950 border border-white/5 text-white/40 hover:text-brand-primary hover:border-brand-primary transition-all shadow-xl active:scale-90"><ChevronLeft size={24} /></button>
+                        <button onClick={() => scroll(coachScrollRef, 'right')} className="p-3 rounded-2xl bg-brand-950 border border-white/5 text-white/40 hover:text-brand-primary hover:border-brand-primary transition-all shadow-xl active:scale-90"><ChevronRight size={24} /></button>
                     </div>
                 </div>
                 
@@ -266,24 +270,28 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
                         <CoachCard key={coach.id} user={coach} />
                     ))}
                     {coaches.length === 0 && (
-                        <div className="w-full py-12 text-center text-gray-400 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                            No coaches listed.
+                        <div className="w-full py-16 text-center text-white/10 glass-card rounded-[3rem] border-dashed border-white/5 flex flex-col items-center justify-center gap-4 italic uppercase tracking-widest font-black text-xs">
+                            <Shield size={48} className="opacity-5" />
+                            No command units listed.
                         </div>
                     )}
                 </div>
             </section>
 
             {/* Squad Section */}
-            <section className="space-y-6">
+            <section className="space-y-8 animate-in slide-in-from-bottom-12 duration-1000">
                 <div className="flex items-center justify-between px-2">
-                    <h2 className="text-lg font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                        <UserIcon className="text-brand-500" size={18} /> 
-                        {myPlayerProfile ? 'Your Teammates' : 'Academy Squad'}
-                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs font-black ml-2">{displayedPlayers.length}</span>
-                    </h2>
-                    <div className="flex gap-2">
-                        <button onClick={() => scroll(squadScrollRef, 'left')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronLeft size={20} /></button>
-                        <button onClick={() => scroll(squadScrollRef, 'right')} className="p-2 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-brand-600 hover:border-brand-500 transition-all"><ChevronRight size={20} /></button>
+                    <div className="space-y-1">
+                        <h2 className="text-xl font-black text-white uppercase italic tracking-[0.3em] flex items-center gap-3">
+                            <UserIcon className="text-brand-primary" size={20} /> 
+                            {myPlayerProfile ? 'UNIT_COLLABORATORS' : 'ROSTER_ASSETS'}
+                            <span className="bg-brand-950 text-brand-primary px-4 py-1 rounded-xl text-xs font-black ml-4 border border-brand-primary/20 shadow-xl">{displayedPlayers.length}</span>
+                        </h2>
+                        <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => scroll(squadScrollRef, 'left')} className="p-3 rounded-2xl bg-brand-950 border border-white/5 text-white/40 hover:text-brand-primary hover:border-brand-primary transition-all shadow-xl active:scale-90"><ChevronLeft size={24} /></button>
+                        <button onClick={() => scroll(squadScrollRef, 'right')} className="p-3 rounded-2xl bg-brand-950 border border-white/5 text-white/40 hover:text-brand-primary hover:border-brand-primary transition-all shadow-xl active:scale-90"><ChevronRight size={24} /></button>
                     </div>
                 </div>
 
@@ -296,17 +304,18 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
                         <PlayerCard key={player.id} player={player} />
                     ))}
                     {displayedPlayers.length === 0 && (
-                        <div className="w-full py-20 text-center flex flex-col items-center justify-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+                        <div className="w-full py-24 text-center flex flex-col items-center justify-center glass-card rounded-[3rem] border-2 border-dashed border-white/5 italic">
                             {currentUser.role === 'coach' ? (
                                 <>
-                                    <Lock size={48} className="text-gray-300 mb-4" />
-                                    <p className="text-gray-800 font-bold">No players assigned.</p>
-                                    <p className="text-xs text-gray-400 mt-1">Contact an Admin to assign Venues and Batches to your profile.</p>
+                                    <Lock size={64} className="text-white/5 mb-6 animate-pulse" />
+                                    <p className="text-white/60 font-black uppercase tracking-[0.3em] text-sm">No Tactical Coverage Assigned.</p>
+                                    <p className="text-[10px] text-brand-primary/40 mt-3 font-black uppercase tracking-widest">Awaiting sector authorization from Central Command.</p>
                                 </>
                             ) : (
                                 <>
-                                    <UserIcon size={48} className="text-gray-300 mb-4" />
-                                    <p className="text-gray-500 font-bold">No players found in this list.</p>
+                                    <UserIcon size={64} className="text-white/5 mb-6" />
+                                    <p className="text-white/60 font-black uppercase tracking-[0.3em] text-sm">Personnel Roster Depleted.</p>
+                                    <p className="text-[10px] text-brand-primary/40 mt-3 font-black uppercase tracking-widest">No active operatives detected in this sector.</p>
                                 </>
                             )}
                         </div>

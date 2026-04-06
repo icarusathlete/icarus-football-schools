@@ -309,7 +309,7 @@ export const PlayerRegistration: React.FC = () => {
     w-full rounded-md border p-3 text-[11px] outline-none transition-all duration-300 font-bold shadow-inner font-display italic
     ${errors[field] 
         ? 'border-red-500/50 bg-red-500/5 text-red-200 placeholder:text-red-900/30' 
-        : 'border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-[#C3F629]/50'
+        : 'border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:border-brand-500'
     }
   `;
 
@@ -319,65 +319,65 @@ export const PlayerRegistration: React.FC = () => {
         {/* Mode Switcher - Compact Pill Design */}
         {/* Mode Switcher - Precision HUD Pill */}
         <div className="flex justify-center mb-4">
-            <div className="bg-white/5 backdrop-blur-xl p-1 rounded-xl border border-white/10 flex gap-1 shadow-2xl relative z-10">
+            <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 flex gap-1 shadow-sm relative z-10">
                 <button 
                     onClick={() => setMode('player')}
-                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'player' ? 'bg-[#C3F629] text-[#00054e] shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'player' ? 'bg-brand-500 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                 >
-                    ATHLETE_UNITS
+                    PLAYERS
                 </button>
                 <button 
                     onClick={() => setMode('coach')}
-                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'coach' ? 'bg-[#C3F629] text-[#00054e] shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                    className={`px-10 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'coach' ? 'bg-brand-500 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                 >
-                    STAFF_OFFICERS
+                    COACHES
                 </button>
             </div>
         </div>
 
-      <div className="glass-card overflow-hidden relative border-none bg-surface-default/40">
+      <div className="glass-card overflow-hidden relative border-none bg-white">
         
-        {/* Header Section - Tactical HUD */}
-        <div className="relative px-8 py-10 text-white overflow-hidden bg-[#00054e]/50 border-b border-white/5">
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C3F629]/20 to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(195,246,41,0.05),transparent_70%)]" />
+        {/* Header Section - Registration Form */}
+        <div className="relative px-8 py-10 text-white overflow-hidden bg-brand-950 border-b border-white/5">
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,200,255,0.05),transparent_70%)]" />
           
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4 text-[#C3F629] font-black uppercase tracking-[0.4em] text-[8px] italic">
-                <Shield size={12} className="animate-pulse" /> ACADEMY ROSTER MANAGEMENT
+              <div className="flex items-center gap-3 mb-4 text-brand-500 font-black uppercase tracking-[0.4em] text-[8px] italic">
+                <Shield size={12} className="animate-pulse" /> PLAYER & COACH ENROLLMENT
               </div>
               <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none font-display text-white">
-                {mode === 'player' ? 'ATHLETE ' : 'STAFF '} 
-                <span className="text-[#C3F629]">
-                    REGISTRATION
+                {mode === 'player' ? 'PLAYER ' : 'COACH '} 
+                <span className="text-brand-500">
+                    ENROLLMENT
                 </span>
               </h2>
             </div>
             
             <div className="flex items-center gap-6">
                 {mode === 'player' && (
-                    <div className="bg-[#1e2a95]/40 backdrop-blur-3xl px-8 py-6 rounded-xl border border-[#C3F629]/10 flex flex-col items-center shadow-2xl relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-[#C3F629]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-[8px] font-black text-[#C3F629]/50 uppercase tracking-[0.4em] mb-2 relative z-10 italic">MEMBER ID ALLOCATION</span>
-                        <span className="text-4xl font-black tracking-tighter text-white font-mono relative z-10 shadow-2xl">{nextId}</span>
-                        {/* Scanning Line Effect */}
-                        <div className="absolute h-0.5 w-full bg-[#C3F629]/20 top-0 left-0 animate-scan" />
-                    </div>
+                <div className="bg-brand-500 px-8 py-6 rounded-xl border border-brand-400/20 flex flex-col items-center shadow-2xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="text-[8px] font-black text-white/50 uppercase tracking-[0.4em] mb-2 relative z-10 italic">PLAYER ID</span>
+                    <span className="text-4xl font-black tracking-tighter text-white font-mono relative z-10 shadow-2xl">{nextId}</span>
+                    {/* Scanning Line Effect */}
+                    <div className="absolute h-0.5 w-full bg-white/20 top-0 left-0 animate-scan" />
+                </div>
                 )}
                 <div className="flex flex-col gap-2">
                     <button 
                         onClick={() => setShowConfigModal(true)}
-                        className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-white/5 border border-white/10 hover:border-[#C3F629]/50 hover:text-white px-6 py-3 rounded-lg transition-all group italic"
+                        className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-white/5 border border-white/10 hover:border-brand-500/50 hover:text-white px-6 py-3 rounded-lg transition-all group italic"
                     >
-                        <Settings size={14} className="group-hover:rotate-90 transition-transform" /> TAXONOMY MODULE
+                        <Settings size={14} className="group-hover:rotate-90 transition-transform" /> VENUE & BATCH SETTINGS
                     </button>
                     {mode === 'player' && (
                         <button 
                             onClick={() => csvInputRef.current?.click()}
-                            className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-[#00C8FF] text-[#00054e] px-6 py-3 rounded-lg transition-all shadow-xl italic hover:scale-105 active:scale-95"
+                            className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-brand-500 text-white px-6 py-3 rounded-lg transition-all shadow-xl italic hover:scale-105 active:scale-95"
                         >
-                            <FileText size={14} /> DATA INGESTION
+                            <FileText size={14} /> IMPORT FROM CSV
                             <input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvUpload} />
                         </button>
                     )}
@@ -395,49 +395,49 @@ export const PlayerRegistration: React.FC = () => {
                         <div className="lg:col-span-4 space-y-8">
                             <div className="relative group mx-auto w-fit">
                                 <div className={`
-                                    w-56 h-64 rounded-xl bg-white/5 border border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
-                                    ${previewUrl ? 'border-[#C3F629]/50 shadow-2xl scale-[1.02]' : 'border-white/10 group-hover:border-[#C3F629]/30'}
+                                    w-56 h-64 rounded-xl bg-slate-50 border border-dashed flex items-center justify-center overflow-hidden transition-all duration-700 
+                                    ${previewUrl ? 'border-brand-500/50 shadow-2xl scale-[1.02]' : 'border-slate-200 group-hover:border-brand-500/30'}
                                 `}>
                                     {previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="flex flex-col items-center gap-4 text-white/10 group-hover:text-[#C3F629]/40 transition-colors">
+                                        <div className="flex flex-col items-center gap-4 text-slate-200 group-hover:text-brand-500/40 transition-colors">
                                             <Camera size={40} strokeWidth={1} />
-                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Initialize Avatar</span>
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Choose Photo</span>
                                         </div>
                                     )}
                                 </div>
-                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-[#C3F629] text-[#00054e] p-4 rounded-lg shadow-2xl hover:scale-110 active:scale-95 transition-all z-20">
+                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-brand-500 text-white p-4 rounded-lg shadow-2xl hover:scale-110 active:scale-95 transition-all z-20">
                                     <Upload size={18} />
                                     <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                                 </label>
                             </div>
                             
-                            <div className="space-y-6 bg-white/5 p-6 rounded-xl border border-white/5">
+                            <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-sm">
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.2em] ml-1">Athlete Full Name</label>
-                                    <input type="text" className={getInputClass('fullName')} value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} placeholder="NAME_ENTRY..." />
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                    <input type="text" className={getInputClass('fullName')} value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} placeholder="Player Name..." />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.2em] ml-1">Date of Birth</label>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Date of Birth</label>
                                     <input type="date" className={getInputClass('dateOfBirth')} value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column: Operational Config */}
+                        {/* Right Column: Academy Details */}
                         <div className="lg:col-span-8 space-y-10">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
-                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
-                                        <Shield size={14} className="text-[#C3F629]" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Field <span className="text-white">Assignment</span></h3>
+                                    <div className="flex items-center gap-3 border-b border-slate-100 pb-2">
+                                        <Shield size={14} className="text-brand-500" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Player <span className="text-slate-900">Position</span></h3>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
                                             <button key={pos} type="button" onClick={() => setFormData({...formData, position: pos as any})}
                                                 className={`py-3 px-4 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border transition-all duration-300 italic
-                                                    ${formData.position === pos ? 'bg-[#C3F629] border-[#C3F629] text-[#00054e] shadow-lg' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
+                                                    ${formData.position === pos ? 'bg-brand-500 border-brand-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-800'}`}
                                             >
                                                 {pos}
                                             </button>
@@ -446,20 +446,20 @@ export const PlayerRegistration: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-6">
-                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
-                                        <MapPin size={14} className="text-[#00C8FF]" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Zone <span className="text-white">Mapping</span></h3>
+                                    <div className="flex items-center gap-3 border-b border-slate-100 pb-2">
+                                        <MapPin size={14} className="text-brand-500" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Venue <span className="text-slate-900">& Batch</span></h3>
                                     </div>
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Operational Sector (Venue)</label>
+                                            <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Venue</label>
                                             <select className={getInputClass('venue')} value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})}>
                                                 <option value="">Select Venue</option>
                                                 {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Division Assignment (Batch)</label>
+                                            <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Batch</label>
                                             <select className={getInputClass('batch')} value={formData.batch} onChange={e => setFormData({...formData, batch: e.target.value})}>
                                                 <option value="">Select Batch</option>
                                                 {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
@@ -468,18 +468,18 @@ export const PlayerRegistration: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="md:col-span-2 space-y-6">
-                                    <div className="flex items-center gap-3 border-b border-white/5 pb-2">
-                                        <Phone size={14} className="text-[#C3F629]" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Contact <span className="text-white">Registry</span></h3>
+                                <div className="md:col-span-2 space-y-6 bg-slate-50 p-8 rounded-xl border border-slate-100 shadow-sm">
+                                    <div className="flex items-center gap-3 border-b border-slate-200 pb-2">
+                                        <Phone size={14} className="text-brand-500" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Contact <span className="text-slate-900">Information</span></h3>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Guardian Name</label>
-                                            <input type="text" className={getInputClass('parentName')} value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="PRIMARY_CONTACT..." />
+                                            <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Guardian Name</label>
+                                            <input type="text" className={getInputClass('parentName')} value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="Guardian Name..." />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Contact Number</label>
+                                            <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Contact Number</label>
                                             <input type="text" className={getInputClass('contactNumber')} value={formData.contactNumber} onChange={e => setFormData({...formData, contactNumber: e.target.value})} placeholder="+91 XXX..." />
                                         </div>
                                     </div>
@@ -488,95 +488,75 @@ export const PlayerRegistration: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-3 text-[9px] font-black text-white/20 uppercase tracking-[0.3em] italic">
-                            <Zap size={14} className="text-[#C3F629]" />
-                            Secure Layer Persistent Storage Synchronized
+                    <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-3 text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] italic">
+                            <Zap size={14} className="text-brand-500" />
+                            Details verified and ready to save
                         </div>
                         <button type="submit" disabled={status === 'submitting'}
-                            className="bg-[#C3F629] text-[#00054e] font-black py-4 px-12 rounded-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.3em] text-[10px] italic font-display"
+                            className="bg-brand-500 text-white font-black py-4 px-12 rounded-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase tracking-[0.3em] text-[10px] italic font-display"
                         >
                             {status === 'submitting' ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
-                            {status === 'submitting' ? 'SYNCHRONIZING...' : 'EXECUTE ENROLLMENT'}
+                            {status === 'submitting' ? 'SAVING...' : 'REGISTER PLAYER'}
                         </button>
                     </div>
                 </form>
             ) : (
                 <form onSubmit={handleCoachSubmit} className="max-w-3xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
                     <div className="text-center mb-8">
-                        <div className="w-20 h-20 bg-[#C3F629] border-4 border-[#00054e] text-[#00054e] rounded-xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-[#C3F629]/20">
+                        <div className="w-20 h-20 bg-brand-500 border-4 border-white text-white rounded-xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-brand-500/20">
                             <UserCheck size={40} />
                         </div>
-                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter font-display">Tactical <span className="text-[#C3F629]">Officer Credentials</span></h3>
-                        <p className="text-[#C3F629]/60 text-[9px] font-black uppercase tracking-[0.3em] mt-2 italic">Authorize encrypted command-level credentials</p>
+                        <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tighter font-display">Coach <span className="text-brand-500">Credentials</span></h3>
+                        <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.3em] mt-2 italic">Set login credentials for the coach</p>
                     </div>
 
-                    <div className="space-y-8 bg-white/5 p-8 rounded-xl border border-white/5 shadow-inner">
+                    <div className="space-y-8 bg-slate-50 p-8 rounded-xl border border-slate-100 shadow-inner">
                         <div className="flex flex-col items-center gap-6 mb-8">
                             <div className="relative group">
-                                <div className={`w-40 h-40 rounded-xl bg-white/5 border border-dashed border-white/10 overflow-hidden transition-all duration-700 ${coachPreviewUrl ? 'border-[#C3F629]/50 shadow-2xl scale-[1.02]' : 'group-hover:border-[#C3F629]/30'}`}>
-                                    {coachPreviewUrl ? <img src={coachPreviewUrl} className="w-full h-full object-cover" /> : <Camera size={24} className="text-white/10" />}
+                                <div className={`w-40 h-40 rounded-xl bg-white border border-dashed border-slate-200 overflow-hidden transition-all duration-700 ${coachPreviewUrl ? 'border-brand-500/50 shadow-2xl scale-[1.02]' : 'group-hover:border-brand-500/30'}`}>
+                                    {coachPreviewUrl ? <img src={coachPreviewUrl} className="w-full h-full object-cover" /> : <Camera size={24} className="text-slate-200" />}
                                 </div>
-                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-[#C3F629] text-[#00054e] p-4 rounded-lg shadow-2xl"><Upload size={16} /><input type="file" className="hidden" onChange={handleCoachFileChange} /></label>
+                                <label className="absolute -bottom-2 -right-2 cursor-pointer bg-brand-500 text-white p-4 rounded-lg shadow-2xl"><Upload size={16} /><input type="file" className="hidden" onChange={handleCoachFileChange} /></label>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2"><label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em]">Command Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
-                            <div className="space-y-2"><label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em]">Access Key (PWD)</label><input type="password" className={getInputClass('password')} value={coachForm.password} onChange={e => setCoachForm({...coachForm, password: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Password</label><input type="password" className={getInputClass('password')} value={coachForm.password} onChange={e => setCoachForm({...coachForm, password: e.target.value})} /></div>
                         </div>
                     </div>
 
-                    <div className="space-y-8 bg-white/5 p-8 rounded-xl border border-white/5 shadow-inner">
+                    <div className="space-y-8 bg-slate-50 p-8 rounded-xl border border-slate-100 shadow-inner">
                         <div className="space-y-4">
-                            <label className="text-[8px] font-black text-[#C3F629] uppercase tracking-[0.3em] flex items-center gap-3"><Map size={14} /> Operational Sectors (Venues)</label>
+                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-3"><Map size={14} /> Assigned Venues</label>
                             <div className="flex flex-wrap gap-2">
-                                {venues.map(v => <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${coachForm.assignedVenues.includes(v.name) ? 'bg-[#C3F629] text-[#00054e] border-[#C3F629] shadow-xl' : 'bg-white/5 text-white/40 border-white/5 hover:text-white'}`}>{v.name}</button>)}
+                                {venues.map(v => <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${coachForm.assignedVenues.includes(v.name) ? 'bg-brand-500 text-white border-brand-500 shadow-xl' : 'bg-white text-slate-400 border-slate-200 hover:text-slate-900'}`}>{v.name}</button>)}
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" disabled={status === 'submitting'} className="w-full bg-[#C3F629] text-[#00054e] font-black py-5 rounded-xl shadow-2xl uppercase tracking-[0.4em] text-[10px] italic font-display hover:scale-[1.01] transition-all">AUTHORIZE_COMMISSION</button>
+                    <button type="submit" disabled={status === 'submitting'} className="w-full bg-brand-500 text-white font-black py-5 rounded-xl shadow-2xl uppercase tracking-[0.4em] text-[10px] italic font-display hover:scale-[1.01] transition-all">SAVE COACH PROFILE</button>
                 </form>
             )}
         </div>
       </div>
 
-      {/* Roster Table - Denser Desktop Layout */}
-      {mode === 'player' && players.length > 0 && (
-          <div className="glass-card overflow-hidden mt-12 animate-in slide-in-from-bottom-8 duration-1000 bg-surface-default/40 border-none">
-            <div className="px-8 py-6 border-b border-white/5 bg-white/2 flex justify-between items-center">
-                <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Active <span className="text-[#C3F629] ml-2 underline underline-offset-8 decoration-2 whitespace-nowrap">TACTICAL_SQUAD</span></h3>
-                <span className="bg-white/5 px-4 py-1.5 rounded-full border border-white/10 text-[8px] font-black text-[#00C8FF] uppercase tracking-[0.2em] italic">{players.length} TOTAL_UNITS</span>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead><tr className="bg-white/2 border-b border-white/5 font-display"><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Profile_id</th><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Member_code</th><th className="px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Sector_mapping</th><th className="text-right px-8 py-4 text-[9px] uppercase font-black tracking-[0.3em] text-white/40 italic">Status</th></tr></thead>
-                    <tbody className="divide-y divide-white/2">
-                        {players.map(p => (
-                            <tr key={p.id} className="group hover:bg-[#C3F629]/5 transition-all outline-none border-none"><td className="px-8 py-4 flex items-center gap-4"><div className="relative"><img src={p.photoUrl} className="w-10 h-10 rounded-lg object-cover border border-white/10 shadow-lg" /><div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#C3F629] border-2 border-[#00054e] rounded-full shadow-glow"></div></div><span className="font-black text-white uppercase italic tracking-tight text-xs">{p.fullName}</span></td><td className="px-8 py-4 font-mono text-[10px] text-[#00C8FF]/70">{p.memberId}</td><td className="px-8 py-4"><div className="text-[10px] font-black text-white/80 uppercase italic tracking-widest">{p.venue}</div><div className="text-[8px] font-bold text-[#C3F629]/60 mt-0.5 uppercase italic tracking-tighter">{p.batch} • {p.position}</div></td><td className="px-8 py-4 text-right"><button onClick={() => handleSecureDelete('player', p.id, p.fullName)} className="p-2 text-white/20 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all border border-white/5 hover:border-red-500/20 opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button></td></tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-          </div>
-      )}
-
-      {/* Taxonomy Modal - Tactical Config */}
+      {/* Settings Modal - Academy Config */}
       {showConfigModal && (
           <div className="fixed inset-0 z-[100] bg-[#00054e]/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in duration-300">
               <div className="glass-card w-full max-w-2xl rounded-xl border border-white/10 shadow-3xl relative overflow-hidden animate-in zoom-in-95 duration-500 bg-surface-default/90">
-                  <div className="bg-white/2 p-10 border-b border-white/5 flex justify-between items-center">
-                    <div><h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Global <span className="text-[#C3F629]">Taxonomy_module</span></h3><p className="text-[8px] text-white/30 font-black uppercase tracking-[0.3em] mt-1 italic">Configure operational sectors & divisions</p></div>
-                    <button onClick={() => setShowConfigModal(false)} className="p-3 bg-white/5 rounded-lg text-white/20 hover:text-[#C3F629] transition-all border border-white/10"><X size={20} /></button>
+                  <div className="bg-slate-50 p-10 border-b border-slate-100 flex justify-between items-center">
+                    <div><h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Academy <span className="text-brand-500">Configuration</span></h3><p className="text-[8px] text-slate-400 font-black uppercase tracking-[0.3em] mt-1 italic">Manage venues and batches</p></div>
+                    <button onClick={() => setShowConfigModal(false)} className="p-3 bg-white rounded-lg text-slate-300 hover:text-brand-500 transition-all border border-slate-100"><X size={20} /></button>
                   </div>
-                  <div className="flex bg-white/2 p-2">
-                    {['venues', 'batches'].map(t => <button key={t} onClick={() => setConfigTab(t as any)} className={`flex-1 py-4 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] italic transition-all ${configTab === t ? 'bg-[#C3F629] text-[#00054e] shadow-lg scale-105' : 'text-white/30 hover:text-white'}`}>{t === 'venues' ? 'SECTORS_VENUES' : 'DIVISIONS_BATCHES'}</button>)}
+                  <div className="flex bg-slate-50 p-2">
+                    {['venues', 'batches'].map(t => <button key={t} onClick={() => setConfigTab(t as any)} className={`flex-1 py-4 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] italic transition-all ${configTab === t ? 'bg-brand-500 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-slate-800'}`}>{t === 'venues' ? 'VENUES' : 'BATCHES'}</button>)}
                   </div>
                   <div className="p-10 space-y-8 h-[400px] overflow-y-auto custom-scrollbar">
-                    <div className="flex gap-3"><input type="text" className={getInputClass('newItem')} value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="DEFINE_NEW_PARAM..." /><button onClick={handleAddItem} className="bg-[#C3F629] text-[#00054e] px-8 rounded-lg font-black uppercase tracking-widest hover:scale-105 transition-all text-[9px] italic">DEPLOY</button></div>
+                    <div className="flex gap-3"><input type="text" className={getInputClass('newItem')} value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="Add name..." /><button onClick={handleAddItem} className="bg-brand-500 text-white px-8 rounded-lg font-black uppercase tracking-widest hover:scale-105 transition-all text-[9px] italic">ADD</button></div>
                     <div className="grid grid-cols-1 gap-3">
                         {(configTab === 'venues' ? venues : batches).map(item => (
-                            <div key={item.id} className="p-5 bg-white/2 rounded-lg border border-white/5 flex justify-between items-center group hover:border-[#C3F629]/20 transition-all"><span className="font-black text-white/80 uppercase italic tracking-widest text-[10px]">{item.name}</span><button onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)} className="p-2 text-white/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button></div>
+                            <div key={item.id} className="p-5 bg-white rounded-lg border border-slate-100 flex justify-between items-center group hover:border-brand-500/20 transition-all"><span className="font-black text-slate-800 uppercase italic tracking-widest text-[10px]">{item.name}</span><button onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)} className="p-2 text-slate-200 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button></div>
                         ))}
                     </div>
                   </div>
@@ -584,7 +564,7 @@ export const PlayerRegistration: React.FC = () => {
           </div>
       )}
 
-      <ConfirmModal isOpen={deleteModalOpen} title={`Revoke ${itemToDelete?.type}`} message={`Are you sure you want to permanently revoke "${itemToDelete?.name}"? Data restoration is impossible.`} onConfirm={confirmDelete} onCancel={() => {setDeleteModalOpen(false); setItemToDelete(null);}} requireTypeToConfirm="delete" />
+      <ConfirmModal isOpen={deleteModalOpen} title={`Delete ${itemToDelete?.type}`} message={`Are you sure you want to permanently delete "${itemToDelete?.name}"? This action cannot be undone.`} onConfirm={confirmDelete} onCancel={() => {setDeleteModalOpen(false); setItemToDelete(null);}} requireTypeToConfirm="delete" />
     </div>
   );
 };

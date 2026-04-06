@@ -51,39 +51,40 @@ const StopwatchTool: React.FC<{
     }, []);
 
     return (
-        <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 flex flex-col gap-4 shadow-sm">
+        <div className="glass-card border border-white/5 rounded-2xl p-6 flex flex-col gap-4 shadow-xl">
              <div className="flex justify-between items-center">
-                 <label className="text-[10px] font-black text-brand-300 uppercase tracking-[0.2em]">{label}</label>
-                 <span className="text-[10px] font-black text-brand-500 bg-brand-500/10 px-2 py-1 rounded-md">Current: {value}s</span>
+                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">{label}</label>
+                 <span className="text-[9px] font-black text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full border border-brand-primary/20 italic">Last Scan: {value}s</span>
              </div>
              
-             <div className="flex items-center gap-6 bg-brand-950 rounded-2xl p-4 shadow-2xl justify-between border border-white/5">
-                 <div className="font-mono text-3xl font-black text-white tracking-tighter w-32 text-center italic">
-                     {formatTime(time)}<span className="text-xs text-brand-500 ml-1">s</span>
+             <div className="flex items-center gap-6 bg-brand-950 rounded-2xl p-5 shadow-2xl justify-between border border-white/5 relative overflow-hidden group">
+                 <div className="absolute inset-0 bg-brand-primary opacity-0 group-hover:opacity-[0.02] transition-opacity" />
+                 <div className="font-mono text-4xl font-black text-white tracking-tighter w-32 text-center italic" style={{ fontFamily: 'Orbitron' }}>
+                     {formatTime(time)}<span className="text-xs text-brand-primary ml-1">s</span>
                  </div>
-                 <div className="flex gap-2">
+                 <div className="flex gap-3 relative z-10">
                      <button 
                         onClick={toggleTimer}
                         type="button"
-                        className={`w-12 h-12 rounded-xl text-white transition-all flex items-center justify-center ${isRunning ? 'bg-red-500 shadow-lg shadow-red-500/20' : 'bg-brand-500 shadow-lg shadow-brand-500/20'}`}
+                        className={`w-14 h-14 rounded-2xl text-brand-secondary transition-all flex items-center justify-center hover:scale-105 active:scale-90 ${isRunning ? 'bg-red-500 shadow-xl shadow-red-500/20' : 'bg-brand-primary shadow-xl shadow-brand-primary/20'}`}
                      >
-                         {isRunning ? <Square size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+                         {isRunning ? <Square size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
                      </button>
                      <button 
                         onClick={resetTimer}
                         type="button"
-                        className="w-12 h-12 rounded-xl bg-white/10 text-brand-300 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center"
+                        className="w-14 h-14 rounded-2xl bg-white/5 text-white/20 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center border border-white/5"
                      >
-                         <RefreshCcw size={20} />
+                         <RefreshCcw size={22} />
                      </button>
                  </div>
              </div>
              <button 
                 type="button"
                 onClick={applyTime}
-                className="w-full py-3 bg-brand-500 text-brand-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg italic"
+                className="w-full py-4 bg-brand-950 text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-brand-primary hover:text-brand-secondary transition-all shadow-xl italic border border-brand-primary/20"
              >
-                 RECORD TIME
+                 COMMIT PARAMETERS
              </button>
         </div>
     );
@@ -100,35 +101,33 @@ const MetricTracker: React.FC<{
     const count = Math.round((value / 100) * 20);
 
     const handleClick = (index: number) => {
-        // Index is 0-19. Clicking index 0 means 1 success.
-        // If clicking the current level, toggle it off (reduce by 1)
-        // Otherwise set to clicked level
         const newCount = index + 1 === count ? index : index + 1;
-        
-        // Convert back to 0-100 scale
         const newValue = Math.round((newCount / 20) * 100);
         onChange(newValue);
     };
 
+    const isPrimary = colorClass.includes('brand-primary') || colorClass.includes('brand-500');
+
     return (
-        <div className="space-y-3">
+        <div className="space-y-4 group/metric">
             <div className="flex justify-between items-end">
-                <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em]">{label}</label>
-                <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-black text-brand-300">{count}/20</span>
-                     <span className={`text-sm font-black italic ${colorClass.replace('bg-', 'text-')}`}>{value}%</span>
+                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic group-hover/metric:text-brand-primary transition-colors">{label}</label>
+                <div className="flex items-center gap-3">
+                     <span className="text-[9px] font-black text-white/10 font-mono tracking-widest">{count}/20 UNITS</span>
+                     <span className={`text-lg font-black italic tracking-tighter ${isPrimary ? 'text-brand-primary' : 'text-lime-400'}`}>{value}%</span>
                 </div>
             </div>
             
-            <div className="flex gap-1.5 h-6 select-none">
+            <div className="flex gap-1.5 h-6 select-none relative">
                 {[...Array(20)].map((_, i) => (
                     <div 
                         key={i}
                         onClick={() => handleClick(i)}
                         className={`
-                            flex-1 rounded-[2px] cursor-pointer transition-all duration-300 hover:scale-y-110
-                            ${i < count ? colorClass : 'bg-brand-50 hover:bg-brand-100'}
-                            ${i < count ? 'shadow-sm' : 'border border-brand-100/50'}
+                            flex-1 rounded-[2px] cursor-pointer transition-all duration-300 hover:scale-y-125
+                             ${i < count 
+                                ? (isPrimary ? 'bg-brand-primary shadow-[0_0_10px_rgba(0,200,255,0.3)]' : 'bg-lime-400 shadow-[0_0_10px_rgba(191,255,0,0.3)]') 
+                                : 'bg-white/[0.03] border border-white/5 hover:bg-white/10'}
                         `}
                     />
                 ))}
@@ -249,62 +248,87 @@ export const EvaluationManager: React.FC = () => {
   const selectedPlayerName = players.find(p => p.id === selectedPlayerId)?.fullName;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 pb-20">
       {!isEditing && (
         <>
-            <div className="bg-brand-500 p-8 rounded-[2.5rem] border border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-10"><Shield size={120} className="text-white" /></div>
-                <div className="relative z-10 text-white">
-                    <h2 className="text-4xl font-black italic uppercase tracking-tighter">SCOUT <span className="text-brand-950">REPORTS</span></h2>
-                    <p className="font-black mt-1 uppercase text-[10px] tracking-[0.3em] opacity-80 italic">Academy Performance & Talent Assessment</p>
+            <div className="bg-brand-primary p-12 rounded-[3.5rem] border border-white/10 flex flex-col md:flex-row justify-between items-center gap-10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000"><Shield size={200} className="text-white" /></div>
+                <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-secondary/20 rounded-full blur-[120px] pointer-events-none" />
+                
+                <div className="relative z-10 text-brand-secondary">
+                    <div className="flex items-center gap-4 mb-4">
+                        <span className="px-5 py-2 bg-brand-secondary text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg italic">Evaluation Protocol</span>
+                        <span className="text-brand-secondary/40 text-[10px] font-black tracking-[0.4em] uppercase italic font-mono">X-SERIES_v4.0</span>
+                    </div>
+                    <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">SCOUT <span className="text-white">REPORTS</span></h2>
+                    <p className="font-black mt-6 uppercase text-[10px] tracking-[0.5em] opacity-60 italic">Academy Performance Hub • Neural Talent Assessment</p>
                 </div>
-                <div className="relative w-full md:w-80 z-10">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500" />
+
+                <div className="relative w-full md:w-96 z-10">
+                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-primary" strokeWidth={3} />
                     <input 
                         type="text" 
-                        placeholder="Search roster..." 
-                        className="w-full pl-12 pr-6 py-4 bg-white border border-transparent rounded-[1.5rem] outline-none focus:ring-4 focus:ring-white/20 transition-all text-xs font-black uppercase tracking-widest text-brand-950 placeholder:text-brand-200 shadow-xl"
+                        placeholder="LOCATE OPERATIVE..." 
+                        className="w-full pl-16 pr-8 py-6 bg-brand-secondary border border-transparent rounded-[2rem] outline-none focus:ring-4 focus:ring-white/10 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic font-mono"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredPlayers.map(p => {
                     const hasDraft = StorageService.getDraft(p.id);
                     return (
                         <div 
-                        key={p.id} 
-                        onClick={() => handleSelectPlayer(p)}
-                        className="bg-white p-6 rounded-[2rem] border border-brand-100 hover:border-brand-500 cursor-pointer transition-all shadow-xl hover:-translate-y-1 flex items-center gap-5 group relative overflow-hidden"
+                            key={p.id} 
+                            onClick={() => handleSelectPlayer(p)}
+                            className="bg-brand-900/50 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/5 hover:border-brand-primary/50 cursor-pointer transition-all duration-500 shadow-2xl hover:-translate-y-2 flex flex-col gap-6 group relative overflow-hidden"
                         >
-                        {hasDraft && <div className="absolute top-0 right-0 w-3 h-3 bg-yellow-400 rounded-bl-lg shadow-sm" title="Draft Saved"></div>}
-                        
-                        <img 
-                            src={p.photoUrl || FALLBACK_IMAGE} 
-                            onError={(e) => {e.currentTarget.src = FALLBACK_IMAGE}}
-                            className="w-14 h-14 rounded-full bg-gray-100 border object-cover group-hover:scale-105 transition-transform" 
-                        />
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-black text-brand-950 truncate group-hover:text-brand-500 transition-colors uppercase italic">{p.fullName}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                                <p className="text-[10px] font-black text-brand-200 uppercase tracking-widest">{p.memberId}</p>
-                                {hasDraft && <span className="text-[8px] font-black bg-yellow-400 text-brand-950 px-2 py-0.5 rounded-full uppercase italic">Draft</span>}
+                            <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity -mr-8 -mt-8 rotate-12">
+                                <Zap size={120} className="text-brand-primary" />
                             </div>
-                            {p.evaluation ? (
-                            <span className="text-[9px] font-black bg-brand-50 text-brand-500 px-3 py-1 rounded-full uppercase mt-3 inline-block border border-brand-100 italic tracking-wider">Report Ready</span>
-                            ) : (
-                            <span className="text-[9px] font-black bg-brand-50 text-brand-100 px-3 py-1 rounded-full uppercase mt-3 inline-block border border-brand-100 italic tracking-wider">Pending Audit</span>
-                            )}
-                        </div>
-                        <ChevronRight size={18} className="text-gray-300 group-hover:text-brand-500" />
+
+                            <div className="flex items-center gap-6">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-brand-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
+                                    <img 
+                                        src={p.photoUrl || FALLBACK_IMAGE} 
+                                        onError={(e) => {e.currentTarget.src = FALLBACK_IMAGE}}
+                                        className="w-16 h-16 rounded-full bg-brand-950 border-2 border-white/10 object-cover relative z-10 transition-transform duration-500 group-hover:scale-110" 
+                                    />
+                                    {hasDraft && <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full border-2 border-brand-950 flex items-center justify-center z-20 animate-bounce shadow-lg"><Save size={10} className="text-brand-950" /></div>}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-xl font-black text-white truncate group-hover:text-brand-primary transition-colors uppercase italic tracking-tighter leading-none">{p.fullName}</h3>
+                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 font-mono italic">#{p.memberId}</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 border-t border-white/5 flex flex-col gap-4">
+                                {p.evaluation ? (
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest italic mb-1">OVERALL_RATING</span>
+                                            <span className="text-2xl font-black text-brand-primary italic tracking-tighter font-mono" style={{ fontFamily: 'Orbitron' }}>{p.evaluation.overallRating}<span className="text-[10px] ml-1 opacity-40">/100</span></span>
+                                        </div>
+                                        <div className="bg-brand-primary/10 text-brand-primary px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.3em] border border-brand-primary/20 italic">READY</div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-white/10 uppercase tracking-widest italic">AWAITING_SCAN</span>
+                                        <div className="bg-white/5 text-white/20 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.3em] border border-white/5 italic">PENDING</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     );
                 })}
                 {filteredPlayers.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-gray-400">
-                        No players match your search.
+                    <div className="col-span-full py-32 text-center glass-card border-dashed">
+                        <Loader2 className="w-12 h-12 text-white/5 mx-auto mb-6 animate-spin" />
+                        <h3 className="text-2xl font-black text-white/10 uppercase tracking-widest italic">No Data Signal</h3>
+                        <p className="text-[10px] font-black text-white/5 uppercase tracking-widest mt-2 italic">Search parameters returned zero results.</p>
                     </div>
                 )}
             </div>
@@ -313,86 +337,94 @@ export const EvaluationManager: React.FC = () => {
 
       {/* Editor Modal */}
       {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white w-full max-w-4xl h-[90vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-brand-100">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-2xl animate-in fade-in duration-500">
+            <div className="bg-brand-950 w-full max-w-6xl h-[92vh] rounded-[4rem] shadow-[0_0_100px_rgba(0,200,255,0.15)] flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 duration-700 border border-white/10 uppercase tracking-tight">
                 
                 {/* Header */}
-                <div className="px-10 py-8 border-b border-brand-100 flex justify-between items-center bg-brand-50">
-                    <div>
-                        <h2 className="text-3xl font-black text-brand-950 italic tracking-tighter flex items-center gap-3 uppercase">
-                            {selectedPlayerName}
-                            <span className="px-3 py-1 bg-brand-500 text-brand-950 rounded-lg text-[10px] font-black uppercase tracking-widest italic">Scout Report</span>
+                <div className="px-12 py-10 border-b border-white/5 flex justify-between items-center bg-brand-950 relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-brand-primary opacity-[0.02] animate-pulse" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-4 mb-2">
+                            <span className="px-4 py-1 bg-brand-primary text-brand-secondary rounded-lg text-[9px] font-black uppercase tracking-[0.4em] italic shadow-lg">Live Intelligence</span>
                             {draftSaved && (
-                                <span className="flex items-center gap-1 text-[10px] text-brand-300 font-black uppercase italic animate-in fade-in slide-in-from-left-2">
-                                    <SaveAll size={10} /> Auto-Saved
+                                <span className="flex items-center gap-2 text-[9px] text-green-400 font-black uppercase italic animate-pulse">
+                                    <SaveAll size={12} /> Syncing Data...
                                 </span>
                             )}
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter flex items-center gap-4">
+                            {selectedPlayerName}
+                            <span className="text-brand-primary opacity-20">//</span>
                         </h2>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-12 relative z-10">
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black text-brand-300 uppercase tracking-widest italic">Overall Score</span>
-                            <span className={`text-4xl font-black italic ${getScoreColor(form.overallRating).replace('text-', 'text-')}`}>{form.overallRating}</span>
+                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic mb-1">Performance Index</span>
+                            <div className="flex items-end gap-2">
+                                <span className="text-[10px] text-brand-primary font-bold mb-2 italic">RATING_</span>
+                                <span className={`text-6xl font-black italic font-mono leading-none tracking-tighter ${getScoreColor(form.overallRating).replace('text-', 'text-')}`} style={{ fontFamily: 'Orbitron' }}>{form.overallRating}</span>
+                            </div>
                         </div>
-                        <div className="w-16 h-16 bg-brand-950 rounded-2xl flex items-center justify-center shadow-xl border border-white/10">
-                             <Shield size={32} className="text-brand-500" />
+                        <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center shadow-2xl border border-brand-primary/20 rotate-3 group-hover:rotate-12 transition-transform duration-500">
+                             <Target size={36} className="text-brand-primary" />
                         </div>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="flex-1 overflow-y-auto p-12 custom-scrollbar-dark bg-brand-950">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
                         
                         {/* LEFT COLUMN: Physical & Metrics */}
-                        <div className="lg:col-span-5 space-y-8">
+                        <div className="lg:col-span-5 space-y-12">
                             {/* Anthropometry */}
-                            <section>
-                                <h4 className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em] flex items-center gap-2 mb-6 italic">
-                                    <Activity size={16} className="text-brand-500" /> PHYSICAL PROFILE
+                            <section className="glass-card p-10 rounded-[2.5rem] border-white/5 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.02] -mr-8 -mt-8"><Activity size={120} className="text-white" /></div>
+                                <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-10 italic">
+                                    <Zap size={18} strokeWidth={3} /> BIOMETRIC SCAN
                                 </h4>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest ml-1">Height</label>
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Operative Height</label>
                                         <div className="relative group">
-                                            <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-200 w-4 h-4 group-focus-within:text-brand-500 transition-colors" />
+                                            <Ruler className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-brand-primary transition-colors" />
                                             <input 
                                                 type="number" 
-                                                className="w-full pl-12 pr-14 py-4 bg-brand-50 border border-brand-100 rounded-2xl text-sm font-black text-brand-950 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all shadow-sm"
+                                                className="w-full pl-14 pr-16 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-lg font-black text-white focus:border-brand-primary/50 outline-none transition-all italic font-mono"
                                                 value={form.height}
                                                 onChange={e => setForm({...form, height: parseInt(e.target.value)})}
                                             />
-                                            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand-200 uppercase">cm</span>
+                                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-black text-white/10 uppercase tracking-widest italic">CM</span>
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest ml-1">Weight</label>
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Operative Mass</label>
                                         <div className="relative group">
-                                            <Weight className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-200 w-4 h-4 group-focus-within:text-brand-500 transition-colors" />
+                                            <Weight className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-brand-primary transition-colors" />
                                             <input 
                                                 type="number" 
-                                                className="w-full pl-12 pr-14 py-4 bg-brand-50 border border-brand-100 rounded-2xl text-sm font-black text-brand-950 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all shadow-sm"
+                                                className="w-full pl-14 pr-16 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-lg font-black text-white focus:border-brand-primary/50 outline-none transition-all italic font-mono"
                                                 value={form.weight}
                                                 onChange={e => setForm({...form, weight: parseInt(e.target.value)})}
                                             />
-                                            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand-200 uppercase">kg</span>
+                                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-black text-white/10 uppercase tracking-widest italic">KG</span>
                                         </div>
                                     </div>
                                 </div>
                             </section>
 
-                            {/* Performance Tests - NOW WITH STOPWATCH */}
-                            <section>
-                                <h4 className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em] flex items-center gap-2 mb-6 italic">
-                                    <Zap size={16} className="text-brand-500" /> CALIBRATED TIME TRIALS
+                            {/* Performance Tests - STOPWATCH */}
+                            <section className="space-y-6">
+                                <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-8 italic pl-1">
+                                    <Timer size={18} strokeWidth={3} /> KINETIC CALIBRATION
                                 </h4>
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     <StopwatchTool 
-                                        label="100m Sprint" 
+                                        label="Explosive Sprint" 
                                         value={form.timeTrials.speed} 
                                         onChange={(val) => setForm({...form, timeTrials: {...form.timeTrials, speed: val}})} 
                                     />
                                     <StopwatchTool 
-                                        label="Agility Shuttle" 
+                                        label="Tactical Agility" 
                                         value={form.timeTrials.agility} 
                                         onChange={(val) => setForm({...form, timeTrials: {...form.timeTrials, agility: val}})} 
                                     />
@@ -406,99 +438,108 @@ export const EvaluationManager: React.FC = () => {
                         </div>
 
                         {/* RIGHT COLUMN: Technical & Development */}
-                        <div className="lg:col-span-7 space-y-8">
-                            {/* Technical Assessment - NOW WITH 20pt TRACKER */}
-                            <section>
-                                <div className="flex justify-between items-center mb-6">
-                                    <h4 className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em] flex items-center gap-2 italic">
-                                        <Target size={16} className="text-brand-500" /> TECHNICAL PROFICIENCY (DRILLS)
+                        <div className="lg:col-span-7 space-y-12">
+                            {/* Technical Assessment - 20pt TRACKER */}
+                            <section className="glass-card p-12 rounded-[3.5rem] border-white/5 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -mr-10 -mt-10"><Target size={220} className="text-white" /></div>
+                                <div className="flex justify-between items-center mb-12">
+                                    <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-4 italic">
+                                        <Activity size={18} strokeWidth={3} /> TACTICAL APTITUDE
                                     </h4>
-                                    <span className="text-[10px] font-black text-brand-300 uppercase tracking-widest italic">Ratio / 100</span>
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] italic mb-1 opacity-40">System Accuracy</span>
+                                        <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest italic font-mono">1.0_PRO_SENSORS</span>
+                                    </div>
                                 </div>
                                 
-                                <div className="space-y-8 bg-brand-50 p-8 rounded-3xl border border-brand-100 shadow-inner">
+                                <div className="space-y-10">
                                     <MetricTracker 
-                                        label="Passing Accuracy" 
+                                        label="Precision Passing" 
                                         value={form.metrics.passing} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, passing: val}})} 
-                                        colorClass="bg-brand-500"
+                                        colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Shooting / Finishing" 
+                                        label="Ballistic Finishing" 
                                         value={form.metrics.shooting} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, shooting: val}})} 
-                                        colorClass="bg-brand-500"
+                                        colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Ball Control / Juggling" 
+                                        label="Neural Ball Control" 
                                         value={form.metrics.juggling} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, juggling: val}})} 
-                                        colorClass="bg-brand-500"
+                                        colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Weak Foot Usage" 
+                                        label="Auxiliary Foot Usage" 
                                         value={form.metrics.weakFoot} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, weakFoot: val}})} 
-                                        colorClass="bg-brand-500"
-                                    />
-                                    <MetricTracker 
-                                        label="Long Pass Precision" 
-                                        value={form.metrics.longPass} 
-                                        onChange={(val) => setForm({...form, metrics: {...form.metrics, longPass: val}})} 
-                                        colorClass="bg-brand-500"
+                                        colorClass="bg-lime-400"
                                     />
                                     
-                                    {/* Manual Beep Test Entry */}
-                                    <div className="pt-6 border-t border-brand-100">
-                                        <label className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] mb-4 block">Endurance Level (Beep Test Equivalent)</label>
-                                        <input 
-                                            type="range" 
-                                            min="0" max="100"
-                                            className="w-full h-1.5 bg-brand-100 rounded-lg appearance-none cursor-pointer accent-brand-500"
-                                            value={form.metrics.beepTest}
-                                            onChange={e => setForm({...form, metrics: {...form.metrics, beepTest: parseInt(e.target.value)}})}
-                                        />
-                                        <div className="flex justify-between text-[10px] text-brand-300 font-black uppercase mt-3 italic tracking-widest">
-                                            <span>Baseline</span>
-                                            <span className="text-brand-500 text-2xl italic">{form.metrics.beepTest}%</span>
-                                            <span>Elite</span>
+                                    {/* Endurance Range */}
+                                    <div className="pt-10 border-t border-white/5">
+                                        <div className="flex justify-between items-end mb-6">
+                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic group-hover/metric:text-brand-primary transition-colors">VO2 MAX / ENDURANCE</label>
+                                            <div className="flex items-end gap-2">
+                                                <span className="text-2xl font-black text-white font-mono italic" style={{ fontFamily: 'Orbitron' }}>{form.metrics.beepTest}<span className="text-[10px] ml-1 opacity-20">SCORE</span></span>
+                                            </div>
+                                        </div>
+                                        <div className="relative py-4">
+                                            <div className="absolute inset-x-0 h-1 bg-white/5 rounded-full" />
+                                            <input 
+                                                type="range" 
+                                                min="0" max="100"
+                                                className="absolute inset-x-0 h-1 bg-transparent rounded-lg appearance-none cursor-pointer accent-brand-primary z-10"
+                                                value={form.metrics.beepTest}
+                                                onChange={e => setForm({...form, metrics: {...form.metrics, beepTest: parseInt(e.target.value)}})}
+                                            />
+                                            <div 
+                                                className="absolute h-1 bg-brand-primary rounded-full shadow-[0_0_15px_rgba(0,200,255,0.5)]" 
+                                                style={{ width: `${form.metrics.beepTest}%` }} 
+                                            />
+                                        </div>
+                                        <div className="flex justify-between text-[8px] text-white/10 font-black uppercase mt-4 italic tracking-[0.4em]">
+                                            <span>Baseline_Stat</span>
+                                            <span>Target_Elite</span>
                                         </div>
                                     </div>
                                 </div>
                             </section>
 
-                            <div className="h-[2px] bg-brand-50 my-8" />
-
                             {/* Development Areas */}
-                            <section>
-                                <h4 className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em] flex items-center gap-2 mb-6 italic">
-                                    <Activity size={16} className="text-brand-500" /> TACTICAL IMPROVEMENT AREAS
+                            <section className="glass-card p-10 rounded-[2.5rem] border-white/5 shadow-2xl relative overflow-hidden">
+                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-primary/5 rounded-full blur-[60px] pointer-events-none" />
+                                <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-10 italic">
+                                    <Plus size={18} strokeWidth={3} /> MISSION OBJECTIVES
                                 </h4>
                                 
-                                <div className="space-y-6">
-                                    <div className="relative group">
-                                        <Plus className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-200 w-4 h-4 group-focus-within:text-brand-500 transition-colors" />
+                                <div className="space-y-8">
+                                    <div className="relative group/input">
+                                        <Plus className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within/input:text-brand-primary transition-colors" />
                                         <input 
                                             type="text" 
-                                            className="w-full pl-12 pr-6 py-4 bg-brand-50 border border-brand-100 rounded-2xl text-sm font-black uppercase tracking-widest text-brand-950 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-brand-200 shadow-sm"
-                                            placeholder="Type area and press Enter..."
+                                            className="w-full pl-14 pr-8 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-white focus:border-brand-primary/50 outline-none transition-all placeholder:text-white/10 italic"
+                                            placeholder="TAG NEW MISSION FOCUS..."
                                             value={tagInput}
                                             onChange={e => setTagInput(e.target.value)}
                                             onKeyDown={handleTagKeyDown}
                                         />
                                     </div>
                                     
-                                    <div className="flex flex-wrap gap-2 min-h-[48px]">
+                                    <div className="flex flex-wrap gap-3 min-h-[60px]">
                                         {form.developmentAreas.map((area, idx) => (
-                                            <span key={idx} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-950 text-white text-[10px] font-black uppercase tracking-widest animate-in zoom-in duration-200 border border-white/10 italic">
+                                            <span key={idx} className="group/tag inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-brand-950 text-white text-[9px] font-black uppercase tracking-[0.3em] border border-white/10 hover:border-brand-primary transition-all italic shadow-xl">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-primary group-hover/tag:animate-ping" />
                                                 {area}
-                                                <button onClick={() => removeTag(area)} className="text-brand-500 hover:text-white transition-colors">
-                                                    <X size={12} strokeWidth={3} />
+                                                <button onClick={() => removeTag(area)} className="text-white/20 hover:text-red-500 transition-colors ml-2">
+                                                    <X size={14} strokeWidth={4} />
                                                 </button>
                                             </span>
                                         ))}
                                         {form.developmentAreas.length === 0 && (
-                                            <span className="text-[10px] text-brand-200 font-black uppercase tracking-[0.2em] py-2 italic opacity-50">No improvement protocols tagged.</span>
+                                            <div className="w-full flex items-center justify-center p-8 border border-dashed border-white/5 rounded-2xl text-[9px] font-black text-white/5 uppercase tracking-[0.3em] italic">No active objectives</div>
                                         )}
                                     </div>
                                 </div>
@@ -508,41 +549,41 @@ export const EvaluationManager: React.FC = () => {
                 </div>
 
                 {/* Footer / Actions */}
-                <div className="px-10 py-8 bg-brand-50 border-t border-brand-100 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex gap-10 w-full md:w-auto">
+                <div className="px-12 py-10 bg-brand-950 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 shrink-0">
+                    <div className="flex gap-12 w-full md:w-auto">
                         <div className="flex-1">
-                            <label className="block text-[10px] font-black text-brand-300 uppercase tracking-widest mb-1 italic">Chief Scout</label>
+                            <label className="block text-[9px] font-black text-white/20 uppercase tracking-[0.4em] mb-3 italic">Authored By</label>
                             <input 
                                 type="text" 
-                                className="w-full bg-transparent border-b border-brand-200 py-1 text-sm font-black text-brand-950 focus:border-brand-500 outline-none" 
+                                className="w-full bg-transparent border-b-2 border-white/5 py-2 text-sm font-black text-white focus:border-brand-primary outline-none italic tracking-widest uppercase" 
                                 value={form.coachName} 
                                 onChange={e => setForm({...form, coachName: e.target.value})} 
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="block text-[10px] font-black text-brand-300 uppercase tracking-widest mb-1 italic">Audit Date</label>
+                            <label className="block text-[9px] font-black text-white/20 uppercase tracking-[0.4em] mb-3 italic">Timestamp</label>
                             <input 
                                 type="date" 
-                                className="w-full bg-transparent border-b border-brand-200 py-1 text-sm font-black text-brand-950 focus:border-brand-500 outline-none" 
+                                className="w-full bg-transparent border-b-2 border-white/5 py-2 text-sm font-black text-white focus:border-brand-primary outline-none italic tracking-widest uppercase" 
                                 value={form.evaluationDate} 
                                 onChange={e => setForm({...form, evaluationDate: e.target.value})} 
                             />
                         </div>
                     </div>
 
-                    <div className="flex gap-4 w-full md:w-auto">
+                    <div className="flex gap-6 w-full md:w-auto">
                         <button 
                             onClick={() => setIsEditing(false)} 
-                            className="flex-1 md:flex-none px-8 py-4 text-brand-300 font-black hover:text-brand-950 rounded-2xl transition-all text-[10px] uppercase tracking-[0.2em] italic"
+                            className="flex-1 md:flex-none px-12 py-5 text-white/20 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] italic"
                         >
-                            Draft Only
+                            Abort Scan
                         </button>
                         <button 
                             onClick={handleSave} 
-                            className="flex-1 md:flex-none px-10 py-4 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl hover:scale-[1.02] transform transition-all text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 italic"
+                            className="flex-1 md:flex-none px-14 py-5 bg-brand-primary text-brand-secondary font-black rounded-2xl shadow-[0_20px_50px_rgba(0,200,255,0.2)] hover:scale-[1.02] transform transition-all text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 italic active:scale-95"
                         >
-                            <Save size={18} />
-                            AUTHORIZE REPORT
+                            <Save size={20} strokeWidth={3} />
+                            AUTHORIZE PROTOCOL
                         </button>
                     </div>
                 </div>

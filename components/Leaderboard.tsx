@@ -201,19 +201,19 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                             <div className="order-2 md:order-1">
                                 {top3[1] && (
                                     <div onClick={() => setViewingEntry(top3[1])}
-                                        className="bg-brand-950 rounded-[2rem] border border-slate-400/20 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl group min-h-[280px]">
+                                        className="bg-white rounded-[2rem] border border-slate-200 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg group min-h-[280px]">
                                         <div className="relative mb-4">
-                                            <div className="w-[4.5rem] h-[4.5rem] rounded-full overflow-hidden border-[3px] border-slate-400/50 shadow-xl group-hover:scale-110 transition-transform">
+                                            <div className="w-[4.5rem] h-[4.5rem] rounded-full overflow-hidden border-[3px] border-slate-300 shadow-xl group-hover:scale-110 transition-transform">
                                                 <img src={top3[1].photoUrl} alt={top3[1].fullName} className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center text-[11px] font-black text-white border-2 border-brand-950">2</div>
+                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center text-[11px] font-black text-white border-2 border-white">2</div>
                                         </div>
-                                        <p className="font-black text-white text-base italic uppercase tracking-tight text-center truncate w-full">{top3[1].fullName}</p>
-                                        <p className="text-[8px] font-bold text-brand-500 uppercase tracking-widest mt-1 mb-4">{top3[1].position || 'PLAYER'}</p>
-                                        <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-white/10 mt-auto">
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">SESSION</p><p className="font-black text-white text-lg">{top3[1].trainingMvps}</p></div>
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">MATCH</p><p className="font-black text-white text-lg">{top3[1].matchMvps}</p></div>
-                                            <div className="text-center"><p className="text-[8px] font-black text-slate-400 uppercase mb-1">PTS</p><p className="font-black text-slate-300 text-xl">{top3[1].totalPts}</p></div>
+                                        <p className="font-black text-slate-900 text-base italic uppercase tracking-tight text-center truncate w-full">{top3[1].fullName}</p>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{top3[1].position || 'PLAYER'}</p>
+                                        <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-auto">
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">SESSION</p><p className="font-black text-slate-900 text-lg">{top3[1].trainingMvps}</p></div>
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">MATCH</p><p className="font-black text-slate-900 text-lg">{top3[1].matchMvps}</p></div>
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-400 uppercase mb-1">PTS</p><p className="font-black text-brand-500 text-xl">{top3[1].totalPts}</p></div>
                                         </div>
                                     </div>
                                 )}
@@ -223,35 +223,35 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                             <div className="order-1 md:order-2">
                                 {top3[0] && (
                                     <div onClick={() => setViewingEntry(top3[0])}
-                                        className="relative bg-brand-950 rounded-[2rem] border-2 border-amber-400/40 p-8 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_8px_40px_rgba(251,191,36,0.2)] group min-h-[340px] overflow-hidden">
-                                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,_rgba(251,191,36,0.12),_transparent)] pointer-events-none" />
+                                        className="relative bg-white rounded-[2rem] border-2 border-amber-400 p-8 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_20px_50px_rgba(251,191,36,0.15)] group min-h-[340px] overflow-hidden">
+                                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,_rgba(251,191,36,0.08),_transparent)] pointer-events-none" />
                                         {/* Top crown bar */}
-                                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
                                         <div className="relative mb-4 mt-2">
-                                            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-amber-400/60 shadow-[0_0_24px_rgba(251,191,36,0.4)] group-hover:scale-110 transition-transform">
+                                            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.3)] group-hover:scale-110 transition-transform">
                                                 <img src={top3[0].photoUrl} alt={top3[0].fullName} className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-brand-950 border-[3px] border-brand-950 shadow-lg">
+                                            <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-brand-950 border-[3px] border-white shadow-lg">
                                                 <Crown size={16} className="fill-brand-950" />
                                             </div>
                                         </div>
-                                        <p className="font-black text-white text-xl italic uppercase tracking-tighter text-center truncate w-full">{top3[0].fullName}</p>
+                                        <p className="font-black text-slate-900 text-xl italic uppercase tracking-tighter text-center truncate w-full">{top3[0].fullName}</p>
                                         <p className="text-[8px] font-bold text-brand-500 uppercase tracking-widest mt-1">{top3[0].position || 'PLAYER'}</p>
                                         {potmData?.playerId === top3[0].id && (
-                                            <div className="mt-3 flex items-center gap-1.5 bg-amber-400/15 border border-amber-400/30 text-amber-400 text-[9px] font-black px-3 py-1.5 rounded-full">
+                                            <div className="mt-3 flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/20 text-amber-600 text-[9px] font-black px-3 py-1.5 rounded-full">
                                                 <Sparkles size={10} /> PLAYER OF THE MONTH
                                             </div>
                                         )}
                                         {(role === 'admin' || role === 'coach') && potmData?.playerId !== top3[0].id && (
                                             <button onClick={e => { e.stopPropagation(); setPotmAction({ playerId: top3[0].id, playerName: top3[0].fullName, month, monthName }); setPotmModalOpen(true); }}
-                                                className="mt-3 bg-amber-400/10 text-amber-400 border border-amber-400/30 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-amber-400 hover:text-brand-950 transition-all">
+                                                className="mt-3 bg-amber-400 text-brand-950 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20">
                                                 Award POTM
                                             </button>
                                         )}
-                                        <div className="w-full grid grid-cols-3 gap-3 pt-5 border-t border-white/10 mt-auto">
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">SESSION</p><p className="font-black text-white text-xl">{top3[0].trainingMvps}</p></div>
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">MATCH</p><p className="font-black text-white text-xl">{top3[0].matchMvps}</p></div>
-                                            <div className="text-center"><p className="text-[8px] font-black text-amber-400 uppercase mb-1">PTS</p><p className="font-black text-amber-400 text-2xl">{top3[0].totalPts}</p></div>
+                                        <div className="w-full grid grid-cols-3 gap-3 pt-5 border-t border-slate-100 mt-auto">
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">SESSION</p><p className="font-black text-slate-900 text-xl">{top3[0].trainingMvps}</p></div>
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">MATCH</p><p className="font-black text-slate-900 text-xl">{top3[0].matchMvps}</p></div>
+                                            <div className="text-center"><p className="text-[8px] font-black text-amber-500 uppercase mb-1">PTS</p><p className="font-black text-amber-500 text-2xl">{top3[0].totalPts}</p></div>
                                         </div>
                                     </div>
                                 )}
@@ -261,18 +261,18 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                             <div className="order-3">
                                 {top3[2] && (
                                     <div onClick={() => setViewingEntry(top3[2])}
-                                        className="bg-brand-950 rounded-[2rem] border border-amber-800/20 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl group min-h-[260px]">
+                                        className="bg-white rounded-[2rem] border border-amber-800/10 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg group min-h-[260px]">
                                         <div className="relative mb-4">
-                                            <div className="w-[4.5rem] h-[4.5rem] rounded-full overflow-hidden border-[3px] border-amber-800/50 shadow-xl group-hover:scale-110 transition-transform">
+                                            <div className="w-[4.5rem] h-[4.5rem] rounded-full overflow-hidden border-[3px] border-amber-700/30 shadow-xl group-hover:scale-110 transition-transform">
                                                 <img src={top3[2].photoUrl} alt={top3[2].fullName} className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center text-[11px] font-black text-white border-2 border-brand-950">3</div>
+                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center text-[11px] font-black text-white border-2 border-white">3</div>
                                         </div>
-                                        <p className="font-black text-white text-base italic uppercase tracking-tight text-center truncate w-full">{top3[2].fullName}</p>
-                                        <p className="text-[8px] font-bold text-brand-500 uppercase tracking-widest mt-1 mb-4">{top3[2].position || 'PLAYER'}</p>
-                                        <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-white/10 mt-auto">
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">SESSION</p><p className="font-black text-white text-lg">{top3[2].trainingMvps}</p></div>
-                                            <div className="text-center"><p className="text-[8px] font-black text-brand-600 uppercase mb-1">MATCH</p><p className="font-black text-white text-lg">{top3[2].matchMvps}</p></div>
+                                        <p className="font-black text-slate-900 text-base italic uppercase tracking-tight text-center truncate w-full">{top3[2].fullName}</p>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{top3[2].position || 'PLAYER'}</p>
+                                        <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-auto">
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">SESSION</p><p className="font-black text-slate-900 text-lg">{top3[2].trainingMvps}</p></div>
+                                            <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">MATCH</p><p className="font-black text-slate-900 text-lg">{top3[2].matchMvps}</p></div>
                                             <div className="text-center"><p className="text-[8px] font-black text-amber-700 uppercase mb-1">PTS</p><p className="font-black text-amber-600 text-xl">{top3[2].totalPts}</p></div>
                                         </div>
                                     </div>

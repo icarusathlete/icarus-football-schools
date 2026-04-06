@@ -19,7 +19,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   requireTypeToConfirm,
   onConfirm,
   onCancel,
-  confirmText = "Verify & Execute",
+  confirmText = "Confirm",
   type = "danger"
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -40,31 +40,31 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-md animate-in fade-in">
-      <div className="bg-brand-500/10 backdrop-blur-xl w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(14,165,233,0.3)] border border-brand-500/30 overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="bg-red-500/10 px-8 py-5 border-b border-red-500/20 flex items-center gap-4">
-          <div className="p-2.5 bg-red-500/20 text-red-500 rounded-xl">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in">
+      <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className={`${type === 'danger' ? 'bg-red-50 border-red-100' : 'bg-brand-50 border-brand-100'} px-8 py-6 border-b flex items-center gap-4`}>
+          <div className={`p-2.5 ${type === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-brand-500/10 text-brand-500'} rounded-xl`}>
             <AlertTriangle size={20} />
           </div>
-          <h3 className="font-black text-white uppercase tracking-tight text-lg" style={{ fontFamily: 'Orbitron' }}>{title}</h3>
-          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-white/5 rounded-xl text-brand-600 hover:text-white transition-all">
+          <h3 className="font-black text-slate-900 uppercase tracking-tight text-lg italic">{title}</h3>
+          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-white rounded-xl text-slate-300 hover:text-slate-900 transition-all border border-transparent hover:border-slate-100 shadow-sm">
             <X size={20} />
           </button>
         </div>
         
         <div className="p-8">
-          <p className="text-red-200/60 text-sm font-bold leading-relaxed mb-8">{message}</p>
+          <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8 italic uppercase tracking-wider">{message}</p>
           
           {requireTypeToConfirm && (
-            <div className="mb-8 p-6 bg-brand-950/50 rounded-2xl border border-white/5 shadow-inner">
-              <label className="block text-[10px] font-black text-brand-600 uppercase tracking-[0.2em] mb-3">
-                Authorization Sequence: Type "{requireTypeToConfirm}"
+            <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                Type "{requireTypeToConfirm}" to confirm
               </label>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full bg-brand-800 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-black text-white placeholder:text-brand-700 focus:border-red-500 outline-none transition-all shadow-inner"
+                className="w-full bg-white border border-slate-200 rounded-xl px-5 py-3.5 text-sm font-black text-slate-900 placeholder:text-slate-300 focus:border-brand-500 outline-none transition-all shadow-sm italic uppercase tracking-widest"
                 placeholder={requireTypeToConfirm}
               />
             </div>
@@ -73,17 +73,17 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <div className="flex gap-4">
             <button
               onClick={handleCancel}
-              className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-brand-400 hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all border border-white/5 shadow-inner"
+              className="flex-1 py-4 px-6 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-900 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all border border-slate-200 shadow-sm italic"
             >
-              Abort Action
+              Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={requireTypeToConfirm ? inputValue !== requireTypeToConfirm : false}
-              className={`flex-1 py-4 px-6 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl transform active:scale-95 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed ${
+              className={`flex-1 py-4 px-6 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl transform active:scale-95 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed italic ${
                 type === 'danger' 
-                  ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20' 
-                  : 'bg-brand-500 hover:bg-brand-600 text-brand-950 shadow-brand-500/20'
+                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20' 
+                  : 'bg-brand-500 hover:bg-brand-600 text-slate-900 shadow-brand-500/20'
               }`}
             >
               {confirmText}

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-brand-50: #f0f9ff;
@@ -38,22 +38,22 @@
   --glass-blur: 24px;
   
   /* Tactical Surface Tokens */
-  --surface-low: #000965;
-  --surface-default: #000b70;
-  --surface-high: #061587;
-  --surface-bright: #1e2a95;
+  --surface-low: #f8fafc;
+  --surface-default: #ffffff;
+  --surface-high: #f1f5f9;
+  --surface-bright: #e2e8f0;
 
   /* Performance Glows */
-  --cyan-glow: 0 0 30px rgba(0, 200, 255, 0.25);
-  --lime-glow: 0 0 30px rgba(195, 246, 41, 0.25);
+  --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.15);
+  --lime-glow: 0 10px 40px rgba(195, 246, 41, 0.15);
 }
 
 body { 
-  background-color: var(--brand-bg); 
-  color: var(--brand-text);
+  background-color: #f8fafc; /* bg-slate-50 */
+  color: #0f172a; /* bg-slate-900 */
   overflow-x: hidden;
   width: 100vw;
-  font-family: "Inter", sans-serif;
+  font-family: "Manrope", sans-serif;
 }
 
 #root {
@@ -61,41 +61,45 @@ body {
   overflow-x: hidden;
 }
 
-/* Digital Stadium Glassmorphism */
+/* Academy Glassmorphism (Optimized for Light Mode) */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 0.5rem; /* Precise semi-sharp corners */
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  background: white;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 2rem;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.05);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 200, 255, 0.3);
-  background: rgba(0, 5, 78, 0.7);
-  box-shadow: var(--cyan-glow);
-  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(0, 200, 255, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 200, 255, 0.1);
+  transform: translateY(-4px) scale(1.005);
 }
 
 /* HUD Ghost Border */
 .hud-border {
-  border: 1px solid rgba(0, 200, 255, 0.15);
+  border: 1px solid rgba(15, 23, 42, 0.1);
 }
 
 .premium-gradient-text {
-  background: linear-gradient(135deg, #0D1B8A 0%, #00C8FF 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #00C8FF 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Scrollbar Customization */
-::-webkit-scrollbar { width: 4px; }
+/* Scrollbar Engineering */
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(13, 27, 138, 0.1); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--brand-primary); }
+::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #00C8FF; }
+
+.custom-scrollbar-light::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar-light::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar-light::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.05); border-radius: 10px; }
+.custom-scrollbar-light::-webkit-scrollbar-thumb:hover { background: #00C8FF; }
 
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }

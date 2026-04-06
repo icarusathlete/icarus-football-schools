@@ -142,7 +142,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       const days = [];
 
       // Empty cells for first week
-      for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-brand-900/20 border border-white/5" />);
+      for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-50 border border-slate-100" />);
 
       for (let d = 1; d <= daysInMonth; d++) {
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -150,48 +150,51 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
           const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
           days.push(
-              <div key={d} className={`h-24 md:h-36 p-2 md:p-3 border border-brand-100 transition-all hover:bg-brand-50 relative overflow-hidden group/day ${isToday ? 'bg-brand-50' : 'bg-white'}`}>
+              <div key={d} className={`h-24 md:h-36 p-2 md:p-3 border border-slate-100 transition-all hover:bg-slate-50 relative overflow-hidden group/day ${isToday ? 'bg-brand-500/5' : 'bg-white'}`}>
                   <div className="flex justify-between items-center mb-2">
-                      <span className={`text-xs font-black italic ${isToday ? 'text-brand-500' : 'text-brand-950'}`}>{d}</span>
-                      {isToday && <span className="text-[9px] font-black text-brand-500 uppercase tracking-widest italic">Live Day</span>}
+                      <span className={`text-[10px] font-black italic tracking-widest ${isToday ? 'text-brand-500' : 'text-slate-300'}`}>{d}</span>
+                      {isToday && <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest italic animate-pulse">TODAY</span>}
                   </div>
                   <div className="space-y-1.5 overflow-y-auto max-h-[80%] custom-scrollbar relative z-10">
                       {dayEvents.map(e => {
                           const s = getTypeStyles(e.type);
                           return (
-                              <div key={e.id} onClick={() => handleEdit(e)} className={`px-2 py-1.5 rounded-lg text-[9px] font-black truncate cursor-pointer ${s.bg} ${s.text} border-l-2 ${s.border} hover:scale-[1.02] transition-transform flex items-center gap-1.5 italic`}>
-                                  <div className={`w-1 h-1 rounded-full ${s.dot}`} />
-                                  {e.title}
+                              <div key={e.id} onClick={() => handleEdit(e)} className={`px-2 py-1.5 rounded-lg text-[9px] font-black truncate cursor-pointer bg-slate-50 ${s.text} border border-slate-100 hover:border-brand-500/50 transition-all flex items-center gap-1.5 italic shadow-sm`}>
+                                  <div className={`w-1 h-1 rounded-full ${s.dot} shadow-[0_0_8px_currentColor]`} />
+                                  <span className="opacity-70 group-hover/day:opacity-100">{e.title}</span>
                               </div>
                           );
                       })}
                   </div>
-                  {isToday && <div className="absolute inset-0 border-2 border-brand-500/50 pointer-events-none" />}
+                  {isToday && <div className="absolute inset-0 border-2 border-brand-500/20 pointer-events-none" />}
+                  <div className="absolute bottom-[-20px] right-[-20px] text-slate-100 font-black text-5xl italic select-none pointer-events-none group-hover/day:text-brand-500/[0.03] transition-colors">{d}</div>
               </div>
           );
       }
 
       return (
-          <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
-              <div className="p-8 border-b border-brand-50 flex items-center justify-between bg-brand-50">
-                  <h3 className="text-xl font-black text-brand-950 flex items-center gap-3 uppercase tracking-tighter italic">
-                      <CalendarIcon size={24} className="text-brand-500" />
+          <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.05)] animate-in fade-in zoom-in-95 duration-500">
+              <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 backdrop-blur-xl">
+                  <h3 className="text-2xl font-black text-slate-900 flex items-center gap-4 uppercase tracking-tighter italic">
+                      <div className="p-3 bg-brand-500/10 rounded-2xl border border-brand-500/20">
+                        <CalendarIcon size={24} className="text-brand-500" />
+                      </div>
                       {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                   </h3>
-                  <div className="flex gap-2">
-                      <button onClick={() => changeMonth(-1)} className="w-12 h-12 flex items-center justify-center bg-white border border-brand-100 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-sm"><ChevronLeft size={20}/></button>
-                      <button onClick={() => setCurrentMonth(new Date())} className="px-6 py-2 bg-brand-950 text-brand-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all italic border border-white/10">Now</button>
-                      <button onClick={() => changeMonth(1)} className="w-12 h-12 flex items-center justify-center bg-white border border-brand-100 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-sm"><ChevronRight size={20}/></button>
+                  <div className="flex gap-3">
+                      <button onClick={() => changeMonth(-1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-400 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronLeft size={20} strokeWidth={3} /></button>
+                      <button onClick={() => setCurrentMonth(new Date())} className="px-8 bg-brand-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border border-white/10 hover:border-brand-500/40 active:scale-95">TODAY</button>
+                      <button onClick={() => changeMonth(1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-400 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronRight size={20} strokeWidth={3} /></button>
                   </div>
               </div>
               <div className="overflow-x-auto custom-scrollbar">
-                  <div className="min-w-[600px]">
-                      <div className="grid grid-cols-7 border-b border-brand-100 bg-brand-950">
+                  <div className="min-w-[800px]">
+                      <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50">
                           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d, i) => (
-                              <div key={i} className="py-4 text-center text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] font-mono">{d}</div>
+                              <div key={i} className="py-6 text-center text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] font-mono opacity-60 italic">{d}</div>
                           ))}
                       </div>
-                      <div className="grid grid-cols-7">
+                      <div className="grid grid-cols-7 bg-white">
                           {days}
                       </div>
                   </div>
@@ -204,7 +207,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
     <div className="space-y-8 pb-24 animate-in fade-in duration-700">
       
       {/* Header & Controls - Icarus Pro Hero */}
-      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-900 p-8 md:p-12 border border-white/10 shadow-2xl transition-all duration-500 hover:border-brand-500/30">
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-950 p-8 md:p-12 border border-white/5 shadow-2xl transition-all duration-500">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,200,255,0.08),transparent_50%)]" />
         <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-125 group-hover:rotate-0 duration-700">
             <CalendarIcon size={200} className="text-white" />
@@ -213,14 +216,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500 animate-pulse">Live Operations</div>
+              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500 animate-pulse">Live Schedule</div>
               <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
-              MISSION <span className="premium-gradient-text">CONTROL</span>
+              ACADEMY <span className="premium-gradient-text">SCHEDULE</span>
             </h2>
             <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
-              Orchestrating elite development through precise session planning and scheduling.
+              Manage training sessions, matches, and academy events in one place.
             </p>
           </div>
 
@@ -229,13 +232,13 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
             <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner">
                 <button 
                   onClick={() => setViewMode('list')} 
-                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20 scale-105' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
                     <LayoutList size={14} strokeWidth={2.5} /> LIST
                 </button>
                 <button 
                   onClick={() => setViewMode('calendar')} 
-                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-brand-950 shadow-lg shadow-brand-500/20 scale-105' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
                     <Calendar size={14} strokeWidth={2.5} /> CALENDAR
                 </button>
@@ -263,10 +266,10 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
             {(role === 'admin' || role === 'coach') && (
                 <button 
                     onClick={handleCreate}
-                    className="flex items-center gap-2.5 bg-lime text-brand-950 px-8 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-lime/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto lg:ml-0"
+                    className="flex items-center gap-2.5 bg-brand-500 text-white px-8 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto lg:ml-0"
                 >
                     <Plus size={18} strokeWidth={3} />
-                    ADD INTENT
+                    ADD EVENT
                 </button>
             )}
           </div>
@@ -278,13 +281,13 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
         {viewMode === 'calendar' ? <CalendarView /> : (
             <div className="grid grid-cols-1 gap-6">
                 {filteredEvents.length === 0 && (
-                   <div className="glass-card p-24 text-center flex flex-col items-center border-dashed">
-                       <div className="w-20 h-20 bg-brand-500/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-white/5">
-                           <CalendarIcon size={32} className="text-brand-500/20" />
-                       </div>
-                       <h3 className="text-2xl font-display font-black text-white/20 uppercase tracking-[0.2em] italic leading-none">NO ACTIVE MISSIONS</h3>
-                       <p className="text-white/10 mt-4 text-[9px] font-black uppercase tracking-[0.3em] italic">The operational timeline is currently clear.</p>
-                   </div>
+                    <div className="glass-card p-24 text-center flex flex-col items-center border-dashed bg-white border-slate-200">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 ring-1 ring-slate-100">
+                            <CalendarIcon size={32} className="text-slate-200" />
+                        </div>
+                        <h3 className="text-2xl font-display font-black text-slate-200 uppercase tracking-[0.2em] italic leading-none">NO EVENTS SCHEDULED</h3>
+                        <p className="text-slate-300 mt-4 text-[9px] font-black uppercase tracking-[0.3em] italic">The academy schedule is currently empty.</p>
+                    </div>
                 )}
 
                 {filteredEvents.map((event) => {
@@ -296,22 +299,22 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     return (
                         <div 
                           key={event.id} 
-                          className={`group glass-card overflow-hidden flex flex-col md:flex-row transition-all duration-500 hover:ring-2 hover:ring-brand-500/30 ${isPast ? 'opacity-30' : ''}`}
+                          className={`group glass-card overflow-hidden flex flex-col md:flex-row transition-all duration-500 border border-slate-100 bg-white hover:ring-2 hover:ring-brand-500/10 ${isPast ? 'opacity-30' : ''}`}
                         >
                             {/* Temporal Anchor */}
-                            <div className="w-full md:w-56 p-8 bg-brand-900/50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-4 border-b md:border-b-0 md:border-r border-white/5 relative">
+                            <div className="w-full md:w-56 p-8 bg-slate-50 flex flex-row md:flex-col justify-between md:justify-center items-center gap-4 border-b md:border-b-0 md:border-r border-slate-100 relative">
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_50%)]" />
                                 <div className="text-center relative z-10">
                                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-500">{dateObj.toLocaleDateString(undefined, { month: 'short' })}</span>
-                                    <div className="text-5xl font-display font-black text-white leading-none my-2 tracking-tighter italic drop-shadow-2xl">
+                                    <div className="text-5xl font-display font-black text-brand-950 leading-none my-2 tracking-tighter italic drop-shadow-sm">
                                         {dateObj.getDate()}
                                     </div>
-                                    <span className="text-[9px] font-bold uppercase text-white/30 tracking-[0.25em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                                    <span className="text-[9px] font-bold uppercase text-slate-300 tracking-[0.25em]">{dateObj.toLocaleDateString(undefined, { weekday: 'long' })}</span>
                                 </div>
-                                <div className="h-px w-10 bg-white/10 hidden md:block" />
-                                <div className="flex items-center gap-2.5 bg-brand-950 px-5 py-2.5 rounded-xl border border-white/10 shadow-2xl group-hover:border-brand-500/50 transition-colors">
+                                <div className="h-px w-10 bg-slate-200 hidden md:block" />
+                                <div className="flex items-center gap-2.5 bg-white px-5 py-2.5 rounded-xl border border-slate-100 shadow-sm group-hover:border-brand-500/30 transition-colors">
                                     <Clock size={14} className="text-brand-500" />
-                                    <span className="text-xs font-display font-black text-white">{event.time}</span>
+                                    <span className="text-xs font-display font-black text-brand-950">{event.time}</span>
                                 </div>
                             </div>
 
@@ -320,48 +323,48 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/5 blur-3xl rounded-full" />
                                 
                                 <div className="flex items-center justify-between mb-6">
-                                    <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2.5 bg-brand-950 border border-white/10`}>
+                                    <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2.5 bg-slate-50 border border-slate-100`}>
                                         <div className={`w-1.5 h-1.5 rounded-full ${s.dot} shadow-[0_0_8px_currentColor]`} />
-                                        <span className="text-white/60">{event.type}</span>
+                                        <span className="text-slate-400">{event.type}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-white/20 group-hover:text-brand-500 transition-colors">
+                                    <div className="flex items-center gap-2 text-slate-200 group-hover:text-brand-500 transition-colors">
                                         <ArrowRight size={16} />
                                     </div>
                                 </div>
 
-                                <h3 className="text-3xl font-display font-black text-white mb-6 group-hover:premium-gradient-text transition-all duration-500 italic uppercase tracking-tight leading-tight">
+                                <h3 className="text-3xl font-display font-black text-brand-950 mb-6 group-hover:text-brand-500 transition-all duration-500 italic uppercase tracking-tight leading-tight">
                                     {event.title}
                                 </h3>
                                 
                                 <div className="flex flex-wrap items-center gap-8">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center transition-transform group-hover:rotate-12">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center transition-transform group-hover:rotate-12">
                                           <MapPin size={18} className="text-brand-500" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none mb-1">LOCATION</span>
-                                            <span className="text-sm text-white/80 font-bold uppercase tracking-wide">{event.location}</span>
+                                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">LOCATION</span>
+                                            <span className="text-sm text-slate-800 font-bold uppercase tracking-wide">{event.location}</span>
                                         </div>
                                     </div>
                                     
                                     {event.type === 'training' && event.drillIds && event.drillIds.length > 0 && (
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-brand-500/5 rounded-xl border border-brand-500/20 flex items-center justify-center">
+                                            <div className="w-10 h-10 bg-brand-500/5 rounded-xl border border-brand-500/10 flex items-center justify-center">
                                               <ClipboardList size={18} className="text-brand-500" />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest leading-none mb-1">TACTICAL LOAD</span>
-                                                <span className="text-sm text-white/80 font-bold">{event.drillIds.length} EVALUATED DRILLS</span>
+                                                <span className="text-[8px] font-black text-brand-500 uppercase tracking-widest leading-none mb-1">TRAINING LOAD</span>
+                                                <span className="text-sm text-slate-800 font-bold">{event.drillIds.length} SELECTED DRILLS</span>
                                             </div>
                                         </div>
                                     )}
                                     
                                     {coach && (
-                                        <div className="flex items-center gap-4 pl-8 border-l border-white/5">
-                                            <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-10 h-10 rounded-xl bg-brand-900 border border-white/10 object-cover shadow-2xl ring-2 ring-white/5 group-hover:ring-brand-500/30 transition-all" />
+                                        <div className="flex items-center gap-4 pl-8 border-l border-slate-100">
+                                            <img src={coach.photoUrl || `https://ui-avatars.com/api/?name=${coach.username}`} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 object-cover shadow-sm group-hover:ring-2 group-hover:ring-brand-500/30 transition-all" />
                                             <div className="flex flex-col">
-                                              <span className="text-[8px] uppercase text-white/20 font-black tracking-widest leading-none mb-1">MISSION LEAD</span>
-                                              <span className="text-sm text-brand-500 font-black italic uppercase italic">{coach.username}</span>
+                                              <span className="text-[8px] uppercase text-slate-300 font-black tracking-widest leading-none mb-1">LEAD COACH</span>
+                                              <span className="text-sm text-brand-500 font-black italic uppercase">{coach.username}</span>
                                             </div>
                                         </div>
                                     )}
@@ -370,20 +373,20 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
                             {/* Tactical Actions */}
                             {(role === 'admin' || role === 'coach') && (
-                                <div className="p-8 md:p-10 flex flex-row md:flex-col items-center justify-center gap-4 bg-brand-950/40 border-t md:border-t-0 md:border-l border-white/5">
+                                <div className="p-8 md:p-10 flex flex-row md:flex-col items-center justify-center gap-4 bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100">
                                    {!isPast ? (
                                        <>
-                                          <button onClick={() => handleEdit(event)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white/5 border border-white/5 text-white/40 rounded-2xl hover:text-brand-500 hover:border-brand-500 hover:bg-brand-500/10 transition-all shadow-sm group/btn active:scale-90" title="Edit Intent">
+                                          <button onClick={() => handleEdit(event)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-brand-500 hover:border-brand-500 hover:bg-white transition-all shadow-sm group/btn active:scale-90" title="Edit Event">
                                               <Edit3 size={20} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
                                           </button>
-                                          <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white/5 border border-white/5 text-white/40 rounded-2xl hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all shadow-sm group/btn active:scale-90" title="Abort Mission">
+                                          <button onClick={() => handleDeleteClick(event.id)} className="w-full md:w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-red-500 hover:border-red-500 hover:bg-white transition-all shadow-sm group/btn active:scale-90" title="Delete Event">
                                               <Trash2 size={20} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
                                           </button>
                                        </>
                                    ) : (
                                       <div className="text-center">
-                                          <div className="w-14 h-14 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center grayscale">
-                                              <History size={20} className="text-white/20" />
+                                          <div className="w-14 h-14 bg-white rounded-2xl border border-slate-100 flex items-center justify-center grayscale">
+                                              <History size={20} className="text-slate-200" />
                                           </div>
                                       </div>
                                    )}
@@ -398,39 +401,39 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
       {/* Modal Form - Glassmorphic Overhaul */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-xl animate-in fade-in duration-300">
-          <div className="bg-brand-900/90 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
-            <div className="bg-gradient-to-r from-brand-950 to-brand-900 px-10 py-8 border-b border-white/5 flex justify-between items-center relative">
-                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/20 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.1)] w-full max-w-xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 px-10 py-8 border-b border-slate-100 flex justify-between items-center relative">
+                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-500 opacity-10" />
                 <div>
-                   <h3 className="font-display font-black text-3xl text-white italic uppercase tracking-tight">{editingId ? 'RE-ENGAGE' : 'INITIATE'} <span className="premium-gradient-text uppercase">ACTIVITY</span></h3>
-                   <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mt-1">Operational Parameters Configuration</p>
+                   <h3 className="font-display font-black text-3xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'EDIT' : 'ADD'} <span className="text-brand-500 uppercase">EVENT</span></h3>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Configure Event Details</p>
                 </div>
-                <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 transition-colors border border-white/5"><X size={20} strokeWidth={3} /></button>
+                <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-slate-50 rounded-2xl text-slate-300 transition-colors border border-slate-200"><X size={20} strokeWidth={3} /></button>
             </div>
             
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ArrowRight size={10} strokeWidth={4} /> MISSION DESIGNATION</label>
-                <input required type="text" placeholder="e.g. TACTICAL SESSION 04" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none font-display font-black text-white text-lg placeholder:text-white/10 shadow-inner group" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+                <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ArrowRight size={10} strokeWidth={4} /> EVENT TITLE</label>
+                <input required type="text" placeholder="e.g. U14 REGULAR TRAINING" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none font-display font-black text-brand-950 text-lg placeholder:text-slate-200 shadow-inner group" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
               </div>
 
               <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">TEMPORAL DATE</label>
-                    <input required type="date" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner uppercase" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">EVENT DATE</label>
+                    <input required type="date" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner uppercase" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">TIMESTAMP</label>
-                    <input required type="time" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-display font-black text-white shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">START TIME</label>
+                    <input required type="time" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-display font-black text-slate-900 shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
                   </div>
               </div>
 
               <div className="grid grid-cols-2 gap-8">
                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">ENGAGEMENT MODE</label>
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">EVENT TYPE</label>
                     <div className="relative">
-                        <select className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner appearance-none uppercase" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
+                        <select className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
                             <option value="training">Training</option>
                             <option value="match">Match</option>
                             <option value="social">Social/Event</option>
@@ -439,15 +442,15 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     </div>
                  </div>
                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">COORDINATES</label>
-                    <input required type="text" placeholder="BASE CAMP / SECTOR 7" className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner placeholder:text-white/10 uppercase" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">LOCATION</label>
+                    <input required type="text" placeholder="ACADEMY GROUND / SECTOR 7" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner placeholder:text-slate-200 uppercase" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                  </div>
               </div>
 
               <div className="space-y-3">
-                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-1">COMMANDING OFFICER</label>
+                  <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">COMMANDING OFFICER</label>
                   <div className="relative">
-                      <select className="w-full p-5 bg-brand-950/50 border border-white/10 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-white shadow-inner appearance-none uppercase" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
+                      <select className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
                           <option value="">AWAITING ASSIGNMENT...</option>
                           {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
                       </select>
@@ -458,8 +461,8 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               {form.type === 'training' && (
                   <div className="pt-10 border-t border-white/5 animate-in slide-in-from-top-4">
                       <div className="flex justify-between items-end mb-6">
-                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ClipboardList size={14} className="text-brand-500" /> TACTICAL LOADOUT</label>
-                          <span className="text-[9px] font-black text-lime bg-lime/10 px-4 py-1.5 rounded-full border border-lime/20 shadow-[0_0_15px_rgba(195,246,41,0.1)]">{form.drillIds.length} DRILLS TARGETED</span>
+                          <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ClipboardList size={14} className="text-brand-500" /> DRILL LIST</label>
+                          <span className="text-[9px] font-black text-lime bg-lime/10 px-4 py-1.5 rounded-full border border-lime/20 shadow-[0_0_15px_rgba(195,246,41,0.1)]">{form.drillIds.length} DRILLS SELECTED</span>
                       </div>
                       
                       <div className="grid grid-cols-1 gap-3 max-h-72 overflow-y-auto custom-scrollbar pr-2 p-1">
@@ -467,27 +470,27 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                               drills.map(drill => {
                                   const isSelected = form.drillIds.includes(drill.id);
                                   return (
-                                      <div key={drill.id} onClick={() => toggleDrill(drill.id)} className={`flex items-center justify-between p-5 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-brand-500/20 border-brand-500/50 shadow-xl shadow-brand-500/5' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
+                                      <div key={drill.id} onClick={() => toggleDrill(drill.id)} className={`flex items-center justify-between p-5 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-brand-500/10 border-brand-500 shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-brand-500/30'}`}>
                                           <div className="flex flex-col">
-                                              <span className={`text-sm font-display font-black italic uppercase ${isSelected ? 'text-brand-500' : 'text-white'}`}>{drill.title}</span>
-                                              <span className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">{drill.category} • {drill.duration} MIN BURST</span>
+                                              <span className={`text-sm font-display font-black italic uppercase ${isSelected ? 'text-brand-500' : 'text-slate-900'}`}>{drill.title}</span>
+                                              <span className="text-[9px] text-slate-300 font-black uppercase tracking-widest mt-1">{drill.category} • {drill.duration} MIN SESSION</span>
                                           </div>
-                                          {isSelected && <div className="bg-brand-500 text-brand-950 p-1.5 rounded-xl"><Check size={12} strokeWidth={4} /></div>}
+                                          {isSelected && <div className="bg-brand-500 text-white p-1.5 rounded-xl text-[8px] font-black px-3">SELECTED</div>}
                                       </div>
                                   );
                               })
                           ) : (
-                              <p className="text-center text-[10px] text-white/20 py-8 italic font-black uppercase tracking-[0.2em]">Drill database offline. Initialize from Training module.</p>
+                              <p className="text-center text-[10px] text-white/20 py-8 italic font-black uppercase tracking-[0.2em]">No drills found. Add drills in the Training module.</p>
                           )}
                       </div>
                   </div>
               )}
             </form>
 
-            <div className="px-10 py-8 border-t border-white/5 bg-brand-950/50 flex gap-6">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-white/20 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] font-display">ABORT</button>
-                <button onClick={handleSubmit} className="flex-[2] py-5 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-2xl shadow-brand-500/20 hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.3em] italic font-display border border-white/20">
-                    <Save size={20} strokeWidth={3} /> {editingId ? 'COMMAND UPDATE' : 'INITIALIZE MISSION'}
+            <div className="px-10 py-8 border-t border-slate-100 bg-slate-50 flex gap-6">
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-slate-300 font-black hover:text-slate-900 rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] font-display">CANCEL</button>
+                <button onClick={handleSubmit} className="flex-[2] py-5 bg-brand-500 text-white font-black rounded-2xl shadow-2xl shadow-brand-500/20 hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.3em] italic font-display border border-white/20">
+                    <Save size={20} strokeWidth={3} /> {editingId ? 'UPDATE EVENT' : 'CREATE EVENT'}
                 </button>
             </div>
           </div>
@@ -501,8 +504,8 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               setEventToDelete(null);
           }}
           onConfirm={confirmDelete}
-          title="CRITICAL ABORT"
-          message="Are you sure you want to permanently decommission this mission? All tactical drill links and session data will be purged from the timeline."
+          title="DELETE EVENT"
+          message="Are you sure you want to remove this event? This will also remove any drill links associated with this session."
       />
     </div>
   );

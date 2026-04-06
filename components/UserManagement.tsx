@@ -107,9 +107,9 @@ export const UserManagement: React.FC = () => {
                 <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><Shield size={160} className="text-white" /></div>
                 <div className="relative z-10">
                     <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        ACCESS <span className="text-brand-500">CONTROL</span>
+                        USER <span className="text-brand-500">MANAGEMENT</span>
                     </h2>
-                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Autonomous Security & Staff Authorization Protocol</p>
+                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Academy Access & Permissions Control</p>
                 </div>
             </div>
 
@@ -119,14 +119,14 @@ export const UserManagement: React.FC = () => {
                         <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 shadow-lg">
                             <Users size={24} />
                         </div>
-                        <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Verified Command Units</h3>
+                        <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Active Users</h3>
                     </div>
                     <span className="px-4 py-1.5 bg-brand-900 border border-white/10 rounded-xl text-[10px] font-black text-brand-500 uppercase tracking-widest shadow-2xl italic">
-                        {users.length} SECURED
+                        {users.length} TOTAL
                     </span>
                 </div>
                 
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-white/5">
                     {users.map(user => (
                         <div key={user.id} className="p-8 hover:bg-brand-500/5 transition-all group">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -177,7 +177,7 @@ export const UserManagement: React.FC = () => {
                                             </button>
                                             <button 
                                                 onClick={handleCancelEdit} 
-                                                className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-white transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-900 text-white rounded-2xl hover:bg-brand-950 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5 group/btn"
                                                 title="Cancel"
                                             >
                                                 <X size={20} className="group-hover/btn:scale-110 transition-transform" />
@@ -187,15 +187,15 @@ export const UserManagement: React.FC = () => {
                                         <>
                                             <button 
                                                 onClick={() => handleEditClick(user)} 
-                                                className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
-                                                title="Modify Permissions"
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-900 text-white rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-white/5 group/btn"
+                                                title="Edit User"
                                             >
                                                 <Edit2 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                             <button 
                                                 onClick={() => handleDeleteClick(user)} 
-                                                className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-100 group/btn"
-                                                title="Revoke Credentials"
+                                                className="w-12 h-12 flex items-center justify-center bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-500/20 group/btn"
+                                                title="Delete User"
                                             >
                                                 <Trash2 size={20} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
@@ -209,21 +209,21 @@ export const UserManagement: React.FC = () => {
                                 <div className="mt-6 p-8 glass-card border-white/10 shadow-2xl relative overflow-hidden group/form bg-white/5 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-3">
-                                            <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">System Role</label>
+                                            <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">User Role</label>
                                             <select 
                                                 className="w-full bg-brand-950/50 border border-white/10 rounded-xl p-4 text-white font-bold outline-none focus:ring-2 focus:ring-lime/50 transition-all cursor-pointer uppercase text-xs"
                                                 value={editForm.role}
                                                 onChange={e => setEditForm({...editForm, role: e.target.value as any})}
                                             >
-                                                <option value="player" className="bg-brand-950">Athlete (Player Portal)</option>
-                                                <option value="coach" className="bg-brand-950">Coach (Roster Manager)</option>
-                                                <option value="admin" className="bg-brand-950">System Admin</option>
+                                                <option value="player" className="bg-brand-950">Player</option>
+                                                <option value="coach" className="bg-brand-950">Coach</option>
+                                                <option value="admin" className="bg-brand-950">Administrator</option>
                                             </select>
                                         </div>
 
                                         {editForm.role === 'player' && (
                                             <div className="space-y-3 animate-in zoom-in-95 duration-500">
-                                                <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">Sync Athlete Profile</label>
+                                                <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">Link Player Profile</label>
                                                 <select 
                                                     className="w-full bg-brand-950/50 border border-white/10 rounded-xl p-4 text-white font-bold outline-none focus:ring-2 focus:ring-lime/50 transition-all cursor-pointer uppercase text-xs"
                                                     value={editForm.linkedPlayerId}
@@ -242,7 +242,7 @@ export const UserManagement: React.FC = () => {
                                         <div className="space-y-6 pt-6 border-t border-white/5 animate-in slide-in-from-bottom-4 duration-500">
                                             <div className="space-y-3">
                                                 <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">
-                                                    <MapPin size={14} className="text-brand-500" /> Authorized Venues
+                                                    <MapPin size={14} className="text-brand-500" /> Assigned Venues
                                                 </label>
                                                 <div className="flex flex-wrap gap-2">
                                                     {venues.map(v => (
@@ -265,7 +265,7 @@ export const UserManagement: React.FC = () => {
 
                                             <div className="space-y-3">
                                                 <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic">
-                                                    <Layers size={14} className="text-brand-500" /> Operational Batches
+                                                    <Layers size={14} className="text-brand-500" /> Assigned Batches
                                                 </label>
                                                 <div className="flex flex-wrap gap-2">
                                                     {batches.map(b => (
@@ -293,8 +293,9 @@ export const UserManagement: React.FC = () => {
                     ))}
                     
                     {users.length === 0 && (
-                        <div className="p-12 text-center text-gray-400 font-medium">
-                            No users found. Users will appear here when they sign in.
+                        <div className="p-20 text-center text-white/10 font-black uppercase tracking-[0.4em] italic text-xs flex flex-col items-center justify-center gap-6">
+                            <Shield size={64} className="opacity-5" />
+                            No users found
                         </div>
                     )}
                 </div>

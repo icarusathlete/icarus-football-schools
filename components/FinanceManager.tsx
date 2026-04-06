@@ -259,7 +259,7 @@ export const FinanceManager: React.FC = () => {
                                         type="month"
                                         value={month}
                                         onChange={e => setMonth(e.target.value)}
-                                        className="w-full pl-12 pr-6 py-4 bg-white border border-brand-200 rounded-2xl text-brand-950 font-black italic text-sm outline-none focus:border-brand-950 transition-all font-mono shadow-sm"
+                                        className="w-full pl-12 pr-6 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -281,10 +281,10 @@ export const FinanceManager: React.FC = () => {
 
                     {/* Search Bar */}
                     <div className="relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-400 group-focus-within:text-brand-950 transition-colors w-5 h-5" />
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-500 transition-colors w-5 h-5" />
                         <input
                             placeholder="Search student athletes..."
-                            className="w-full pl-16 pr-8 py-5 bg-white border border-brand-100 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-brand-950 placeholder:text-brand-200 italic tracking-wider"
+                            className="w-full pl-16 pr-8 py-5 bg-brand-bg/40 border border-white/5 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-white placeholder:text-white/20 italic tracking-wider backdrop-blur-xl"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -328,30 +328,30 @@ export const FinanceManager: React.FC = () => {
                     </div>
 
                     {/* Desktop Table View */}
-                    <div className="bg-white rounded-[3rem] border border-brand-100 overflow-hidden shadow-2xl">
+                    <div className="glass-card rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-brand-50/50 border-y border-brand-100">
+                                <thead className="bg-white/5 border-y border-white/5">
                                     <tr className="font-display italic">
-                                        <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Internal ID</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-brand-950 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Internal ID</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-brand-50">
+                                <tbody className="divide-y divide-white/5">
                                     {filteredPlayers.map(p => {
                                         const status = getStatus(p.id);
                                         const statusVal = status?.status || 'PENDING';
 
                                         return (
-                                            <tr key={p.id} className="group hover:bg-brand-50/50 transition-all">
+                                            <tr key={p.id} className="group hover:bg-white/5 transition-all">
                                                 <td className="px-10 py-8">
                                                     <div className="flex items-center gap-6">
-                                                        <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-50 object-cover border-2 border-brand-500/20 group-hover:border-brand-500 transition-all shadow-lg" />
+                                                        <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-secondary object-cover border-2 border-white/5 group-hover:border-brand-500 transition-all shadow-lg" />
                                                         <div>
-                                                            <span className="font-black text-brand-950 italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
+                                                            <span className="font-black text-white italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
                                                             {status?.datePaid && (
                                                                 <div className="inline-flex px-2 py-0.5 bg-brand-500/10 text-[9px] font-black text-brand-500 uppercase tracking-widest rounded-md border border-brand-500/20">
                                                                     SECURED: {new Date(status.datePaid).toLocaleDateString()}
@@ -360,12 +360,12 @@ export const FinanceManager: React.FC = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-10 py-8 text-brand-950 font-black text-[11px] uppercase tracking-widest italic opacity-40">{p.memberId}</td>
-                                                <td className="px-10 py-8 font-mono font-black text-brand-950 italic text-2xl tracking-tighter">₹2400</td>
+                                                <td className="px-10 py-8 text-white font-black text-[11px] uppercase tracking-widest italic opacity-40">{p.memberId}</td>
+                                                <td className="px-10 py-8 font-mono font-black text-brand-500 italic text-2xl tracking-tighter">₹2400</td>
                                                 <td className="px-10 py-8 text-center">
-                                                    <div className={`inline-flex px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-brand-500 text-brand-950 border-brand-500' :
+                                                    <div className={`inline-flex px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' :
                                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white border-red-600' :
-                                                                'bg-brand-950 text-brand-500 border-white/10'
+                                                                'bg-white/5 text-white/20 border-white/10'
                                                         }`}>
                                                         {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
                                                     </div>
@@ -374,7 +374,7 @@ export const FinanceManager: React.FC = () => {
                                                     <div className="flex items-center justify-end gap-3 transition-all">
                                                         <button
                                                             onClick={() => openInvoiceGenerator(p)}
-                                                            className="w-12 h-12 flex items-center justify-center bg-brand-50 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-100 group/btn"
+                                                            className="w-12 h-12 flex items-center justify-center bg-white/5 text-white rounded-2xl hover:bg-brand-500 hover:text-brand-secondary transition-all shadow-xl active:scale-95 border border-white/5 group/btn"
                                                             title="Generate Receipt"
                                                         >
                                                             <FileText size={20} className="group-hover/btn:scale-110 transition-transform" />
@@ -391,7 +391,7 @@ export const FinanceManager: React.FC = () => {
                                                         {statusVal !== 'OVERDUE' && (
                                                             <button
                                                                 onClick={() => updateStatus(p.id, 'OVERDUE')}
-                                                                className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-100 group/btn"
+                                                                className="w-12 h-12 flex items-center justify-center bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-500/20 group/btn"
                                                                 title="Mark Breakdown"
                                                             >
                                                                 <AlertCircle size={20} className="group-hover/btn:scale-110 transition-transform" />
@@ -408,14 +408,14 @@ export const FinanceManager: React.FC = () => {
                     </div>
                 </>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[800px] relative">
+                <div className="bg-brand-950 rounded-[3rem] shadow-3xl border border-white/10 overflow-hidden h-[800px] relative">
                     <div className="absolute inset-0 flex flex-col">
-                        <div className="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-blue-700">
-                                <AlertCircle size={18} />
-                                <span className="text-sm font-medium">Integrating your external Invoice Generator App</span>
+                        <div className="p-6 bg-brand-900 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-brand-primary">
+                                <AlertCircle size={20} />
+                                <span className="text-sm font-black uppercase tracking-widest italic">External Protocol Integration</span>
                             </div>
-                            <p className="text-xs text-blue-600 italic">Open in new tab if needed for full features</p>
+                            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest italic animate-pulse">Live Link Active</p>
                         </div>
                         <iframe
                             src="https://your-invoice-app-url.run.app"

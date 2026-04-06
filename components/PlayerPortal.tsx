@@ -171,51 +171,51 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     };
     const getKitRequirement = (dateStr: string) => {
         const day = new Date(dateStr).getDay();
-        if (day === 1 || day === 3 || day === 5) return { color: 'Blue Kit', style: 'bg-blue-900/5 text-blue-600 border-blue-900/10' };
-        if (day === 2 || day === 4) return { color: 'White Kit', style: 'bg-brand-900/5 text-brand-900/60 border-brand-900/10' };
+        if (day === 1 || day === 3 || day === 5) return { color: 'Blue Kit', style: 'bg-blue-500/5 text-blue-600 border-blue-500/10' };
+        if (day === 2 || day === 4) return { color: 'White Kit', style: 'bg-slate-50 text-slate-400 border-slate-200' };
         return { color: 'Training Bib', style: 'bg-orange-500/5 text-orange-600 border-orange-500/10' };
     };
 
     // Loading State while syncing player data
     if (user?.linkedPlayerId && !player) {
         return (
-            <div className="min-h-screen bg-[#00054e] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000">
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000">
                 <div className="relative w-32 h-32 mb-12">
-                    <div className="absolute inset-0 rounded-full border-4 border-[#C3F629]/10 border-t-[#C3F629] animate-spin-slow" />
-                    <div className="absolute inset-4 rounded-full border-4 border-[#00C8FF]/10 border-b-[#00C8FF] animate-spin-slow [animation-direction:reverse]" />
+                    <div className="absolute inset-0 rounded-full border-4 border-brand-500/10 border-t-brand-500 animate-spin-slow" />
+                    <div className="absolute inset-4 rounded-full border-4 border-slate-100 border-b-slate-300 animate-spin-slow [animation-direction:reverse]" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <Shield size={32} className="text-[#C3F629] animate-pulse-slow" />
+                        <Shield size={32} className="text-brand-500 animate-pulse-slow" />
                     </div>
                 </div>
-                <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter italic mb-4">
-                    SYNCING <span className="text-[#C3F629]">PROFILE</span>
+                <h2 className="text-3xl font-display font-black text-slate-900 uppercase tracking-tighter italic mb-4">
+                    SYNCING <span className="text-brand-500">PROFILE</span>
                 </h2>
-                <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#00C8FF] to-[#C3F629] animate-progress w-full" />
+                <div className="w-64 h-1 bg-slate-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-brand-500 to-brand-600 animate-progress w-full" />
                 </div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mt-6 italic">Secure Channel Established - Fetching Athlete Data</p>
+                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mt-6 italic">Secure Channel Established - Fetching Athlete Data</p>
             </div>
         );
     }
 
     if (!player) {
         return (
-            <div className="min-h-screen bg-[#00054e] flex items-center justify-center p-6">
-                <div className="glass-card p-12 max-w-md w-full text-center space-y-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity"><Users size={120} /></div>
+            <div className="min-h-screen bg-white flex items-center justify-center p-6">
+                <div className="bg-white p-12 max-w-md w-full text-center space-y-8 relative overflow-hidden group rounded-[2.5rem] border border-slate-100 shadow-2xl">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity text-slate-900"><Users size={120} /></div>
                     <div className="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto border border-rose-500/20 shadow-2xl">
                         <Shield size={32} className="text-rose-500" />
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter italic">LINKAGE <span className="text-rose-500">REQUIRED</span></h2>
-                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic">Athlete Profile Not Synchronized</p>
+                        <h2 className="text-3xl font-display font-black text-slate-900 uppercase tracking-tighter italic">LINKAGE <span className="text-rose-500">REQUIRED</span></h2>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Athlete Profile Not Synchronized</p>
                     </div>
-                    <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-sm text-white/60 leading-relaxed italic">
-                        Your account is currently <span className="text-white font-bold">Unmapped</span> in our tactical database. Please contact an Administrator to link your login to your Player ID.
+                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-sm text-slate-500 leading-relaxed italic">
+                        Your account is currently <span className="text-slate-900 font-bold">Unmapped</span> in our tactical database. Please contact an Administrator to link your login to your Player ID.
                     </div>
                     <button 
                         onClick={() => auth.signOut()}
-                        className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white uppercase tracking-[0.3em] hover:bg-white/10 transition-all italic active:scale-95"
+                        className="w-full py-4 bg-brand-950 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all italic active:scale-95"
                     >
                         Terminate Session
                     </button>
@@ -281,13 +281,13 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
             <div className="flex glass-card p-1.5 rounded-xl w-fit border-brand-900/5 bg-white shadow-sm">
               <button 
                 onClick={() => setViewMode('overview')} 
-                className={`px-8 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all ${viewMode === 'overview' ? 'bg-brand-900 text-white shadow-lg' : 'text-brand-900/40 hover:text-brand-900 hover:bg-brand-900/5'}`}
+                className={`px-8 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all ${viewMode === 'overview' ? 'bg-brand-950 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
               >
                 COMMAND CENTER
               </button>
               <button 
                 onClick={() => setViewMode('scout')} 
-                className={`px-8 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2.5 ${viewMode === 'scout' ? 'bg-brand-900 text-white shadow-lg' : 'text-brand-900/40 hover:text-brand-900 hover:bg-brand-900/5'}`}
+                className={`px-8 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2.5 ${viewMode === 'scout' ? 'bg-brand-950 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
               >
                 <Shield size={12} className={viewMode === 'scout' ? 'text-brand-500' : ''} /> SCOUT REPORT
               </button>
@@ -319,7 +319,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                         {player.fullName.split(' ')[0]}<br/>
                                         <span className="premium-gradient-text">{player.fullName.split(' ').slice(1).join(' ')}</span>
                                     </h1>
-                                    <div className="flex flex-wrap items-center gap-8 text-brand-900/40 text-[9px] font-black uppercase tracking-[0.2em]">
+                                    <div className="flex flex-wrap items-center gap-8 text-slate-400 text-[9px] font-black uppercase tracking-[0.2em]">
                                         <span className="flex items-center gap-2.5"><MapPin size={14} className="text-brand-500" /> {player.venue || 'Main Academy Ground'}</span>
                                         <span className="flex items-center gap-2.5"><Calendar size={14} className="text-brand-500" /> Season 24/25</span>
                                     </div>
@@ -327,17 +327,17 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                             </div>
                             
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full xl:w-auto">
-                                <button onClick={handleDownloadIDCard} className="glass-card hover:bg-brand-900 hover:text-white border-brand-900/5 p-8 rounded-xl transition-all shadow-sm group/btn text-center">
+                                <button onClick={handleDownloadIDCard} className="glass-card hover:bg-brand-950 hover:text-white border-slate-100 p-8 rounded-xl transition-all shadow-sm group/btn text-center bg-white">
                                     <UserCheck size={24} className="text-brand-500 group-hover/btn:scale-110 transition-transform mx-auto mb-4" />
-                                    <span className="block text-[8px] font-black text-brand-900/40 group-hover/btn:text-white/60 uppercase tracking-widest">IDENTITY PASS</span>
+                                    <span className="block text-[8px] font-black text-brand-950/40 group-hover/btn:text-white/60 uppercase tracking-widest">IDENTITY PASS</span>
                                 </button>
                                 <button onClick={handleDownloadInvoice} disabled={!feeStatus?.invoice} className={`p-8 rounded-xl transition-all shadow-sm border group/btn text-center ${feeStatus?.status === 'PAID' ? 'bg-white border-brand-500/20 hover:bg-brand-500 hover:text-white' : 'bg-red-50 text-red-500 border-red-200'}`}>
                                     <Download size={24} className={`${feeStatus?.status === 'PAID' ? 'text-brand-500' : 'text-red-500'} group-hover/btn:text-white group-hover/btn:scale-110 transition-transform mx-auto mb-4`} />
                                     <span className={`block text-[8px] font-black uppercase tracking-widest ${feeStatus?.status === 'PAID' ? 'text-brand-900/40 group-hover/btn:text-white/60' : 'text-red-400'}`}>RECEIPT LOG</span>
                                 </button>
-                                <div className="glass-card border-brand-500/20 bg-brand-900/5 p-8 rounded-xl shadow-sm text-center flex flex-col justify-center">
-                                    <div className="text-4xl font-black text-brand-900 mb-1 tracking-tighter" style={{ fontFamily: 'Orbitron, sans-serif' }}>{attendanceRate}<span className="text-xs ml-0.5">%</span></div>
-                                    <span className="block text-[8px] font-black text-brand-900/20 uppercase tracking-widest">READINESS</span>
+                                <div className="glass-card border-slate-100 bg-slate-50 p-8 rounded-xl shadow-sm text-center flex flex-col justify-center">
+                                    <div className="text-4xl font-black text-brand-950 mb-1 tracking-tighter" style={{ fontFamily: 'Orbitron, sans-serif' }}>{attendanceRate}<span className="text-xs ml-0.5">%</span></div>
+                                    <span className="block text-[8px] font-black text-slate-300 uppercase tracking-widest">READINESS</span>
                                 </div>
                             </div>
                         </div>
@@ -365,7 +365,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                 <button 
                                     onClick={handleSelfCheckIn}
                                     disabled={checkedInToday || isCheckingIn}
-                                    className={`relative z-10 px-10 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center gap-3 ${checkedInToday ? 'bg-brand-900/10 text-brand-900/40 cursor-default' : 'bg-brand-900 text-white hover:bg-brand-950 shadow-xl shadow-brand-900/20 active:scale-95'}`}
+                                    className={`relative z-10 px-10 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center gap-3 ${checkedInToday ? 'bg-slate-100 text-slate-400 cursor-default' : 'bg-brand-950 text-white hover:bg-black shadow-xl shadow-brand-950/20 active:scale-95'}`}
                                 >
                                     {isCheckingIn ? <Loader2 size={14} className="animate-spin" /> : checkedInToday ? <CheckCircle2 size={14} /> : <Zap size={14} className="text-brand-500" fill="currentColor" />}
                                     {checkedInToday ? 'LIVE' : 'AUTO CHECK-IN'}
@@ -396,29 +396,29 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
 
                         <div className="lg:col-span-8 space-y-8">
                             {/* Operational Schedule */}
-                            <div className="glass-card rounded-[3rem] p-10 border-white/5 shadow-xl relative overflow-hidden">
+                            <div className="glass-card rounded-[3rem] p-10 border-slate-100 shadow-xl relative overflow-hidden bg-white">
                                 <div className="absolute top-0 left-0 w-[4px] h-full bg-brand-500" />
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
-                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white flex items-center gap-5">
+                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter text-brand-950 flex items-center gap-5">
                                         <Calendar className="text-brand-500" size={28} /> Deployment Log
                                     </h3>
-                                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5 backdrop-blur-xl">
+                                    <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100 backdrop-blur-xl">
                                         {(['training', 'match', 'social'] as EventType[]).map(t => (
-                                            <button key={t} onClick={() => setEventFilter(t)} className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic transition-all ${eventFilter === t ? 'bg-brand-500 text-brand-950 shadow-lg' : 'text-white/30 hover:text-white hover:bg-white/5'}`}>{t}</button>
+                                            <button key={t} onClick={() => setEventFilter(t)} className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic transition-all ${eventFilter === t ? 'bg-brand-950 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}>{t}</button>
                                         ))}
                                     </div>
                                 </div>
                                 <div className="space-y-4">
                                     {filteredEvents.length > 0 ? filteredEvents.map(event => (
-                                        <div key={event.id} className="group glass-card p-6 rounded-[2rem] border-white/5 hover:border-brand-500/50 transition-all flex flex-col md:flex-row items-center justify-between gap-8 hover:translate-x-2">
+                                        <div key={event.id} className="group glass-card p-6 rounded-[2rem] border-slate-100 bg-slate-50/50 hover:bg-white hover:border-brand-500/50 transition-all flex flex-col md:flex-row items-center justify-between gap-8 hover:translate-x-2">
                                             <div className="flex items-center gap-8">
-                                                <div className="w-16 h-16 bg-white/5 rounded-2xl flex flex-col items-center justify-center font-black border border-white/10 text-brand-500 shadow-inner group-hover:bg-brand-500/10 transition-colors">
+                                                <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center font-black border border-slate-100 text-brand-500 shadow-sm group-hover:bg-brand-500/10 transition-colors">
                                                     <span className="text-[9px] uppercase tracking-widest opacity-60 font-sans">{new Date(event.date).toLocaleDateString(undefined, {month: 'short'})}</span>
                                                     <span className="text-2xl leading-none font-mono" style={{ fontFamily: 'Orbitron' }}>{new Date(event.date).getDate()}</span>
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-xl text-white italic uppercase tracking-tight group-hover:text-brand-500 transition-colors">{event.title}</div>
-                                                    <div className="flex gap-6 mt-2 text-white/30 text-[10px] font-black uppercase italic tracking-widest">
+                                                    <div className="font-black text-xl text-brand-950 italic uppercase tracking-tight group-hover:text-brand-500 transition-colors">{event.title}</div>
+                                                    <div className="flex gap-6 mt-2 text-slate-400 text-[10px] font-black uppercase italic tracking-widest">
                                                         <span className="flex items-center gap-2.5"><Clock size={14} className="text-brand-500" /> {event.time}</span>
                                                         <span className="flex items-center gap-2.5"><MapPin size={14} className="text-brand-500" /> {event.location}</span>
                                                     </div>
@@ -428,91 +428,91 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                                 <button onClick={(e) => {
                                                     e.stopPropagation();
                                                     StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'attending');
-                                                }} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center gap-3 border ${event.rsvps?.[player.id] === 'attending' ? 'bg-[#D6FF00] text-brand-900 border-[#D6FF00] shadow-[0_0_20px_rgba(214,255,0,0.2)]' : 'bg-brand-900/5 text-brand-900/40 border-brand-900/5 hover:bg-brand-900/10 hover:text-brand-900'}`}><CheckCircle2 size={16} /> Confirm</button>
+                                                }} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center gap-3 border ${event.rsvps?.[player.id] === 'attending' ? 'bg-brand-500 text-white border-brand-500 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50 hover:text-slate-900'}`}><CheckCircle2 size={16} /> Confirm</button>
                                                 <button onClick={(e) => {
                                                     e.stopPropagation();
                                                     StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'declined');
-                                                }} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center gap-3 border ${event.rsvps?.[player.id] === 'declined' ? 'bg-red-500 text-white border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]' : 'bg-brand-900/5 text-brand-900/40 border-brand-900/5 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`}><XCircle size={16} /> Decline</button>
+                                                }} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center gap-3 border ${event.rsvps?.[player.id] === 'declined' ? 'bg-red-500 text-white border-red-500 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:bg-red-50 hover:text-red-500 hover:border-red-500/20'}`}><XCircle size={16} /> Decline</button>
                                             </div>
                                         </div>
-                                    )) : <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem] font-black text-white/10 uppercase tracking-[0.4em] italic">No Active {eventFilter} Logs</div>}
+                                    )) : <div className="py-24 text-center border-2 border-dashed border-slate-100 rounded-[3rem] font-black text-slate-200 uppercase tracking-[0.4em] italic">No Active {eventFilter} Logs</div>}
                                 </div>
                             </div>
 
                             {/* Performance Intelligence */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="glass-card rounded-[3rem] p-12 border-white/5 shadow-2xl relative overflow-hidden group min-h-[400px] flex flex-col">
-                                    <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity duration-1000 -rotate-12"><Activity size={240} className="text-brand-400" /></div>
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-white">
+                                <div className="glass-card rounded-[3rem] p-12 border-slate-100 shadow-2xl relative overflow-hidden group min-h-[400px] flex flex-col bg-white">
+                                    <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity duration-1000 -rotate-12"><Activity size={240} className="text-brand-500" /></div>
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-brand-950">
                                         <Brain className="text-brand-500" size={28} /> AI Insight Engine
                                     </h3>
                                     {matchAnalysis ? (
-                                        <div className="flex-1 prose prose-invert prose-sm max-w-none text-white/60 italic font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: matchAnalysis }} />
+                                        <div className="flex-1 prose prose-slate prose-sm max-w-none text-slate-600 italic font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: matchAnalysis }} />
                                     ) : (
                                         <div className="flex-1 flex flex-col justify-center text-center">
-                                            <p className="text-[11px] text-white/30 font-black uppercase tracking-[0.3em] mb-10 px-8 italic leading-relaxed">Initialize tactical breakdown module for latest high-performance metrics.</p>
-                                            <button onClick={handleAnalyzeMatch} disabled={isAnalyzingMatch} className="w-full bg-brand-500 text-brand-950 font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.2em] italic hover:scale-105 active:scale-95 transition-all shadow-[0_20px_40px_rgba(0,200,255,0.2)] group/ai disabled:opacity-50">
+                                            <p className="text-[11px] text-slate-300 font-black uppercase tracking-[0.3em] mb-10 px-8 italic leading-relaxed">Initialize tactical breakdown module for latest high-performance metrics.</p>
+                                            <button onClick={handleAnalyzeMatch} disabled={isAnalyzingMatch} className="w-full bg-brand-950 text-white font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.2em] italic hover:bg-black active:scale-95 transition-all shadow-xl shadow-brand-950/20 group/ai disabled:opacity-50">
                                                 {isAnalyzingMatch ? <Loader2 size={18} className="animate-spin mx-auto" /> : <span className="flex items-center justify-center gap-4"><Sparkles size={18} /> Initialize Analysis</span>}
                                             </button>
                                         </div>
                                     )}
                                 </div>
-                                <div className="glass-card rounded-[3rem] p-12 border-white/5 shadow-xl flex flex-col min-h-[400px]">
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-white">
+                                <div className="glass-card rounded-[3rem] p-12 border-slate-100 shadow-xl flex flex-col min-h-[400px] bg-white">
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-brand-950">
                                         <History className="text-brand-500" size={28} /> Mission History
                                     </h3>
                                     {myMatchStats.length > 0 ? (
                                         <div className="space-y-5 flex-1">
                                         {myMatchStats.slice(0,3).map(m => (
-                                            <div key={m.id} className="p-6 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-colors">
+                                            <div key={m.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-colors">
                                                 <div className="flex justify-between items-center mb-4">
-                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString()}</span>
-                                                    <span className={`px-3 py-1 rounded text-[9px] font-black italic uppercase tracking-widest ${m.result === 'W' ? 'bg-[#BFFF00] text-brand-950' : 'bg-red-500 text-white'}`}>{m.result === 'W' ? 'Success' : 'Fail'}</span>
+                                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString()}</span>
+                                                    <span className={`px-3 py-1 rounded text-[9px] font-black italic uppercase tracking-widest ${m.result === 'W' ? 'bg-brand-500 text-white' : 'bg-red-500 text-white'}`}>{m.result === 'W' ? 'Success' : 'Fail'}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
-                                                    <div className="font-black text-xl text-white italic uppercase tracking-tighter">vs {m.opponent}</div>
-                                                    <div className="text-3xl font-black text-brand-500 font-mono tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{m.scoreFor}<span className="text-white/20 mx-1">:</span>{m.scoreAgainst}</div>
+                                                    <div className="font-black text-xl text-brand-950 italic uppercase tracking-tighter">vs {m.opponent}</div>
+                                                    <div className="text-3xl font-black text-brand-500 font-mono tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{m.scoreFor}<span className="text-slate-200 mx-1">:</span>{m.scoreAgainst}</div>
                                                 </div>
                                             </div>
                                         ))}
                                         </div>
-                                    ) : <div className="flex-1 flex flex-col items-center justify-center text-white/10 font-black italic uppercase tracking-[0.4em] py-12">Zero Logs Found</div>}
+                                    ) : <div className="flex-1 flex flex-col items-center justify-center text-slate-100 font-black italic uppercase tracking-[0.4em] py-12">Zero Logs Found</div>}
                                 </div>
                             </div>
                         </div>
 
                         {/* Performance Telemetry */}
                         <div className="lg:col-span-4 space-y-8">
-                            <div className="bg-brand-500 p-12 rounded-[3.5rem] shadow-[0_30px_60px_rgba(0,200,255,0.3)] flex flex-col items-center group text-brand-950 relative overflow-hidden">
+                            <div className="bg-brand-500 p-12 rounded-[3.5rem] shadow-xl flex flex-col items-center group text-white relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={180} /></div>
-                                <Trophy className="relative z-10 text-brand-950 mb-8 group-hover:translate-y-[-10px] transition-transform duration-700" size={80} />
+                                <Trophy className="relative z-10 text-white mb-8 group-hover:translate-y-[-10px] transition-transform duration-700" size={80} />
                                 <div className="relative z-10 text-center">
                                     <div className="text-8xl font-black italic leading-none mb-1 font-mono tracking-tighter" style={{ fontFamily: 'Orbitron' }}>{totalGoals}</div>
                                     <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-60 italic">Total Strike Rate</div>
                                 </div>
                             </div>
                             
-                            <div className="glass-card border-white/5 p-12 rounded-[3.5rem] shadow-2xl space-y-10">
+                            <div className="glass-card border-slate-100 p-12 rounded-[3.5rem] shadow-2xl space-y-10 bg-white">
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-5">
-                                        <div className="p-4 bg-white/5 text-brand-500 rounded-2xl shadow-inner border border-white/5"><Star size={28} /></div>
-                                        <div className="text-left font-black italic uppercase leading-tight text-white">PRO<br/><span className="text-white/20 text-[10px] uppercase tracking-[0.2em]">Rating</span></div>
+                                        <div className="p-4 bg-slate-50 text-brand-500 rounded-2xl shadow-inner border border-slate-100"><Star size={28} /></div>
+                                        <div className="text-left font-black italic uppercase leading-tight text-brand-950">PRO<br/><span className="text-slate-300 text-[10px] uppercase tracking-[0.2em]">Rating</span></div>
                                     </div>
                                     <div className="text-5xl font-black text-brand-500 font-mono" style={{ fontFamily: 'Orbitron' }}>{avgRating}</div>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-5">
-                                        <div className="p-4 bg-white/5 text-brand-500 rounded-2xl shadow-inner border border-white/5"><Shirt size={28} /></div>
-                                        <div className="text-left font-black italic uppercase leading-tight text-white">DEPLOYS<br/><span className="text-white/20 text-[10px] uppercase tracking-[0.2em]">Starter</span></div>
+                                        <div className="p-4 bg-slate-50 text-brand-500 rounded-2xl shadow-inner border border-slate-100"><Shirt size={28} /></div>
+                                        <div className="text-left font-black italic uppercase leading-tight text-brand-950">DEPLOYS<br/><span className="text-slate-300 text-[10px] uppercase tracking-[0.2em]">Starter</span></div>
                                     </div>
-                                    <div className="text-5xl font-black text-white font-mono" style={{ fontFamily: 'Orbitron' }}>{totalStarts}</div>
+                                    <div className="text-5xl font-black text-brand-950 font-mono" style={{ fontFamily: 'Orbitron' }}>{totalStarts}</div>
                                 </div>
-                                <div className="flex justify-between items-center pt-10 border-t border-white/5">
+                                <div className="flex justify-between items-center pt-10 border-t border-slate-100">
                                     <div className="flex items-center gap-5">
-                                        <div className="p-4 bg-white/5 text-brand-500 rounded-2xl shadow-inner border border-white/5"><Activity size={28} /></div>
-                                        <div className="text-left font-black italic uppercase leading-tight text-white">CAPS<br/><span className="text-white/20 text-[10px] uppercase tracking-[0.2em]">Appearances</span></div>
+                                        <div className="p-4 bg-slate-50 text-brand-500 rounded-2xl shadow-inner border border-slate-100"><Activity size={28} /></div>
+                                        <div className="text-left font-black italic uppercase leading-tight text-brand-950">CAPS<br/><span className="text-slate-300 text-[10px] uppercase tracking-[0.2em]">Appearances</span></div>
                                     </div>
-                                    <div className="text-5xl font-black text-white font-mono" style={{ fontFamily: 'Orbitron' }}>{myMatchStats.length}</div>
+                                    <div className="text-5xl font-black text-brand-950 font-mono" style={{ fontFamily: 'Orbitron' }}>{myMatchStats.length}</div>
                                 </div>
                             </div>
 
