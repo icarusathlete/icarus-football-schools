@@ -363,13 +363,13 @@ export const PlayerManager: React.FC = () => {
 
       {/* --- SYSTEM MODALS --- */}
       {editingPlayer && (
-          <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
-              <div className="glass-card w-full max-w-2xl bg-white rounded-[3rem] border border-slate-200 shadow-3xl overflow-hidden">
-                  <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-brand-50/50">
-                      <h3 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Update <span className="text-brand-500">Player Profile</span></h3>
-                      <button onClick={() => setEditingPlayer(null)} className="w-12 h-12 bg-white rounded-2xl text-slate-300 hover:text-slate-900 flex items-center justify-center border border-slate-200 transition-all shadow-sm"><X size={24} /></button>
+          <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-2 md:p-6 animate-in fade-in duration-300">
+              <div className="glass-card w-full max-w-2xl bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-3xl overflow-hidden flex flex-col max-h-[calc(100vh-2rem)] md:max-h-[90vh]">
+                  <div className="p-6 md:p-10 border-b border-slate-100 flex justify-between items-center bg-brand-50/50 shrink-0">
+                      <h3 className="text-xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Update <span className="text-brand-500">Player Profile</span></h3>
+                      <button onClick={() => setEditingPlayer(null)} className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl md:rounded-2xl text-slate-300 hover:text-slate-900 flex items-center justify-center border border-slate-200 transition-all shadow-sm"><X size={20} /></button>
                   </div>
-                  <form onSubmit={savePlayerChanges} className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar-light text-left">
+                  <form onSubmit={savePlayerChanges} className="p-6 md:p-10 space-y-6 md:space-y-10 overflow-y-auto custom-scrollbar-light text-left flex-1">
                       <div className="flex justify-center">
                           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                               <img src={previewUrl || editingPlayer.photoUrl} className="w-36 h-36 rounded-[2rem] object-cover border-4 border-slate-100 group-hover:border-brand-500 transition-all shadow-xl" />
@@ -432,7 +432,7 @@ export const PlayerManager: React.FC = () => {
                           </div>
                       </div>
                   </form>
-                  <div className="p-10 border-t border-slate-100 bg-white">
+                  <div className="p-6 md:p-10 border-t border-slate-100 bg-white shrink-0">
                       <button onClick={savePlayerChanges} className="w-full py-6 bg-brand-500 text-white font-black rounded-2xl uppercase tracking-[0.3em] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all text-xs italic">SAVE PLAYER PROFILE</button>
                   </div>
               </div>
@@ -440,13 +440,13 @@ export const PlayerManager: React.FC = () => {
       )}
 
       {editingCoach && (
-           <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
-              <div className="glass-card w-full max-w-2xl bg-white rounded-[3rem] border border-slate-200 shadow-3xl overflow-hidden">
-                  <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-brand-50/50">
-                      <div className="flex items-center gap-4 text-brand-500"><Shield size={28} /><h3 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Edit Coach <span className="text-brand-500">Account</span></h3></div>
-                      <button onClick={() => setEditingCoach(null)} className="w-12 h-12 bg-white rounded-2xl text-slate-300 hover:text-slate-900 flex items-center justify-center border border-slate-200 transition-all shadow-sm"><X size={24} /></button>
+           <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-2 md:p-6 animate-in fade-in duration-300">
+              <div className="glass-card w-full max-w-2xl bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-3xl overflow-hidden flex flex-col max-h-[calc(100vh-2rem)] md:max-h-[90vh]">
+                  <div className="p-6 md:p-10 border-b border-slate-100 flex justify-between items-center bg-brand-50/50 shrink-0">
+                      <div className="flex items-center gap-4 text-brand-500"><Shield size={24} className="md:w-7 md:h-7" /><h3 className="text-xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Edit Coach <span className="text-brand-500">Account</span></h3></div>
+                      <button onClick={() => setEditingCoach(null)} className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl md:rounded-2xl text-slate-300 hover:text-slate-900 flex items-center justify-center border border-slate-200 transition-all shadow-sm"><X size={20} /></button>
                   </div>
-                  <form onSubmit={saveCoachChanges} className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar-light text-left">
+                  <form onSubmit={saveCoachChanges} className="p-6 md:p-10 space-y-6 md:space-y-10 overflow-y-auto custom-scrollbar-light text-left flex-1">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Username</label><input required className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingCoach.username} onChange={e => setEditingCoach({...editingCoach, username: e.target.value})} /></div>
                         <div className="space-y-2"><label className="text-[10px] font-black text-red-500 uppercase tracking-widest italic">Set Password</label><input required className="w-full p-5 bg-slate-50 border border-red-500/20 rounded-2xl text-slate-900 font-mono text-sm outline-none focus:border-red-500 transition-all shadow-inner" value={editingCoach.password} onChange={e => setEditingCoach({...editingCoach, password: e.target.value})} /></div>
@@ -456,7 +456,7 @@ export const PlayerManager: React.FC = () => {
                         <div className="space-y-4"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic"><Layers size={18} /> ASSIGNED BATCHES</label><div className="flex flex-wrap gap-2">{batches.map(b => <button key={b.id} type="button" onClick={() => toggleCoachAssignment('batch', b.name)} className={`px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${editingCoach.assignedBatches?.includes(b.name) ? 'bg-brand-500 text-white border-brand-500 shadow-lg scale-[1.05]' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>{b.name}</button>)}</div></div>
                       </div>
                   </form>
-                  <div className="p-10 border-t border-slate-100 bg-white"><button onClick={saveCoachChanges} className="w-full py-6 bg-brand-500 text-white font-black rounded-2xl uppercase tracking-[0.3em] shadow-2xl hover:scale-[1.02] transition-all text-xs italic">SAVE COACH ACCOUNT</button></div>
+                  <div className="p-6 md:p-10 border-t border-slate-100 bg-white shrink-0"><button onClick={saveCoachChanges} className="w-full py-6 bg-brand-500 text-white font-black rounded-2xl uppercase tracking-[0.3em] shadow-2xl hover:scale-[1.02] transition-all text-xs italic">SAVE COACH ACCOUNT</button></div>
               </div>
           </div>
       )}
