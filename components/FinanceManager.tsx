@@ -49,7 +49,7 @@ export const FinanceManager: React.FC = () => {
     const [invoiceForm, setInvoiceForm] = useState({
         invoiceNo: '',
         date: new Date().toISOString().split('T')[0],
-        amount: 2400, // Default amount in Rupees
+        amount: 24000, // Default amount in Rupees
         paymentMode: 'UPI' as 'Cash' | 'UPI' | 'Bank Transfer' | 'Card',
         validTill: '',
     });
@@ -102,24 +102,34 @@ export const FinanceManager: React.FC = () => {
             playerId,
             month,
             status,
-            amount: existing ? existing.amount : 2400,
+            amount: existing ? existing.amount : 24000,
             datePaid: status === 'PAID' ? new Date().toISOString() : undefined
         };
         StorageService.updateFee(record);
     };
 
-    const getDaysRemaining = () => {
+    const getDaysRemaining = (statusRecord?: any) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        const [year, m] = month.split('-').map(Number);
-        // Deadline is last day of the selected month
-        const deadline = new Date(year, m, 0); // Month is 1-indexed for '0' hack
-        deadline.setHours(23, 59, 59, 999);
+        let targetDate;
         
-        const diff = deadline.getTime() - today.getTime();
-        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        return days;
+        if (statusRecord && statusRecord.status === 'PAID') {
+            // Next payment is 6 months from the paid date
+            const paidDate = statusRecord.datePaid ? new Date(statusRecord.datePaid) : new Date();
+            paidDate.setHours(0, 0, 0, 0);
+            
+            targetDate = new Date(paidDate);
+            targetDate.setMonth(targetDate.getMonth() + 6);
+        } else {
+            const [year, m] = month.split('-').map(Number);
+            // Deadline is last day of the selected month
+            targetDate = new Date(year, m, 0); // Month is 1-indexed for '0' hack
+            targetDate.setHours(23, 59, 59, 999);
+        }
+        
+        const diff = targetDate.getTime() - today.getTime();
+        return Math.ceil(diff / (1000 * 60 * 60 * 24));
     };
 
     // --- Invoice Logic ---
@@ -136,7 +146,7 @@ export const FinanceManager: React.FC = () => {
         setInvoiceForm({
             invoiceNo: nextId,
             date: existing?.invoice?.date || new Date().toISOString().split('T')[0],
-            amount: existing?.amount || 2400,
+            amount: existing?.amount || 24000,
             paymentMode: (existing?.invoice?.paymentMode as any) || 'UPI',
             validTill: existing?.invoice?.validTill || lastDay
         });
@@ -234,10 +244,10 @@ export const FinanceManager: React.FC = () => {
         return matchesSearch && matchesVenue && matchesStatus;
     });
 
-    const totalDue = filteredPlayers.length * 2400;
+    const totalDue = filteredPlayers.length * 24000;
     const totalCollected = filteredPlayers.reduce((sum, p) => {
         const rec = getStatus(p.id);
-        return sum + (rec?.status === 'PAID' ? (rec.amount || 2400) : 0);
+        return sum + (rec?.status === 'PAID' ? (rec.amount || 24000) : 0);
     }, 0);
 
     const getStatusColor = (status: string) => {
@@ -385,14 +395,14 @@ export const FinanceManager: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-brand-500/5">
                                         <div className="space-y-1">
                                             <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">FEES DUE</p>
-                                            <p className="font-mono font-black text-brand-950 italic text-2xl">₹2400</p>
+                                            <p className="font-mono font-black text-brand-950 italic text-2xl">₹24000</p>
                                         </div>
                                         <div className="space-y-1 text-right">
                                             <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">NEXT PAYMENT</p>
                                             <div className="flex items-center justify-end gap-1.5">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining() > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
+                                                <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining(status) > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
                                                 <p className="font-mono font-black text-brand-950 italic text-sm">
-                                                    {getDaysRemaining() > 0 ? `${getDaysRemaining()} Days Left` : `${Math.abs(getDaysRemaining())} Overdue`}
+                                                    {getDaysRemaining(status) > 0 ? `${getDaysRemaining(status)} Days Left` : `${Math.abs(getDaysRemaining(status))} Overdue`}
                                                 </p>
                                             </div>
                                         </div>
@@ -428,7 +438,7 @@ export const FinanceManager: React.FC = () => {
                         <div className="flex items-center px-10 py-5 bg-brand-950/5 rounded-3xl border border-brand-950/10 mb-2">
                             <div className="w-[30%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Player Info</div>
                             <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Player ID</div>
-                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Monthly Fees</div>
+                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Fees Due</div>
                             <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-center">Payment Status</div>
                             <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-right">Actions</div>
                         </div>
@@ -469,12 +479,12 @@ export const FinanceManager: React.FC = () => {
 
                                     <div className="w-[20%] relative z-10">
                                         <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">MONTHLY FEES</span>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">FEES DUE</span>
                                             <div className="flex items-baseline gap-2">
-                                                <span className="font-mono font-black text-brand-950 italic text-2xl tracking-tighter shadow-brand-500/20">₹2400</span>
+                                                <span className="font-mono font-black text-brand-950 italic text-2xl tracking-tighter shadow-brand-500/20">₹24000</span>
                                                 <div className="flex items-center gap-1">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining() > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
-                                                    <span className="text-[8px] font-black text-brand-950/40 uppercase italic">{getDaysRemaining() > 0 ? `${getDaysRemaining()} Days Left` : 'Overdue'}</span>
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining(status) > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
+                                                    <span className="text-[8px] font-black text-brand-950/40 uppercase italic">{getDaysRemaining(status) > 0 ? `${getDaysRemaining(status)} Days Left` : 'Overdue'}</span>
                                                 </div>
                                             </div>
                                         </div>
