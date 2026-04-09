@@ -200,7 +200,7 @@ export const MatchManager: React.FC = () => {
                     <div className="bg-slate-50/50 px-8 py-4 flex justify-between items-center text-slate-400 border-b border-slate-100">
                         <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-red-500 italic">
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                            DEPLOYMENT CONSOLE ACTIVE
+                            LIVE MATCH CONSOLE
                         </div>
                         <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"><X size={20}/></button>
                     </div>
@@ -241,14 +241,14 @@ export const MatchManager: React.FC = () => {
                             <div className="flex-1 w-full lg:w-auto h-full space-y-6">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Zone Possession</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Possession</p>
                                         <div className="flex items-center gap-4">
                                             <input type="range" className="flex-1 accent-brand-500" min="0" max="100" value={activeMatch.possession || 50} onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} />
                                             <span className="text-2xl font-black text-slate-900 italic">{activeMatch.possession || 50}%</span>
                                         </div>
                                     </div>
                                     <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Precision Strikes</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Shots on Target</p>
                                         <div className="flex items-center justify-between">
                                             <span className="text-3xl font-black text-slate-900 italic">{activeMatch.shotsOnTarget || 0}</span>
                                             <div className="flex gap-2">
@@ -258,7 +258,7 @@ export const MatchManager: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-5 bg-brand-500 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic font-display"><Check size={20} /> SYNCHRONIZE & FINALIZE DATA</button>
+                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-5 bg-brand-500 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic font-display"><Check size={20} /> SAVE & FINALIZE MATCH</button>
                             </div>
                         </div>
                     </div>
@@ -278,7 +278,7 @@ export const MatchManager: React.FC = () => {
             {/* Data Stream */}
             <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                    <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'OPERATIONAL DATA STREAM' : 'PENDING ENGAGEMENTS'}</span>
+                    <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'MATCH HISTORY' : 'UPCOMING FIXTURES'}</span>
                     <div className="h-[2px] bg-slate-100 w-full rounded-full" />
                 </div>
 
@@ -295,7 +295,7 @@ export const MatchManager: React.FC = () => {
                                     </div>
                                     <div className="flex-1 flex flex-col md:flex-row items-center justify-between w-full gap-8">
                                         <div className="flex-1 text-center md:text-right space-y-2">
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">PRIMARY ASSET</p>
+                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">HOME TEAM</p>
                                             <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tight leading-none truncate">{settings.name}</h3>
                                         </div>
                                         <div className="bg-slate-50 px-6 md:px-10 py-4 md:py-6 rounded-[2rem] border border-slate-100 font-mono text-4xl md:text-6xl font-black text-slate-900 shadow-xl shadow-slate-200/50 flex items-center gap-6 md:gap-10 relative overflow-hidden group/score">
@@ -305,7 +305,7 @@ export const MatchManager: React.FC = () => {
                                             <span className="text-slate-400">{m.scoreAgainst}</span>
                                         </div>
                                         <div className="flex-1 text-center md:text-left space-y-2">
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">TARGET FORCE</p>
+                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">AWAY TEAM</p>
                                             <h3 className="text-2xl font-black text-slate-400 italic uppercase tracking-tight group-hover:text-slate-900 transition-all leading-none truncate">{m.opponent}</h3>
                                         </div>
                                     </div>
@@ -352,7 +352,7 @@ export const MatchManager: React.FC = () => {
                                     if (opp.toLowerCase().includes(' vs ')) opp = opp.split(' vs ')[1];
                                     setNewMatch({ ...newMatch, scheduledEventId: ev.id, date: ev.date, opponent: opp.trim(), isLive: true });
                                     setShowForm(true);
-                                }} className="mt-8 lg:mt-0 w-full lg:w-auto px-10 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center gap-3 italic"><Zap size={18} fill="currentColor" /> INITIALIZE DEPLOYMENT</button>
+                                }} className="mt-8 lg:mt-0 w-full lg:w-auto px-10 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center gap-3 italic"><Zap size={18} fill="currentColor" /> START MATCH</button>
                             </div>
                         ))
                     )}
@@ -365,8 +365,8 @@ export const MatchManager: React.FC = () => {
                     <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[4rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-500 border border-slate-100">
                         <div className="flex justify-between items-center px-12 py-10 border-b border-slate-100 bg-slate-50/50">
                             <div>
-                                <h3 className="font-black text-3xl text-slate-900 italic uppercase tracking-tighter">Prepare <span className="text-brand-500">Engagement</span></h3>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2 italic">Tactical Objective Parameters</p>
+                                <h3 className="font-black text-3xl text-slate-900 italic uppercase tracking-tighter">Register <span className="text-brand-500">Match</span></h3>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2 italic">Match Details & Lineup</p>
                             </div>
                             <button onClick={() => setShowForm(false)} className="p-4 bg-white hover:bg-slate-50 rounded-2xl text-slate-300 hover:text-slate-900 transition-all shadow-xl shadow-slate-200/50 border border-slate-100"><X size={28} /></button>
                         </div>
@@ -374,17 +374,17 @@ export const MatchManager: React.FC = () => {
                             <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-brand-500/30 transition-all cursor-pointer shadow-inner" onClick={() => setNewMatch({...newMatch, isLive: !newMatch.isLive})}>
                                 <div className="flex items-center gap-6">
                                     <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all ${newMatch.isLive ? 'bg-red-500 shadow-xl shadow-red-500/30 scale-105' : 'bg-white border border-slate-200'}`}><Zap size={28} className={newMatch.isLive ? 'text-white' : 'text-slate-200'} fill={newMatch.isLive ? 'white' : 'transparent'} /></div>
-                                    <div className="space-y-1"><p className="text-lg font-black text-slate-900 italic tracking-tight uppercase">REAL-TIME TELEMETRY</p><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Activate live score command and tactical monitoring</p></div>
+                                    <div className="space-y-1"><p className="text-lg font-black text-slate-900 italic tracking-tight uppercase">LIVE MATCH TRACKING</p><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Enable real-time score and stats management</p></div>
                                 </div>
                                 <div className={`w-16 h-9 rounded-full p-1.5 transition-all flex items-center ${newMatch.isLive ? 'bg-red-500' : 'bg-slate-200'}`}><div className={`h-6 w-6 rounded-full bg-white shadow-2xl transition-all transform ${newMatch.isLive ? 'translate-x-7' : 'translate-x-0'}`} /></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Schedule Sync</label><select className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all appearance-none" value={newMatch.scheduledEventId} onChange={handleScheduleSelect}><option value="">-- Manual Objective --</option>{scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}</select></div>
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Engagement Date</label><input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono" /></div>
-                                <div className="md:col-span-2 space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Target Opponent</label><input type="text" placeholder="OMEGA FORCE 1" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all tracking-widest" /></div>
+                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Schedule Sync</label><select className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all appearance-none" value={newMatch.scheduledEventId} onChange={handleScheduleSelect}><option value="">-- Manual Entry --</option>{scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}</select></div>
+                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Match Date</label><input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono" /></div>
+                                <div className="md:col-span-2 space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Opponent Name</label><input type="text" placeholder="Enter Team Name" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all tracking-widest" /></div>
                             </div>
                             <section className="space-y-6">
-                                <div className="flex justify-between items-center"><h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] italic flex items-center gap-3"><Shirt size={16} /> OPERATIONAL SQUAD (11)</h4><span className={`text-[10px] font-black px-4 py-2 rounded-xl transition-all ${starters.size === 11 ? 'bg-brand-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}>{starters.size} / 11 SELECTED</span></div>
+                                <div className="flex justify-between items-center"><h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] italic flex items-center gap-3"><Shirt size={16} /> STARTING LINEUP (11)</h4><span className={`text-[10px] font-black px-4 py-2 rounded-xl transition-all ${starters.size === 11 ? 'bg-brand-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}>{starters.size} / 11 SELECTED</span></div>
                                 <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 shadow-inner max-h-[350px] overflow-y-auto custom-scrollbar">
                                     {players.map(p => (
                                         <div key={p.id} onClick={() => toggleStarter(p.id)} className={`cursor-pointer p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-center gap-2 sm:gap-4 ${starters.has(p.id) ? 'bg-brand-500/5 border-brand-500 shadow-lg' : 'bg-white border-slate-100'}`}>
@@ -395,7 +395,7 @@ export const MatchManager: React.FC = () => {
                                 </div>
                             </section>
                         </div>
-                        <div className="px-6 md:px-12 py-6 md:py-10 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4 sm:gap-6"><button onClick={() => setShowForm(false)} className="w-full sm:w-auto px-10 py-5 text-slate-400 font-black hover:text-slate-900 transition-all text-[10px] sm:text-xs uppercase tracking-[0.3em] italic">Abort Engagement</button><button onClick={handleSaveMatch} className={`flex-1 py-5 font-black rounded-3xl shadow-3xl transition-all flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.4em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-brand-500 text-white shadow-xl shadow-brand-500/20'}`}><Save size={18} /> {newMatch.isLive ? 'DEEP SCAN DEPLOYMENT' : 'STORE TACTICAL DATA'}</button></div>
+                        <div className="px-6 md:px-12 py-6 md:py-10 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4 sm:gap-6"><button onClick={() => setShowForm(false)} className="w-full sm:w-auto px-10 py-5 text-slate-400 font-black hover:text-slate-900 transition-all text-[10px] sm:text-xs uppercase tracking-[0.3em] italic">Cancel</button><button onClick={handleSaveMatch} className={`flex-1 py-5 font-black rounded-3xl shadow-3xl transition-all flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.4em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-brand-500 text-white shadow-xl shadow-brand-500/20'}`}><Save size={18} /> {newMatch.isLive ? 'START LIVE TRACKING' : 'SAVE MATCH RECORD'}</button></div>
                     </div>
                 </div>
             )}
@@ -405,7 +405,7 @@ export const MatchManager: React.FC = () => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-900/90 backdrop-blur-3xl animate-in fade-in duration-500">
                     <div className="w-full max-w-6xl aspect-video bg-black rounded-[4rem] overflow-hidden shadow-3xl border border-white/10 relative">
                         <button onClick={() => setSelectedVideo(null)} className="absolute top-8 right-8 z-10 p-4 bg-slate-900/80 text-white rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-2xl border border-white/10"><X size={24}/></button>
-                        <iframe src={selectedVideo} className="w-full h-full" title="Engagement Tape" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                        <iframe src={selectedVideo} className="w-full h-full" title="Match Highlights" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                     </div>
                 </div>
             )}

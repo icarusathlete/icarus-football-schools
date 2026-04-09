@@ -111,9 +111,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     ];
 
     const intelligence = [
-      { id: 'squad-comparison', label: 'Pro Analytics', icon: BarChart3 },
-      { id: 'head-to-head', label: 'Head to Head', icon: Swords },
-      { id: 'evaluations', label: 'Scout Reports', icon: Gauge },
+      { id: 'squad-comparison', label: 'Performance', icon: BarChart3 },
+      { id: 'head-to-head', label: 'Match Analysis', icon: Swords },
+      { id: 'evaluations', label: 'Player Reports', icon: Gauge },
     ];
 
     const management = [

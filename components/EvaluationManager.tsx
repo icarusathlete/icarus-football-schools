@@ -54,7 +54,7 @@ const StopwatchTool: React.FC<{
         <div className="glass-card border border-white/5 rounded-2xl p-6 flex flex-col gap-4 shadow-xl">
              <div className="flex justify-between items-center">
                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">{label}</label>
-                 <span className="text-[9px] font-black text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full border border-brand-primary/20 italic">Last Scan: {value}s</span>
+                 <span className="text-[9px] font-black text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full border border-brand-primary/20 italic">Previous Score: {value}s</span>
              </div>
              
              <div className="flex items-center gap-6 bg-brand-950 rounded-2xl p-5 shadow-2xl justify-between border border-white/5 relative overflow-hidden group">
@@ -84,7 +84,7 @@ const StopwatchTool: React.FC<{
                 onClick={applyTime}
                 className="w-full py-4 bg-brand-950 text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-brand-primary hover:text-brand-secondary transition-all shadow-xl italic border border-brand-primary/20"
              >
-                 COMMIT PARAMETERS
+                 CONFIRM TIME
              </button>
         </div>
     );
@@ -113,7 +113,7 @@ const MetricTracker: React.FC<{
             <div className="flex justify-between items-end">
                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic group-hover/metric:text-brand-primary transition-colors">{label}</label>
                 <div className="flex items-center gap-3">
-                     <span className="text-[9px] font-black text-white/10 font-mono tracking-widest">{count}/20 UNITS</span>
+                     <span className="text-[9px] font-black text-white/10 font-mono tracking-widest">{count}/20 RATING</span>
                      <span className={`text-lg font-black italic tracking-tighter ${isPrimary ? 'text-brand-primary' : 'text-lime-400'}`}>{value}%</span>
                 </div>
             </div>
@@ -257,18 +257,18 @@ export const EvaluationManager: React.FC = () => {
                 
                 <div className="relative z-10 text-brand-secondary">
                     <div className="flex items-center gap-4 mb-4">
-                        <span className="px-5 py-2 bg-brand-secondary text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg italic">Evaluation Protocol</span>
-                        <span className="text-brand-secondary/40 text-[10px] font-black tracking-[0.4em] uppercase italic font-mono">X-SERIES_v4.0</span>
+                        <span className="px-5 py-2 bg-brand-secondary text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg italic">Evaluation Form</span>
+                        <span className="text-brand-secondary/40 text-[10px] font-black tracking-[0.4em] uppercase italic font-mono">ACADEMY_v4.0</span>
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">SCOUT <span className="text-white">REPORTS</span></h2>
-                    <p className="font-black mt-6 uppercase text-[10px] tracking-[0.5em] opacity-60 italic">Academy Performance Hub • Neural Talent Assessment</p>
+                    <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">PLAYER <span className="text-white">EVALUATIONS</span></h2>
+                    <p className="font-black mt-6 uppercase text-[10px] tracking-[0.5em] opacity-60 italic">Academy Performance Hub • Technical Assessment</p>
                 </div>
 
                 <div className="relative w-full md:w-96 z-10">
                     <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-primary" strokeWidth={3} />
                     <input 
                         type="text" 
-                        placeholder="LOCATE OPERATIVE..." 
+                        placeholder="SEARCH PLAYER..." 
                         className="w-full pl-16 pr-8 py-6 bg-brand-secondary border border-transparent rounded-[2rem] outline-none focus:ring-4 focus:ring-white/10 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic font-mono"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
@@ -316,7 +316,7 @@ export const EvaluationManager: React.FC = () => {
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-black text-white/10 uppercase tracking-widest italic">AWAITING_SCAN</span>
+                                        <span className="text-[9px] font-black text-white/10 uppercase tracking-widest italic">AWAITING_EVALUATION</span>
                                         <div className="bg-white/5 text-white/20 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.3em] border border-white/5 italic">PENDING</div>
                                     </div>
                                 )}
@@ -345,10 +345,10 @@ export const EvaluationManager: React.FC = () => {
                     <div className="absolute inset-0 bg-brand-primary opacity-[0.02] animate-pulse" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-2">
-                            <span className="px-4 py-1 bg-brand-primary text-brand-secondary rounded-lg text-[9px] font-black uppercase tracking-[0.4em] italic shadow-lg">Live Intelligence</span>
+                            <span className="px-4 py-1 bg-brand-primary text-brand-secondary rounded-lg text-[9px] font-black uppercase tracking-[0.4em] italic shadow-lg">Academy Intelligence</span>
                             {draftSaved && (
                                 <span className="flex items-center gap-2 text-[9px] text-green-400 font-black uppercase italic animate-pulse">
-                                    <SaveAll size={12} /> Syncing Data...
+                                    <SaveAll size={12} /> Saving Data...
                                 </span>
                             )}
                         </div>
@@ -359,7 +359,7 @@ export const EvaluationManager: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-12 relative z-10">
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic mb-1">Performance Index</span>
+                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic mb-1">Academy Index</span>
                             <div className="flex items-end gap-2">
                                 <span className="text-[10px] text-brand-primary font-bold mb-2 italic">RATING_</span>
                                 <span className={`text-6xl font-black italic font-mono leading-none tracking-tighter ${getScoreColor(form.overallRating).replace('text-', 'text-')}`} style={{ fontFamily: 'Orbitron' }}>{form.overallRating}</span>
@@ -380,11 +380,11 @@ export const EvaluationManager: React.FC = () => {
                             <section className="glass-card p-10 rounded-[2.5rem] border-white/5 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.02] -mr-8 -mt-8"><Activity size={120} className="text-white" /></div>
                                 <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-10 italic">
-                                    <Zap size={18} strokeWidth={3} /> BIOMETRIC SCAN
+                                    <Zap size={18} strokeWidth={3} /> PHYSICAL METRICS
                                 </h4>
                                 <div className="grid grid-cols-2 gap-8">
                                     <div className="space-y-3">
-                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Operative Height</label>
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Height</label>
                                         <div className="relative group">
                                             <Ruler className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-brand-primary transition-colors" />
                                             <input 
@@ -397,7 +397,7 @@ export const EvaluationManager: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Operative Mass</label>
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] ml-1 italic">Weight</label>
                                         <div className="relative group">
                                             <Weight className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-brand-primary transition-colors" />
                                             <input 
@@ -415,16 +415,16 @@ export const EvaluationManager: React.FC = () => {
                             {/* Performance Tests - STOPWATCH */}
                             <section className="space-y-6">
                                 <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-8 italic pl-1">
-                                    <Timer size={18} strokeWidth={3} /> KINETIC CALIBRATION
+                                    <Timer size={18} strokeWidth={3} /> TIME TRIALS
                                 </h4>
                                 <div className="space-y-6">
                                     <StopwatchTool 
-                                        label="Explosive Sprint" 
+                                        label="Sprint Speed" 
                                         value={form.timeTrials.speed} 
                                         onChange={(val) => setForm({...form, timeTrials: {...form.timeTrials, speed: val}})} 
                                     />
                                     <StopwatchTool 
-                                        label="Tactical Agility" 
+                                        label="Agility Drill" 
                                         value={form.timeTrials.agility} 
                                         onChange={(val) => setForm({...form, timeTrials: {...form.timeTrials, agility: val}})} 
                                     />
@@ -444,7 +444,7 @@ export const EvaluationManager: React.FC = () => {
                                 <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -mr-10 -mt-10"><Target size={220} className="text-white" /></div>
                                 <div className="flex justify-between items-center mb-12">
                                     <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-4 italic">
-                                        <Activity size={18} strokeWidth={3} /> TACTICAL APTITUDE
+                                        <Activity size={18} strokeWidth={3} /> TECHNICAL SKILLS
                                     </h4>
                                     <div className="flex flex-col items-end">
                                         <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] italic mb-1 opacity-40">System Accuracy</span>
@@ -454,25 +454,25 @@ export const EvaluationManager: React.FC = () => {
                                 
                                 <div className="space-y-10">
                                     <MetricTracker 
-                                        label="Precision Passing" 
+                                        label="Passing Accuracy" 
                                         value={form.metrics.passing} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, passing: val}})} 
                                         colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Ballistic Finishing" 
+                                        label="Shooting & Finishing" 
                                         value={form.metrics.shooting} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, shooting: val}})} 
                                         colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Neural Ball Control" 
+                                        label="Ball Control" 
                                         value={form.metrics.juggling} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, juggling: val}})} 
                                         colorClass="bg-brand-primary"
                                     />
                                     <MetricTracker 
-                                        label="Auxiliary Foot Usage" 
+                                        label="Weak Foot Ability" 
                                         value={form.metrics.weakFoot} 
                                         onChange={(val) => setForm({...form, metrics: {...form.metrics, weakFoot: val}})} 
                                         colorClass="bg-lime-400"
@@ -512,7 +512,7 @@ export const EvaluationManager: React.FC = () => {
                             <section className="glass-card p-10 rounded-[2.5rem] border-white/5 shadow-2xl relative overflow-hidden">
                                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-primary/5 rounded-full blur-[60px] pointer-events-none" />
                                 <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] flex items-center gap-3 mb-10 italic">
-                                    <Plus size={18} strokeWidth={3} /> MISSION OBJECTIVES
+                                    <Plus size={18} strokeWidth={3} /> DEVELOPMENT AREAS
                                 </h4>
                                 
                                 <div className="space-y-8">
@@ -521,7 +521,7 @@ export const EvaluationManager: React.FC = () => {
                                         <input 
                                             type="text" 
                                             className="w-full pl-14 pr-8 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-white focus:border-brand-primary/50 outline-none transition-all placeholder:text-white/10 italic"
-                                            placeholder="TAG NEW MISSION FOCUS..."
+                                            placeholder="ADD DEVELOPMENT AREA..."
                                             value={tagInput}
                                             onChange={e => setTagInput(e.target.value)}
                                             onKeyDown={handleTagKeyDown}
@@ -576,14 +576,14 @@ export const EvaluationManager: React.FC = () => {
                             onClick={() => setIsEditing(false)} 
                             className="flex-1 md:flex-none px-12 py-5 text-white/20 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] italic"
                         >
-                            Abort Scan
+                            Cancel Evaluation
                         </button>
                         <button 
                             onClick={handleSave} 
                             className="flex-1 md:flex-none px-14 py-5 bg-brand-primary text-brand-secondary font-black rounded-2xl shadow-[0_20px_50px_rgba(0,200,255,0.2)] hover:scale-[1.02] transform transition-all text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 italic active:scale-95"
                         >
                             <Save size={20} strokeWidth={3} />
-                            AUTHORIZE PROTOCOL
+                            SAVE EVALUATION
                         </button>
                     </div>
                 </div>

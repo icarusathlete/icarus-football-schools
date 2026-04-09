@@ -83,14 +83,14 @@ export const AdminDashboard: React.FC = () => {
               <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Command size={180} className="text-white" /></div>
               <div className="relative z-10 space-y-4">
                   <div className="flex items-center gap-3 px-4 py-1.5 bg-brand-950/10 w-fit rounded-full border border-black/5 backdrop-blur-sm">
-                      <span className="w-2 h-2 rounded-full bg-brand-950 animate-pulse shadow-lg" />
-                      <p className="text-[10px] font-black text-brand-950 uppercase tracking-[0.4em] italic leading-none">ACADEMY CONNECTED</p>
+                      <span className="w-2 h-2 rounded-full bg-brand-950 shadow-lg" />
+                      <p className="text-[10px] font-black text-brand-950 uppercase tracking-[0.4em] italic leading-none">ACADEMY ONLINE</p>
                   </div>
                   <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none pointer-events-none">
                      ACADEMY <span className="text-brand-950 font-black">DASHBOARD</span>
                   </h2>
                   <p className="text-brand-900/60 font-black uppercase text-[11px] tracking-[0.3em] mt-4 flex items-center gap-3 italic">
-                      <Radio size={14} className="text-brand-950" /> Academy Performance Overview v4.0
+                      <Radio size={14} className="text-brand-950" /> Academy Overview
                   </p>
               </div>
           </div>
@@ -107,7 +107,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="glass-card flex-1 p-8 rounded-[3rem] border-white/5 bg-brand-primary/5 hover:bg-brand-primary/10 transition-all">
                   <div className="flex flex-col h-full justify-center items-center gap-4 py-4">
                       <div className="w-20 h-2 bg-brand-950 rounded-full overflow-hidden border border-white/5"><div className="w-3/4 h-full bg-brand-primary shadow-glow shadow-brand-primary/40 animate-pulse" /></div>
-                      <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-widest italic">System Status</p>
+                      <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-widest italic">Academy Status</p>
                   </div>
               </div>
           </div>
@@ -120,12 +120,12 @@ export const AdminDashboard: React.FC = () => {
                   <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary"><MapPin size={16} /></div>
                   <div>
                       <h3 className="text-sm font-black text-brand-950 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
-                      <p className="text-[9px] font-black text-brand-950/50 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
+                      <p className="text-[9px] font-black text-brand-950/50 uppercase tracking-[0.2em] italic mt-1">Live Feed</p>
                   </div>
               </div>
               <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-brand-500/10">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
-                  <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
+                  <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest italic">{availableVenues.length + 1} LOCATIONS</span>
               </div>
           </div>
 
@@ -144,7 +144,7 @@ export const AdminDashboard: React.FC = () => {
                               <Layers size={20} />
                           </div>
                           <div className="text-left">
-                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-brand-950/40'}`}>GLOBAL VIEW</p>
+                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-brand-950/40'}`}>ACADEMY VIEW</p>
                               <p className="text-lg font-black uppercase italic tracking-tighter leading-none">ALL LOCATIONS</p>
                               <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === 'All Locations' ? 'text-brand-950' : 'text-brand-primary'}`}>
                                   {venueStats['All Locations'] || 0} TOTAL PLAYERS
