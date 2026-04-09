@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
-import { Player, Venue, Batch, AttendanceRecord, User } from '../types';
+import { Player, Venue, Batch, AttendanceRecord, User, AttendanceStatus } from '../types';
 import { 
     Search, MapPin, Layers, Check, X, Calendar, 
     Save, Filter, Map, Users, ChevronRight, 
@@ -17,7 +17,7 @@ export const CoachAttendance: React.FC = () => {
   const [selectedVenue, setSelectedVenue] = useState('');
   const [selectedBatch, setSelectedBatch] = useState('');
   
-  const [attendance, setAttendance] = useState<Record<string, 'present' | 'absent' | 'none'>>({});
+  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus | 'none'>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -51,16 +51,22 @@ export const CoachAttendance: React.FC = () => {
       const records = StorageService.getAttendance();
       const dayRecords = records.filter(r => r.date === selectedDate && r.venue === selectedVenue && r.batch === selectedBatch);
       
-      const initialAttendance: Record<string, 'present' | 'absent' | 'none'> = {};
       filtered.forEach(p => {
         const record = dayRecords.find(r => r.playerId === p.id);
-        initialAttendance[p.id] = record ? (record.status as 'present' | 'absent') : 'none';
+        // Safety: Handle both legacy lowercase and standard uppercase statuses
+        let status: AttendanceStatus | 'none' = 'none';
+        if (record) {
+            const s = String(record.status).toUpperCase();
+            if (s === 'PRESENT') status = AttendanceStatus.PRESENT;
+            else if (s === 'ABSENT') status = AttendanceStatus.ABSENT;
+        }
+        initialAttendance[p.id] = status;
       });
       setAttendance(initialAttendance);
     }
   }, [selectedDate, selectedVenue, selectedBatch]);
 
-  const toggleAttendance = (playerId: string, status: 'present' | 'absent') => {
+  const toggleAttendance = (playerId: string, status: AttendanceStatus) => {
     setAttendance(prev => ({
       ...prev,
       [playerId]: prev[playerId] === status ? 'none' : status
@@ -78,7 +84,7 @@ export const CoachAttendance: React.FC = () => {
           playerId: p.id,
           playerName: p.fullName,
           date: selectedDate,
-          status: attendance[p.id] as 'present' | 'absent',
+          status: attendance[p.id] as AttendanceStatus,
           venue: selectedVenue,
           batch: selectedBatch,
           markedBy: currentUser?.username || 'unknown',
@@ -102,8 +108,8 @@ export const CoachAttendance: React.FC = () => {
 
   const stats = {
     total: players.length,
-    present: Object.values(attendance).filter(s => s === 'present').length,
-    absent: Object.values(attendance).filter(s => s === 'absent').length,
+    present: Object.values(attendance).filter(s => s === AttendanceStatus.PRESENT).length,
+    absent: Object.values(attendance).filter(s => s === AttendanceStatus.ABSENT).length,
     pending: players.length - Object.values(attendance).filter(s => s !== 'none').length
   };
 
@@ -202,34 +208,34 @@ export const CoachAttendance: React.FC = () => {
       {/* Player List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-slide-up">
           {filteredPlayers.map(p => (
-              <div key={p.id} className={`glass-card p-5 transition-all duration-500 relative group border-slate-100 hover:shadow-xl ${attendance[p.id] === 'present' ? 'ring-2 ring-brand-500/20 bg-brand-50/30' : attendance[p.id] === 'absent' ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-slate-50/50'}`}>
+              <div key={p.id} className={`glass-card p-5 transition-all duration-500 relative group border-slate-100 hover:shadow-xl ${attendance[p.id] === AttendanceStatus.PRESENT ? 'ring-2 ring-brand-500/20 bg-brand-50/30' : attendance[p.id] === AttendanceStatus.ABSENT ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-slate-50/50'}`}>
                   <div className="flex items-center gap-4 mb-5">
                       <div className="relative">
                           <img src={p.photoUrl} className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200 group-hover:border-brand-500 transition-all shadow-md" />
-                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[p.id] === 'present' ? 'bg-brand-500 text-white' : attendance[p.id] === 'absent' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
+                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500 text-white' : attendance[p.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
                               <Shield size={10} />
                           </div>
                       </div>
                       <div className="min-w-0">
-                          <h4 className="font-black text-slate-900 italic text-sm uppercase truncate leading-tight mb-1">{p.fullName}</h4>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.memberId}</p>
+                          <h4 className="font-black text-slate-900 italic text-sm uppercase truncate leading-tight mb-1">{p.fullName || 'Unknown Player'}</h4>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.memberId || 'N/A'}</p>
                       </div>
                   </div>
 
                   {/* Present/Absent Toggle */}
                   <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 overflow-hidden transition-all">
                       <button 
-                          onClick={() => toggleAttendance(p.id, 'present')}
-                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === 'present' ? 'bg-brand-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
+                          onClick={() => toggleAttendance(p.id, AttendanceStatus.PRESENT)}
+                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
                       >
-                          <Check size={12} className={attendance[p.id] === 'present' ? 'animate-bounce' : ''} />
+                          <Check size={12} className={attendance[p.id] === AttendanceStatus.PRESENT ? 'animate-bounce' : ''} />
                           <span className="text-[8px] font-black uppercase tracking-widest italic">PRESENT</span>
                       </button>
                       <button 
-                          onClick={() => toggleAttendance(p.id, 'absent')}
-                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === 'absent' ? 'bg-red-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
+                          onClick={() => toggleAttendance(p.id, AttendanceStatus.ABSENT)}
+                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
                       >
-                          <X size={12} className={attendance[p.id] === 'absent' ? 'animate-pulse' : ''} />
+                          <X size={12} className={attendance[p.id] === AttendanceStatus.ABSENT ? 'animate-pulse' : ''} />
                           <span className="text-[8px] font-black uppercase tracking-widest italic">ABSENT</span>
                       </button>
                   </div>
@@ -238,7 +244,7 @@ export const CoachAttendance: React.FC = () => {
                   <div className="mt-4 flex items-center justify-between px-1">
                       <div className="flex gap-1">
                           {[1,2,3,4,5].map(i => (
-                              <div key={i} className={`w-3 h-1 rounded-full ${attendance[p.id] === 'present' ? 'bg-brand-500/40 animate-pulse' : 'bg-slate-200'}`} style={{ animationDelay: `${i*100}ms` }} />
+                              <div key={i} className={`w-3 h-1 rounded-full ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500/40 animate-pulse' : 'bg-slate-200'}`} style={{ animationDelay: `${i*100}ms` }} />
                           ))}
                       </div>
                       <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] italic">VENUE: {(p.venue || 'N/A').split(' ')[0]}</p>
