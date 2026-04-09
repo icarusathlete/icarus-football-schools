@@ -10,6 +10,12 @@ export interface User {
   memberId?: string; // Corrected field for profile completion
   linkedPlayerId?: string; // For student accounts
   photoUrl?: string; // Coach/Admin Profile Photo
+  // Extended Details
+  contactNumber?: string;
+  email?: string;
+  address?: string;
+  dateOfBirth?: string;
+  employeeNumber?: string;
   // For Coaches
   assignedVenues?: string[];
   assignedBatches?: string[];

@@ -24,7 +24,12 @@ export const PlayerRegistration: React.FC = () => {
 
   // Coach Form State
   const [coachForm, setCoachForm] = useState({
+      employeeNumber: '',
       username: '',
+      contactNumber: '',
+      email: '',
+      dateOfBirth: '',
+      address: '',
       password: '',
       photoUrl: '',
       assignedVenues: [] as string[],
@@ -196,12 +201,17 @@ export const PlayerRegistration: React.FC = () => {
                   password: coachForm.password,
                   role: 'coach',
                   photoUrl: coachForm.photoUrl,
+                  employeeNumber: coachForm.employeeNumber,
+                  contactNumber: coachForm.contactNumber,
+                  email: coachForm.email,
+                  dateOfBirth: coachForm.dateOfBirth,
+                  address: coachForm.address,
                   assignedVenues: coachForm.assignedVenues,
                   assignedBatches: coachForm.assignedBatches
               });
               setStatus('success');
               setStatusMsg(`Coach onboarded!`);
-              setCoachForm({ username: '', password: '', photoUrl: '', assignedVenues: [], assignedBatches: [] });
+              setCoachForm({ employeeNumber: '', username: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', photoUrl: '', assignedVenues: [], assignedBatches: [] });
               setCoachPreviewUrl(null);
               refreshData();
               setTimeout(() => setStatus('idle'), 4000);
@@ -517,9 +527,14 @@ export const PlayerRegistration: React.FC = () => {
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Full Name / Username</label><input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Employee Number</label><input type="text" className={getInputClass('employeeNumber')} value={coachForm.employeeNumber} onChange={e => setCoachForm({...coachForm, employeeNumber: e.target.value})} placeholder="e.g. ICR-C-001" /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Contact Number</label><input type="tel" className={getInputClass('contactNumber')} value={coachForm.contactNumber} onChange={e => setCoachForm({...coachForm, contactNumber: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Email</label><input type="email" className={getInputClass('email')} value={coachForm.email} onChange={e => setCoachForm({...coachForm, email: e.target.value})} /></div>
+                            <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Date of Birth</label><input type="date" className={getInputClass('dateOfBirth')} value={coachForm.dateOfBirth} onChange={e => setCoachForm({...coachForm, dateOfBirth: e.target.value})} /></div>
                             <div className="space-y-2"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Password</label><input type="password" className={getInputClass('password')} value={coachForm.password} onChange={e => setCoachForm({...coachForm, password: e.target.value})} /></div>
                         </div>
+                        <div className="space-y-2 mt-6"><label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">Address</label><input type="text" className={getInputClass('address')} value={coachForm.address} onChange={e => setCoachForm({...coachForm, address: e.target.value})} /></div>
                     </div>
 
                     <div className="space-y-8 bg-slate-50 p-8 rounded-xl border border-slate-100 shadow-inner">
