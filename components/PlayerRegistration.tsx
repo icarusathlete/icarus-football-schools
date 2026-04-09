@@ -354,15 +354,13 @@ export const PlayerRegistration: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-6">
-                {mode === 'player' && (
                 <div className="bg-brand-500 px-6 py-4 rounded-xl border border-brand-400/20 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden group min-w-[160px]">
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1 relative z-10 italic whitespace-nowrap">PLAYER ID</span>
-                    <span className="text-2xl font-black tracking-tight text-white font-mono relative z-10 shadow-2xl whitespace-nowrap">{nextId}</span>
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1 relative z-10 italic whitespace-nowrap">{mode === 'player' ? 'PLAYER ID' : 'COACH ID'}</span>
+                    <span className="text-2xl font-black tracking-tight text-white font-mono relative z-10 shadow-2xl whitespace-nowrap">{mode === 'player' ? nextId : (coachForm.employeeNumber || 'PENDING')}</span>
                     {/* Scanning Line Effect */}
                     <div className="absolute h-0.5 w-full bg-white/20 top-0 left-0 animate-scan" />
                 </div>
-                )}
                 <div className="flex flex-col gap-2">
                     <button 
                         onClick={() => setShowConfigModal(true)}
@@ -370,15 +368,6 @@ export const PlayerRegistration: React.FC = () => {
                     >
                         <Settings size={14} className="group-hover:rotate-90 transition-transform" /> VENUE & BATCH SETTINGS
                     </button>
-                    {mode === 'player' && (
-                        <button 
-                            onClick={() => csvInputRef.current?.click()}
-                            className="flex items-center justify-center gap-3 text-[8px] font-black uppercase tracking-[0.3em] bg-brand-500 text-white px-6 py-3 rounded-lg transition-all shadow-xl italic hover:scale-105 active:scale-95"
-                        >
-                            <FileText size={14} /> IMPORT FROM CSV
-                            <input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvUpload} />
-                        </button>
-                    )}
                 </div>
             </div>
           </div>
