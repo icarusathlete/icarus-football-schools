@@ -408,10 +408,15 @@ export const FinanceManager: React.FC = () => {
                                         </button>
                                         {statusVal !== 'PAID' && (
                                             <button 
-                                                onClick={() => updateStatus(p.id, 'PAID')} 
-                                                className="w-12 h-12 bg-brand-950 border border-brand-500/20 text-lime rounded-2xl flex items-center justify-center hover:bg-lime hover:text-brand-950 active:scale-95 transition-all shadow-xl"
+                                                onClick={() => {
+                                                    if (window.confirm('Are you sure you want to mark these fees as PAID? This action cannot be undone.')) {
+                                                        updateStatus(p.id, 'PAID');
+                                                    }
+                                                }}
+                                                className="w-12 h-12 bg-lime border-2 border-lime text-brand-950 rounded-2xl flex items-center justify-center hover:bg-transparent hover:text-lime active:scale-95 transition-all shadow-xl shadow-lime/20 group/btn"
+                                                title="Mark as Paid"
                                             >
-                                                <Check size={20} />
+                                                <Check size={20} strokeWidth={3} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                         )}
                                     </div>
@@ -502,11 +507,15 @@ export const FinanceManager: React.FC = () => {
                                             
                                             {statusVal !== 'PAID' && (
                                                 <button
-                                                    onClick={() => updateStatus(p.id, 'PAID')}
-                                                    className="w-12 h-12 flex items-center justify-center bg-lime/10 text-lime rounded-2xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl active:scale-95 border border-lime/20 group/btn"
-                                                    title="Approve Settlement"
+                                                    onClick={() => {
+                                                        if (window.confirm('Are you sure you want to mark these fees as PAID? This action cannot be undone.')) {
+                                                            updateStatus(p.id, 'PAID');
+                                                        }
+                                                    }}
+                                                    className="w-12 h-12 flex items-center justify-center bg-lime text-brand-950 rounded-2xl hover:bg-transparent hover:text-lime hover:border-lime transition-all shadow-xl shadow-lime/20 active:scale-95 border-2 border-lime group/btn"
+                                                    title="Mark as Paid"
                                                 >
-                                                    <Check size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                                    <Check size={20} strokeWidth={3} className="group-hover/btn:scale-110 transition-transform" />
                                                 </button>
                                             )}
                                         </div>
