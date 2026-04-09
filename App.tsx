@@ -29,7 +29,7 @@ const PlayerPortal = lazy(() => import('./components/PlayerPortal').then(m => ({
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('schedule');
+  const [activeTab, setActiveTab] = useState<string>('');
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [settings, setSettings] = useState(StorageService.getSettings());
 

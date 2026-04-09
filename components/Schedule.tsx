@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
-import { ScheduleEvent, Role, Drill, User, EventType } from '../types';
 import { 
     Calendar as CalendarIcon, Clock, MapPin, Plus, MonitorPlay, 
     Users, Coffee, Edit3, Trash2, X, Save, Trophy, ArrowRight, 
     ClipboardList, Check, User as UserIcon, Filter, Zap, 
-    PartyPopper, ChevronRight, ChevronLeft, LayoutList, Calendar, History
+    PartyPopper, ChevronRight, ChevronLeft, LayoutList, Calendar, History,
+    Radio, Layers, Target, Command
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -20,6 +20,11 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   const [activeTab, setActiveTab] = useState<'all' | EventType>('all');
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // Location Hub State
+  const [selectedVenue, setSelectedVenue] = useState<string>('All Locations');
+  const [availableVenues, setAvailableVenues] = useState<any[]>([]);
+  const [venueStats, setVenueStats] = useState<Record<string, number>>({});
   
   // Modal State
   const [showForm, setShowForm] = useState(false);
@@ -44,8 +49,20 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
     allEvents.sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
     setEvents(allEvents);
     setDrills(StorageService.getDrills());
+    
     const allUsers = StorageService.getUsers();
     setCoaches(allUsers.filter(u => u.role === 'coach'));
+    
+    const venues = StorageService.getVenues();
+    setAvailableVenues(venues);
+    
+    // Calculate player counts per venue for the selector
+    const players = StorageService.getPlayers();
+    const counts: Record<string, number> = { 'All Locations': players.length };
+    venues.forEach(v => {
+        counts[v.name] = players.filter(p => p.venue === v.name).length;
+    });
+    setVenueStats(counts);
   };
 
   useEffect(() => {
@@ -115,7 +132,11 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       return new Date() > eventDate;
   };
 
-  const filteredEvents = events.filter(e => activeTab === 'all' || e.type === activeTab);
+  const filteredEvents = events.filter(e => {
+    const matchesTab = activeTab === 'all' || e.type === activeTab;
+    const matchesVenue = selectedVenue === 'All Locations' || e.location === selectedVenue;
+    return matchesTab && matchesVenue;
+  });
 
   // Calendar Helpers
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -274,6 +295,80 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Location Control Hub */}
+      <div className="space-y-4">
+          <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-3">
+                  <div className="p-2 bg-brand-500/10 rounded-lg text-brand-500"><MapPin size={16} /></div>
+                  <div>
+                      <h3 className="text-sm font-black text-slate-900 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
+                  </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
+              </div>
+          </div>
+
+          <div className="glass-card p-2 rounded-[2.5rem] border-slate-100 bg-white shadow-sm relative overflow-hidden group">
+              <div className="flex gap-2 overflow-x-auto p-2 no-scrollbar">
+                  <button 
+                      onClick={() => setSelectedVenue('All Locations')}
+                      className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                          selectedVenue === 'All Locations'
+                          ? 'bg-brand-500 border-brand-500 text-white shadow-xl shadow-brand-500/20'
+                          : 'bg-white border-white text-slate-400 hover:border-slate-100 hover:bg-slate-50'
+                      }`}
+                  >
+                      <div className="relative z-10 flex flex-col items-start gap-4">
+                          <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === 'All Locations' ? 'bg-brand-950 text-brand-500' : 'bg-slate-50 text-slate-500 group-hover/btn:scale-110'}`}>
+                              <Layers size={20} />
+                          </div>
+                          <div className="text-left">
+                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-white/60' : 'text-slate-500'}`}>GLOBAL VIEW</p>
+                              <p className="text-lg font-black uppercase italic tracking-tighter leading-none">ALL LOCATIONS</p>
+                              <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === 'All Locations' ? 'text-white' : 'text-brand-500'}`}>
+                                  {venueStats['All Locations'] || 0} TOTAL PLAYERS
+                              </p>
+                          </div>
+                      </div>
+                      {selectedVenue === 'All Locations' && (
+                          <div className="absolute top-0 right-0 p-4 opacity-20"><Zap size={40} /></div>
+                      )}
+                  </button>
+
+                  {availableVenues.map((venue) => (
+                      <button 
+                          key={venue.id}
+                          onClick={() => setSelectedVenue(venue.name)}
+                          className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                              selectedVenue === venue.name
+                              ? 'bg-brand-500 border-brand-500 text-white shadow-xl shadow-brand-500/20'
+                              : 'bg-white border-white text-slate-400 hover:border-slate-100 hover:bg-slate-50'
+                      }`}
+                  >
+                      <div className="relative z-10 flex flex-col items-start gap-4">
+                          <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === venue.name ? 'bg-brand-950 text-brand-500' : 'bg-slate-50 text-slate-500 group-hover/btn:scale-110'}`}>
+                              <MapPin size={20} />
+                          </div>
+                          <div className="text-left">
+                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === venue.name ? 'text-white/60' : 'text-slate-500'}`}>NODE ALPHA</p>
+                              <p className="text-lg font-black uppercase italic tracking-tighter leading-none truncate w-full">{venue.name}</p>
+                              <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === venue.name ? 'text-white' : 'text-brand-500'}`}>
+                                  {venueStats[venue.name] || 0} PLAYERS
+                              </p>
+                          </div>
+                      </div>
+                      {selectedVenue === venue.name && (
+                          <div className="absolute top-0 right-0 p-4 opacity-20"><Target size={40} /></div>
+                      )}
+                  </button>
+                  ))}
+              </div>
+          </div>
       </div>
 
       {/* Main Content Area */}

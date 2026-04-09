@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { PlayerPerformanceModal } from './PlayerPerformanceModal';
-import Papa from 'papaparse';
 
 export const PlayerManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'players' | 'coaches'>('players');
@@ -263,8 +262,6 @@ export const PlayerManager: React.FC = () => {
                                           {[
                                               { icon: Activity, label: 'PERFORMANCE', color: 'bg-brand-500 text-white shadow-brand-500/20', action: () => setViewingPerformance(p) },
                                               { icon: Edit2, label: 'MODIFY', color: 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-brand-500 shadow-sm', action: () => openEditModal(p, 'player') },
-                                              { icon: Activity, label: 'PERFORMANCE', color: 'bg-brand-500 text-white shadow-brand-500/20', action: () => setViewingPerformance(p) },
-                                              { icon: Edit2, label: 'MODIFY', color: 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-brand-500 shadow-sm', action: () => openEditModal(p, 'player') },
                                               { icon: Trash2, label: 'DELETE', color: 'bg-red-50 text-red-500 border-red-100 hover:bg-red-500 hover:text-white shadow-sm', action: () => handleSecureDelete(p, 'player') }
                                           ].map((btn, i) => (
                                               <button key={i} onClick={btn.action} className={`w-12 h-12 flex items-center justify-center rounded-2xl border border-transparent transition-all hover:scale-110 active:scale-95 shadow-md ${btn.color}`} title={btn.label}>
@@ -382,14 +379,56 @@ export const PlayerManager: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
                           <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Member ID</label>
+                              <input readOnly className="w-full p-5 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 font-black italic text-sm outline-none cursor-not-allowed" value={editingPlayer.memberId} />
+                          </div>
+                          <div className="space-y-2">
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Full Name</label>
                               <input required className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.fullName} onChange={e => setEditingPlayer({...editingPlayer, fullName: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Sector (Venue)</label>
+                              <select className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.venue} onChange={e => setEditingPlayer({...editingPlayer, venue: e.target.value})}>
+                                  <option value="">SELECT SECTOR</option>
+                                  {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+                              </select>
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Division (Batch)</label>
+                              <select className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.batch} onChange={e => setEditingPlayer({...editingPlayer, batch: e.target.value})}>
+                                  <option value="">SELECT DIVISION</option>
+                                  {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+                              </select>
                           </div>
                           <div className="space-y-2">
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Player Position</label>
                               <select className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none appearance-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.position} onChange={e => setEditingPlayer({...editingPlayer, position: e.target.value as any})}>
                                   {['Forward','Midfielder','Defender','Goalkeeper','TBD'].map(p=> <option key={p} value={p}>{p}</option>)}
                               </select>
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Contact Number</label>
+                              <input required className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.contactNumber} onChange={e => setEditingPlayer({...editingPlayer, contactNumber: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Email Address</label>
+                              <input type="email" className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.email || ''} onChange={e => setEditingPlayer({...editingPlayer, email: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Date of Birth</label>
+                              <input type="date" className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.dateOfBirth} onChange={e => setEditingPlayer({...editingPlayer, dateOfBirth: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Parent Name</label>
+                              <input required className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.parentName} onChange={e => setEditingPlayer({...editingPlayer, parentName: e.target.value})} />
+                          </div>
+                          <div className="space-y-2 md:col-span-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Address</label>
+                              <textarea className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner min-h-[100px]" value={editingPlayer.address || ''} onChange={e => setEditingPlayer({...editingPlayer, address: e.target.value})} />
+                          </div>
+                          <div className="space-y-2 md:col-span-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Notes / Internal Details</label>
+                              <textarea className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-inner min-h-[100px]" value={editingPlayer.notes || ''} onChange={e => setEditingPlayer({...editingPlayer, notes: e.target.value})} />
                           </div>
                       </div>
                   </form>
