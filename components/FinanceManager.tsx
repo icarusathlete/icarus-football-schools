@@ -32,7 +32,9 @@ export const FinanceManager: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'tracking'>('tracking');
     const [players, setPlayers] = useState<Player[]>([]);
     const [fees, setFees] = useState<FeeRecord[]>([]);
+    const [venues, setVenues] = useState<Venue[]>([]);
     const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
+    const [selectedVenue, setSelectedVenue] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
     const [invoiceTemplate, setInvoiceTemplate] = useState<string | null>(localStorage.getItem('icarus_invoice_template'));
@@ -77,6 +79,7 @@ export const FinanceManager: React.FC = () => {
     const loadData = () => {
         setPlayers(StorageService.getPlayers());
         setFees(StorageService.getFees());
+        setVenues(StorageService.getVenues());
         setSettings(StorageService.getSettings());
     };
 
@@ -101,6 +104,20 @@ export const FinanceManager: React.FC = () => {
             datePaid: status === 'PAID' ? new Date().toISOString() : undefined
         };
         StorageService.updateFee(record);
+    };
+
+    const getDaysRemaining = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const [year, m] = month.split('-').map(Number);
+        // Deadline is last day of the selected month
+        const deadline = new Date(year, m, 0); // Month is 1-indexed for '0' hack
+        deadline.setHours(23, 59, 59, 999);
+        
+        const diff = deadline.getTime() - today.getTime();
+        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        return days;
     };
 
     // --- Invoice Logic ---
@@ -198,7 +215,12 @@ export const FinanceManager: React.FC = () => {
         };
     };
 
-    const filteredPlayers = players.filter(p => p.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredPlayers = players.filter(p => {
+        const matchesSearch = p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             p.memberId.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesVenue = selectedVenue === 'All' || p.venue === selectedVenue;
+        return matchesSearch && matchesVenue;
+    });
 
     const totalDue = filteredPlayers.length * 2400;
     const totalCollected = filteredPlayers.reduce((sum, p) => {
@@ -252,7 +274,7 @@ export const FinanceManager: React.FC = () => {
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Archive Month</label>
+                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Reporting Month</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
                                     <input
@@ -261,6 +283,23 @@ export const FinanceManager: React.FC = () => {
                                         onChange={e => setMonth(e.target.value)}
                                         className="w-full pl-12 pr-6 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono shadow-sm"
                                     />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Training Location</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
+                                    <select
+                                        value={selectedVenue}
+                                        onChange={e => setSelectedVenue(e.target.value)}
+                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-sm appearance-none"
+                                    >
+                                        <option value="All">All Locations</option>
+                                        {venues.map(v => (
+                                            <option key={v.id} value={v.name}>{v.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
@@ -301,7 +340,7 @@ export const FinanceManager: React.FC = () => {
                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
                                                 'bg-slate-100 text-slate-500'
                                         }`}>
-                                        {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING'}
+                                        {statusVal === 'PAID' ? 'FEES PAID' : statusVal === 'OVERDUE' ? 'OVERDUE' : 'PENDING'}
                                     </div>
                                     
                                     <div className="flex items-start gap-5 mb-6 mt-4">
@@ -318,22 +357,29 @@ export const FinanceManager: React.FC = () => {
                                                     <MapPin size={10} className="text-brand-500" />
                                                     <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">{p.venue || 'NOT ASSIGNED'}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1 px-2 py-1 bg-brand-500/5 rounded-lg border border-brand-500/5">
-                                                    <UserIcon size={10} className="text-brand-500" />
-                                                    <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">{p.parentName || 'GUARDIAN'}</span>
-                                                </div>
+                                                {statusVal === 'PAID' && status?.datePaid && (
+                                                    <div className="flex items-center gap-1 px-2 py-1 bg-lime/10 rounded-lg border border-lime/20">
+                                                        <Calendar size={10} className="text-lime" />
+                                                        <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">PAID: {new Date(status.datePaid).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-brand-500/5">
+                                    <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-brand-500/5">
                                         <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">SETTLEMENT</p>
+                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">FEES DUE</p>
                                             <p className="font-mono font-black text-brand-950 italic text-2xl">₹2400</p>
                                         </div>
                                         <div className="space-y-1 text-right">
-                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">CONTACT INTEL</p>
-                                            <p className="font-mono font-black text-brand-950 italic text-sm truncate">{p.contactNumber || 'NO FEED'}</p>
+                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">NEXT PAYMENT</p>
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining() > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
+                                                <p className="font-mono font-black text-brand-950 italic text-sm">
+                                                    {getDaysRemaining() > 0 ? `${getDaysRemaining()} Days Left` : `${Math.abs(getDaysRemaining())} Overdue`}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -358,17 +404,17 @@ export const FinanceManager: React.FC = () => {
                                 </div>
                             )
                         })}
-                        {filteredPlayers.length === 0 && <div className="text-center text-brand-700 font-black uppercase tracking-widest py-10 italic">No operatives detected.</div>}
+                        {filteredPlayers.length === 0 && <div className="text-center text-brand-700 font-black uppercase tracking-widest py-10 italic">No players detected.</div>}
                     </div>
 
                     {/* Desktop Holographic List View */}
                     <div className="hidden md:flex flex-col gap-4">
                         <div className="flex items-center px-10 py-5 bg-brand-950/5 rounded-3xl border border-brand-950/10 mb-2">
-                            <div className="w-[30%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Athlete Profile</div>
-                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">ID Signature</div>
-                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Settlement Quota</div>
-                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-center">Protocol Status</div>
-                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-right">Ops Control</div>
+                            <div className="w-[30%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Player Info</div>
+                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Player ID</div>
+                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Monthly Fees</div>
+                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-center">Payment Status</div>
+                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-right">Actions</div>
                         </div>
 
                         {filteredPlayers.map(p => {
@@ -390,11 +436,11 @@ export const FinanceManager: React.FC = () => {
                                             <span className="font-black text-brand-950 italic text-xl uppercase tracking-tighter block leading-none mb-1 group-hover:text-brand-500 transition-colors">{p.fullName}</span>
                                             <div className="flex items-center gap-2">
                                                 <div className="px-2 py-0.5 bg-brand-950 text-[8px] font-black text-white uppercase tracking-widest rounded-md">
-                                                    {p.venue || 'STATION UNKNOWN'}
+                                                    {p.venue || 'LOCATION UNKNOWN'}
                                                 </div>
                                                 {status?.datePaid && (
                                                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">
-                                                        SYNCED: {new Date(status.datePaid).toLocaleDateString()}
+                                                        PAID ON: {new Date(status.datePaid).toLocaleDateString()}
                                                     </span>
                                                 )}
                                             </div>
@@ -407,8 +453,14 @@ export const FinanceManager: React.FC = () => {
 
                                     <div className="w-[20%] relative z-10">
                                         <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">MONTHLY QUOTA</span>
-                                            <span className="font-mono font-black text-brand-950 italic text-2xl tracking-tighter shadow-brand-500/20">₹2400</span>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">MONTHLY FEES</span>
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="font-mono font-black text-brand-950 italic text-2xl tracking-tighter shadow-brand-500/20">₹2400</span>
+                                                <div className="flex items-center gap-1">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining() > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
+                                                    <span className="text-[8px] font-black text-brand-950/40 uppercase italic">{getDaysRemaining() > 0 ? `${getDaysRemaining()} Days Left` : 'Overdue'}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -420,7 +472,7 @@ export const FinanceManager: React.FC = () => {
                                                     ? 'bg-red-600 text-white border-red-600 shadow-red-600/20' 
                                                     : 'bg-slate-50 text-slate-500 border-slate-200'
                                         }`}>
-                                            {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
+                                            {statusVal === 'PAID' ? 'FEES PAID' : statusVal === 'OVERDUE' ? 'OVERDUE' : 'PENDING'}
                                         </div>
                                     </div>
 
@@ -429,7 +481,7 @@ export const FinanceManager: React.FC = () => {
                                             <button
                                                 onClick={() => openInvoiceGenerator(p)}
                                                 className="w-12 h-12 flex items-center justify-center bg-brand-950 text-white rounded-2xl hover:bg-brand-500 hover:text-brand-950 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
-                                                title="Generate Protocol Receipt"
+                                                title="Generate Receipt"
                                             >
                                                 <FileText size={20} className="text-brand-500 group-hover/btn:text-brand-950 group-hover/btn:scale-110 transition-all" />
                                             </button>
@@ -456,9 +508,9 @@ export const FinanceManager: React.FC = () => {
                         <div className="p-6 bg-brand-900 border-b border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-3 text-brand-primary">
                                 <AlertCircle size={20} />
-                                <span className="text-sm font-black uppercase tracking-widest italic">External Protocol Integration</span>
+                                <span className="text-sm font-black uppercase tracking-widest italic">Invoice Integration</span>
                             </div>
-                            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest italic animate-pulse">Live Link Active</p>
+                            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest italic animate-pulse">System Connected</p>
                         </div>
                         <iframe
                             src="https://your-invoice-app-url.run.app"
@@ -478,13 +530,13 @@ export const FinanceManager: React.FC = () => {
                         {/* Left Panel: Controls */}
                         <div className="w-full md:w-1/3 bg-brand-950 p-10 border-r border-white/5 overflow-y-auto">
                             <div className="flex items-center justify-between mb-10">
-                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">CORE</span></h3>
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">GENERATOR</span></h3>
                                 <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-brand-500/10 rounded-full text-brand-500 transition-colors"><X size={24} /></button>
                             </div>
 
                             <div className="space-y-8">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Serial Number</label>
+                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Invoice No</label>
                                     <input
                                         type="text"
                                         value={invoiceForm.invoiceNo}
@@ -494,7 +546,7 @@ export const FinanceManager: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Issuance Cycle</label>
+                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Invoice Date</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.date}
@@ -504,7 +556,7 @@ export const FinanceManager: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Access Valid Until</label>
+                                    <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Valid Until</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.validTill}
@@ -515,7 +567,7 @@ export const FinanceManager: React.FC = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Quota (₹)</label>
+                                        <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Amount (₹)</label>
                                         <input
                                             type="number"
                                             value={invoiceForm.amount}
@@ -524,16 +576,16 @@ export const FinanceManager: React.FC = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Channel</label>
+                                        <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Payment Mode</label>
                                         <select
                                             value={invoiceForm.paymentMode}
                                             onChange={e => setInvoiceForm({ ...invoiceForm, paymentMode: e.target.value as any })}
                                             className="w-full p-4 bg-brand-900 border border-white/10 rounded-2xl focus:border-brand-500 outline-none text-sm font-black text-brand-500 italic bg-brand-950"
                                         >
                                             <option value="Cash">Cash</option>
-                                            <option value="UPI">UPI Sync</option>
-                                            <option value="Bank Transfer">Bank Intel</option>
-                                            <option value="Card">Terminal Credit</option>
+                                            <option value="UPI">UPI Payment</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                            <option value="Card">Credit Card</option>
                                         </select>
                                     </div>
                                 </div>
@@ -546,7 +598,7 @@ export const FinanceManager: React.FC = () => {
                                     className="w-full py-5 bg-brand-500 text-brand-950 font-black rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic disabled:opacity-70 disabled:cursor-not-allowed group"
                                 >
                                     {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={20} className="group-hover:translate-x-1 transition-transform" />}
-                                    {isSubmitting ? 'SYNCING DATA...' : 'TRANSMIT CLEARANCE'}
+                                    {isSubmitting ? 'SENDING...' : 'GENERATE RECEIPT'}
                                 </button>
 
                                 <button
@@ -554,10 +606,10 @@ export const FinanceManager: React.FC = () => {
                                     className="w-full py-5 bg-brand-500/10 border border-brand-500/30 text-brand-500 font-black rounded-2xl hover:bg-brand-500/20 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic backdrop-blur-md shadow-xl"
                                 >
                                     <Download size={20} />
-                                    ARCHIVE PDF
+                                    DOWNLOAD PDF
                                 </button>
 
-                                <p className="text-[9px] text-center text-brand-700 font-black uppercase tracking-widest mt-6 italic">This will grant clearance and sync data to the operative's hub.</p>
+                                <p className="text-[9px] text-center text-brand-700 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
                             </div>
                         </div>
 
