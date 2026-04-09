@@ -51,6 +51,7 @@ export const CoachAttendance: React.FC = () => {
       const records = StorageService.getAttendance();
       const dayRecords = records.filter(r => r.date === selectedDate && r.venue === selectedVenue && r.batch === selectedBatch);
       
+      const initialAttendance: Record<string, AttendanceStatus | 'none'> = {};
       filtered.forEach(p => {
         const record = dayRecords.find(r => r.playerId === p.id);
         // Safety: Handle both legacy lowercase and standard uppercase statuses
