@@ -35,6 +35,7 @@ export const FinanceManager: React.FC = () => {
     const [venues, setVenues] = useState<Venue[]>([]);
     const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
     const [selectedVenue, setSelectedVenue] = useState('All');
+    const [feeStatusFilter, setFeeStatusFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
     const [invoiceTemplate, setInvoiceTemplate] = useState<string | null>(localStorage.getItem('icarus_invoice_template'));
@@ -219,7 +220,17 @@ export const FinanceManager: React.FC = () => {
         const matchesSearch = p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              p.memberId.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesVenue = selectedVenue === 'All' || p.venue === selectedVenue;
-        return matchesSearch && matchesVenue;
+        
+        const status = getStatus(p.id);
+        const statusVal = status?.status || 'PENDING';
+        let matchesStatus = true;
+        if (feeStatusFilter === 'Pending') {
+            matchesStatus = statusVal === 'PENDING' || statusVal === 'OVERDUE';
+        } else if (feeStatusFilter === 'Paid') {
+            matchesStatus = statusVal === 'PAID';
+        }
+
+        return matchesSearch && matchesVenue && matchesStatus;
     });
 
     const totalDue = filteredPlayers.length * 2400;
@@ -274,15 +285,18 @@ export const FinanceManager: React.FC = () => {
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Reporting Month</label>
+                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Payment Status</label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
-                                    <input
-                                        type="month"
-                                        value={month}
-                                        onChange={e => setMonth(e.target.value)}
-                                        className="w-full pl-12 pr-6 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono shadow-sm"
-                                    />
+                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
+                                    <select
+                                        value={feeStatusFilter}
+                                        onChange={e => setFeeStatusFilter(e.target.value)}
+                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-sm appearance-none"
+                                    >
+                                        <option value="All">All Statuses</option>
+                                        <option value="Pending">Pending / Overdue</option>
+                                        <option value="Paid">Fees Paid</option>
+                                    </select>
                                 </div>
                             </div>
 
