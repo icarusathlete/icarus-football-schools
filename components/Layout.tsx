@@ -175,25 +175,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         </div>
 
         {/* Data Persistence Area - Only for Admins */}
-        {currentUser.role === 'admin' && (
-            <div className="mx-4 mb-6 p-4 bg-white/5 rounded-2xl border border-white/5 shadow-inner group">
-                <div className="flex items-center gap-2 mb-3">
-                    <Database size={12} className="text-brand-500/40 group-hover:text-brand-500 transition-colors" />
-                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/20">Database Status</span>
-                </div>
-                <div className="flex items-center gap-2 mb-5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-lime shadow-[0_0_8px_rgba(195,246,41,0.5)] animate-pulse" />
-                    <span className="text-[9px] text-white/50 font-black uppercase tracking-widest truncate">Live Connection</span>
-                </div>
-                <button 
-                    onClick={() => StorageService.triggerBackupDownload()}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-brand-500 text-brand-950 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-brand-500/20"
-                >
-                    <Download size={12} />
-                    Export Data
-                </button>
-            </div>
-        )}
 
         <div className="p-6 border-t border-white/5 bg-white/5">
            <div className="flex items-center gap-3 mb-5 px-1">
@@ -276,20 +257,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               ))}
            </div>
            
-           {currentUser.role === 'admin' && (
-               <div className="mt-auto p-8 bg-brand-900/50 rounded-[3rem] border border-white/5 shadow-inner">
-                    <div className="flex items-center gap-3 mb-6">
-                        <Database className="text-lime" size={20} />
-                        <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Database Tools</span>
-                    </div>
-                    <button 
-                        onClick={() => StorageService.triggerBackupDownload()}
-                        className="w-full py-5 bg-brand-500 text-brand-950 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand-500/10"
-                    >
-                        <Download size={20} /> Export Academy Data
-                    </button>
-               </div>
-           )}
         </div>
       )}
     </div>

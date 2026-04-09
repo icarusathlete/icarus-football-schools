@@ -29,15 +29,7 @@ export const PerformanceHUD: React.FC = () => {
 
     return (
         <div className="flex items-center gap-4 px-5 py-3 rounded-xl border border-brand-900/5 bg-brand-900/5 shadow-inner transition-all hover:bg-brand-900/10">
-            <div className="flex items-center gap-2.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-brand-500 animate-pulse' : 'bg-red-400'}`} />
-                <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${isOnline ? 'text-brand-900/60' : 'text-red-400'}`}>
-                    {isOnline ? 'SYSTEM ACTIVE' : 'CONNECTION OFFLINE'}
-                </span>
-            </div>
-            
-            <div className="h-3 w-px bg-brand-900/10" />
-            
+
             <div className="flex items-center gap-2.5">
                 {isSyncing ? (
                     <div className="w-3 h-3 border-2 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
