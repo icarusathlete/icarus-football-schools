@@ -81,34 +81,24 @@ export const AdminDashboard: React.FC = () => {
       <div className="flex flex-col xl:flex-row gap-6">
           <div className="flex-1 bg-brand-500 p-8 md:p-12 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Command size={180} className="text-white" /></div>
-              <div className="relative z-10 space-y-4">
-                  <div className="flex items-center gap-3 px-4 py-1.5 bg-brand-950/10 w-fit rounded-full border border-black/5 backdrop-blur-sm">
-                      <span className="w-2 h-2 rounded-full bg-brand-950 shadow-lg" />
-                      <p className="text-[10px] font-black text-brand-950 uppercase tracking-[0.4em] italic leading-none">ACADEMY ONLINE</p>
-                  </div>
+              <div className="relative z-10 space-y-4 pt-10">
                   <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none pointer-events-none">
                      ACADEMY <span className="text-brand-950 font-black">DASHBOARD</span>
                   </h2>
-                  <p className="text-brand-900/60 font-black uppercase text-[11px] tracking-[0.3em] mt-4 flex items-center gap-3 italic">
-                      <Radio size={14} className="text-brand-950" /> Academy Overview
-                  </p>
               </div>
           </div>
 
           <div className="flex flex-col md:flex-row gap-6 xl:w-1/3">
               <div className="glass-card flex-1 p-8 rounded-[3rem] border-white/5 relative overflow-hidden group hover:border-brand-primary/20">
                   <div className="flex justify-between items-start mb-6">
-                      <div className="p-4 bg-brand-primary/10 rounded-2xl text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-brand-950 transition-all duration-500 shadow-xl"><TrendingUp size={24} /></div>
-                      <span className="text-[10px] font-black text-brand-primary bg-brand-primary/5 px-3 py-1 rounded-full border border-brand-primary/10 italic">+14% GROWTH</span>
+                      <div className="p-4 bg-brand-primary/10 rounded-2xl text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-brand-950 transition-all duration-500 shadow-xl"><Users size={24} /></div>
+                      <span className="text-[10px] font-black text-brand-primary bg-brand-primary/5 px-3 py-1 rounded-full border border-brand-primary/10 italic">ALL LOCATIONS</span>
                   </div>
-                  <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">Overall Progress Rating</p>
-                  <p className="text-5xl font-black text-slate-900 italic tracking-tighter">8.4<span className="text-brand-primary text-xl ml-2 font-black">pts</span></p>
-              </div>
-              <div className="glass-card flex-1 p-8 rounded-[3rem] border-white/5 bg-brand-primary/5 hover:bg-brand-primary/10 transition-all">
-                  <div className="flex flex-col h-full justify-center items-center gap-4 py-4">
-                      <div className="w-20 h-2 bg-brand-950 rounded-full overflow-hidden border border-white/5"><div className="w-3/4 h-full bg-brand-primary shadow-glow shadow-brand-primary/40 animate-pulse" /></div>
-                      <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-widest italic">Academy Status</p>
-                  </div>
+                  <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">Total Players Added</p>
+                  <p className="text-5xl font-black text-slate-900 italic tracking-tighter">
+                      {venueStats['All Locations'] || 0}
+                      <span className="text-brand-primary text-xl ml-2 font-black">athletes</span>
+                  </p>
               </div>
           </div>
       </div>
