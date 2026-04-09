@@ -163,16 +163,16 @@ export const PlayerManager: React.FC = () => {
           </h2>
         </div>
         
-        <div className="flex bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl relative z-10 w-full lg:w-auto backdrop-blur-sm">
+        <div className="flex gap-2 bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl relative z-10 w-full lg:w-auto backdrop-blur-sm">
             <button 
                 onClick={() => setActiveTab('players')}
-                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'players' ? 'bg-brand-primary text-brand-950 shadow-[0_0_20px_rgba(204,255,0,0.4)] scale-[1.02] border-brand-primary/20' : 'text-white hover:text-brand-primary bg-white/5 hover:bg-white/10'}`}
+                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'players' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
             >
                 PLAYERS
             </button>
             <button 
                 onClick={() => setActiveTab('coaches')}
-                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'coaches' ? 'bg-brand-primary text-brand-950 shadow-[0_0_20px_rgba(204,255,0,0.4)] scale-[1.02] border-brand-primary/20' : 'text-white hover:text-brand-primary bg-white/5 hover:bg-white/10'}`}
+                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'coaches' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
             >
                 COACHES
             </button>
