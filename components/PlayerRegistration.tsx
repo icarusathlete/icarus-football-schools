@@ -3,7 +3,7 @@ import { Upload, Save, X, User, Phone, Shield, Camera, Check, RefreshCw, AlertCi
 import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch } from '../types';
 import { ConfirmModal } from './ConfirmModal';
-import Papa from 'papaparse';
+import { ConfirmModal } from './ConfirmModal';
 
 export const PlayerRegistration: React.FC = () => {
   const [mode, setMode] = useState<'player' | 'coach'>('player');
@@ -24,7 +24,6 @@ export const PlayerRegistration: React.FC = () => {
 
   // Coach Form State
   const [coachForm, setCoachForm] = useState({
-      employeeNumber: '',
       username: '',
       contactNumber: '',
       email: '',
@@ -32,6 +31,7 @@ export const PlayerRegistration: React.FC = () => {
       address: '',
       password: '',
       photoUrl: '',
+      role: 'coach',
       assignedVenues: [] as string[],
       assignedBatches: [] as string[]
   });
@@ -58,8 +58,6 @@ export const PlayerRegistration: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [statusMsg, setStatusMsg] = useState('');
-  const [isBulkUploading, setIsBulkUploading] = useState(false);
-  const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     refreshData();
@@ -211,7 +209,7 @@ export const PlayerRegistration: React.FC = () => {
               });
               setStatus('success');
               setStatusMsg(`Coach onboarded!`);
-              setCoachForm({ employeeNumber: '', username: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', photoUrl: '', assignedVenues: [], assignedBatches: [] });
+              setCoachForm({ username: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', photoUrl: '', role: 'coach', assignedVenues: [], assignedBatches: [] });
               setCoachPreviewUrl(null);
               refreshData();
               setTimeout(() => setStatus('idle'), 4000);
@@ -222,46 +220,6 @@ export const PlayerRegistration: React.FC = () => {
       }, 800);
   };
 
-  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsBulkUploading(true);
-    setStatus('submitting');
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        const data = results.data as any[];
-        let successCount = 0;
-        for (const row of data) {
-          try {
-            const name = row.fullName || row.name || '';
-            if (name) {
-              await StorageService.addPlayer({
-                fullName: name,
-                dateOfBirth: row.dob || row.dateOfBirth || '',
-                parentName: row.parent || row.guardian || '',
-                contactNumber: row.phone || row.contact || '',
-                address: row.address || '',
-                position: (row.position || 'POSITION') as Player['position'],
-                venue: row.venue || (venues[0]?.name || ''),
-                batch: row.batch || (batches[0]?.name || ''),
-                photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0ea5e9&color=fff`
-              });
-              successCount++;
-            }
-          } catch (err) {}
-        }
-        setIsBulkUploading(false);
-        setStatus(successCount > 0 ? 'success' : 'error');
-        setStatusMsg(successCount > 0 ? `Registered ${successCount} players!` : 'Import failed.');
-        refreshData();
-        if (csvInputRef.current) csvInputRef.current.value = '';
-        setTimeout(() => setStatus('idle'), 5000);
-      }
-    });
-  };
 
   const handleSecureDelete = (type: 'player' | 'venue' | 'batch', id: string, name: string) => {
       setItemToDelete({ type, id, name });
@@ -357,7 +315,7 @@ export const PlayerRegistration: React.FC = () => {
                 <div className="bg-brand-500 px-6 py-4 rounded-xl border border-brand-400/20 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden group min-w-[160px]">
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1 relative z-10 italic whitespace-nowrap">{mode === 'player' ? 'PLAYER ID' : 'COACH ID'}</span>
-                    <span className="text-2xl font-black tracking-tight text-white font-mono relative z-10 shadow-2xl whitespace-nowrap">{mode === 'player' ? nextId : (coachForm.employeeNumber || 'PENDING')}</span>
+                    <span className="text-2xl font-black tracking-tight text-white font-mono relative z-10 shadow-2xl whitespace-nowrap">{mode === 'player' ? nextId : 'AUTO-GEN'}</span>
                     {/* Scanning Line Effect */}
                     <div className="absolute h-0.5 w-full bg-white/20 top-0 left-0 animate-scan" />
                 </div>
@@ -516,8 +474,8 @@ export const PlayerRegistration: React.FC = () => {
                                     <input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} placeholder="Coach Name..." />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Employee Number</label>
-                                    <input type="text" className={getInputClass('employeeNumber')} value={coachForm.employeeNumber} onChange={e => setCoachForm({...coachForm, employeeNumber: e.target.value})} placeholder="e.g. ICR-C-001" />
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Date of Birth</label>
+                                    <input type="date" className={getInputClass('dateOfBirth')} value={coachForm.dateOfBirth} onChange={e => setCoachForm({...coachForm, dateOfBirth: e.target.value})} />
                                 </div>
                             </div>
                         </div>
@@ -553,10 +511,6 @@ export const PlayerRegistration: React.FC = () => {
                                         <div className="space-y-2">
                                             <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Email</label>
                                             <input type="email" className={getInputClass('email')} value={coachForm.email} onChange={e => setCoachForm({...coachForm, email: e.target.value})} placeholder="coach@example.com" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Date of Birth</label>
-                                            <input type="date" className={getInputClass('dateOfBirth')} value={coachForm.dateOfBirth} onChange={e => setCoachForm({...coachForm, dateOfBirth: e.target.value})} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Password</label>

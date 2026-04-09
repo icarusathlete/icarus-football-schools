@@ -28,17 +28,21 @@ const lazyRetry = (importFn: () => Promise<any>) =>
 
 // Simple Error Boundary to catch absolute rendering crashes
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
   static getDerivedStateFromError() { return { hasError: true }; }
   componentDidCatch(error: any, errorInfo: any) {
     console.error("Uncaught error:", error, errorInfo);
-    window.location.reload();
   }
   render() {
-    if (this.state.hasError) return null;
+    if (this.state.hasError) return (
+       <div className="p-8 text-white">
+          <h2>Application Error</h2>
+          <p>Please refresh the page or contact the administrator.</p>
+       </div>
+    );
     return this.props.children;
   }
 }

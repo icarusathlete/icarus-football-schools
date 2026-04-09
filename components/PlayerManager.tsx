@@ -233,8 +233,8 @@ export const PlayerManager: React.FC = () => {
                                               {p.position === 'Goalkeeper' && <Shield size={14} className="absolute -top-2 -right-2 text-brand-500 animate-pulse" />}
                                           </div>
                                           <div>
-                                              <div className="font-black text-slate-900 italic text-lg uppercase tracking-tight mb-1">{p.fullName}</div>
-                                              <div className="inline-flex px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[9px] font-black text-brand-500 uppercase tracking-[0.2em]">{p.memberId}</div>
+                                              <div className="font-black text-slate-900 italic text-base uppercase tracking-tight leading-tight">{p.fullName}</div>
+                                              <div className="text-[7px] font-black text-brand-500/60 uppercase tracking-[0.3em] mt-0.5">{p.memberId}</div>
                                           </div>
                                       </div>
                                   </td>
@@ -279,8 +279,8 @@ export const PlayerManager: React.FC = () => {
                                <div className="flex gap-5 items-center">
                                     <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-slate-50 object-cover border border-slate-200 group-hover:border-brand-500 transition-all shadow-md" />
                                     <div>
-                                        <h4 className="font-black text-slate-900 italic text-base uppercase tracking-tight mb-1">{p.fullName}</h4>
-                                        <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest">{p.memberId}</p>
+                                        <h4 className="font-black text-slate-900 italic text-sm uppercase tracking-tight leading-tight">{p.fullName}</h4>
+                                        <p className="text-[7px] font-black text-brand-500/60 uppercase tracking-[0.3em]">{p.memberId}</p>
                                     </div>
                                </div>
                                <button className="text-slate-400 p-2 hover:text-slate-900 transition-colors"><MoreVertical size={20} /></button>

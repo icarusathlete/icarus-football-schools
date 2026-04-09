@@ -92,6 +92,7 @@ const generateSequentialMemberId = (existingPlayers: Player[]): string => {
 };
 
 let syncUnsubscribers: (() => void)[] = [];
+let currentSessionUser: User | null = null;
 
 function sanitizeObject(obj: any): any {
   const sanitized: any = {};
@@ -113,6 +114,7 @@ export const StorageService = {
   },
 
   startFirebaseSync: (user: User) => {
+    currentSessionUser = user;
     // Clear previous listeners
     syncUnsubscribers.forEach(unsub => unsub());
     syncUnsubscribers = [];
@@ -197,8 +199,13 @@ export const StorageService = {
   },
 
   stopFirebaseSync: () => {
+    currentSessionUser = null;
     syncUnsubscribers.forEach(unsub => unsub());
     syncUnsubscribers = [];
+  },
+
+  getCurrentUser: () => {
+    return currentSessionUser;
   },
 
   getPlayers: (): Player[] => {
@@ -686,6 +693,10 @@ export const StorageService = {
     }
   },
   
+  getCurrentUser: () => {
+    return StorageService._currentUser;
+  },
+
   getSettings: (): AcademySettings => {
     const data = localStorage.getItem(SETTINGS_KEY);
     if (data) {

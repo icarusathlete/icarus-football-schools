@@ -79,90 +79,129 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-brand-950 font-display">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#00054e] font-display selection:bg-brand-500/30">
             
-            {/* Tactical Grid Overlay */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+            {/* Tactical Pro Grid Layer */}
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
+                 style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
             
-            {/* Orbital Gradients */}
-            <div className="absolute top-0 right-0 -mt-40 -mr-40 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[120px] animate-pulse duration-[10s]" />
-            <div className="absolute bottom-0 left-0 -mb-40 -ml-40 w-[500px] h-[500px] bg-lime/10 rounded-full blur-[100px] animate-pulse duration-[8s]" />
+            {/* Professional Radial Spotlights (Cyan & Lime) */}
+            <div className="absolute top-0 right-0 -mt-24 -mr-24 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-[160px] animate-pulse-slow" />
+            <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-[600px] h-[600px] bg-[#C3F629]/5 rounded-full blur-[140px] animate-pulse-slow" style={{ animationDelay: '1s' }} />
 
-            <div className="mb-12 text-center relative z-10">
-                <div className="w-28 h-28 bg-brand-900 rounded-full inline-flex items-center justify-center border-2 border-white/10 mb-8 shadow-[0_0_50px_rgba(13,165,233,0.2)] animate-in zoom-in duration-700 relative group overflow-hidden">
-                    <div className="absolute inset-0 bg-brand-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* Premium Center-Focus Branding */}
+            <div className="mb-14 text-center relative z-10 animate-fade-in">
+                <div className="w-32 h-32 bg-white rounded-[2.5rem] inline-flex items-center justify-center border-4 border-white/10 mb-8 shadow-2xl relative group overflow-hidden transition-transform duration-700 hover:rotate-[10deg]">
+                    <div className="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {settings.logoUrl ? (
-                        <img src={settings.logoUrl} className="w-full h-full object-contain p-4 relative z-10" alt="Logo" />
+                        <img src={settings.logoUrl} className="w-full h-full object-contain p-5 relative z-10" alt="Icarus Football" />
                     ) : (
-                        <Trophy className="w-14 h-14 text-brand-500 relative z-10" />
+                        <Trophy className="w-16 h-16 text-brand-500 relative z-10" />
                     )}
                 </div>
-                <h1 className="text-5xl md:text-7xl font-black tracking-tighter italic uppercase text-white leading-none" 
-                    style={{ fontFamily: settings.fontFamily }}>
-                    {settings.name.split(' ')[0]} <span className="text-brand-500">{settings.name.split(' ').slice(1).join(' ')}</span>
-                </h1>
-                <div className="flex items-center justify-center gap-4 mt-8">
-                    <div className="h-[2px] w-12 bg-white/10" />
-                    <p className="text-brand-500 uppercase tracking-[0.5em] text-[10px] font-black italic">Academy Management Portal</p>
-                    <div className="h-[2px] w-12 bg-white/10" />
+                
+                <div className="space-y-3">
+                    <h1 className="text-5xl md:text-8xl font-black tracking-tighter italic uppercase text-white leading-none flex flex-col md:flex-row items-center justify-center md:gap-4" 
+                        style={{ fontFamily: 'Space Grotesk' }}>
+                        <span>{settings.name.split(' ')[0]}</span> 
+                        <span className="text-brand-500">{settings.name.split(' ').slice(1).join(' ')}</span>
+                    </h1>
+                    <div className="inline-flex items-center gap-4 bg-white/5 backdrop-blur-md px-6 py-2.5 rounded-full border border-white/10 shadow-xl overflow-hidden group">
+                        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_12px_#00C8FF]" />
+                        <p className="text-brand-500 uppercase tracking-[0.6em] text-[9px] font-black italic">Academy Management Interface • v2.0</p>
+                    </div>
                 </div>
             </div>
 
-            <div className="w-full max-w-lg bg-brand-900 rounded-[4rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden relative z-10 border border-white/5 animate-in fade-in slide-in-from-bottom-12 duration-1000 p-1">
-                <div className="bg-brand-950/50 p-12 text-center rounded-[3.8rem]">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-800 border border-white/10 mb-10">
-                        <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_12px_#BEF264]" />
-                        <span className="text-[11px] font-black text-brand-500 uppercase tracking-widest leading-none">Portal Ready</span>
+            {/* Professional Management Card */}
+            <div className="w-full max-w-xl bg-white rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden relative z-10 border border-white/10 animate-slide-up p-1.5 transition-all hover:shadow-[0_60px_120px_-20px_rgba(0,200,255,0.1)]">
+                <div className="bg-slate-50/50 p-12 md:p-16 text-center rounded-[3.8rem] border border-white/40">
+                    
+                    <div className="max-w-xs mx-auto mb-14 space-y-4">
+                        <h2 className="text-4xl font-black text-brand-950 italic uppercase tracking-tighter leading-none" style={{ fontFamily: 'Space Grotesk' }}>Professional <span className="text-brand-500">Access</span></h2>
+                        <div className="h-1.5 w-16 bg-brand-500 rounded-full mx-auto" />
+                        <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed">Secure authentication for coaches, administrators, and athletes.</p>
                     </div>
-
-                    <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tight" style={{ fontFamily: 'Orbitron' }}>Secure <span className="text-brand-500">Portal</span></h2>
-                    <p className="text-brand-600 text-[12px] font-bold uppercase tracking-widest mb-12 leading-relaxed max-w-sm mx-auto">Access the academy management system via secure Google authentication</p>
                     
                     {error && (
-                        <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 text-red-500 text-[12px] font-bold rounded-3xl flex items-center gap-4 animate-in fade-in zoom-in text-left leading-relaxed">
-                            <AlertTriangle size={24} className="shrink-0" />
+                        <div className="mb-10 p-6 bg-red-500/10 border border-red-500/20 text-red-500 text-[12px] font-bold rounded-3xl flex items-center gap-5 animate-in fade-in zoom-in text-left leading-relaxed">
+                            <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
+                                <AlertTriangle size={20} />
+                            </div>
                             <span>{error}</span>
                         </div>
                     )}
 
-                    <button 
-                        onClick={handleGoogleLogin}
-                        disabled={isLoading}
-                        className="w-full bg-brand-500 text-brand-950 font-black py-6 rounded-[2.5rem] transition-all flex items-center justify-center gap-4 shadow-[0_25px_50px_rgba(14,165,233,0.25)] active:scale-95 group disabled:opacity-50 disabled:grayscale uppercase tracking-[0.3em] text-sm italic font-display"
-                    >
-                        {isLoading ? (
-                            <div className="flex items-center gap-3">
-                                <div className="w-5 h-5 border-2 border-brand-950 border-t-transparent rounded-full animate-spin" />
-                                <span>AUTHENTICATING...</span>
+                    <div className="space-y-8">
+                        <button 
+                            onClick={handleGoogleLogin}
+                            disabled={isLoading}
+                            className="w-full bg-brand-950 text-white font-black py-7 rounded-[2.5rem] transition-all flex items-center justify-around px-10 shadow-2xl hover:bg-brand-900 active:scale-[0.98] group disabled:opacity-50 disabled:grayscale uppercase tracking-[0.25em] text-xs italic font-display border border-white/5"
+                        >
+                            {isLoading ? (
+                                <div className="flex items-center gap-4">
+                                    <div className="w-5 h-5 border-3 border-brand-500 border-t-transparent rounded-full animate-spin" />
+                                    <span>Syncing Identity...</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                        <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                        </svg>
+                                    </div>
+                                    <span className="flex-1 text-center">LOGIN WITH GOOGLE PRO</span>
+                                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform opacity-30 group-hover:opacity-100" />
+                                </>
+                            )}
+                        </button>
+                        
+                        <div className="pt-4 flex items-center justify-center gap-10">
+                            <div className="flex flex-col items-center gap-2 group cursor-help">
+                                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-brand-500 group-hover:text-white transition-all shadow-sm">
+                                    <Shield size={18} />
+                                </div>
+                                <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">TLS 1.3</span>
                             </div>
-                        ) : (
-                            <>
-                                <Zap size={20} fill="currentColor" />
-                                <span>SIGN IN TO PORTAL</span>
-                                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                            </>
-                        )}
-                    </button>
-
-                    <div className="mt-12 flex flex-col gap-6">
-                        <p className="text-[10px] font-black text-brand-800 uppercase tracking-[0.4em]">Academy Management System • v2.0.26</p>
-                        <div className="flex justify-center gap-2">
-                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-brand-800/50" />)}
+                            <div className="flex flex-col items-center gap-2 group cursor-help">
+                                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-[#C3F629] group-hover:text-brand-950 transition-all shadow-sm">
+                                    <Database size={18} />
+                                 </div>
+                                <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Realtime</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 group cursor-help">
+                                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-brand-500 group-hover:text-white transition-all shadow-sm">
+                                    <Sparkles size={18} />
+                                </div>
+                                <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Premium</span>
+                            </div>
                         </div>
+                    </div>
+
+                    <div className="mt-16 flex flex-col gap-6">
+                        <div className="h-[1px] w-full bg-slate-100 relative">
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-white text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">ICARUS PLATFORM</div>
+                        </div>
+                        <p className="text-[9px] font-black text-brand-950/20 uppercase tracking-[0.4em]">Optimized for Professional Football Academy Management</p>
                     </div>
                 </div>
             </div>
             
-            <div className="mt-16 flex flex-col items-center gap-6 relative z-10">
-                <p className="text-brand-800 text-[11px] font-black uppercase tracking-[0.5em] italic">
-                    &copy; 2026 {settings.name} MANAGEMENT SYSTEM
-                </p>
-                <div className="flex items-center gap-6 opacity-30">
-                    <Shield size={20} className="text-white hover:text-brand-500 transition-colors cursor-help" />
-                    <Database size={20} className="text-white hover:text-brand-500 transition-colors cursor-help" />
-                    <Sparkles size={20} className="text-white hover:text-brand-500 transition-colors cursor-help" />
+            <footer className="mt-16 flex flex-col items-center gap-6 relative z-10 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                <div className="flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-[0.5em] italic">
+                    <span>&copy; 2026 {settings.name}</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500/40" />
+                    <span>ELITE PORTAL CONTROL</span>
                 </div>
-            </div>
+                <div className="flex items-center gap-8 opacity-20">
+                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent to-white" />
+                    <Zap size={16} className="text-white animate-pulse" />
+                    <div className="w-24 h-[1px] bg-gradient-to-l from-transparent to-white" />
+                </div>
+            </footer>
         </div>
     );
 };

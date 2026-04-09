@@ -53,7 +53,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
     const loadData = () => {
         setPlayers(StorageService.getPlayers());
         setMatches(StorageService.getMatches());
-        setPotmData(StorageService.getPOTM(month));
+        setPotmData(StorageService.getMOTM(month));
     };
     useEffect(() => {
         loadData();
@@ -86,12 +86,15 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
         return { ...p, goals: agg.goals, assists: agg.assists, avgRating: parseFloat(avg.toFixed(1)), totalPoints: parseFloat(agg.points.toFixed(1)), matchCount: agg.ratings.length };
     }).filter(p => p.matchCount > 0).sort((a, b) => b.totalPoints - a.totalPoints || b.goals - a.goals), [players, matches, month]);
 
-    const confirmAwardPotm = () => {
-        if (!potmAction) return;
-        StorageService.setPOTM(potmAction.playerId, potmAction.month);
+    const [savingPotm, setSavingPotm] = useState(false);
+
+    const confirmAwardPotm = async () => {
+        if (!potmAction?.playerId) return;
+        setSavingPotm(true);
+        await StorageService.setMOTM(potmAction.playerId, potmAction.month);
         const w = mvpLeaderboard.find(p => p.id === potmAction.playerId);
         if (w) StorageService.addNotice({ title: `🏆 PLAYER OF THE MONTH: ${potmAction.playerName.toUpperCase()}`, content: `${potmAction.playerName} has been awarded Player of the Month for ${potmAction.monthName}!\n\n${w.trainingMvps} Session MVP${w.trainingMvps !== 1 ? 's' : ''} + ${w.matchMvps} Match MVP${w.matchMvps !== 1 ? 's' : ''} = ${w.totalPts} points.`, priority: 'high', author: 'Academy Staff', imageUrl: w.photoUrl });
-        loadData(); setPotmModalOpen(false);
+        loadData(); setPotmModalOpen(false); setSavingPotm(false);
     };
 
     const exportToPDF = async () => {

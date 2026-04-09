@@ -30,12 +30,12 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     onClick={() => onTabChange(item.id)}
     className={`w-full flex items-center space-x-3 px-5 py-4 rounded-xl transition-all duration-300 group relative ${
       activeTab === item.id 
-        ? 'bg-brand-500/10 text-brand-500 shadow-lg shadow-brand-500/10 border border-brand-500/20' 
+        ? 'bg-brand-500/10 text-white shadow-lg shadow-brand-500/10 border border-brand-500/20' 
         : 'text-white/40 hover:bg-white/5 hover:text-white'
     }`}
   >
-    <item.icon className={`w-4 h-4 transition-all duration-300 ${activeTab === item.id ? 'text-brand-500 scale-110' : 'text-white/20 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className={`text-[9px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black text-brand-500' : 'font-bold'}`}>{item.label}</span>
+    <item.icon className={`w-4 h-4 transition-all duration-300 ${activeTab === item.id ? 'text-white scale-110' : 'text-white/20 group-hover:text-white group-hover:scale-110'}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <span className={`text-[9px] uppercase tracking-[0.2em] transition-all ${activeTab === item.id ? 'font-black text-white' : 'font-bold'}`}>{item.label}</span>
     {activeTab === item.id && (
       <div className="absolute right-4 w-1 h-1 rounded-full bg-brand-500 animate-pulse" />
     )}
@@ -61,10 +61,10 @@ const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTab
   <button
     onClick={() => onTabChange(item.id)}
     className={`flex flex-col items-center justify-center py-2 px-1 flex-1 min-w-0 transition-all duration-500 overflow-hidden ${
-      activeTab === item.id ? 'text-lime scale-110' : 'text-white/40 hover:text-white'
+      activeTab === item.id ? 'text-white scale-110' : 'text-white/40 hover:text-white'
     }`}
   >
-    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-lime/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+    <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-white/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
     <span className={`text-[9px] font-black uppercase tracking-tight truncate w-full text-center ${activeTab === item.id ? 'opacity-100' : 'opacity-40'}`}>
         {getShortLabel(item.label)}
     </span>

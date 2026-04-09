@@ -301,11 +301,11 @@ export const FinanceManager: React.FC = () => {
                                     <select
                                         value={feeStatusFilter}
                                         onChange={e => setFeeStatusFilter(e.target.value)}
-                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-950 border border-brand-950 rounded-2xl text-white font-black italic text-sm outline-none focus:border-lime focus:ring-2 focus:ring-lime/50 transition-all shadow-2xl appearance-none cursor-pointer hover:bg-brand-900"
+                                        className="w-full pl-12 pr-10 py-4 bg-brand-500 border border-brand-500/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-500/10 hover:bg-brand-600 transition-all"
                                     >
-                                        <option value="All">All Statuses</option>
-                                        <option value="Pending">Pending / Overdue</option>
-                                        <option value="Paid">Fees Paid</option>
+                                        <option value="All" className="bg-brand-900 text-white">All Statuses</option>
+                                        <option value="Pending" className="bg-brand-900 text-white">Pending / Overdue</option>
+                                        <option value="Paid" className="bg-brand-900 text-white">Fees Paid</option>
                                     </select>
                                 </div>
                             </div>
@@ -317,11 +317,11 @@ export const FinanceManager: React.FC = () => {
                                     <select
                                         value={selectedVenue}
                                         onChange={e => setSelectedVenue(e.target.value)}
-                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-950 border border-brand-950 rounded-2xl text-white font-black italic text-sm outline-none focus:border-lime focus:ring-2 focus:ring-lime/50 transition-all shadow-2xl appearance-none cursor-pointer hover:bg-brand-900"
+                                        className="w-full pl-12 pr-10 py-4 bg-brand-primary border border-brand-primary/20 rounded-2xl outline-none text-brand-950 font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-primary/10 hover:bg-brand-primary/90 transition-all"
                                     >
-                                        <option value="All">All Locations</option>
+                                        <option value="All" className="bg-white text-brand-950">All Locations</option>
                                         {venues.map(v => (
-                                            <option key={v.id} value={v.name}>{v.name}</option>
+                                            <option key={v.id} value={v.name} className="bg-white text-brand-950">{v.name}</option>
                                         ))}
                                     </select>
                                 </div>

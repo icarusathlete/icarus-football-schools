@@ -103,8 +103,8 @@ export const CoachAttendance: React.FC = () => {
   };
 
   const filteredPlayers = players.filter(p => 
-    p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.memberId.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    (p.memberId?.toString() || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = {
@@ -149,28 +149,32 @@ export const CoachAttendance: React.FC = () => {
       {/* Filters (Mobile Optimized) */}
       <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col xl:flex-row gap-6 relative z-10 border-white/5">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="relative group flex-1">
-                  <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" />
+              <div className="flex-1 relative group">
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/60 group-hover:text-white transition-colors z-10">
+                      <MapPin size={18} />
+                  </div>
                   <select 
-                    className="w-full pl-14 pr-10 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic appearance-none cursor-pointer"
-                    value={selectedVenue}
-                    onChange={(e) => setSelectedVenue(e.target.value)}
+                      value={selectedVenue}
+                      onChange={(e) => setSelectedVenue(e.target.value)}
+                      className="w-full pl-14 pr-10 py-5 bg-brand-500 border border-brand-500/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-500/10 hover:bg-brand-600 transition-all"
                   >
-                      {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+                      {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900 text-white">{v.name}</option>)}
                   </select>
-                  <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 rotate-90" />
               </div>
-              <div className="relative group flex-1">
-                  <Layers className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" />
-                  <select 
-                    className="w-full pl-14 pr-10 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic appearance-none cursor-pointer"
-                    value={selectedBatch}
-                    onChange={(e) => setSelectedBatch(e.target.value)}
-                  >
+
+              <div className="flex-1 relative group">
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-950/40 group-hover:text-brand-950 transition-colors z-10">
+                      <Layers size={18} />
+                  </div>
+                    <select 
+                        value={selectedBatch}
+                        onChange={(e) => setSelectedBatch(e.target.value)}
+                        className="w-full pl-14 pr-10 py-5 bg-brand-primary border border-brand-primary/20 rounded-2xl outline-none text-brand-950 font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-primary/10 hover:bg-brand-primary/90 transition-all"
+                    >
                       {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
                   </select>
-                  <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 rotate-90" />
               </div>
+              
               <div className="relative group flex-[1.5]">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
                   <input 
