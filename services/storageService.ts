@@ -553,7 +553,14 @@ export const StorageService = {
       }
   },
   
-  getMatches: (): Match[] => JSON.parse(localStorage.getItem(MATCHES_KEY) || '[]'),
+  getMatches: (): Match[] => {
+    try {
+      return JSON.parse(localStorage.getItem(MATCHES_KEY) || '[]');
+    } catch (e) {
+      console.error("Failed to parse matches", e);
+      return [];
+    }
+  },
   
   addMatch: async (m: Omit<Match, 'id'>) => {
     const newId = generateId();

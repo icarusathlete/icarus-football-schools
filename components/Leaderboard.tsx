@@ -16,7 +16,10 @@ const PTS_MATCH    = 5;
 const LS_MOTM_KEY  = 'icarus_session_motm';
 
 function getTrainingMvps(): Record<string, string> {
-    try { return JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}'); }
+    try { 
+        const val = JSON.parse(localStorage.getItem(LS_MOTM_KEY) || '{}');
+        return val && typeof val === 'object' ? val : {};
+    }
     catch { return {}; }
 }
 
@@ -72,10 +75,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
     }, [players, matches, month]);
 
     const statsLeaderboard = useMemo(() => players.map(p => {
-        const pm = matches.filter(m => m.date.startsWith(month) && m.playerStats.some(s => s.playerId === p.id))
-            .sort((a, b) => b.date.localeCompare(a.date));
+        const pm = matches.filter(m => m.date && m.date.startsWith(month) && m.playerStats?.some(s => s.playerId === p.id))
+            .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         const agg = pm.reduce((acc, m) => {
-            const s = m.playerStats.find(ps => ps.playerId === p.id);
+            const s = m.playerStats?.find(ps => ps.playerId === p.id);
             if (s) { acc.goals += s.goals; acc.assists += s.assists; acc.ratings.push(s.rating); acc.points += s.rating; }
             return acc;
         }, { goals: 0, assists: 0, ratings: [] as number[], points: 0 });
