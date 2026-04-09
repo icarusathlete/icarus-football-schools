@@ -237,14 +237,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500 animate-pulse">Live Schedule</div>
+              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500">Live</div>
               <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
               ACADEMY <span className="premium-gradient-text">SCHEDULE</span>
             </h2>
             <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
-              Manage training sessions, matches, and academy events in one place.
+              Manage training sessions, matches, and events.
             </p>
           </div>
 
@@ -502,7 +502,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                 <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-500 opacity-10" />
                 <div>
                    <h3 className="font-display font-black text-3xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'EDIT' : 'ADD'} <span className="text-brand-500 uppercase">EVENT</span></h3>
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Configure Event Details</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Event Information</p>
                 </div>
                 <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-slate-50 rounded-2xl text-slate-300 transition-colors border border-slate-200"><X size={20} strokeWidth={3} /></button>
             </div>

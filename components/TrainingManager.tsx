@@ -146,7 +146,7 @@ export const TrainingManager: React.FC = () => {
                     <h1 className="text-5xl md:text-7xl font-black text-slate-900 italic tracking-tighter uppercase leading-none">
                         TRAINING <span className="text-brand-500">GROUND</span>
                     </h1>
-                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.4em] mt-6 italic">Professional Drill Library • Training Protocols</p>
+                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.4em] mt-6 italic">Professional Drill Library • Learning Objectives</p>
                 </div>
                 <button
                     onClick={() => setIsCreating(true)}
@@ -185,7 +185,7 @@ export const TrainingManager: React.FC = () => {
                 </div>
             </div>
 
-            {/* Blueprint Grid */}
+            {/* Drill Library */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredDrills.map(drill => (
                     <div
@@ -269,7 +269,7 @@ export const TrainingManager: React.FC = () => {
                                 <div className="lg:col-span-4 space-y-10">
                                     <div className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
                                         <h4 className="text-[11px] font-black text-brand-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-4 italic">
-                                            <Target size={16} /> DRILL SPECS
+                                            <Target size={16} /> DRILL INFO
                                         </h4>
                                         <div className="space-y-6">
                                             <div className="flex justify-between items-center py-4 border-b border-slate-200">
@@ -316,7 +316,7 @@ export const TrainingManager: React.FC = () => {
                                     </button>
                                 </div>
 
-                                {/* Main Column: Intel & Analysis */}
+                                {/* Main Column: Drill Details */}
                                 <div className="lg:col-span-8 space-y-12">
                                     <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-[4px] h-full bg-brand-500" />

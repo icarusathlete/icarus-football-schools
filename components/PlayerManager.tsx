@@ -197,7 +197,7 @@ export const PlayerManager: React.FC = () => {
               />
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-              {['Sectors', 'Divisions'].map((label, i) => (
+              {['Locations', 'Batches'].map((label, i) => (
                   <div key={label} className="relative group min-w-[180px]">
                       {i === 0 ? <Map className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" /> : <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-500 w-4 h-4" />}
                       <select 
