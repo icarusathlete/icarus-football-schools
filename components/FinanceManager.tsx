@@ -291,18 +291,17 @@ export const FinanceManager: React.FC = () => {
                             <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
                                 FINANCE <span className="text-brand-950">DECK</span>
                             </h1>
-                            <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Academy Revenue & Fee Tracking System</p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Payment Status</label>
                                 <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
+                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-lime" />
                                     <select
                                         value={feeStatusFilter}
                                         onChange={e => setFeeStatusFilter(e.target.value)}
-                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-sm appearance-none"
+                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-950 border border-brand-950 rounded-2xl text-white font-black italic text-sm outline-none focus:border-lime focus:ring-2 focus:ring-lime/50 transition-all shadow-2xl appearance-none cursor-pointer hover:bg-brand-900"
                                     >
                                         <option value="All">All Statuses</option>
                                         <option value="Pending">Pending / Overdue</option>
@@ -314,11 +313,11 @@ export const FinanceManager: React.FC = () => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Training Location</label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-950" />
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-lime" />
                                     <select
                                         value={selectedVenue}
                                         onChange={e => setSelectedVenue(e.target.value)}
-                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-bg/50 border border-white/10 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-500 transition-all shadow-sm appearance-none"
+                                        className="w-full min-w-[200px] pl-12 pr-10 py-4 bg-brand-950 border border-brand-950 rounded-2xl text-white font-black italic text-sm outline-none focus:border-lime focus:ring-2 focus:ring-lime/50 transition-all shadow-2xl appearance-none cursor-pointer hover:bg-brand-900"
                                     >
                                         <option value="All">All Locations</option>
                                         {venues.map(v => (
