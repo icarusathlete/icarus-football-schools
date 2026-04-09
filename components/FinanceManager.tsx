@@ -493,7 +493,7 @@ export const FinanceManager: React.FC = () => {
                                     </div>
 
                                     <div className="w-[15%] text-right relative z-10">
-                                        <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+                                        <div className="flex items-center justify-end gap-3 transition-all duration-500">
                                             <button
                                                 onClick={() => openInvoiceGenerator(p)}
                                                 className="w-12 h-12 flex items-center justify-center bg-brand-950 text-white rounded-2xl hover:bg-brand-500 hover:text-brand-950 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
