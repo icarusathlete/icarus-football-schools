@@ -317,8 +317,8 @@ export const PlayerRegistration: React.FC = () => {
     <div className="max-w-6xl mx-auto pb-44 space-y-8 animate-in fade-in duration-700 font-display">
         
         {/* Mode Switcher - Precision HUD Pill */}
-        <div className="flex justify-center mt-[-10px] mb-8 relative z-20">
-            <div className="flex gap-2 bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl backdrop-blur-sm relative left-1/2 -translate-x-1/2 absolute top-0 -translate-y-1/2">
+        <div className="flex justify-center mb-6 relative z-20">
+            <div className="flex gap-2 bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl backdrop-blur-sm">
                 <button 
                     onClick={() => setMode('player')}
                     className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-transparent ${mode === 'player' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
