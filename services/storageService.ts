@@ -202,8 +202,13 @@ export const StorageService = {
   },
 
   getPlayers: (): Player[] => {
-    const data = localStorage.getItem(PLAYERS_KEY);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(PLAYERS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error("Failed to parse players", e);
+      return [];
+    }
   },
 
   addPlayer: async (player: Omit<Player, 'id' | 'memberId' | 'registeredAt'>): Promise<Player> => {
@@ -299,8 +304,12 @@ export const StorageService = {
   },
 
   getDrafts: (): Record<string, PlayerEvaluation> => {
-      const data = localStorage.getItem(DRAFTS_KEY);
-      return data ? JSON.parse(data) : {};
+      try {
+        const data = localStorage.getItem(DRAFTS_KEY);
+        return data ? JSON.parse(data) : {};
+      } catch (e) {
+        return {};
+      }
   },
 
   saveDraft: (playerId: string, evaluation: PlayerEvaluation) => {
@@ -337,6 +346,7 @@ export const StorageService = {
           const storage = JSON.parse(storageRaw);
           return storage[date] || null;
       } catch (e) {
+          console.error("Failed to parse MOTM", e);
           return null;
       }
   },
@@ -361,7 +371,13 @@ export const StorageService = {
       // No longer needed, calculated dynamically
   },
 
-  getVenues: (): Venue[] => JSON.parse(localStorage.getItem(VENUES_KEY) || '[]'),
+  getVenues: (): Venue[] => {
+    try {
+      return JSON.parse(localStorage.getItem(VENUES_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  },
   
   addVenue: async (name: string) => {
       const newId = generateId();
@@ -388,7 +404,13 @@ export const StorageService = {
       }
   },
 
-  getBatches: (): Batch[] => JSON.parse(localStorage.getItem(BATCHES_KEY) || '[]'),
+  getBatches: (): Batch[] => {
+    try {
+      return JSON.parse(localStorage.getItem(BATCHES_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  },
 
   addBatch: async (name: string) => {
       const newId = generateId();
@@ -435,7 +457,14 @@ export const StorageService = {
       }
   },
 
-  getAttendance: (): AttendanceRecord[] => JSON.parse(localStorage.getItem(ATTENDANCE_KEY) || '[]'),
+  getAttendance: (): AttendanceRecord[] => {
+    try {
+      return JSON.parse(localStorage.getItem(ATTENDANCE_KEY) || '[]');
+    } catch (e) {
+      console.error("Failed to parse attendance", e);
+      return [];
+    }
+  },
   
   getDailyAttendance: (date: string) => StorageService.getAttendance().filter(r => r.date === date),
   
@@ -624,7 +653,13 @@ export const StorageService = {
       }
   },
   
-  getFees: (): FeeRecord[] => JSON.parse(localStorage.getItem(FEES_KEY) || '[]'),
+  getFees: (): FeeRecord[] => {
+    try {
+      return JSON.parse(localStorage.getItem(FEES_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  },
   
   updateFee: async (f: FeeRecord) => {
     const id = f.id || generateId();

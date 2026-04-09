@@ -80,9 +80,14 @@ export enum AttendanceStatus {
 export interface AttendanceRecord {
   id: string;
   playerId: string;
+  playerName?: string;
   date: string; // YYYY-MM-DD
   status: AttendanceStatus;
+  venue?: string;
+  batch?: string;
   notes?: string;
+  markedBy?: string;
+  timestamp?: number;
 }
 
 export interface MatchStats {

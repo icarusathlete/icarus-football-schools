@@ -51,7 +51,7 @@ export const AdminDashboard: React.FC = () => {
 
     // Calculate Stats
     const today = new Date().toISOString().split('T')[0];
-    const todayAttendance = filteredAttendance.filter(r => r.date === today && r.status === AttendanceStatus.PRESENT);
+    const todayAttendance = filteredAttendance.filter(r => r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT);
     
     setStats({
       totalPlayers: filteredPlayers.length,
