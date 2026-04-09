@@ -101,13 +101,13 @@ export const AdminDashboard: React.FC = () => {
                       <div className="p-4 bg-brand-primary/10 rounded-2xl text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-brand-950 transition-all duration-500 shadow-xl"><TrendingUp size={24} /></div>
                       <span className="text-[10px] font-black text-brand-primary bg-brand-primary/5 px-3 py-1 rounded-full border border-brand-primary/10 italic">+14% GROWTH</span>
                   </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">Overall Progress Rating</p>
+                  <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">Overall Progress Rating</p>
                   <p className="text-5xl font-black text-slate-900 italic tracking-tighter">8.4<span className="text-brand-primary text-xl ml-2 font-black">pts</span></p>
               </div>
               <div className="glass-card flex-1 p-8 rounded-[3rem] border-white/5 bg-brand-primary/5 hover:bg-brand-primary/10 transition-all">
                   <div className="flex flex-col h-full justify-center items-center gap-4 py-4">
                       <div className="w-20 h-2 bg-brand-950 rounded-full overflow-hidden border border-white/5"><div className="w-3/4 h-full bg-brand-primary shadow-glow shadow-brand-primary/40 animate-pulse" /></div>
-                      <p className="text-[10px] font-black text-brand-primary uppercase tracking-widest italic">System Status</p>
+                      <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-widest italic">System Status</p>
                   </div>
               </div>
           </div>
@@ -119,13 +119,13 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-center gap-3">
                   <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary"><MapPin size={16} /></div>
                   <div>
-                      <h3 className="text-sm font-black text-brand-900 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
+                      <h3 className="text-sm font-black text-brand-950 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
+                      <p className="text-[9px] font-black text-brand-950/50 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
                   </div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+              <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-brand-500/10">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
+                  <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
               </div>
           </div>
 
@@ -136,7 +136,7 @@ export const AdminDashboard: React.FC = () => {
                       className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
                           selectedVenue === 'All Locations'
                           ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
-                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10'
+                          : 'bg-white border-brand-500/10 text-brand-950/50 hover:border-brand-500/30 hover:bg-brand-500/5'
                       }`}
                   >
                       <div className="relative z-10 flex flex-col items-start gap-4">
@@ -144,7 +144,7 @@ export const AdminDashboard: React.FC = () => {
                               <Layers size={20} />
                           </div>
                           <div className="text-left">
-                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-slate-500'}`}>GLOBAL VIEW</p>
+                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-brand-950/40'}`}>GLOBAL VIEW</p>
                               <p className="text-lg font-black uppercase italic tracking-tighter leading-none">ALL LOCATIONS</p>
                               <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === 'All Locations' ? 'text-brand-950' : 'text-brand-primary'}`}>
                                   {venueStats['All Locations'] || 0} TOTAL PLAYERS
@@ -163,11 +163,11 @@ export const AdminDashboard: React.FC = () => {
                           className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
                               selectedVenue === venue.name
                               ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
-                              : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10'
+                              : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/20 hover:bg-white/10'
                           }`}
                       >
                           <div className="relative z-10 flex flex-col items-start gap-4">
-                              <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === venue.name ? 'bg-brand-950 text-brand-primary' : 'bg-white/5 text-slate-500 group-hover/btn:scale-110'}`}>
+                              <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === venue.name ? 'bg-brand-950 text-brand-primary' : 'bg-brand-500/5 text-brand-950/40 group-hover/btn:scale-110'}`}>
                                   <MapPin size={20} />
                               </div>
                               <div className="text-left">
@@ -197,7 +197,7 @@ export const AdminDashboard: React.FC = () => {
         ].map((item, i) => (
           <div key={i} className="glass-card p-10 rounded-[2.5rem] border-slate-100/50 hover:bg-brand-50 transition-all group shadow-sm">
             <div className="flex justify-between items-start mb-10">
-              <p className="text-[11px] font-black text-slate-400 italic uppercase tracking-[0.3em]">{item.label}</p>
+              <p className="text-[11px] font-black text-slate-500 italic uppercase tracking-[0.3em]">{item.label}</p>
               <item.icon size={20} className={`${item.color} group-hover:scale-125 transition-transform`} />
             </div>
             <div className="space-y-1">
@@ -217,11 +217,11 @@ export const AdminDashboard: React.FC = () => {
               <h3 className="text-2xl font-black text-brand-900 italic uppercase tracking-tighter leading-none flex items-center gap-3">
                 <Clock className="text-brand-500" size={24} /> ACTIVITY LOG • <span className="text-brand-200">TODAY</span>
               </h3>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Real-time attendance & metrics</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Real-time attendance & metrics</p>
             </div>
             <div className="flex gap-2">
                 <button className="px-5 py-2 bg-brand-500 text-white rounded-xl text-[10px] font-black uppercase italic tracking-widest shadow-lg shadow-brand-500/20">LIVE</button>
-                <button className="px-5 py-2 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-black uppercase italic tracking-widest border border-slate-200">HISTORY</button>
+                <button className="px-5 py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase italic tracking-widest border border-slate-200">HISTORY</button>
             </div>
           </div>
           
@@ -257,7 +257,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 text-brand-500 group-hover:rotate-12 transition-transform"><AlertCircle size={20} /></div>
                     <h3 className="text-xl font-black text-brand-900 italic uppercase tracking-tighter">TEAM STATS</h3>
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Team Statistics v4.0</p>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Team Statistics v4.0</p>
                 
                 <div className="space-y-6 pt-10">
                     {[
@@ -266,8 +266,8 @@ export const AdminDashboard: React.FC = () => {
                         { label: 'STAMINA', value: 72 }
                     ].map((m, i) => (
                         <div key={i} className="space-y-2">
-                            <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-brand-primary/60 italic"><span>{m.label}</span><span>{m.value}%</span></div>
-                            <div className="h-1 bg-brand-950 rounded-full overflow-hidden border border-white/5"><div className="h-full bg-brand-primary shadow-glow shadow-brand-primary/40" style={{ width: `${m.value}%` }} /></div>
+                            <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-brand-950/60 italic"><span>{m.label}</span><span>{m.value}%</span></div>
+                            <div className="h-1 bg-brand-950/10 rounded-full overflow-hidden border border-white/5"><div className="h-full bg-brand-primary shadow-glow shadow-brand-primary/40" style={{ width: `${m.value}%` }} /></div>
                         </div>
                     ))}
                 </div>
@@ -281,7 +281,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="glass-card rounded-[3.5rem] border-slate-100 overflow-hidden shadow-sm">
           <div className="p-10 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
               <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter flex items-center gap-3"><Radio size={18} className="text-brand-500 animate-pulse" /> RECENT ACTIVITY</h3>
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">UPDATING IN REAL-TIME</span>
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">UPDATING IN REAL-TIME</span>
           </div>
           <div className="divide-y divide-slate-100">
               {recentRecords.length > 0 ? recentRecords.slice(0, 5).map((record, i) => (
@@ -290,7 +290,7 @@ export const AdminDashboard: React.FC = () => {
                             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-500 group-hover:scale-110 transition-transform shadow-sm border border-slate-100"><Activity size={20} /></div>
                             <div>
                                 <p className="text-sm font-black text-slate-900 italic uppercase tracking-tight">{record.playerName}</p>
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{record.venue} • {record.batch}</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{record.venue} • {record.batch}</p>
                             </div>
                       </div>
                       <div className="flex items-center gap-6">

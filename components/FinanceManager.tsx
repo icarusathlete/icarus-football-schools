@@ -296,30 +296,64 @@ export const FinanceManager: React.FC = () => {
                             const status = getStatus(p.id);
                             const statusVal = status?.status || 'PENDING';
                             return (
-                                <div key={p.id} className="bg-brand-500/10 backdrop-blur-md p-4 rounded-3xl border border-brand-500/20 shadow-2xl relative overflow-hidden group">
-                                    <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[8px] font-black tracking-widest uppercase border-b border-l border-white/10 ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
+                                <div key={p.id} className="bg-white/40 backdrop-blur-xl p-6 rounded-[2.5rem] border border-brand-500/10 shadow-2xl relative overflow-hidden group">
+                                    <div className={`absolute top-0 right-0 px-4 py-2 rounded-bl-2xl text-[10px] font-black tracking-widest uppercase border-b border-l border-brand-500/10 shadow-sm ${statusVal === 'PAID' ? 'bg-lime text-brand-950 font-bold' :
                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
-                                                'bg-slate-200 text-slate-600'
+                                                'bg-slate-100 text-slate-500'
                                         }`}>
-                                        {statusVal === 'PAID' ? 'SECURED' : statusVal === 'OVERDUE' ? 'BREACH' : 'PENDING'}
+                                        {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING'}
                                     </div>
-                                    <div className="flex items-center gap-4 mb-4 mt-2">
-                                        <img src={p.photoUrl} className="w-12 h-12 rounded-2xl bg-brand-900 object-cover border-2 border-brand-500/10" />
-                                        <div className="min-w-0">
-                                            <h3 className="font-black text-brand-950 italic truncate text-sm uppercase">{p.fullName}</h3>
-                                            <p className="text-[9px] text-brand-900/60 font-mono tracking-widest uppercase truncate">{p.memberId}</p>
+                                    
+                                    <div className="flex items-start gap-5 mb-6 mt-4">
+                                        <div className="relative">
+                                            <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-900 object-cover border-2 border-brand-500/10 shadow-xl" />
+                                            {statusVal === 'PAID' && <div className="absolute -bottom-1 -right-1 bg-lime text-brand-950 p-1 rounded-full shadow-glow-sm"><Check size={12} /></div>}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="font-black text-brand-950 italic truncate text-lg uppercase leading-none mb-1">{p.fullName}</h3>
+                                            <p className="text-[10px] text-brand-950/50 font-mono tracking-widest uppercase truncate mb-3">{p.memberId}</p>
+                                            
+                                            <div className="flex flex-wrap gap-2">
+                                                <div className="flex items-center gap-1 px-2 py-1 bg-brand-500/5 rounded-lg border border-brand-500/5">
+                                                    <MapPin size={10} className="text-brand-500" />
+                                                    <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">{p.venue || 'NOT ASSIGNED'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 px-2 py-1 bg-brand-500/5 rounded-lg border border-brand-500/5">
+                                                    <UserIcon size={10} className="text-brand-500" />
+                                                    <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">{p.parentName || 'GUARDIAN'}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between items-center pt-3 border-t border-brand-500/10">
-                                        <div className="font-mono font-black text-brand-950 italic text-lg">₹2400</div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => openInvoiceGenerator(p)} className="p-2.5 bg-brand-900 border border-white/5 text-brand-500 rounded-xl hover:text-white transition-all shadow-xl" title="Generate Invoice">
-                                                <FileText size={16} />
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-brand-500/5">
+                                        <div className="space-y-1">
+                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">SETTLEMENT</p>
+                                            <p className="font-mono font-black text-brand-950 italic text-2xl">₹2400</p>
+                                        </div>
+                                        <div className="space-y-1 text-right">
+                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">CONTACT INTEL</p>
+                                            <p className="font-mono font-black text-brand-950 italic text-sm truncate">{p.contactNumber || 'NO FEED'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3 mt-2">
+                                        <button 
+                                            onClick={() => openInvoiceGenerator(p)} 
+                                            className="flex-1 h-12 bg-brand-950 flex items-center justify-center gap-3 rounded-2xl shadow-xl active:scale-95 transition-all text-white group"
+                                            title="Generate Invoice"
+                                        >
+                                            <FileText size={18} className="text-brand-500 group-hover:scale-110 transition-transform" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">INVOICE</span>
+                                        </button>
+                                        {statusVal !== 'PAID' && (
+                                            <button 
+                                                onClick={() => updateStatus(p.id, 'PAID')} 
+                                                className="w-12 h-12 bg-brand-950 border border-brand-500/20 text-lime rounded-2xl flex items-center justify-center hover:bg-lime hover:text-brand-950 active:scale-95 transition-all shadow-xl"
+                                            >
+                                                <Check size={20} />
                                             </button>
-                                            {statusVal !== 'PAID' && (
-                                                <button onClick={() => updateStatus(p.id, 'PAID')} className="p-2.5 bg-brand-900 border border-lime/20 text-lime rounded-xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl"><Check size={16} /></button>
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             )
@@ -327,84 +361,93 @@ export const FinanceManager: React.FC = () => {
                         {filteredPlayers.length === 0 && <div className="text-center text-brand-700 font-black uppercase tracking-widest py-10 italic">No operatives detected.</div>}
                     </div>
 
-                    {/* Desktop Table View */}
-                    <div className="glass-card rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-white/5 border-y border-white/5">
-                                    <tr className="font-display italic">
-                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Internal ID</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {filteredPlayers.map(p => {
-                                        const status = getStatus(p.id);
-                                        const statusVal = status?.status || 'PENDING';
-
-                                        return (
-                                            <tr key={p.id} className="group hover:bg-white/5 transition-all">
-                                                <td className="px-10 py-8">
-                                                    <div className="flex items-center gap-6">
-                                                        <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-secondary object-cover border-2 border-brand-500/10 group-hover:border-brand-500 transition-all shadow-lg" />
-                                                        <div>
-                                                            <span className="font-black text-brand-950 italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
-                                                            {status?.datePaid && (
-                                                                <div className="inline-flex px-2 py-0.5 bg-lime/10 text-[9px] font-black text-brand-950 uppercase tracking-widest rounded-md border border-lime/20">
-                                                                    SECURED: {new Date(status.datePaid).toLocaleDateString()}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-10 py-8 text-brand-950/50 font-black text-[11px] uppercase tracking-widest italic">{p.memberId}</td>
-                                                <td className="px-10 py-8 font-mono font-black text-brand-950 italic text-2xl tracking-tighter">₹2400</td>
-                                                <td className="px-10 py-8 text-center">
-                                                    <div className={`inline-flex px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' :
-                                                            statusVal === 'OVERDUE' ? 'bg-red-600 text-white border-red-600' :
-                                                                'bg-slate-100 text-slate-400 border-slate-200'
-                                                        }`}>
-                                                        {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
-                                                    </div>
-                                                </td>
-                                                <td className="px-10 py-8 text-right">
-                                                    <div className="flex items-center justify-end gap-3 transition-all">
-                                                        <button
-                                                            onClick={() => openInvoiceGenerator(p)}
-                                                            className="w-12 h-12 flex items-center justify-center bg-white/5 text-white rounded-2xl hover:bg-brand-500 hover:text-brand-secondary transition-all shadow-xl active:scale-95 border border-white/5 group/btn"
-                                                            title="Generate Receipt"
-                                                        >
-                                                            <FileText size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                                        </button>
-                                                        {statusVal !== 'PAID' && (
-                                                            <button
-                                                                onClick={() => updateStatus(p.id, 'PAID')}
-                                                                className="w-12 h-12 flex items-center justify-center bg-brand-500 text-brand-950 rounded-2xl hover:bg-brand-950 hover:text-brand-500 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
-                                                                title="Approve Settlement"
-                                                            >
-                                                                <Check size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                                            </button>
-                                                        )}
-                                                        {statusVal !== 'OVERDUE' && (
-                                                            <button
-                                                                onClick={() => updateStatus(p.id, 'OVERDUE')}
-                                                                className="w-12 h-12 flex items-center justify-center bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95 border border-red-500/20 group/btn"
-                                                                title="Mark Breakdown"
-                                                            >
-                                                                <AlertCircle size={20} className="group-hover/btn:scale-110 transition-transform" />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                    {/* Desktop Holographic List View */}
+                    <div className="hidden md:flex flex-col gap-4">
+                        <div className="flex items-center px-10 py-5 bg-brand-950/5 rounded-3xl border border-brand-950/10 mb-2">
+                            <div className="w-[30%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Athlete Profile</div>
+                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">ID Signature</div>
+                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Settlement Quota</div>
+                            <div className="w-[20%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-center">Protocol Status</div>
+                            <div className="w-[15%] text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic text-right">Ops Control</div>
                         </div>
+
+                        {filteredPlayers.map(p => {
+                            const status = getStatus(p.id);
+                            const statusVal = status?.status || 'PENDING';
+
+                            return (
+                                <div key={p.id} className="group flex items-center px-10 py-6 bg-white border border-brand-500/10 rounded-[2.5rem] hover:shadow-2xl hover:shadow-brand-500/5 hover:border-brand-500/30 transition-all duration-500 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 blur-[60px] rounded-full -mr-16 -mt-16 group-hover:bg-brand-500/10 transition-colors" />
+                                    
+                                    <div className="w-[30%] flex items-center gap-6 relative z-10">
+                                        <div className="relative">
+                                            <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-secondary object-cover border-2 border-brand-500/10 group-hover:border-brand-500 transition-all duration-500 shadow-xl" />
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-950 rounded-lg flex items-center justify-center border-2 border-white">
+                                                <div className={`w-2 h-2 rounded-full ${statusVal === 'PAID' ? 'bg-lime animate-pulse' : 'bg-slate-400'}`} />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="font-black text-brand-950 italic text-xl uppercase tracking-tighter block leading-none mb-1 group-hover:text-brand-500 transition-colors">{p.fullName}</span>
+                                            <div className="flex items-center gap-2">
+                                                <div className="px-2 py-0.5 bg-brand-950 text-[8px] font-black text-white uppercase tracking-widest rounded-md">
+                                                    {p.venue || 'STATION UNKNOWN'}
+                                                </div>
+                                                {status?.datePaid && (
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">
+                                                        SYNCED: {new Date(status.datePaid).toLocaleDateString()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[15%] relative z-10">
+                                        <span className="font-mono font-black text-brand-950/40 text-[11px] uppercase tracking-widest italic bg-brand-500/5 px-3 py-1 rounded-lg border border-brand-500/5 group-hover:border-brand-500/20 transition-all">{p.memberId}</span>
+                                    </div>
+
+                                    <div className="w-[20%] relative z-10">
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 italic">MONTHLY QUOTA</span>
+                                            <span className="font-mono font-black text-brand-950 italic text-2xl tracking-tighter shadow-brand-500/20">₹2400</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[20%] text-center relative z-10">
+                                        <div className={`inline-flex px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all duration-500 ${
+                                            statusVal === 'PAID' 
+                                                ? 'bg-lime text-brand-950 border-lime shadow-lime/20' 
+                                                : statusVal === 'OVERDUE' 
+                                                    ? 'bg-red-600 text-white border-red-600 shadow-red-600/20' 
+                                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                        }`}>
+                                            {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[15%] text-right relative z-10">
+                                        <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+                                            <button
+                                                onClick={() => openInvoiceGenerator(p)}
+                                                className="w-12 h-12 flex items-center justify-center bg-brand-950 text-white rounded-2xl hover:bg-brand-500 hover:text-brand-950 transition-all shadow-xl active:scale-95 border border-brand-500/20 group/btn"
+                                                title="Generate Protocol Receipt"
+                                            >
+                                                <FileText size={20} className="text-brand-500 group-hover/btn:text-brand-950 group-hover/btn:scale-110 transition-all" />
+                                            </button>
+                                            
+                                            {statusVal !== 'PAID' && (
+                                                <button
+                                                    onClick={() => updateStatus(p.id, 'PAID')}
+                                                    className="w-12 h-12 flex items-center justify-center bg-lime/10 text-lime rounded-2xl hover:bg-lime hover:text-brand-950 transition-all shadow-xl active:scale-95 border border-lime/20 group/btn"
+                                                    title="Approve Settlement"
+                                                >
+                                                    <Check size={20} className="group-hover/btn:scale-110 transition-transform" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </>
             ) : (
