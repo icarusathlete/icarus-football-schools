@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 
 export const AdminDashboard: React.FC = () => {
+  const [selectedVenue, setSelectedVenue] = useState<string>('All Locations');
+  const [availableVenues, setAvailableVenues] = useState<Venue[]>([]);
   const [stats, setStats] = useState({
     totalPlayers: 0,
     activeVenues: 0,
@@ -28,16 +30,27 @@ export const AdminDashboard: React.FC = () => {
     const venues = StorageService.getVenues();
     const attendance = StorageService.getAttendance();
     
+    setAvailableVenues(venues);
+
+    // Filter data based on selected location
+    const filteredPlayers = selectedVenue === 'All Locations' 
+      ? players 
+      : players.filter(p => p.venue === selectedVenue);
+
+    const filteredAttendance = selectedVenue === 'All Locations'
+      ? attendance
+      : attendance.filter(r => r.venue === selectedVenue);
+
     // Calculate Stats
     const today = new Date().toISOString().split('T')[0];
-    const todayAttendance = attendance.filter(r => r.date === today && r.status === AttendanceStatus.PRESENT);
+    const todayAttendance = filteredAttendance.filter(r => r.date === today && r.status === AttendanceStatus.PRESENT);
     
     setStats({
-      totalPlayers: players.length,
-      activeVenues: venues.length,
+      totalPlayers: filteredPlayers.length,
+      activeVenues: selectedVenue === 'All Locations' ? venues.length : 1,
       dailyAttendance: todayAttendance.length,
       weeklyGrowth: 8,
-      attendanceRate: players.length > 0 ? (todayAttendance.length / players.length) * 100 : 0
+      attendanceRate: filteredPlayers.length > 0 ? (todayAttendance.length / filteredPlayers.length) * 100 : 0
     });
 
     // Mock Attendance Data for Chart (Last 7 days)
@@ -51,8 +64,8 @@ export const AdminDashboard: React.FC = () => {
       { name: 'SUN', value: 63, rate: 94, active: 20 },
     ];
     setAttendanceData(chartData);
-    setRecentRecords(attendance.slice(0, 10));
-  }, []);
+    setRecentRecords(filteredAttendance.slice(0, 10));
+  }, [selectedVenue]);
 
   return (
     <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-sans">
@@ -89,6 +102,41 @@ export const AdminDashboard: React.FC = () => {
                       <p className="text-[10px] font-black text-brand-primary uppercase tracking-widest italic">System Status</p>
                   </div>
               </div>
+          </div>
+      </div>
+
+      {/* Location Selector */}
+      <div className="flex flex-col gap-4 overflow-hidden">
+          <div className="flex items-center gap-3 px-1">
+              <MapPin size={16} className="text-brand-primary" />
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Select Location</h3>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+              <button 
+                  onClick={() => setSelectedVenue('All Locations')}
+                  className={`px-6 py-3 rounded-2xl border transition-all duration-300 text-[10px] font-black uppercase tracking-widest whitespace-nowrap italic flex items-center gap-3 ${
+                      selectedVenue === 'All Locations'
+                      ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40 scale-105'
+                      : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
+                  }`}
+              >
+                  <Layers size={14} />
+                  All Locations
+              </button>
+              {availableVenues.map((venue) => (
+                  <button 
+                      key={venue.id}
+                      onClick={() => setSelectedVenue(venue.name)}
+                      className={`px-6 py-3 rounded-2xl border transition-all duration-300 text-[10px] font-black uppercase tracking-widest whitespace-nowrap italic flex items-center gap-3 ${
+                          selectedVenue === venue.name
+                          ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40 scale-105'
+                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
+                      }`}
+                  >
+                      <MapPin size={14} />
+                      {venue.name}
+                  </button>
+              ))}
           </div>
       </div>
 
