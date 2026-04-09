@@ -44,6 +44,7 @@ export const FinanceManager: React.FC = () => {
     const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
     const [selectedPlayerForInvoice, setSelectedPlayerForInvoice] = useState<Player | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [confirmPaymentId, setConfirmPaymentId] = useState<string | null>(null);
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [invoiceForm, setInvoiceForm] = useState({
         invoiceNo: '',
@@ -408,11 +409,7 @@ export const FinanceManager: React.FC = () => {
                                         </button>
                                         {statusVal !== 'PAID' && (
                                             <button 
-                                                onClick={() => {
-                                                    if (window.confirm('Are you sure you want to mark these fees as PAID? This action cannot be undone.')) {
-                                                        updateStatus(p.id, 'PAID');
-                                                    }
-                                                }}
+                                                onClick={() => setConfirmPaymentId(p.id)}
                                                 className="w-12 h-12 bg-lime border-2 border-lime text-brand-950 rounded-2xl flex items-center justify-center hover:bg-transparent hover:text-lime active:scale-95 transition-all shadow-xl shadow-lime/20 group/btn"
                                                 title="Mark as Paid"
                                             >
@@ -507,11 +504,7 @@ export const FinanceManager: React.FC = () => {
                                             
                                             {statusVal !== 'PAID' && (
                                                 <button
-                                                    onClick={() => {
-                                                        if (window.confirm('Are you sure you want to mark these fees as PAID? This action cannot be undone.')) {
-                                                            updateStatus(p.id, 'PAID');
-                                                        }
-                                                    }}
+                                                    onClick={() => setConfirmPaymentId(p.id)}
                                                     className="w-12 h-12 flex items-center justify-center bg-lime text-brand-950 rounded-2xl hover:bg-transparent hover:text-lime hover:border-lime transition-all shadow-xl shadow-lime/20 active:scale-95 border-2 border-lime group/btn"
                                                     title="Mark as Paid"
                                                 >
@@ -753,6 +746,45 @@ export const FinanceManager: React.FC = () => {
 
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Modal */}
+            {confirmPaymentId && (
+                <div className="fixed inset-0 bg-brand-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2rem] border border-brand-500/20 p-8 max-w-sm w-full shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-lime/10 blur-[40px] rounded-full -mr-16 -mt-16" />
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-brand-500/10 blur-[40px] rounded-full -ml-16 -mb-16" />
+                        
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-lime/20 rounded-full flex items-center justify-center text-lime mb-6 shadow-xl shadow-lime/20 border border-lime/30">
+                                <Check size={32} strokeWidth={3} />
+                            </div>
+                            
+                            <h3 className="font-black text-brand-950 text-xl tracking-tight uppercase italic mb-2">Confirm Payment</h3>
+                            <p className="text-slate-500 text-sm font-medium mb-8">
+                                Are you sure you want to mark these fees as PAID? This action cannot be undone.
+                            </p>
+                            
+                            <div className="flex gap-4 w-full">
+                                <button 
+                                    onClick={() => setConfirmPaymentId(null)}
+                                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black uppercase tracking-widest text-[10px] py-4 rounded-2xl transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        updateStatus(confirmPaymentId, 'PAID');
+                                        setConfirmPaymentId(null);
+                                    }}
+                                    className="flex-1 bg-lime hover:bg-lime/90 text-brand-950 font-black uppercase tracking-widest text-[10px] py-4 rounded-2xl transition-all shadow-xl shadow-lime/20"
+                                >
+                                    Confirm
+                                </button>
                             </div>
                         </div>
                     </div>
