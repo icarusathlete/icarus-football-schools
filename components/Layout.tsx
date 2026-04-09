@@ -213,7 +213,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative z-10 bg-white text-slate-900 custom-scrollbar scroll-smooth box-border">
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative bg-white text-slate-900 custom-scrollbar scroll-smooth box-border">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >
