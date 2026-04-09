@@ -267,37 +267,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Recent Activity Feed */}
-      <div className="glass-card rounded-[3.5rem] border-slate-100 overflow-hidden shadow-sm">
-          <div className="p-10 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter flex items-center gap-3"><Radio size={18} className="text-brand-500 animate-pulse" /> RECENT ACTIVITY</h3>
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">UPDATING IN REAL-TIME</span>
-          </div>
-          <div className="divide-y divide-slate-100">
-              {recentRecords.length > 0 ? recentRecords.slice(0, 5).map((record, i) => (
-                  <div key={i} className="p-8 flex items-center justify-between hover:bg-slate-50 transition-all group">
-                      <div className="flex items-center gap-6">
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-500 group-hover:scale-110 transition-transform shadow-sm border border-slate-100"><Activity size={20} /></div>
-                            <div>
-                                <p className="text-sm font-black text-slate-900 italic uppercase tracking-tight">{record.playerName}</p>
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{record.venue} • {record.batch}</p>
-                            </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest italic">MARKED BY</p>
-                                <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest italic">{record.markedBy}</p>
-                            </div>
-                            <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest italic ${record.status === AttendanceStatus.PRESENT ? 'bg-brand-500 text-white' : 'bg-red-50 text-red-500 border border-red-100'}`}>
-                                {record.status === AttendanceStatus.PRESENT ? 'PRESENT' : 'ABSENT'}
-                            </div>
-                      </div>
-                  </div>
-              )) : (
-                <div className="p-20 text-center text-slate-300 uppercase text-[10px] font-black italic tracking-widest">No recent activity recorded</div>
-              )}
-          </div>
-      </div>
     </div>
   );
 };
