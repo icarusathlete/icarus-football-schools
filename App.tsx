@@ -8,24 +8,59 @@ import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { LoadingList } from './components/ui/LoadingSkeleton';
+import { AttendanceStatus } from './types';
+
+// Helper to retry lazy loading on failure (usually due to deployment/version mismatch)
+const lazyRetry = (importFn: () => Promise<any>) => 
+  lazy(() => 
+    importFn().catch((error) => {
+      console.error("Chunk load failed, checking for updates...", error);
+      const storageKey = 'last-retry-time';
+      const lastRetry = sessionStorage.getItem(storageKey);
+      const now = Date.now();
+      if (!lastRetry || now - parseInt(lastRetry) > 10000) {
+        sessionStorage.setItem(storageKey, now.toString());
+        window.location.reload();
+      }
+      return { default: () => <div className="p-8 text-brand-500/20 lowercase font-black text-[10px] tracking-widest italic animate-pulse">Synchronizing Module...</div> };
+    })
+  );
+
+// Simple Error Boundary to catch absolute rendering crashes
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Uncaught error:", error, errorInfo);
+    window.location.reload();
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 // Lazy Loaded Components
-const Schedule = lazy(() => import('./components/Schedule').then(m => ({ default: m.Schedule })));
-const NoticeBoard = lazy(() => import('./components/NoticeBoard').then(m => ({ default: m.NoticeBoard })));
-const Leaderboard = lazy(() => import('./components/Leaderboard').then(m => ({ default: m.Leaderboard })));
-const Team = lazy(() => import('./components/Team').then(m => ({ default: m.Team })));
-const CoachAttendance = lazy(() => import('./components/CoachAttendance').then(m => ({ default: m.CoachAttendance })));
-const MatchManager = lazy(() => import('./components/MatchManager').then(m => ({ default: m.MatchManager })));
-const SquadComparison = lazy(() => import('./components/SquadComparison').then(m => ({ default: m.SquadComparison })));
-const HeadToHead = lazy(() => import('./components/HeadToHead').then(m => ({ default: m.HeadToHead })));
-const EvaluationManager = lazy(() => import('./components/EvaluationManager').then(m => ({ default: m.EvaluationManager })));
-const TrainingManager = lazy(() => import('./components/TrainingManager').then(m => ({ default: m.TrainingManager })));
-const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
-const UserManagement = lazy(() => import('./components/UserManagement').then(m => ({ default: m.UserManagement })));
-const PlayerRegistration = lazy(() => import('./components/PlayerRegistration').then(m => ({ default: m.PlayerRegistration })));
-const FinanceManager = lazy(() => import('./components/FinanceManager').then(m => ({ default: m.FinanceManager })));
-const PlayerManager = lazy(() => import('./components/PlayerManager').then(m => ({ default: m.PlayerManager })));
-const PlayerPortal = lazy(() => import('./components/PlayerPortal').then(m => ({ default: m.PlayerPortal })));
+// Lazy Loaded Components with Retry Logic
+const Schedule = lazyRetry(() => import('./components/Schedule').then(m => ({ default: m.Schedule })));
+const NoticeBoard = lazyRetry(() => import('./components/NoticeBoard').then(m => ({ default: m.NoticeBoard })));
+const Leaderboard = lazyRetry(() => import('./components/Leaderboard').then(m => ({ default: m.Leaderboard })));
+const Team = lazyRetry(() => import('./components/Team').then(m => ({ default: m.Team })));
+const CoachAttendance = lazyRetry(() => import('./components/CoachAttendance').then(m => ({ default: m.CoachAttendance })));
+const MatchManager = lazyRetry(() => import('./components/MatchManager').then(m => ({ default: m.MatchManager })));
+const SquadComparison = lazyRetry(() => import('./components/SquadComparison').then(m => ({ default: m.SquadComparison })));
+const HeadToHead = lazyRetry(() => import('./components/HeadToHead').then(m => ({ default: m.HeadToHead })));
+const EvaluationManager = lazyRetry(() => import('./components/EvaluationManager').then(m => ({ default: m.EvaluationManager })));
+const TrainingManager = lazyRetry(() => import('./components/TrainingManager').then(m => ({ default: m.TrainingManager })));
+const AdminDashboard = lazyRetry(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const UserManagement = lazyRetry(() => import('./components/UserManagement').then(m => ({ default: m.UserManagement })));
+const PlayerRegistration = lazyRetry(() => import('./components/PlayerRegistration').then(m => ({ default: m.PlayerRegistration })));
+const FinanceManager = lazyRetry(() => import('./components/FinanceManager').then(m => ({ default: m.FinanceManager })));
+const PlayerManager = lazyRetry(() => import('./components/PlayerManager').then(m => ({ default: m.PlayerManager })));
+const PlayerPortal = lazyRetry(() => import('./components/PlayerPortal').then(m => ({ default: m.PlayerPortal })));
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -169,7 +204,9 @@ const App: React.FC = () => {
            <LoadingList count={3} />
         </div>
       }>
-        {renderContent()}
+        <ErrorBoundary>
+          {renderContent()}
+        </ErrorBoundary>
       </Suspense>
     </Layout>
   );
