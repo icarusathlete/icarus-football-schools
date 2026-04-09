@@ -16,7 +16,7 @@ export const PlayerRegistration: React.FC = () => {
     parentName: '',
     contactNumber: '',
     address: '',
-    position: 'TBD' as Player['position'],
+    position: 'POSITION' as Player['position'],
     photoUrl: '',
     venue: '',
     batch: ''
@@ -164,7 +164,7 @@ export const PlayerRegistration: React.FC = () => {
                 parentName: '',
                 contactNumber: '',
                 address: '',
-                position: 'TBD',
+                position: 'POSITION',
                 photoUrl: '',
                 venue: venues.length > 0 ? venues[0].name : '',
                 batch: batches.length > 0 ? batches[0].name : ''
@@ -234,7 +234,7 @@ export const PlayerRegistration: React.FC = () => {
                 parentName: row.parent || row.guardian || '',
                 contactNumber: row.phone || row.contact || '',
                 address: row.address || '',
-                position: (row.position || 'TBD') as Player['position'],
+                position: (row.position || 'POSITION') as Player['position'],
                 venue: row.venue || (venues[0]?.name || ''),
                 batch: row.batch || (batches[0]?.name || ''),
                 photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0ea5e9&color=fff`
@@ -434,7 +434,7 @@ export const PlayerRegistration: React.FC = () => {
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Player <span className="text-slate-900">Position</span></h3>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'TBD'].map(pos => (
+                                        {['Forward', 'Midfielder', 'Defender', 'Goalkeeper', 'POSITION'].map(pos => (
                                             <button key={pos} type="button" onClick={() => setFormData({...formData, position: pos as any})}
                                                 className={`py-3 px-4 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border transition-all duration-300 italic
                                                     ${formData.position === pos ? 'bg-brand-500 border-brand-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-800'}`}

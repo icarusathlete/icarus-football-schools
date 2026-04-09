@@ -5,7 +5,7 @@ import {
     Search, Edit2, Trash2, Save, X, User as UserIcon, 
     Phone, MapPin, Layers, Map, Filter, Camera, 
     Shield, Check, Key, Activity, Users, History, 
-    Zap, ChevronRight, MoreVertical, Smartphone
+    Zap, ChevronRight, MoreVertical, Target
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { PlayerPerformanceModal } from './PlayerPerformanceModal';
@@ -158,26 +158,21 @@ export const PlayerManager: React.FC = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Users size={120} className="text-white" /></div>
         <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2 mb-2 px-3 py-1 bg-white/5 w-fit rounded-full border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
-              <p className="text-[8px] font-black text-white uppercase tracking-[0.4em]">SQUAD_ROSTER</p>
-          </div>
           <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
              Squad <span className="text-brand-primary font-black">Management</span>
           </h2>
-          <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.25em] italic">Academy System v2.5</p>
         </div>
         
-        <div className="flex bg-slate-950/20 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl relative z-10 w-full lg:w-auto backdrop-blur-sm">
+        <div className="flex bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl relative z-10 w-full lg:w-auto backdrop-blur-sm">
             <button 
                 onClick={() => setActiveTab('players')}
-                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'players' ? 'bg-brand-primary text-slate-900 shadow-lg scale-[1.02] border-brand-primary/20' : 'text-white/40 hover:text-white'}`}
+                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'players' ? 'bg-brand-primary text-brand-950 shadow-[0_0_20px_rgba(204,255,0,0.4)] scale-[1.02] border-brand-primary/20' : 'text-white hover:text-brand-primary bg-white/5 hover:bg-white/10'}`}
             >
                 PLAYERS
             </button>
             <button 
                 onClick={() => setActiveTab('coaches')}
-                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'coaches' ? 'bg-brand-primary text-slate-900 shadow-lg scale-[1.02] border-brand-primary/20' : 'text-white/40 hover:text-white'}`}
+                className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic flex-1 lg:flex-initial border border-transparent ${activeTab === 'coaches' ? 'bg-brand-primary text-brand-950 shadow-[0_0_20px_rgba(204,255,0,0.4)] scale-[1.02] border-brand-primary/20' : 'text-white hover:text-brand-primary bg-white/5 hover:bg-white/10'}`}
             >
                 COACHES
             </button>
@@ -246,7 +241,7 @@ export const PlayerManager: React.FC = () => {
                                   <td className="px-10 py-8">
                                       <div className="space-y-3">
                                           <div className="flex items-center gap-2 text-[10px] font-black text-brand-500 uppercase tracking-widest italic bg-brand-50 px-4 py-1.5 rounded-full border border-brand-100 w-fit">
-                                              <Smartphone size={12} /> {p.position}
+                                              <Target size={12} /> {p.position === 'TBD' ? 'POSITION' : p.position}
                                           </div>
                                           <div className="text-[10px] font-black text-slate-400 tracking-widest uppercase italic flex items-center gap-2"><Phone size={12}/> {p.contactNumber}</div>
                                       </div>
@@ -403,7 +398,7 @@ export const PlayerManager: React.FC = () => {
                           <div className="space-y-2">
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Player Position</label>
                               <select className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-black italic text-sm outline-none appearance-none focus:border-brand-500 transition-all shadow-inner" value={editingPlayer.position} onChange={e => setEditingPlayer({...editingPlayer, position: e.target.value as any})}>
-                                  {['Forward','Midfielder','Defender','Goalkeeper','TBD'].map(p=> <option key={p} value={p}>{p}</option>)}
+                                  {['Forward','Midfielder','Defender','Goalkeeper','POSITION'].map(p=> <option key={p} value={p}>{p}</option>)}
                               </select>
                           </div>
                           <div className="space-y-2">
