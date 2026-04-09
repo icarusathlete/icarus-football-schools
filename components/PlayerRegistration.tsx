@@ -353,10 +353,10 @@ export const PlayerRegistration: React.FC = () => {
             
             <div className="flex items-center gap-6">
                 {mode === 'player' && (
-                <div className="bg-brand-500 px-8 py-6 rounded-xl border border-brand-400/20 flex flex-col items-center shadow-2xl relative overflow-hidden group">
+                <div className="bg-brand-500 px-6 py-4 rounded-xl border border-brand-400/20 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden group min-w-[160px]">
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="text-[8px] font-black text-white/50 uppercase tracking-[0.4em] mb-2 relative z-10 italic">PLAYER ID</span>
-                    <span className="text-4xl font-black tracking-tighter text-white font-mono relative z-10 shadow-2xl">{nextId}</span>
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-1 relative z-10 italic whitespace-nowrap">PLAYER ID</span>
+                    <span className="text-2xl font-black tracking-tight text-white font-mono relative z-10 shadow-2xl whitespace-nowrap">{nextId}</span>
                     {/* Scanning Line Effect */}
                     <div className="absolute h-0.5 w-full bg-white/20 top-0 left-0 animate-scan" />
                 </div>
