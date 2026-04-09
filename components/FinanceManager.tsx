@@ -284,7 +284,7 @@ export const FinanceManager: React.FC = () => {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-500 transition-colors w-5 h-5" />
                         <input
                             placeholder="Search student athletes..."
-                            className="w-full pl-16 pr-8 py-5 bg-brand-bg/40 border border-white/5 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-white placeholder:text-white/20 italic tracking-wider backdrop-blur-xl"
+                            className="w-full pl-16 pr-8 py-5 bg-brand-500/5 border border-brand-500/10 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-brand-950 placeholder:text-slate-400 italic tracking-wider backdrop-blur-xl"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -299,19 +299,19 @@ export const FinanceManager: React.FC = () => {
                                 <div key={p.id} className="bg-brand-500/10 backdrop-blur-md p-4 rounded-3xl border border-brand-500/20 shadow-2xl relative overflow-hidden group">
                                     <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[8px] font-black tracking-widest uppercase border-b border-l border-white/10 ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
-                                                'bg-brand-900 text-brand-500'
+                                                'bg-slate-200 text-slate-600'
                                         }`}>
                                         {statusVal === 'PAID' ? 'SECURED' : statusVal === 'OVERDUE' ? 'BREACH' : 'PENDING'}
                                     </div>
                                     <div className="flex items-center gap-4 mb-4 mt-2">
-                                        <img src={p.photoUrl} className="w-12 h-12 rounded-2xl bg-brand-900 object-cover border-2 border-white/10" />
+                                        <img src={p.photoUrl} className="w-12 h-12 rounded-2xl bg-brand-900 object-cover border-2 border-brand-500/10" />
                                         <div className="min-w-0">
-                                            <h3 className="font-black text-white italic truncate text-sm uppercase">{p.fullName}</h3>
-                                            <p className="text-[9px] text-white/50 font-mono tracking-widest uppercase truncate">{p.memberId}</p>
+                                            <h3 className="font-black text-brand-950 italic truncate text-sm uppercase">{p.fullName}</h3>
+                                            <p className="text-[9px] text-brand-900/60 font-mono tracking-widest uppercase truncate">{p.memberId}</p>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between items-center pt-3 border-t border-white/5">
-                                        <div className="font-mono font-black text-white italic text-lg">₹2400</div>
+                                    <div className="flex justify-between items-center pt-3 border-t border-brand-500/10">
+                                        <div className="font-mono font-black text-brand-950 italic text-lg">₹2400</div>
                                         <div className="flex gap-2">
                                             <button onClick={() => openInvoiceGenerator(p)} className="p-2.5 bg-brand-900 border border-white/5 text-brand-500 rounded-xl hover:text-white transition-all shadow-xl" title="Generate Invoice">
                                                 <FileText size={16} />
@@ -333,11 +333,11 @@ export const FinanceManager: React.FC = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-white/5 border-y border-white/5">
                                     <tr className="font-display italic">
-                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Internal ID</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
-                                        <th className="px-10 py-8 text-[12px] font-black text-white/40 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Athlete Profile</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Internal ID</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">Monthly Quota</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none text-center">Collection Protocol</th>
+                                        <th className="px-10 py-8 text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none text-right">Operations</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
@@ -349,23 +349,23 @@ export const FinanceManager: React.FC = () => {
                                             <tr key={p.id} className="group hover:bg-white/5 transition-all">
                                                 <td className="px-10 py-8">
                                                     <div className="flex items-center gap-6">
-                                                        <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-secondary object-cover border-2 border-white/5 group-hover:border-brand-500 transition-all shadow-lg" />
+                                                        <img src={p.photoUrl} className="w-14 h-14 rounded-2xl bg-brand-secondary object-cover border-2 border-brand-500/10 group-hover:border-brand-500 transition-all shadow-lg" />
                                                         <div>
-                                                            <span className="font-black text-white italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
+                                                            <span className="font-black text-brand-950 italic text-lg uppercase tracking-tight block leading-none mb-1">{p.fullName}</span>
                                                             {status?.datePaid && (
-                                                                <div className="inline-flex px-2 py-0.5 bg-brand-500/10 text-[9px] font-black text-brand-500 uppercase tracking-widest rounded-md border border-brand-500/20">
+                                                                <div className="inline-flex px-2 py-0.5 bg-lime/10 text-[9px] font-black text-brand-950 uppercase tracking-widest rounded-md border border-lime/20">
                                                                     SECURED: {new Date(status.datePaid).toLocaleDateString()}
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-10 py-8 text-white font-black text-[11px] uppercase tracking-widest italic opacity-40">{p.memberId}</td>
-                                                <td className="px-10 py-8 font-mono font-black text-brand-500 italic text-2xl tracking-tighter">₹2400</td>
+                                                <td className="px-10 py-8 text-brand-950/50 font-black text-[11px] uppercase tracking-widest italic">{p.memberId}</td>
+                                                <td className="px-10 py-8 font-mono font-black text-brand-950 italic text-2xl tracking-tighter">₹2400</td>
                                                 <td className="px-10 py-8 text-center">
                                                     <div className={`inline-flex px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border italic shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950 border-lime' :
                                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white border-red-600' :
-                                                                'bg-white/5 text-white/20 border-white/10'
+                                                                'bg-slate-100 text-slate-400 border-slate-200'
                                                         }`}>
                                                         {statusVal === 'PAID' ? 'CLEARANCE GRANTED' : statusVal === 'OVERDUE' ? 'PROTOCOL BREACH' : 'PENDING SYNC'}
                                                     </div>
