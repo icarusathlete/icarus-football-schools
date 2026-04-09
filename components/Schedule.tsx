@@ -203,9 +203,9 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                       {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                   </h3>
                   <div className="flex gap-3">
-                      <button onClick={() => changeMonth(-1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-400 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronLeft size={20} strokeWidth={3} /></button>
+                      <button onClick={() => changeMonth(-1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronLeft size={20} strokeWidth={3} /></button>
                       <button onClick={() => setCurrentMonth(new Date())} className="px-8 bg-brand-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border border-white/10 hover:border-brand-500/40 active:scale-95">TODAY</button>
-                      <button onClick={() => changeMonth(1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-400 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronRight size={20} strokeWidth={3} /></button>
+                      <button onClick={() => changeMonth(1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronRight size={20} strokeWidth={3} /></button>
                   </div>
               </div>
               <div className="overflow-x-auto custom-scrollbar">
@@ -303,13 +303,13 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               <div className="flex items-center gap-3">
                   <div className="p-2 bg-brand-500/10 rounded-lg text-brand-500"><MapPin size={16} /></div>
                   <div>
-                      <h3 className="text-sm font-black text-slate-900 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
+                      <h3 className="text-sm font-black text-brand-950 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
+                      <p className="text-[9px] font-black text-brand-950/50 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
                   </div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+              <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-brand-500/10">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
+                  <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
               </div>
           </div>
 
@@ -320,7 +320,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                       className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
                           selectedVenue === 'All Locations'
                           ? 'bg-brand-500 border-brand-500 text-white shadow-xl shadow-brand-500/20'
-                          : 'bg-white border-white text-slate-400 hover:border-slate-100 hover:bg-slate-50'
+                          : 'bg-white border-brand-500/10 text-brand-950/50 hover:border-brand-500/30 hover:bg-brand-500/5'
                       }`}
                   >
                       <div className="relative z-10 flex flex-col items-start gap-4">
@@ -347,7 +347,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                           className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
                               selectedVenue === venue.name
                               ? 'bg-brand-500 border-brand-500 text-white shadow-xl shadow-brand-500/20'
-                              : 'bg-white border-white text-slate-400 hover:border-slate-100 hover:bg-slate-50'
+                              : 'bg-white border-white text-slate-500 hover:border-slate-100 hover:bg-slate-50'
                       }`}
                   >
                       <div className="relative z-10 flex flex-col items-start gap-4">
@@ -502,7 +502,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                 <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-500 opacity-10" />
                 <div>
                    <h3 className="font-display font-black text-3xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'EDIT' : 'ADD'} <span className="text-brand-500 uppercase">EVENT</span></h3>
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Configure Event Details</p>
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Configure Event Details</p>
                 </div>
                 <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-slate-50 rounded-2xl text-slate-300 transition-colors border border-slate-200"><X size={20} strokeWidth={3} /></button>
             </div>
