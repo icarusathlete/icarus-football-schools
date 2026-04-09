@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords } from 'lucide-react';
 import { User, Role, AcademySettings } from '../types';
 import { StorageService } from '../services/storageService';
-import { PerformanceHUD } from './ui/PerformanceHUD';
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -169,9 +169,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               </div>
             </div>
           ))}
-        </div>
-        <div className="px-4 mb-4">
-             <PerformanceHUD />
         </div>
 
         {/* Data Persistence Area - Only for Admins */}
