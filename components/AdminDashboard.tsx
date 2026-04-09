@@ -14,6 +14,7 @@ import {
 export const AdminDashboard: React.FC = () => {
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations');
   const [availableVenues, setAvailableVenues] = useState<Venue[]>([]);
+  const [venueStats, setVenueStats] = useState<Record<string, number>>({});
   const [stats, setStats] = useState({
     totalPlayers: 0,
     activeVenues: 0,
@@ -31,6 +32,13 @@ export const AdminDashboard: React.FC = () => {
     const attendance = StorageService.getAttendance();
     
     setAvailableVenues(venues);
+
+    // Calculate player counts per venue for the selector
+    const counts: Record<string, number> = { 'All Locations': players.length };
+    venues.forEach(v => {
+        counts[v.name] = players.filter(p => p.venue === v.name).length;
+    });
+    setVenueStats(counts);
 
     // Filter data based on selected location
     const filteredPlayers = selectedVenue === 'All Locations' 
@@ -105,38 +113,77 @@ export const AdminDashboard: React.FC = () => {
           </div>
       </div>
 
-      {/* Location Selector */}
-      <div className="flex flex-col gap-4 overflow-hidden">
-          <div className="flex items-center gap-3 px-1">
-              <MapPin size={16} className="text-brand-primary" />
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Select Location</h3>
+      {/* Location Control Hub */}
+      <div className="space-y-4">
+          <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-3">
+                  <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary"><MapPin size={16} /></div>
+                  <div>
+                      <h3 className="text-sm font-black text-brand-900 italic uppercase tracking-tighter leading-none">LOCATION HUB</h3>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Satellite Feed Active</p>
+                  </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">{availableVenues.length + 1} NODES CONNECTED</span>
+              </div>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
-              <button 
-                  onClick={() => setSelectedVenue('All Locations')}
-                  className={`px-6 py-3 rounded-2xl border transition-all duration-300 text-[10px] font-black uppercase tracking-widest whitespace-nowrap italic flex items-center gap-3 ${
-                      selectedVenue === 'All Locations'
-                      ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40 scale-105'
-                      : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
-                  }`}
-              >
-                  <Layers size={14} />
-                  All Locations
-              </button>
-              {availableVenues.map((venue) => (
+
+          <div className="glass-card p-2 rounded-[2.5rem] border-white/10 bg-white/5 backdrop-blur-xl relative overflow-hidden group">
+              <div className="flex gap-2 overflow-x-auto p-2 no-scrollbar">
                   <button 
-                      key={venue.id}
-                      onClick={() => setSelectedVenue(venue.name)}
-                      className={`px-6 py-3 rounded-2xl border transition-all duration-300 text-[10px] font-black uppercase tracking-widest whitespace-nowrap italic flex items-center gap-3 ${
-                          selectedVenue === venue.name
-                          ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40 scale-105'
-                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
+                      onClick={() => setSelectedVenue('All Locations')}
+                      className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                          selectedVenue === 'All Locations'
+                          ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
+                          : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10'
                       }`}
                   >
-                      <MapPin size={14} />
-                      {venue.name}
+                      <div className="relative z-10 flex flex-col items-start gap-4">
+                          <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === 'All Locations' ? 'bg-brand-950 text-brand-primary' : 'bg-white/5 text-slate-500 group-hover/btn:scale-110'}`}>
+                              <Layers size={20} />
+                          </div>
+                          <div className="text-left">
+                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-slate-500'}`}>GLOBAL VIEW</p>
+                              <p className="text-lg font-black uppercase italic tracking-tighter leading-none">ALL LOCATIONS</p>
+                              <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === 'All Locations' ? 'text-brand-950' : 'text-brand-primary'}`}>
+                                  {venueStats['All Locations'] || 0} TOTAL PLAYERS
+                              </p>
+                          </div>
+                      </div>
+                      {selectedVenue === 'All Locations' && (
+                          <div className="absolute top-0 right-0 p-4 opacity-20"><Zap size={40} /></div>
+                      )}
                   </button>
-              ))}
+
+                  {availableVenues.map((venue) => (
+                      <button 
+                          key={venue.id}
+                          onClick={() => setSelectedVenue(venue.name)}
+                          className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                              selectedVenue === venue.name
+                              ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
+                              : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10'
+                          }`}
+                      >
+                          <div className="relative z-10 flex flex-col items-start gap-4">
+                              <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === venue.name ? 'bg-brand-950 text-brand-primary' : 'bg-white/5 text-slate-500 group-hover/btn:scale-110'}`}>
+                                  <MapPin size={20} />
+                              </div>
+                              <div className="text-left">
+                                  <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === venue.name ? 'text-brand-950/60' : 'text-slate-500'}`}>NODE ALPHA</p>
+                                  <p className="text-lg font-black uppercase italic tracking-tighter leading-none truncate w-full">{venue.name}</p>
+                                  <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === venue.name ? 'text-brand-950' : 'text-brand-primary'}`}>
+                                      {venueStats[venue.name] || 0} PLAYERS
+                              </p>
+                              </div>
+                          </div>
+                          {selectedVenue === venue.name && (
+                              <div className="absolute top-0 right-0 p-4 opacity-20"><Target size={40} /></div>
+                          )}
+                      </button>
+                  ))}
+              </div>
           </div>
       </div>
 
