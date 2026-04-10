@@ -117,63 +117,56 @@ export const AdminDashboard: React.FC = () => {
               </div>
           </div>
 
-          <div className="glass-card p-2 rounded-[2.5rem] border-white/10 bg-white/5 backdrop-blur-xl relative overflow-hidden group">
-              <div className="flex gap-2 overflow-x-auto p-2 no-scrollbar">
-                  <button 
+          <div className="bg-brand-900 p-3 sm:p-4 rounded-[2rem] border border-white/5 shadow-2xl">
+              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                  {/* All Locations chip */}
+                  <button
                       onClick={() => setSelectedVenue('All Locations')}
-                      className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-[1.2rem] border transition-all duration-300 group/btn ${
                           selectedVenue === 'All Locations'
-                          ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
-                          : 'bg-white border-brand-500/10 text-brand-950/50 hover:border-brand-500/30 hover:bg-brand-500/5'
+                          ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_16px_rgba(204,255,0,0.35)]'
+                          : 'bg-white/5 border-white/5 text-white/60 hover:border-[#CCFF00]/30 hover:bg-[#CCFF00]/5 hover:text-white'
                       }`}
                   >
-                      <div className="relative z-10 flex flex-col items-start gap-4">
-                          <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === 'All Locations' ? 'bg-brand-950 text-brand-primary' : 'bg-white/5 text-slate-500 group-hover/btn:scale-110'}`}>
-                              <Layers size={20} />
-                          </div>
-                          <div className="text-left">
-                              <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-brand-950/40'}`}>ACADEMY VIEW</p>
-                              <p className="text-lg font-black uppercase italic tracking-tighter leading-none">ALL LOCATIONS</p>
-                              <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === 'All Locations' ? 'text-brand-950' : 'text-brand-primary'}`}>
-                                  {venueStats['All Locations'] || 0} TOTAL PLAYERS
-                              </p>
-                          </div>
+                      <div className={`p-1.5 rounded-lg transition-all ${selectedVenue === 'All Locations' ? 'bg-brand-950/20' : 'bg-white/5 group-hover/btn:scale-110'}`}>
+                          <Layers size={13} strokeWidth={2.5} />
                       </div>
-                      {selectedVenue === 'All Locations' && (
-                          <div className="absolute top-0 right-0 p-4 opacity-20"><Zap size={40} /></div>
-                      )}
+                      <div className="text-left">
+                          <p className="text-[10px] font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">All Locations</p>
+                          <p className={`text-[9px] font-bold italic leading-none mt-0.5 ${selectedVenue === 'All Locations' ? 'text-brand-950/70' : 'text-[#CCFF00]/70'}`}>
+                              {venueStats['All Locations'] || 0} players
+                          </p>
+                      </div>
                   </button>
 
+                  {/* Divider */}
+                  <div className="w-px bg-white/10 flex-shrink-0 my-1" />
+
                   {availableVenues.map((venue) => (
-                      <button 
+                      <button
                           key={venue.id}
                           onClick={() => setSelectedVenue(venue.name)}
-                          className={`relative min-w-[200px] p-6 rounded-[2rem] border transition-all duration-500 group/btn overflow-hidden ${
+                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-[1.2rem] border transition-all duration-300 group/btn ${
                               selectedVenue === venue.name
-                              ? 'bg-brand-primary border-brand-primary text-brand-950 shadow-glow shadow-brand-primary/40'
-                              : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/20 hover:bg-white/10'
+                              ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_16px_rgba(204,255,0,0.35)]'
+                              : 'bg-white/5 border-white/5 text-white/60 hover:border-[#CCFF00]/30 hover:bg-[#CCFF00]/5 hover:text-white'
                           }`}
                       >
-                          <div className="relative z-10 flex flex-col items-start gap-4">
-                              <div className={`p-3 rounded-2xl transition-all duration-500 ${selectedVenue === venue.name ? 'bg-brand-950 text-brand-primary' : 'bg-brand-500/5 text-brand-950/40 group-hover/btn:scale-110'}`}>
-                                  <MapPin size={20} />
-                              </div>
-                              <div className="text-left">
-                                  <p className={`text-[9px] font-black uppercase tracking-[0.3em] italic mb-1 ${selectedVenue === venue.name ? 'text-brand-950/60' : 'text-slate-500'}`}>NODE ALPHA</p>
-                                  <p className="text-lg font-black uppercase italic tracking-tighter leading-none truncate w-full">{venue.name}</p>
-                                  <p className={`text-[10px] font-bold mt-2 italic ${selectedVenue === venue.name ? 'text-brand-950' : 'text-brand-primary'}`}>
-                                      {venueStats[venue.name] || 0} PLAYERS
-                              </p>
-                              </div>
+                          <div className={`p-1.5 rounded-lg transition-all ${selectedVenue === venue.name ? 'bg-brand-950/20' : 'bg-white/5 group-hover/btn:scale-110'}`}>
+                              <MapPin size={13} strokeWidth={2.5} />
                           </div>
-                          {selectedVenue === venue.name && (
-                              <div className="absolute top-0 right-0 p-4 opacity-20"><Target size={40} /></div>
-                          )}
+                          <div className="text-left">
+                              <p className="text-[10px] font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">{venue.name}</p>
+                              <p className={`text-[9px] font-bold italic leading-none mt-0.5 ${selectedVenue === venue.name ? 'text-brand-950/70' : 'text-[#CCFF00]/70'}`}>
+                                  {venueStats[venue.name] || 0} players
+                              </p>
+                          </div>
                       </button>
                   ))}
               </div>
           </div>
       </div>
+
 
       {/* Academy Insights Grid with Standard Bar Divider */}
       <section className="space-y-8">
