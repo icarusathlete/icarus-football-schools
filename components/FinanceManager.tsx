@@ -455,17 +455,17 @@ export const FinanceManager: React.FC = () => {
 
             {/* Invoice Generator Modal */}
             {isInvoiceModalOpen && selectedPlayerForInvoice && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:pl-72 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
-                    <div className="bg-brand-900 rounded-[3rem] shadow-3xl w-full max-w-6xl h-[95vh] flex flex-col md:flex-row overflow-hidden border border-white/10">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
+                    <div className="bg-brand-900 rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-hidden border border-white/10" style={{maxHeight: '95dvh'}}>
 
-                        {/* Left Panel: Controls */}
-                        <div className="w-full md:w-1/3 bg-brand-950 p-10 border-r border-white/5 overflow-y-auto">
-                            <div className="flex items-center justify-between mb-10">
-                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">GENERATOR</span></h3>
-                                <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-brand-500/10 rounded-full text-brand-500 transition-colors"><X size={24} /></button>
+                        {/* Control Panel: Collapsible on mobile, sidebar on desktop */}
+                        <div className="w-full md:w-1/3 bg-brand-950 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-white/5 overflow-y-auto flex-shrink-0">
+                            <div className="flex items-center justify-between mb-6 sm:mb-10">
+                                <h3 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">GEN</span></h3>
+                                <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-brand-500/10 rounded-full text-brand-500 transition-colors"><X size={22} /></button>
                             </div>
 
-                            <div className="space-y-8">
+                            <div className="space-y-5 sm:space-y-8">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] italic ml-1">Invoice No</label>
                                     <input
@@ -522,7 +522,7 @@ export const FinanceManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-12 space-y-4">
+                            <div className="mt-8 sm:mt-12 space-y-4">
                                 <button
                                     onClick={handleSubmitInvoice}
                                     disabled={isSubmitting}

@@ -353,14 +353,14 @@ export const TrainingManager: React.FC = () => {
 
             {/* Create Drill Modal */}
             {isCreating && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.15)] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[90vh]">
-                        <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center relative bg-slate-50 shrink-0">
-                            <h3 className="font-black text-2xl text-slate-900 italic uppercase tracking-tight">Create <span className="text-brand-500">New Drill</span></h3>
-                            <button onClick={() => setIsCreating(false)} className="p-3 hover:bg-slate-100 rounded-full text-slate-300 transition-colors"><X size={20} /></button>
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/40 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.15)] w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+                        <div className="px-6 sm:px-10 py-5 sm:py-8 border-b border-slate-100 flex justify-between items-center relative bg-slate-50 shrink-0">
+                            <h3 className="font-black text-xl sm:text-2xl text-slate-900 italic uppercase tracking-tight">Create <span className="text-brand-500">New Drill</span></h3>
+                            <button onClick={() => setIsCreating(false)} className="p-2 sm:p-3 hover:bg-slate-100 rounded-full text-slate-300 transition-colors"><X size={20} /></button>
                         </div>
 
-                        <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-10 custom-scrollbar-light space-y-8">
+                        <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar-light space-y-6 sm:space-y-8">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Drill Title</label>
                                 <input 
@@ -373,7 +373,7 @@ export const TrainingManager: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Category</label>
                                     <div className="relative">
@@ -408,7 +408,7 @@ export const TrainingManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Duration (Mins)</label>
                                     <div className="relative">
@@ -572,7 +572,7 @@ export const TrainingManager: React.FC = () => {
                             </div>
                         </form>
 
-                        <div className="px-10 py-8 border-t border-slate-100 bg-slate-50 flex gap-6 shrink-0">
+                        <div className="px-6 sm:px-10 py-5 sm:py-8 border-t border-slate-100 bg-slate-50 flex gap-4 sm:gap-6 shrink-0">
                             <button type="button" onClick={() => setIsCreating(false)} className="flex-1 py-4 text-slate-400 font-black hover:text-slate-900 rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Cancel</button>
                             <button type="submit" onClick={(e) => { e.preventDefault(); handleCreate(e as any); }} className="flex-[2] py-4 bg-brand-500 text-white font-black rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic flex items-center justify-center gap-3">
                                 <Save size={18} strokeWidth={3} /> Save Drill

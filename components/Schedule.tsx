@@ -195,17 +195,17 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
       return (
           <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.05)] animate-in fade-in zoom-in-95 duration-500">
-              <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 backdrop-blur-xl">
-                  <h3 className="text-2xl font-black text-slate-900 flex items-center gap-4 uppercase tracking-tighter italic">
-                      <div className="p-3 bg-brand-500/10 rounded-2xl border border-brand-500/20">
-                        <CalendarIcon size={24} className="text-brand-500" />
+              <div className="p-5 md:p-10 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/50 backdrop-blur-xl">
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 flex items-center gap-3 uppercase tracking-tighter italic">
+                      <div className="p-2 md:p-3 bg-brand-500/10 rounded-2xl border border-brand-500/20">
+                        <CalendarIcon size={20} className="text-brand-500" />
                       </div>
                       {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                   </h3>
-                  <div className="flex gap-3">
-                      <button onClick={() => changeMonth(-1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronLeft size={20} strokeWidth={3} /></button>
-                      <button onClick={() => setCurrentMonth(new Date())} className="px-8 bg-brand-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all italic border border-white/10 hover:border-brand-500/40 active:scale-95">TODAY</button>
-                      <button onClick={() => changeMonth(1)} className="w-14 h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronRight size={20} strokeWidth={3} /></button>
+                  <div className="flex gap-2">
+                      <button onClick={() => changeMonth(-1)} className="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronLeft size={18} strokeWidth={3} /></button>
+                      <button onClick={() => setCurrentMonth(new Date())} className="px-5 md:px-8 bg-brand-950 text-white rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-white/10 hover:border-brand-500/40 active:scale-95">TODAY</button>
+                      <button onClick={() => changeMonth(1)} className="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-white border border-slate-200 text-slate-500 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-sm active:scale-90"><ChevronRight size={18} strokeWidth={3} /></button>
                   </div>
               </div>
               <div className="overflow-x-auto custom-scrollbar">
@@ -244,25 +244,25 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto mt-6 lg:mt-0">
+          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full lg:w-auto mt-6 lg:mt-0">
             {/* View Toggle - Glass Pill */}
-            <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner">
+            <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner self-start">
                 <button 
                   onClick={() => setViewMode('list')} 
-                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
                     <LayoutList size={14} strokeWidth={2.5} /> LIST
                 </button>
                 <button 
                   onClick={() => setViewMode('calendar')} 
-                  className={`px-6 py-2.5 rounded-xl flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                 >
-                    <Calendar size={14} strokeWidth={2.5} /> CALENDAR
+                    <Calendar size={14} strokeWidth={2.5} /> CAL
                 </button>
             </div>
 
-            {/* Filter Hub */}
-            <div className="flex flex-wrap gap-2">
+            {/* Filter Hub - horizontal scroll on mobile */}
+            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
                 {[
                     { id: 'all', label: 'ALL', icon: Filter },
                     { id: 'training', label: 'TRAINING', icon: Zap },
@@ -272,7 +272,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-white text-brand-950 border-white shadow-xl shadow-white/5 scale-105' : 'text-white/20 border-white/5 hover:border-white/20 hover:text-white'}`}
+                        className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-white text-brand-950 border-white shadow-xl shadow-white/5 scale-105' : 'text-white/20 border-white/5 hover:border-white/20 hover:text-white'}`}
                     >
                         <tab.icon size={12} strokeWidth={activeTab === tab.id ? 3 : 2} />
                         {tab.label}
@@ -283,9 +283,9 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
             {(role === 'admin' || role === 'coach') && (
                 <button 
                     onClick={handleCreate}
-                    className="flex items-center gap-2.5 bg-brand-500 text-white px-8 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto lg:ml-0"
+                    className="flex items-center gap-2.5 bg-brand-500 text-white px-6 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto"
                 >
-                    <Plus size={18} strokeWidth={3} />
+                    <Plus size={16} strokeWidth={3} />
                     ADD EVENT
                 </button>
             )}
@@ -492,39 +492,39 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
       {/* Modal Form - Glassmorphic Overhaul */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/20 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.1)] w-full max-w-xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 px-10 py-8 border-b border-slate-100 flex justify-between items-center relative">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/20 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.1)] w-full max-w-xl overflow-hidden border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+            <div className="bg-slate-50 px-6 sm:px-10 py-6 sm:py-8 border-b border-slate-100 flex justify-between items-center relative">
                 <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-500 opacity-10" />
                 <div>
-                   <h3 className="font-display font-black text-3xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'EDIT' : 'ADD'} <span className="text-brand-500 uppercase">EVENT</span></h3>
+                   <h3 className="font-display font-black text-2xl sm:text-3xl text-brand-950 italic uppercase tracking-tight">{editingId ? 'EDIT' : 'ADD'} <span className="text-brand-500 uppercase">EVENT</span></h3>
                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Event Information</p>
                 </div>
-                <button type="button" onClick={() => setShowForm(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-slate-50 rounded-2xl text-slate-300 transition-colors border border-slate-200"><X size={20} strokeWidth={3} /></button>
+                <button type="button" onClick={() => setShowForm(false)} className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white hover:bg-slate-50 rounded-2xl text-slate-300 transition-colors border border-slate-200"><X size={20} strokeWidth={3} /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 sm:space-y-10 custom-scrollbar">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2"><ArrowRight size={10} strokeWidth={4} /> EVENT TITLE</label>
-                <input required type="text" placeholder="e.g. U14 REGULAR TRAINING" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none font-display font-black text-brand-950 text-lg placeholder:text-slate-200 shadow-inner group" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+                <input required type="text" placeholder="e.g. U14 REGULAR TRAINING" className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none font-display font-black text-brand-950 text-base sm:text-lg placeholder:text-slate-200 shadow-inner group" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">EVENT DATE</label>
-                    <input required type="date" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner uppercase" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+                    <input required type="date" className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner uppercase" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">START TIME</label>
-                    <input required type="time" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-display font-black text-slate-900 shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
+                    <input required type="time" className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-display font-black text-slate-900 shadow-inner" value={form.time} onChange={e => setForm({...form, time: e.target.value})} />
                   </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                  <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">EVENT TYPE</label>
                     <div className="relative">
-                        <select className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
+                        <select className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})}>
                             <option value="training">Training</option>
                             <option value="match">Match</option>
                             <option value="social">Social/Event</option>
@@ -534,14 +534,14 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                  </div>
                  <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">LOCATION</label>
-                    <input required type="text" placeholder="ACADEMY GROUND / SECTOR 7" className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner placeholder:text-slate-200 uppercase" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
+                    <input required type="text" placeholder="ACADEMY GROUND" className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner placeholder:text-slate-200 uppercase" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                  </div>
               </div>
 
               <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">COMMANDING OFFICER</label>
+                  <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] ml-1">LEAD COACH</label>
                   <div className="relative">
-                      <select className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
+                      <select className="w-full p-4 sm:p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-brand-500/50 outline-none text-sm font-black text-slate-900 shadow-inner appearance-none uppercase" value={form.leadCoachId} onChange={e => setForm({...form, leadCoachId: e.target.value})}>
                           <option value="">AWAITING ASSIGNMENT...</option>
                           {coaches.map(c => <option key={c.id} value={c.id}>{c.username}</option>)}
                       </select>
@@ -578,10 +578,10 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
               )}
             </form>
 
-            <div className="px-10 py-8 border-t border-slate-100 bg-slate-50 flex gap-6">
+            <div className="px-6 sm:px-10 py-6 sm:py-8 border-t border-slate-100 bg-slate-50 flex gap-4">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 text-slate-300 font-black hover:text-slate-900 rounded-2xl transition-all text-[10px] uppercase tracking-[0.3em] font-display">CANCEL</button>
-                <button onClick={handleSubmit} className="flex-[2] py-5 bg-brand-500 text-white font-black rounded-2xl shadow-2xl shadow-brand-500/20 hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.3em] italic font-display border border-white/20">
-                    <Save size={20} strokeWidth={3} /> {editingId ? 'UPDATE EVENT' : 'CREATE EVENT'}
+                <button onClick={handleSubmit} className="flex-[2] py-4 sm:py-5 bg-brand-500 text-white font-black rounded-2xl shadow-2xl shadow-brand-500/20 hover:scale-[1.02] transform active:scale-95 transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.3em] italic font-display border border-white/20">
+                    <Save size={18} strokeWidth={3} /> {editingId ? 'UPDATE EVENT' : 'CREATE EVENT'}
                 </button>
             </div>
           </div>

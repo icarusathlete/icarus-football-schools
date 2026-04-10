@@ -168,26 +168,26 @@ export const MatchManager: React.FC = () => {
                     </h2>
                     <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Operational Fixtures // Seasonal Results Portal</p>
                 </div>
-                <button onClick={() => setShowForm(true)} className="relative z-10 bg-[#CCFF00] text-brand-950 px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-[#CCFF00]/20">
-                    <PlusCircle size={20} strokeWidth={3} />
-                    ADD_MATCH_RECORD
+                <button onClick={() => setShowForm(true)} className="relative z-10 w-full lg:w-auto bg-[#CCFF00] text-brand-950 px-8 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-[#CCFF00]/20">
+                    <PlusCircle size={18} strokeWidth={3} />
+                    ADD MATCH
                 </button>
             </div>
 
             {/* Metrics Dashboard */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {[
                     { label: 'Played', val: matches.length, icon: History, color: 'text-slate-900' },
                     { label: 'Wins', val: matches.filter(m => m.result === 'W').length, icon: Trophy, color: 'text-brand-500' },
                     { label: 'Draws', val: matches.filter(m => m.result === 'D').length, icon: Activity, color: 'text-slate-400' },
                     { label: 'Losses', val: matches.filter(m => m.result === 'L').length, icon: Target, color: 'text-red-500' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/30 transition-all hover:scale-105 group overflow-hidden">
+                    <div key={i} className="bg-white p-5 sm:p-8 rounded-[2.5rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/30 transition-all hover:scale-105 group overflow-hidden">
                         <div className="relative z-10">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.22em] mb-2 italic">{stat.label}</p>
-                            <p className="text-4xl font-black italic text-slate-900">{stat.val}</p>
+                            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.22em] mb-1 sm:mb-2 italic">{stat.label}</p>
+                            <p className="text-3xl sm:text-4xl font-black italic text-slate-900">{stat.val}</p>
                         </div>
-                        <stat.icon className={`w-14 h-14 ${stat.color} opacity-5 absolute -right-2 top-1/2 -translate-y-1/2 group-hover:opacity-10 transition-opacity`} />
+                        <stat.icon className={`w-12 h-12 sm:w-14 sm:h-14 ${stat.color} opacity-5 absolute -right-2 top-1/2 -translate-y-1/2 group-hover:opacity-10 transition-opacity`} />
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-500/10 group-hover:bg-brand-500 transition-colors" />
                     </div>
                 ))}
@@ -363,33 +363,32 @@ export const MatchManager: React.FC = () => {
                 </div>
             </div>
 
-            {/* Form Modal */}
             {showForm && (
-                <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in duration-500">
-                    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[4rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-500 border border-slate-100">
-                        <div className="flex justify-between items-center px-12 py-10 border-b border-slate-100 bg-slate-50/50">
+                <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-end sm:items-center justify-center p-0 sm:p-8 animate-in fade-in duration-500">
+                    <div className="bg-white w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] rounded-t-[2.5rem] sm:rounded-[4rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-500 border border-slate-100">
+                        <div className="flex justify-between items-center px-6 sm:px-12 py-5 sm:py-10 border-b border-slate-100 bg-slate-50/50">
                             <div>
-                                <h3 className="font-black text-3xl text-slate-900 italic uppercase tracking-tighter">Register <span className="text-brand-500">Match</span></h3>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2 italic">Match Details & Lineup</p>
+                                <h3 className="font-black text-xl sm:text-3xl text-slate-900 italic uppercase tracking-tighter">Register <span className="text-brand-500">Match</span></h3>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-1 sm:mt-2 italic">Match Details & Lineup</p>
                             </div>
-                            <button onClick={() => setShowForm(false)} className="p-4 bg-white hover:bg-slate-50 rounded-2xl text-slate-300 hover:text-slate-900 transition-all shadow-xl shadow-slate-200/50 border border-slate-100"><X size={28} /></button>
+                            <button onClick={() => setShowForm(false)} className="p-3 sm:p-4 bg-white hover:bg-slate-50 rounded-2xl text-slate-300 hover:text-slate-900 transition-all shadow-xl shadow-slate-200/50 border border-slate-100"><X size={22} /></button>
                         </div>
-                        <div className="overflow-y-auto px-12 py-12 space-y-12 flex-1 custom-scrollbar">
-                            <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-brand-500/30 transition-all cursor-pointer shadow-inner" onClick={() => setNewMatch({...newMatch, isLive: !newMatch.isLive})}>
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all ${newMatch.isLive ? 'bg-red-500 shadow-xl shadow-red-500/30 scale-105' : 'bg-white border border-slate-200'}`}><Zap size={28} className={newMatch.isLive ? 'text-white' : 'text-slate-200'} fill={newMatch.isLive ? 'white' : 'transparent'} /></div>
-                                    <div className="space-y-1"><p className="text-lg font-black text-slate-900 italic tracking-tight uppercase">LIVE MATCH TRACKING</p><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Enable real-time score and stats management</p></div>
+                        <div className="overflow-y-auto px-6 sm:px-12 py-6 sm:py-12 space-y-8 sm:space-y-12 flex-1 custom-scrollbar">
+                            <div className="flex items-center justify-between p-5 sm:p-8 bg-slate-50 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 hover:border-brand-500/30 transition-all cursor-pointer shadow-inner" onClick={() => setNewMatch({...newMatch, isLive: !newMatch.isLive})}>
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-[1.2rem] sm:rounded-[1.5rem] flex items-center justify-center transition-all ${newMatch.isLive ? 'bg-red-500 shadow-xl shadow-red-500/30 scale-105' : 'bg-white border border-slate-200'}`}><Zap size={22} className={newMatch.isLive ? 'text-white' : 'text-slate-200'} fill={newMatch.isLive ? 'white' : 'transparent'} /></div>
+                                    <div className="space-y-0.5"><p className="text-base sm:text-lg font-black text-slate-900 italic tracking-tight uppercase">LIVE MATCH TRACKING</p><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Enable real-time score and stats management</p></div>
                                 </div>
-                                <div className={`w-16 h-9 rounded-full p-1.5 transition-all flex items-center ${newMatch.isLive ? 'bg-red-500' : 'bg-slate-200'}`}><div className={`h-6 w-6 rounded-full bg-white shadow-2xl transition-all transform ${newMatch.isLive ? 'translate-x-7' : 'translate-x-0'}`} /></div>
+                                <div className={`w-14 sm:w-16 h-8 sm:h-9 rounded-full p-1.5 transition-all flex items-center ${newMatch.isLive ? 'bg-red-500' : 'bg-slate-200'}`}><div className={`h-5 sm:h-6 w-5 sm:w-6 rounded-full bg-white shadow-2xl transition-all transform ${newMatch.isLive ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0'}`} /></div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Schedule Sync</label><select className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all appearance-none" value={newMatch.scheduledEventId} onChange={handleScheduleSelect}><option value="">-- Manual Entry --</option>{scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}</select></div>
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Match Date</label><input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono" /></div>
-                                <div className="md:col-span-2 space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Opponent Name</label><input type="text" placeholder="Enter Team Name" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all tracking-widest" /></div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
+                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Schedule Sync</label><select className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all appearance-none" value={newMatch.scheduledEventId} onChange={handleScheduleSelect}><option value="">-- Manual Entry --</option>{scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}</select></div>
+                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Match Date</label><input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono" /></div>
+                                <div className="md:col-span-2 space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Opponent Name</label><input type="text" placeholder="Enter Team Name" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all tracking-widest" /></div>
                             </div>
                             <section className="space-y-6">
                                 <div className="flex justify-between items-center"><h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] italic flex items-center gap-3"><Shirt size={16} /> STARTING LINEUP (11)</h4><span className={`text-[10px] font-black px-4 py-2 rounded-xl transition-all ${starters.size === 11 ? 'bg-brand-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}>{starters.size} / 11 SELECTED</span></div>
-                                <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 shadow-inner max-h-[350px] overflow-y-auto custom-scrollbar">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 shadow-inner max-h-[350px] overflow-y-auto custom-scrollbar">
                                     {players.map(p => (
                                         <div key={p.id} onClick={() => toggleStarter(p.id)} className={`cursor-pointer p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-center gap-2 sm:gap-4 ${starters.has(p.id) ? 'bg-brand-500/5 border-brand-500 shadow-lg' : 'bg-white border-slate-100'}`}>
                                             <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all ${starters.has(p.id) ? 'bg-brand-500 border-brand-500' : 'border-slate-200'}`}>{starters.has(p.id) && <Check size={12} className="text-white" strokeWidth={4} />}</div>
@@ -399,7 +398,7 @@ export const MatchManager: React.FC = () => {
                                 </div>
                             </section>
                         </div>
-                        <div className="px-6 md:px-12 py-6 md:py-10 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4 sm:gap-6"><button onClick={() => setShowForm(false)} className="w-full sm:w-auto px-10 py-5 text-slate-400 font-black hover:text-slate-900 transition-all text-[10px] sm:text-xs uppercase tracking-[0.3em] italic">Cancel</button><button onClick={handleSaveMatch} className={`flex-1 py-5 font-black rounded-3xl shadow-3xl transition-all flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.4em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-brand-500 text-white shadow-xl shadow-brand-500/20'}`}><Save size={18} /> {newMatch.isLive ? 'START LIVE TRACKING' : 'SAVE MATCH RECORD'}</button></div>
+                        <div className="px-6 sm:px-12 py-5 sm:py-10 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-3 sm:gap-6"><button onClick={() => setShowForm(false)} className="w-full sm:w-auto px-8 py-4 text-slate-400 font-black hover:text-slate-900 transition-all text-[10px] uppercase tracking-[0.3em] italic border border-slate-100 rounded-2xl sm:border-0">Cancel</button><button onClick={handleSaveMatch} className={`flex-1 py-4 sm:py-5 font-black rounded-2xl sm:rounded-3xl shadow-3xl transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.2em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-brand-500 text-white shadow-xl shadow-brand-500/20'}`}><Save size={18} /> {newMatch.isLive ? 'START LIVE TRACKING' : 'SAVE MATCH RECORD'}</button></div>
                     </div>
                 </div>
             )}
