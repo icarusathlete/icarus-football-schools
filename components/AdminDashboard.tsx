@@ -295,7 +295,7 @@ export const AdminDashboard: React.FC = () => {
           <CartesianGrid strokeDasharray="2 6" stroke="rgba(255,255,255,0.04)" vertical={false} />
           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 900 }} dy={8} />
           <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 900 }} />
-          <Tooltip contentStyle={{ backgroundColor: '#0d1220', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem', fontSize: 11 }} labelStyle={{ color: 'rgba(255,255,255,0.35)', fontWeight: 900, fontSize: 9 }} itemStyle={{ fontWeight: 900 }} />
+          <Tooltip contentStyle={{ backgroundColor: '#0D1B8A', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem', fontSize: 11 }} labelStyle={{ color: 'rgba(255,255,255,0.35)', fontWeight: 900, fontSize: 9 }} itemStyle={{ fontWeight: 900 }} />
           <Area type="monotone" dataKey="present" name="Present" stroke="#CCFF00" strokeWidth={2} fill="url(#g1)" dot={false} />
           <Area type="monotone" dataKey="absent" name="Absent" stroke="#f87171" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#g2)" dot={false} />
         </AreaChart>
@@ -319,7 +319,7 @@ export const AdminDashboard: React.FC = () => {
         </button>
 
         {/* Drilldown Hero */}
-        <div className="bg-gradient-to-br from-[#0d1220] to-[#0a0e1c] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.07] shadow-2xl">
+        <div className="bg-gradient-to-br from-brand-900 to-brand-950 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.07] shadow-2xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-5">
             <div>
               <p className="text-[9px] font-black text-[#CCFF00]/50 uppercase italic tracking-[0.4em] mb-1">CENTRE DRILL-DOWN</p>
@@ -342,7 +342,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* 7-day chart for this centre */}
-        <div className="bg-[#0d1220] p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="bg-brand-900 p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center gap-2 mb-5">
             <Clock size={13} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">7-DAY ATTENDANCE TREND</h3>
@@ -355,7 +355,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Player roster */}
-        <div className="bg-[#0d1220] rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden">
+        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden">
           <div className="px-6 py-5 border-b border-white/[0.05] flex items-center gap-3">
             <Users size={14} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">PLAYER ATTENDANCE · LAST 30 DAYS</h3>
@@ -409,7 +409,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Age dist - drilldown */}
         {drillAge.length > 0 && (
-          <div className="bg-[#0d1220] p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+          <div className="bg-brand-900 p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
             <div className="flex items-center gap-2 mb-5">
               <TrendingUp size={13} className="text-[#CCFF00]" />
               <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">AGE GROUP BREAKDOWN</h3>
@@ -443,7 +443,7 @@ export const AdminDashboard: React.FC = () => {
     <div className="space-y-5 pb-32 font-display animate-in fade-in duration-500">
 
       {/* ── Hero KPIs ───────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#0d1422] via-[#0a1018] to-[#0d1220] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#00054e] via-brand-900 to-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-[0.025] pointer-events-none select-none">
           <Command size={180} className="text-white" />
         </div>
@@ -480,7 +480,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Alerts ─────────────────────────────────────────────────────────── */}
       {alertItems.length > 0 && (
-        <div className="bg-[#0d1220] rounded-[2rem] border border-white/[0.06] overflow-hidden">
+        <div className="bg-brand-900 rounded-[2rem] border border-white/[0.06] overflow-hidden">
           <div className="px-5 py-3.5 border-b border-white/[0.05] flex items-center gap-2">
             <AlertTriangle size={12} className="text-amber-400" />
             <p className="text-[9px] font-black text-white/35 uppercase italic tracking-[0.3em]">ACTION REQUIRED</p>
@@ -517,7 +517,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* 7-day chart */}
-        <div className="lg:col-span-2 bg-[#0d1220] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="lg:col-span-2 bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Clock size={13} className="text-[#CCFF00]" />
@@ -532,7 +532,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Top performers */}
-        <div className="bg-[#0d1220] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl flex flex-col">
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl flex flex-col">
           <div className="flex items-center gap-2 mb-5">
             <Star size={13} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">TOP PERFORMERS</h3>
@@ -569,7 +569,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         {/* Age distribution */}
-        <div className="bg-[#0d1220] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp size={13} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">AGE GROUP DISTRIBUTION</h3>
@@ -601,7 +601,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Activity feed */}
-        <div className="bg-[#0d1220] p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center gap-2 mb-5">
             <Radio size={13} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">LIVE FEED</h3>
