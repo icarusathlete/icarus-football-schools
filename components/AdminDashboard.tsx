@@ -4,7 +4,8 @@ import { AttendanceStatus } from '../types';
 import {
   Users, Activity, Command, Star, Clock, Receipt,
   UserPlus, Trophy, AlertTriangle, Timer, XCircle,
-  ChevronLeft, Shield, Radio, TrendingUp, Zap
+  ChevronLeft, Shield, Radio, TrendingUp, Zap,
+  ArrowUp, ArrowDown, Minus, CalendarPlus, Medal
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -73,6 +74,20 @@ interface PlayerRow {
 }
 interface ChartPoint { name: string; present: number; absent: number; }
 interface AgePoint { name: string; value: number; color: string; }
+interface LeagueRanking {
+  rank: number;
+  prevRank: number; // 0 = new entry (no history)
+  name: string;
+  venue: string;
+  memberId: string;
+  compositeScore: number; // 0–100
+  attendanceRate: number;
+  overallRating: number;
+  scoutScore: number; // avg of 6 skill metrics 0–10
+  developmentAreas: string[];
+  trend: 'up' | 'down' | 'stable' | 'new';
+  posChange: number; // absolute positions moved
+}
 
 // ─── Centre Card ──────────────────────────────────────────────────────────────
 
@@ -138,12 +153,13 @@ export const AdminDashboard: React.FC = () => {
 
   // Shared data
   const [centres, setCentres] = useState<CentreStat[]>([]);
-  const [globalStats, setGlobalStats] = useState({ players: 0, presentToday: 0, rate: 0, alerts: 0, overdueCount: 0, expiringCount: 0 });
+  const [globalStats, setGlobalStats] = useState({ players: 0, presentToday: 0, rate: 0, alerts: 0, overdueCount: 0, expiringCount: 0, newThisMonth: 0 });
   const [alertItems, setAlertItems] = useState<{ id: string; severity: 'critical' | 'warning' | 'info'; icon: React.ReactNode; label: string; detail: string }[]>([]);
   const [chartAll, setChartAll] = useState<ChartPoint[]>([]);
   const [ageAll, setAgeAll] = useState<AgePoint[]>([]);
   const [topPerformers, setTopPerformers] = useState<{ name: string; rating: number; venue: string }[]>([]);
   const [activityFeed, setActivityFeed] = useState<{ id: string; type: 'player' | 'match' | 'fee'; label: string; sub: string; ts: number }[]>([]);
+  const [leagueRankings, setLeagueRankings] = useState<LeagueRanking[]>([]);
 
   // Drill-down data
   const [drillPlayers, setDrillPlayers] = useState<PlayerRow[]>([]);
@@ -195,7 +211,9 @@ export const AdminDashboard: React.FC = () => {
 
     // ── Global stats ─────────────────────────────────────────────────────────
     const global_present = attendance.filter(r => r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
-    setGlobalStats({ players: players.length, presentToday: global_present, rate: players.length > 0 ? Math.round((global_present / players.length) * 100) : 0, alerts: newAlerts.length, overdueCount, expiringCount: expiringPkgs });
+    const thisMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const newThisMonth = players.filter(p => (p.registeredAt || '').startsWith(thisMonth)).length;
+    setGlobalStats({ players: players.length, presentToday: global_present, rate: players.length > 0 ? Math.round((global_present / players.length) * 100) : 0, alerts: newAlerts.length, overdueCount, expiringCount: expiringPkgs, newThisMonth });
 
     // ── 7-day chart (all) ─────────────────────────────────────────────────────
     setChartAll(Array.from({ length: 7 }, (_, i) => {
@@ -220,6 +238,83 @@ export const AdminDashboard: React.FC = () => {
     [...matches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3).forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
     [...fees].filter(f => f.invoice).sort((a, b) => new Date(b.invoice!.date).getTime() - new Date(a.invoice!.date).getTime()).slice(0, 3).forEach(f => { const pl = players.find(p => p.id === f.playerId); if (pl) feed.push({ id: `f-${f.id}`, type: 'fee', label: `₹${f.invoice!.amount.toLocaleString('en-IN')} collected`, sub: `${pl.fullName} · Invoice ${f.invoice!.invoiceNo}`, ts: new Date(f.invoice!.date).getTime() }); });
     setActivityFeed(feed.sort((a, b) => b.ts - a.ts).slice(0, 8));
+
+    // ── Academy League Rankings ───────────────────────────────────────────────
+    // Composite score formula:
+    //   40% = overallRating (scout report rating /10 scaled to 0–40)
+    //   35% = 30-day attendance rate (0–35)
+    //   25% = average of 6 skill metrics /10 scaled to 0–25
+    const computeScore = (overallRating: number, attRate: number, metrics?: { passing: number; juggling: number; shooting: number; beepTest: number; weakFoot: number; longPass: number }) => {
+      const ratingPart = (overallRating / 10) * 40;
+      const attPart = (attRate / 100) * 35;
+      const metricPart = metrics
+        ? ((metrics.passing + metrics.juggling + metrics.shooting + metrics.beepTest + metrics.weakFoot + metrics.longPass) / 6 / 10) * 25
+        : 0;
+      return Math.round((ratingPart + attPart + metricPart) * 10) / 10;
+    };
+
+    // Compute current rankings for all evaluated players
+    const evaluated = players.filter(p => p.evaluation?.overallRating);
+    const playerScores = evaluated.map(p => {
+      const rec30 = attendance.filter(r => r.playerId === p.id && r.date >= ago30);
+      const present30 = rec30.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
+      const attRate = rec30.length > 0 ? Math.round((present30 / rec30.length) * 100) : 0;
+      const m = p.evaluation!.metrics;
+      const scoutScore = Math.round(((m.passing + m.juggling + m.shooting + m.beepTest + m.weakFoot + m.longPass) / 6) * 10) / 10;
+      return {
+        id: p.id,
+        name: p.fullName,
+        venue: p.venue || '—',
+        memberId: p.memberId || '',
+        overallRating: p.evaluation!.overallRating,
+        attRate,
+        scoutScore,
+        compositeScore: computeScore(p.evaluation!.overallRating, attRate, m),
+        developmentAreas: p.evaluation!.developmentAreas || [],
+        prevEval: p.evaluationHistory && p.evaluationHistory.length > 0
+          ? p.evaluationHistory[p.evaluationHistory.length - 1]
+          : null,
+      };
+    }).sort((a, b) => b.compositeScore - a.compositeScore);
+
+    // Compute previous rankings (using last evaluationHistory entry)
+    const prevScores = playerScores
+      .filter(ps => ps.prevEval)
+      .map(ps => {
+        const prevE = ps.prevEval!;
+        const m2 = prevE.metrics;
+        return { id: ps.id, prevScore: computeScore(prevE.overallRating, ps.attRate, m2) };
+      })
+      .sort((a, b) => b.prevScore - a.prevScore);
+
+    const prevRankMap: Record<string, number> = {};
+    prevScores.forEach((ps, idx) => { prevRankMap[ps.id] = idx + 1; });
+
+    const rankings: LeagueRanking[] = playerScores.slice(0, 10).map((ps, idx) => {
+      const currentRank = idx + 1;
+      const prevRank = prevRankMap[ps.id] ?? 0;
+      let trend: LeagueRanking['trend'] = 'new';
+      let posChange = 0;
+      if (prevRank > 0) {
+        posChange = prevRank - currentRank;
+        trend = posChange > 0 ? 'up' : posChange < 0 ? 'down' : 'stable';
+      }
+      return {
+        rank: currentRank,
+        prevRank,
+        name: ps.name,
+        venue: ps.venue,
+        memberId: ps.memberId,
+        compositeScore: ps.compositeScore,
+        attendanceRate: ps.attRate,
+        overallRating: ps.overallRating,
+        scoutScore: ps.scoutScore,
+        developmentAreas: ps.developmentAreas,
+        trend,
+        posChange: Math.abs(posChange),
+      };
+    });
+    setLeagueRankings(rankings);
 
   }, []);
 
@@ -458,9 +553,10 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* KPI grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
               { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-[#CCFF00]/8 border-[#CCFF00]/15' },
+              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.2)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
               { label: "Today's Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-white/[0.04] border-white/[0.07]' },
               { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} expiring soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
               { label: 'Active Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
@@ -494,6 +590,147 @@ export const AdminDashboard: React.FC = () => {
                   <p className="text-[8px] font-bold italic opacity-60">{a.detail}</p>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Academy League Rankings ─────────────────────────────────────────── */}
+      {leagueRankings.length > 0 && (
+        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="px-5 sm:px-8 py-5 border-b border-white/[0.05] flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-2xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center">
+                <Medal size={14} className="text-[#CCFF00]" />
+              </div>
+              <div>
+                <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">ACADEMY RANKINGS</h3>
+                <p className="text-[8px] font-black italic text-white/25 uppercase tracking-[0.3em]">TOP 10 · ALL CENTRES COMBINED</p>
+              </div>
+            </div>
+            <div className="sm:ml-auto flex gap-2 flex-wrap">
+              {[
+                { dot: 'bg-[#CCFF00]', label: 'Scout Rating 40%' },
+                { dot: 'bg-blue-400', label: 'Attendance 35%' },
+                { dot: 'bg-purple-400', label: 'Skill Metrics 25%' },
+              ].map((l, i) => (
+                <span key={i} className="flex items-center gap-1.5 text-[8px] font-black italic text-white/25 bg-white/[0.03] border border-white/[0.05] px-2.5 py-1 rounded-xl">
+                  <span className={`w-1.5 h-1.5 rounded-full ${l.dot}`} />{l.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Table scroll wrapper */}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+              <thead>
+                <tr className="border-b border-white/[0.04]">
+                  {['#', 'PLAYER', 'COMPOSITE', 'SCOUT', 'ATTEND.', 'SKILL AVG', 'TREND', 'AREAS'].map((h, i) => (
+                    <th key={i} className={`px-4 py-3 text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em] ${
+                      i === 0 ? 'w-12 text-center' : i === 1 ? 'text-left' : i === 7 ? 'text-left hidden lg:table-cell' : 'text-center'
+                    }`}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.03]">
+                {leagueRankings.map((r) => {
+                  const trendConfig = {
+                    up: { icon: <ArrowUp size={11} />, color: '#4ade80', label: `+${r.posChange}`, bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                    down: { icon: <ArrowDown size={11} />, color: '#f87171', label: `-${r.posChange}`, bg: 'bg-red-500/10 border-red-500/20' },
+                    stable: { icon: <Minus size={11} />, color: 'rgba(255,255,255,0.25)', label: '—', bg: 'bg-white/[0.04] border-white/[0.06]' },
+                    new: { icon: <Zap size={11} />, color: '#f59e0b', label: 'NEW', bg: 'bg-amber-500/10 border-amber-500/20' },
+                  }[r.trend];
+                  const medalColors = ['#CCFF00', '#C0C0C0', '#CD7F32'];
+                  const isTop3 = r.rank <= 3;
+                  return (
+                    <tr key={r.name} className="hover:bg-white/[0.02] transition-colors group">
+                      {/* Rank */}
+                      <td className="px-4 py-4 text-center">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-black italic mx-auto ${
+                          isTop3 ? 'shadow-lg' : ''
+                        }`} style={{
+                          background: isTop3 ? `${medalColors[r.rank - 1]}20` : 'rgba(255,255,255,0.05)',
+                          color: isTop3 ? medalColors[r.rank - 1] : 'rgba(255,255,255,0.3)',
+                          border: isTop3 ? `1px solid ${medalColors[r.rank - 1]}30` : '1px solid rgba(255,255,255,0.06)',
+                        }}>{r.rank}</div>
+                      </td>
+                      {/* Player */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black flex-shrink-0"
+                            style={{ background: nameColor(r.name), color: '#0D1B8A' }}>
+                            {initials(r.name)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[12px] font-black italic text-white truncate">{r.name}</p>
+                            <p className="text-[8px] font-bold italic text-white/25 truncate">{r.venue}</p>
+                          </div>
+                        </div>
+                      </td>
+                      {/* Composite */}
+                      <td className="px-4 py-4 text-center">
+                        <div className="inline-flex flex-col items-center">
+                          <span className="text-[18px] font-black italic leading-none" style={{ color: r.compositeScore >= 70 ? '#CCFF00' : r.compositeScore >= 50 ? '#f59e0b' : '#f87171' }}>
+                            {r.compositeScore}
+                          </span>
+                          <span className="text-[7px] font-black italic text-white/20">/100</span>
+                        </div>
+                      </td>
+                      {/* Scout rating */}
+                      <td className="px-4 py-4 text-center">
+                        <span className="text-[13px] font-black italic text-[#CCFF00]">{r.overallRating}</span>
+                        <span className="text-[8px] font-black italic text-white/20">/10</span>
+                      </td>
+                      {/* Attendance */}
+                      <td className="px-4 py-4 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[12px] font-black italic" style={{ color: rateColor(r.attendanceRate) }}>{r.attendanceRate}%</span>
+                          <div className="w-10 h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${r.attendanceRate}%`, background: rateColor(r.attendanceRate) }} />
+                          </div>
+                        </div>
+                      </td>
+                      {/* Skill avg */}
+                      <td className="px-4 py-4 text-center">
+                        <span className="text-[12px] font-black italic text-purple-400">{r.scoutScore}</span>
+                        <span className="text-[8px] font-black italic text-white/20">/10</span>
+                      </td>
+                      {/* Trend */}
+                      <td className="px-4 py-4 text-center">
+                        <div className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[9px] font-black italic ${trendConfig.bg}`}
+                          style={{ color: trendConfig.color }}>
+                          {trendConfig.icon}
+                          {trendConfig.label}
+                        </div>
+                      </td>
+                      {/* Dev areas */}
+                      <td className="px-4 py-4 hidden lg:table-cell">
+                        <div className="flex flex-wrap gap-1 max-w-[160px]">
+                          {r.developmentAreas.slice(0, 2).map((a, i) => (
+                            <span key={i} className="text-[7px] font-black italic text-white/30 bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded-lg">{a}</span>
+                          ))}
+                          {r.developmentAreas.length > 2 && (
+                            <span className="text-[7px] font-black italic text-white/20">+{r.developmentAreas.length - 2}</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Legend footer */}
+          <div className="px-5 sm:px-8 py-3.5 border-t border-white/[0.04] flex flex-wrap gap-4">
+            {[
+              { icon: <ArrowUp size={9} className="text-emerald-400" />, label: 'Climbing vs last evaluation', color: 'text-emerald-400' },
+              { icon: <ArrowDown size={9} className="text-red-400" />, label: 'Dropped vs last evaluation', color: 'text-red-400' },
+              { icon: <Zap size={9} className="text-amber-400" />, label: 'First time ranked', color: 'text-amber-400' },
+            ].map((l, i) => (
+              <span key={i} className={`flex items-center gap-1 text-[8px] font-black italic ${l.color} opacity-50`}>{l.icon}{l.label}</span>
             ))}
           </div>
         </div>
