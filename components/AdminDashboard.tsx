@@ -1,285 +1,553 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
-import { AttendanceRecord, Player, User, Venue, Batch, AttendanceStatus } from '../types';
-import { 
-  Users, Calendar, MapPin, Activity, TrendingUp, TrendingDown, 
-  Search, Filter, ChevronRight, Zap, Target, 
-  Layers, Clock, Shield, Command, AlertCircle, Radio, Check
+import { AttendanceRecord, Player, Venue, AttendanceStatus } from '../types';
+import {
+  Users, MapPin, Activity, TrendingUp, Zap,
+  Layers, Shield, Command, Star, Clock, Receipt,
+  ChevronRight, UserPlus, Trophy, FileText, AlertCircle
 } from 'lucide-react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  LineChart, Line, AreaChart, Area, Cell, PieChart, Pie
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Cell, PieChart, Pie,
 } from 'recharts';
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function getDateOffset(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+}
+
+function getDayLabel(isoDate: string): string {
+  return new Date(isoDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+}
+
+function getAgeGroup(dob: string): string {
+  if (!dob) return 'Unknown';
+  const birthYear = new Date(dob).getFullYear();
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - birthYear;
+  if (age <= 8) return 'U8';
+  if (age <= 10) return 'U10';
+  if (age <= 12) return 'U12';
+  if (age <= 14) return 'U14';
+  if (age <= 16) return 'U16';
+  if (age <= 18) return 'U18';
+  return 'Adult';
+}
+
+const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'Adult'];
+const AGE_COLORS = ['#CCFF00', '#a3e635', '#4ade80', '#34d399', '#22d3ee', '#60a5fa', '#818cf8'];
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface CentreStat {
+  name: string;
+  players: number;
+  presentToday: number;
+  attendanceRate: number;
+  avgRating: number;
+  evaluatedCount: number;
+  pendingFees: number;
+}
+
+interface ActivityItem {
+  id: string;
+  type: 'player' | 'attendance' | 'match' | 'fee';
+  label: string;
+  sub: string;
+  timestamp: number;
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 export const AdminDashboard: React.FC = () => {
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations');
   const [availableVenues, setAvailableVenues] = useState<Venue[]>([]);
   const [venueStats, setVenueStats] = useState<Record<string, number>>({});
-  const [stats, setStats] = useState({
-    totalPlayers: 0,
-    activeVenues: 0,
-    dailyAttendance: 0,
-    weeklyGrowth: 12,
-    attendanceRate: 0
-  });
 
-  const [attendanceData, setAttendanceData] = useState<any[]>([]);
-  const [recentRecords, setRecentRecords] = useState<AttendanceRecord[]>([]);
+  // Computed state
+  const [quickStats, setQuickStats] = useState({ totalPlayers: 0, presentToday: 0, attendanceRate: 0, activeCentres: 0, pendingFees: 0 });
+  const [centreComparison, setCentreComparison] = useState<CentreStat[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [ageData, setAgeData] = useState<{ name: string; value: number }[]>([]);
+  const [perfSnapshot, setPerfSnapshot] = useState({ topPlayer: '', topRating: 0, avgRating: 0, evalCoverage: 0 });
+  const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([]);
 
   useEffect(() => {
     const players = StorageService.getPlayers();
     const venues = StorageService.getVenues();
     const attendance = StorageService.getAttendance();
-    
+    const matches = StorageService.getMatches();
+    const fees = StorageService.getFees();
+
     setAvailableVenues(venues);
 
-    // Calculate player counts per venue for the selector
+    const today = getDateOffset(0);
+
+    // Venue player counts for the location selector
     const counts: Record<string, number> = { 'All Locations': players.length };
-    venues.forEach(v => {
-        counts[v.name] = players.filter(p => p.venue === v.name).length;
-    });
+    venues.forEach(v => { counts[v.name] = players.filter(p => p.venue === v.name).length; });
     setVenueStats(counts);
 
-    // Filter data based on selected location
-    const filteredPlayers = selectedVenue === 'All Locations' 
-      ? players 
-      : players.filter(p => p.venue === selectedVenue);
+    // Filtered scope
+    const scopedPlayers = selectedVenue === 'All Locations' ? players : players.filter(p => p.venue === selectedVenue);
+    const scopedAttendance = selectedVenue === 'All Locations' ? attendance : attendance.filter(r => r.venue === selectedVenue);
 
-    const filteredAttendance = selectedVenue === 'All Locations'
-      ? attendance
-      : attendance.filter(r => r.venue === selectedVenue);
+    // ── Quick Stats ──────────────────────────────────────────────────────────
+    const presentToday = scopedAttendance.filter(r => r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
+    const pendingFees = fees.filter(f => f.status === 'PENDING' || f.status === 'OVERDUE').length;
 
-    // Calculate Stats
-    const today = new Date().toISOString().split('T')[0];
-    const todayAttendance = filteredAttendance.filter(r => r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT);
-    
-    setStats({
-      totalPlayers: filteredPlayers.length,
-      activeVenues: selectedVenue === 'All Locations' ? venues.length : 1,
-      dailyAttendance: todayAttendance.length,
-      weeklyGrowth: 8,
-      attendanceRate: filteredPlayers.length > 0 ? (todayAttendance.length / filteredPlayers.length) * 100 : 0
+    setQuickStats({
+      totalPlayers: scopedPlayers.length,
+      presentToday,
+      attendanceRate: scopedPlayers.length > 0 ? Math.round((presentToday / scopedPlayers.length) * 100) : 0,
+      activeCentres: selectedVenue === 'All Locations' ? venues.length : 1,
+      pendingFees,
     });
 
-    // Mock Attendance Data for Chart (Last 7 days)
-    const chartData = [
-      { name: 'MON', value: 45, rate: 88, active: 12 },
-      { name: 'TUE', value: 52, rate: 92, active: 15 },
-      { name: 'WED', value: 48, rate: 85, active: 10 },
-      { name: 'THU', value: 61, rate: 95, active: 18 },
-      { name: 'FRI', value: 55, rate: 90, active: 14 },
-      { name: 'SAT', value: 68, rate: 98, active: 22 },
-      { name: 'SUN', value: 63, rate: 94, active: 20 },
-    ];
-    setAttendanceData(chartData);
-    setRecentRecords(filteredAttendance.slice(0, 10));
+    // ── Centre Comparison ────────────────────────────────────────────────────
+    const comparisons: CentreStat[] = venues.map(v => {
+      const vPlayers = players.filter(p => p.venue === v.name);
+      const vPresent = attendance.filter(r => r.venue === v.name && r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
+      const evaluated = vPlayers.filter(p => p.evaluation?.overallRating);
+      const avgRating = evaluated.length > 0
+        ? Math.round((evaluated.reduce((sum, p) => sum + (p.evaluation?.overallRating ?? 0), 0) / evaluated.length) * 10) / 10
+        : 0;
+      const vPending = fees.filter(f => {
+        const player = players.find(p => p.id === f.playerId);
+        return player?.venue === v.name && (f.status === 'PENDING' || f.status === 'OVERDUE');
+      }).length;
+
+      return {
+        name: v.name,
+        players: vPlayers.length,
+        presentToday: vPresent,
+        attendanceRate: vPlayers.length > 0 ? Math.round((vPresent / vPlayers.length) * 100) : 0,
+        avgRating,
+        evaluatedCount: evaluated.length,
+        pendingFees: vPending,
+      };
+    });
+    setCentreComparison(comparisons);
+
+    // ── Real 7-Day Chart ─────────────────────────────────────────────────────
+    const last7 = Array.from({ length: 7 }, (_, i) => {
+      const date = getDateOffset(i - 6);
+      const dayRecords = scopedAttendance.filter(r => r.date === date);
+      const present = dayRecords.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
+      const absent = dayRecords.filter(r => String(r.status).toUpperCase() === AttendanceStatus.ABSENT).length;
+      const rate = (present + absent) > 0 ? Math.round((present / (present + absent)) * 100) : 0;
+      return { name: getDayLabel(date), date, present, absent, rate };
+    });
+    setChartData(last7);
+
+    // ── Age Distribution ─────────────────────────────────────────────────────
+    const ageCounts: Record<string, number> = {};
+    AGE_GROUPS.forEach(g => { ageCounts[g] = 0; });
+    scopedPlayers.forEach(p => { const g = getAgeGroup(p.dateOfBirth); ageCounts[g] = (ageCounts[g] || 0) + 1; });
+    setAgeData(AGE_GROUPS.map(g => ({ name: g, value: ageCounts[g] || 0 })).filter(g => g.value > 0));
+
+    // ── Performance Snapshot ─────────────────────────────────────────────────
+    const evaluatedPlayers = scopedPlayers.filter(p => p.evaluation?.overallRating);
+    const avgRating = evaluatedPlayers.length > 0
+      ? Math.round((evaluatedPlayers.reduce((s, p) => s + (p.evaluation?.overallRating ?? 0), 0) / evaluatedPlayers.length) * 10) / 10
+      : 0;
+    const topPlayer = evaluatedPlayers.sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0))[0];
+    setPerfSnapshot({
+      topPlayer: topPlayer?.fullName ?? '—',
+      topRating: topPlayer?.evaluation?.overallRating ?? 0,
+      avgRating,
+      evalCoverage: scopedPlayers.length > 0 ? Math.round((evaluatedPlayers.length / scopedPlayers.length) * 100) : 0,
+    });
+
+    // ── Activity Feed ────────────────────────────────────────────────────────
+    const feed: ActivityItem[] = [];
+
+    // Recent player registrations
+    [...players]
+      .sort((a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime())
+      .slice(0, 4)
+      .forEach(p => {
+        feed.push({
+          id: `player-${p.id}`,
+          type: 'player',
+          label: `${p.fullName} registered`,
+          sub: `${p.venue || 'No Centre'} · ${new Date(p.registeredAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
+          timestamp: new Date(p.registeredAt).getTime(),
+        });
+      });
+
+    // Recent matches
+    [...matches]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 3)
+      .forEach(m => {
+        const resultLabel = m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew';
+        feed.push({
+          id: `match-${m.id}`,
+          type: 'match',
+          label: `${resultLabel} vs ${m.opponent}`,
+          sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
+          timestamp: new Date(m.date).getTime(),
+        });
+      });
+
+    // Recent fee records
+    [...fees]
+      .sort((a, b) => (b.invoice?.date ? new Date(b.invoice.date).getTime() : 0) - (a.invoice?.date ? new Date(a.invoice.date).getTime() : 0))
+      .slice(0, 3)
+      .forEach(f => {
+        const player = players.find(p => p.id === f.playerId);
+        if (player && f.invoice) {
+          feed.push({
+            id: `fee-${f.id}`,
+            type: 'fee',
+            label: `Invoice ${f.invoice.invoiceNo}`,
+            sub: `${player.fullName} · ₹${f.invoice.amount.toLocaleString('en-IN')}`,
+            timestamp: new Date(f.invoice.date).getTime(),
+          });
+        }
+      });
+
+    feed.sort((a, b) => b.timestamp - a.timestamp);
+    setActivityFeed(feed.slice(0, 10));
+
   }, [selectedVenue]);
 
+  // ─── Render helpers ────────────────────────────────────────────────────────
+
+  const activityColor: Record<ActivityItem['type'], string> = {
+    player: '#CCFF00',
+    attendance: '#60a5fa',
+    match: '#f59e0b',
+    fee: '#a78bfa',
+  };
+  const activityIcon: Record<ActivityItem['type'], React.ReactNode> = {
+    player: <UserPlus size={13} />,
+    attendance: <Activity size={13} />,
+    match: <Trophy size={13} />,
+    fee: <Receipt size={13} />,
+  };
+
+  const maxPlayers = Math.max(...centreComparison.map(c => c.players), 1);
+
+  // ─── JSX ──────────────────────────────────────────────────────────────────
+
   return (
-    <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
-      {/* Dashboard Overview */}
-      <div className="flex flex-col xl:flex-row gap-6">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center flex-1 gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Command size={120} className="text-white" /></div>
-              <div className="relative z-10 space-y-2">
-                  <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none pointer-events-none">
-                     ACADEMY <span className="text-[#CCFF00] font-black">DASHBOARD</span>
-                  </h2>
-                  <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Central Intelligence // Performance Metrics Hub</p>
-              </div>
+    <div className="space-y-6 pb-32 animate-in fade-in duration-700 font-display">
+
+      {/* ── Hero Strip ───────────────────────────────────────────────────── */}
+      <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.04] pointer-events-none">
+          <Command size={160} className="text-white" />
+        </div>
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
+              ACADEMY <span className="text-[#CCFF00]">HUB</span>
+            </h1>
+            <p className="text-white/30 font-black uppercase text-[10px] tracking-[0.4em] italic mt-1">Command Centre // Live Intelligence</p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6 xl:w-1/3">
-              <div className="glass-card flex-1 p-8 rounded-[2.5rem] border-white/5 relative overflow-hidden group hover:border-brand-primary/20">
-                  <div className="flex justify-between items-start mb-6">
-                      <div className="p-4 bg-brand-primary/10 rounded-2xl text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-brand-950 transition-all duration-500 shadow-xl"><Users size={24} /></div>
-                      <span className="text-[10px] font-black text-brand-primary bg-brand-primary/5 px-3 py-1 rounded-full border border-brand-primary/10 italic">TOTAL_ACTIVE</span>
-                  </div>
-                  <p className="text-[10px] font-black text-brand-950/60 uppercase tracking-[0.2em] mb-1 italic">Squad Enrollment</p>
-                  <p className="text-5xl font-black text-slate-900 italic tracking-tighter">
-                      {venueStats['All Locations'] || 0}
-                      <span className="text-brand-primary text-xl ml-2 font-black uppercase">Units</span>
-                  </p>
-              </div>
-          </div>
-      </div>
-
-      {/* Location Control Hub with Standard Bar Divider */}
-      <div className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-              <div className="space-y-1">
-                  <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                      <MapPin className="text-brand-primary" size={20} /> 
-                      LOCATION_HUB_INTERFACE
-                      <span className="bg-brand-primary/10 text-brand-primary px-4 py-1 rounded-xl text-xs font-black ml-4 border border-brand-primary/20 shadow-xl">{availableVenues.length + 1} SITES</span>
-                  </h2>
-                  <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
-              </div>
-          </div>
-
-          <div className="bg-brand-900 px-3 py-2.5 rounded-[2rem] border border-white/5 shadow-2xl">
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                  <button
-                      onClick={() => setSelectedVenue('All Locations')}
-                      className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${
-                          selectedVenue === 'All Locations'
-                          ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]'
-                          : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'
-                      }`}
-                  >
-                      <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === 'All Locations' ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
-                          <Layers size={11} strokeWidth={2.5} />
-                      </div>
-                      <div className="text-left leading-none">
-                          <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">All Locations</p>
-                          <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>
-                              {venueStats['All Locations'] || 0} players
-                          </p>
-                      </div>
-                  </button>
-
-                  <div className="w-px h-5 bg-white/10 flex-shrink-0" />
-
-                  {availableVenues.map((venue) => (
-                      <button
-                          key={venue.id}
-                          onClick={() => setSelectedVenue(venue.name)}
-                          className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${
-                              selectedVenue === venue.name
-                              ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]'
-                              : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'
-                          }`}
-                      >
-                          <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === venue.name ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
-                              <MapPin size={11} strokeWidth={2.5} />
-                          </div>
-                          <div className="text-left leading-none">
-                              <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">{venue.name}</p>
-                              <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === venue.name ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>
-                                  {venueStats[venue.name] || 0} players
-                              </p>
-                          </div>
-                      </button>
-                  ))}
-              </div>
-          </div>
-      </div>
-
-
-
-      {/* Academy Insights Grid with Standard Bar Divider */}
-      <section className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-              <div className="space-y-1">
-                  <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                      <TrendingUp className="text-brand-primary" size={20} /> 
-                      ACADEMY_INSIGHTS_MATRIX
-                  </h2>
-                  <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
-              </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Quick Stat Pills */}
+          <div className="flex flex-wrap gap-2">
             {[
-              { label: 'TOTAL PLAYERS', value: stats.totalPlayers, unit: 'PLAYERS', icon: Users, color: 'text-brand-primary' },
-              { label: 'ATTENDANCE RATE', value: stats.attendanceRate.toFixed(1), unit: 'PERCENT', icon: Target, color: 'text-brand-accent' },
-              { label: 'DAILY ATTENDANCE', value: stats.dailyAttendance, unit: 'PRESENT', icon: Activity, color: 'text-brand-primary' },
-              { label: 'PLAYER RECORDS', value: StorageService.getAttendance().length.toLocaleString(), unit: 'LOGS', icon: Shield, color: 'text-brand-primary' },
-            ].map((item, i) => (
-              <div key={i} className="glass-card p-10 rounded-[2.5rem] border-slate-100/50 hover:bg-brand-50 transition-all group shadow-sm">
-                <div className="flex justify-between items-start mb-10">
-                  <p className="text-[11px] font-black text-slate-500 italic uppercase tracking-[0.3em]">{item.label}</p>
-                  <item.icon size={20} className={`${item.color} group-hover:scale-125 transition-transform`} />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-5xl font-black text-slate-900 italic tracking-tighter mb-2 leading-none">{item.value}</p>
-                  <p className="text-[9px] font-black text-brand-500 uppercase tracking-[0.4em] italic">{item.unit}</p>
+              { label: 'Players', value: quickStats.totalPlayers, icon: <Users size={12} />, color: '#CCFF00' },
+              { label: 'Present Today', value: quickStats.presentToday, icon: <Activity size={12} />, color: '#4ade80' },
+              { label: 'Attendance', value: `${quickStats.attendanceRate}%`, icon: <TrendingUp size={12} />, color: '#60a5fa' },
+              { label: 'Centres', value: quickStats.activeCentres, icon: <MapPin size={12} />, color: '#f59e0b' },
+              { label: 'Pending Fees', value: quickStats.pendingFees, icon: <Receipt size={12} />, color: quickStats.pendingFees > 0 ? '#f87171' : '#a3e635' },
+            ].map((s, i) => (
+              <div key={i} className="flex items-center gap-2 bg-white/5 border border-white/5 rounded-2xl px-3 py-2">
+                <span style={{ color: s.color }}>{s.icon}</span>
+                <div className="leading-none">
+                  <p className="text-[11px] font-black text-white">{s.value}</p>
+                  <p className="text-[9px] font-bold text-white/40 uppercase italic">{s.label}</p>
                 </div>
               </div>
             ))}
           </div>
-      </section>
+        </div>
+      </div>
 
-      {/* Performance Analytics with Standard Bar Divider */}
-      <section className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-              <div className="space-y-1">
-                  <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                      <Zap className="text-brand-primary" size={20} /> 
-                      PERFORMANCE_PROTOCOL_ANALYTICS
-                  </h2>
-                  <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+      {/* ── Location Selector ────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 px-1">
+          <MapPin size={14} className="text-[#CCFF00]" />
+          <h2 className="text-xs font-black text-white/50 uppercase italic tracking-[0.35em]">LOCATION HUB</h2>
+          <span className="bg-[#CCFF00]/10 text-[#CCFF00] px-2.5 py-0.5 rounded-lg text-[9px] font-black border border-[#CCFF00]/20">{availableVenues.length + 1} SITES</span>
+        </div>
+        <div className="bg-brand-900 px-3 py-2.5 rounded-[2rem] border border-white/5 shadow-2xl">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setSelectedVenue('All Locations')}
+              className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${selectedVenue === 'All Locations' ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]' : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'}`}
+            >
+              <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === 'All Locations' ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
+                <Layers size={11} strokeWidth={2.5} />
               </div>
+              <div className="text-left leading-none">
+                <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">All Locations</p>
+                <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>{venueStats['All Locations'] || 0} players</p>
+              </div>
+            </button>
+            <div className="w-px h-5 bg-white/10 flex-shrink-0" />
+            {availableVenues.map(venue => (
+              <button
+                key={venue.id}
+                onClick={() => setSelectedVenue(venue.name)}
+                className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${selectedVenue === venue.name ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]' : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'}`}
+              >
+                <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === venue.name ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
+                  <MapPin size={11} strokeWidth={2.5} />
+                </div>
+                <div className="text-left leading-none">
+                  <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">{venue.name}</p>
+                  <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === venue.name ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>{venueStats[venue.name] || 0} players</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Centre Comparison Table ──────────────────────────────────────── */}
+      {centreComparison.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 px-1">
+            <Zap size={14} className="text-[#CCFF00]" />
+            <h2 className="text-xs font-black text-white/50 uppercase italic tracking-[0.35em]">CENTRE COMPARISON</h2>
+          </div>
+          <div className="bg-brand-900 rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden">
+            {/* Table header */}
+            <div className="grid grid-cols-[1fr_60px_80px_70px_60px_70px] gap-0 px-5 py-3 border-b border-white/5">
+              {['CENTRE', 'PLAYERS', 'TODAY', 'RATE', 'AVG ⭐', 'FEES DUE'].map((h, i) => (
+                <p key={i} className={`text-[9px] font-black text-white/30 uppercase italic tracking-[0.2em] ${i > 0 ? 'text-right' : ''}`}>{h}</p>
+              ))}
+            </div>
+            {/* Rows */}
+            {centreComparison.map((c, i) => {
+              const isBest = c.attendanceRate === Math.max(...centreComparison.map(x => x.attendanceRate)) && c.attendanceRate > 0;
+              return (
+                <div
+                  key={c.name}
+                  className={`grid grid-cols-[1fr_60px_80px_70px_60px_70px] gap-0 px-5 py-4 border-b border-white/5 last:border-0 transition-colors hover:bg-white/[0.02] ${isBest ? 'border-l-2 border-l-[#CCFF00]' : ''}`}
+                >
+                  {/* Centre name + bar */}
+                  <div className="flex flex-col justify-center gap-1.5 min-w-0 pr-3">
+                    <div className="flex items-center gap-2">
+                      {isBest && <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] flex-shrink-0" />}
+                      <p className="text-[11px] font-black text-white uppercase italic tracking-tight truncate">{c.name}</p>
+                    </div>
+                    <div className="h-1 bg-white/5 rounded-full overflow-hidden w-full">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${(c.players / maxPlayers) * 100}%`, background: '#CCFF00', opacity: 0.6 }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[12px] font-black text-white text-right self-center">{c.players}</p>
+                  <div className="text-right self-center">
+                    <p className="text-[12px] font-black text-white">{c.presentToday}</p>
+                    {c.players > 0 && <p className="text-[9px] text-white/30 italic">/ {c.players}</p>}
+                  </div>
+                  <div className="text-right self-center">
+                    <p className={`text-[12px] font-black ${c.attendanceRate >= 75 ? 'text-[#CCFF00]' : c.attendanceRate >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                      {c.attendanceRate}%
+                    </p>
+                  </div>
+                  <p className="text-[12px] font-black text-white/70 text-right self-center">
+                    {c.avgRating > 0 ? c.avgRating.toFixed(1) : '—'}
+                  </p>
+                  <p className={`text-[12px] font-black text-right self-center ${c.pendingFees > 0 ? 'text-red-400' : 'text-white/30'}`}>
+                    {c.pendingFees > 0 ? c.pendingFees : '✓'}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Chart Row: 7-Day Attendance + Performance Snapshot ───────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* 7-Day Chart */}
+        <div className="lg:col-span-2 bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-white italic uppercase tracking-tighter flex items-center gap-2">
+                <Clock size={16} className="text-[#CCFF00]" />
+                7-DAY ATTENDANCE
+              </h3>
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mt-0.5">Real attendance from database</p>
+            </div>
+            <div className="flex gap-3 text-[9px] font-black uppercase italic">
+              <span className="flex items-center gap-1.5 text-[#CCFF00]/70"><span className="w-2 h-2 rounded-full bg-[#CCFF00] inline-block" /> Present</span>
+              <span className="flex items-center gap-1.5 text-red-400/70"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" /> Absent</span>
+            </div>
+          </div>
+          <div className="h-[250px] sm:h-[300px] w-full">
+            {chartData.every(d => d.present === 0 && d.absent === 0) ? (
+              <div className="h-full flex flex-col items-center justify-center gap-3 opacity-40">
+                <Activity size={32} className="text-white/20" />
+                <p className="text-[10px] font-black text-white/30 uppercase italic tracking-widest">No attendance data yet</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#CCFF00" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#CCFF00" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f87171" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 900 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 900 }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0a0f1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
+                    itemStyle={{ fontSize: '10px', fontWeight: 900 }}
+                    labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontWeight: 900, marginBottom: '4px' }}
+                  />
+                  <Area type="monotone" dataKey="present" name="Present" stroke="#CCFF00" strokeWidth={2.5} fillOpacity={1} fill="url(#greenGrad)" dot={false} />
+                  <Area type="monotone" dataKey="absent" name="Absent" stroke="#f87171" strokeWidth={1.5} strokeDasharray="4 3" fillOpacity={1} fill="url(#redGrad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Performance Snapshot */}
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col">
+          <div className="flex items-center gap-2 mb-6">
+            <Star size={16} className="text-[#CCFF00]" />
+            <h3 className="text-base font-black text-white italic uppercase tracking-tighter">PERFORMANCE</h3>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Activity Chart */}
-            <div className="lg:col-span-2 glass-card p-10 rounded-[2.5rem] border-white/5 hover:border-brand-primary/10 transition-all group">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-brand-900 italic uppercase tracking-tighter leading-none flex items-center gap-3">
-                    <Clock className="text-brand-500" size={24} /> ACTIVITY LOG • <span className="text-brand-200 uppercase">Today</span>
-                  </h3>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Real-time attendance & metrics sync</p>
-                </div>
-                <div className="flex gap-2">
-                    <button className="px-5 py-2 bg-brand-500 text-white rounded-xl text-[10px] font-black uppercase italic tracking-widest shadow-lg shadow-brand-500/20">LIVE_FEED</button>
-                    <button className="px-5 py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase italic tracking-widest border border-slate-200">HISTORY_LOG</button>
+          {perfSnapshot.topRating > 0 ? (
+            <>
+              {/* Top Player */}
+              <div className="bg-[#CCFF00]/5 border border-[#CCFF00]/10 rounded-2xl p-4 mb-4">
+                <p className="text-[9px] font-black text-[#CCFF00]/60 uppercase italic tracking-widest mb-1">Top Rated Player</p>
+                <p className="text-sm font-black text-white uppercase italic tracking-tight leading-tight">{perfSnapshot.topPlayer}</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <Star size={12} className="text-[#CCFF00] fill-[#CCFF00]" />
+                  <span className="text-xl font-black text-[#CCFF00] italic">{perfSnapshot.topRating}</span>
+                  <span className="text-[9px] text-white/30 font-black uppercase italic">/10</span>
                 </div>
               </div>
-              
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={attendanceData}>
-                    <defs>
-                      <linearGradient id="cyanGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#00C8FF" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#00C8FF" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} dy={15} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '1.5rem', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}
-                      itemStyle={{ color: '#00C8FF', fontSize: '11px', fontWeight: 900 }}
-                      labelStyle={{ display: 'none' }}
-                    />
-                    <Area type="monotone" dataKey="value" stroke="#00C8FF" strokeWidth={4} fillOpacity={1} fill="url(#cyanGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
 
-            {/* Team Statistics Card */}
-            <div className="glass-card p-10 rounded-[2.5rem] bg-slate-50 border-slate-100 flex flex-col justify-between group overflow-hidden relative shadow-sm">
-                <div className="absolute -top-10 -right-10 opacity-[0.05] group-hover:scale-125 transition-transform duration-1000"><Zap size={240} className="text-brand-500" /></div>
-                
-                <div className="relative z-10 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 text-brand-500 group-hover:rotate-12 transition-transform"><AlertCircle size={20} /></div>
-                        <h3 className="text-xl font-black text-brand-900 italic uppercase tracking-tighter">DATASET_CORE</h3>
-                    </div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">Intelligence Matrix v4.0</p>
-                    
-                    <div className="space-y-6 pt-10">
-                        {[
-                            { label: 'TECHNICAL_SKILLS', value: 88 },
-                            { label: 'TACTICAL_SYNC', value: 94 },
-                            { label: 'ENERGY_OUTPUT', value: 72 }
-                        ].map((m, i) => (
-                            <div key={i} className="space-y-2">
-                                <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-brand-950/60 italic"><span>{m.label}</span><span>{m.value}%</span></div>
-                                <div className="h-1 bg-brand-950/10 rounded-full overflow-hidden border border-white/5"><div className="h-full bg-brand-primary shadow-glow shadow-brand-primary/40" style={{ width: `${m.value}%` }} /></div>
-                            </div>
-                        ))}
-                    </div>
+              {/* Stats row */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-white/5 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-white/30 uppercase italic tracking-widest mb-1">Avg Rating</p>
+                  <p className="text-2xl font-black text-white italic">{perfSnapshot.avgRating}</p>
                 </div>
+                <div className="bg-white/5 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-white/30 uppercase italic tracking-widest mb-1">Evaluated</p>
+                  <p className="text-2xl font-black text-white italic">{perfSnapshot.evalCoverage}%</p>
+                </div>
+              </div>
 
-                <button className="relative z-10 w-full py-5 bg-brand-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] italic shadow-2xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all mt-10">DOWNLOAD_INTEL_REPORT</button>
+              {/* Eval coverage bar */}
+              <div className="mt-auto space-y-1.5">
+                <div className="flex justify-between text-[9px] font-black text-white/30 uppercase italic">
+                  <span>Evaluation Coverage</span><span>{perfSnapshot.evalCoverage}%</span>
+                </div>
+                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#CCFF00] rounded-full transition-all duration-1000" style={{ width: `${perfSnapshot.evalCoverage}%` }} />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 opacity-40">
+              <Shield size={32} className="text-white/20" />
+              <p className="text-[10px] font-black text-white/30 uppercase italic tracking-widest text-center">No evaluations<br />recorded yet</p>
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Bottom Row: Age Distribution + Activity Feed ──────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Age Distribution */}
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Users size={16} className="text-[#CCFF00]" />
+            <h3 className="text-base font-black text-white italic uppercase tracking-tighter">AGE DISTRIBUTION</h3>
           </div>
-      </section>
+          {ageData.length > 0 ? (
+            <div className="space-y-3">
+              {ageData.map((g, i) => {
+                const maxVal = Math.max(...ageData.map(x => x.value));
+                const pct = Math.round((g.value / maxVal) * 100);
+                return (
+                  <div key={g.name} className="flex items-center gap-3">
+                    <span className="text-[9px] font-black uppercase italic text-white/40 w-8 flex-shrink-0">{g.name}</span>
+                    <div className="flex-1 h-5 bg-white/5 rounded-lg overflow-hidden">
+                      <div
+                        className="h-full rounded-lg flex items-center px-2 transition-all duration-700"
+                        style={{ width: `${pct}%`, background: AGE_COLORS[i % AGE_COLORS.length], minWidth: g.value > 0 ? '2rem' : '0' }}
+                      >
+                        <span className="text-[9px] font-black text-brand-950 italic">{g.value}</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-black text-white/30 italic w-10 text-right">{Math.round((g.value / (ageData.reduce((s, x) => s + x.value, 0))) * 100)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="h-48 flex flex-col items-center justify-center gap-3 opacity-40">
+              <Users size={32} className="text-white/20" />
+              <p className="text-[10px] font-black text-white/30 uppercase italic tracking-widest">No player data</p>
+            </div>
+          )}
+        </div>
+
+        {/* Activity Feed */}
+        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Radio size={16} className="text-[#CCFF00]" />
+            <h3 className="text-base font-black text-white italic uppercase tracking-tighter">LIVE ACTIVITY</h3>
+          </div>
+          {activityFeed.length > 0 ? (
+            <div className="space-y-1">
+              {activityFeed.map(item => (
+                <div key={item.id} className="flex items-start gap-3 py-2.5 border-b border-white/5 last:border-0">
+                  <div
+                    className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center mt-0.5"
+                    style={{ background: `${activityColor[item.type]}15`, color: activityColor[item.type] }}
+                  >
+                    {activityIcon[item.type]}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-black text-white italic tracking-tight truncate">{item.label}</p>
+                    <p className="text-[9px] font-bold text-white/30 italic">{item.sub}</p>
+                  </div>
+                  <div
+                    className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-2"
+                    style={{ background: activityColor[item.type], opacity: 0.6 }}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-48 flex flex-col items-center justify-center gap-3 opacity-40">
+              <AlertCircle size={32} className="text-white/20" />
+              <p className="text-[10px] font-black text-white/30 uppercase italic tracking-widest text-center">No activity<br />recorded yet</p>
+            </div>
+          )}
+        </div>
+      </div>
 
     </div>
   );
