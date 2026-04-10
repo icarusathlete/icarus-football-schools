@@ -338,20 +338,22 @@ export const StorageService = {
       }
   },
 
-  setMOTM: async (playerId: string, date: string) => {
+  setMOTM: async (playerId: string, date: string, venue?: string, batch?: string) => {
+      const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
       try {
-        await setDoc(doc(db, 'session_motm', date), { playerId, timestamp: Date.now() });
+        await setDoc(doc(db, 'session_motm', key), { playerId, timestamp: Date.now(), venue, batch });
       } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `session_motm/${date}`);
+        handleFirestoreError(error, OperationType.WRITE, `session_motm/${key}`);
       }
   },
 
-  getMOTM: (date: string): { playerId: string, timestamp: number } | null => {
+  getMOTM: (date: string, venue?: string, batch?: string): { playerId: string, timestamp: number } | null => {
+      const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
       const storageRaw = localStorage.getItem(SESSION_MOTM_KEY);
       if (!storageRaw) return null;
       try {
           const storage = JSON.parse(storageRaw);
-          return storage[date] || null;
+          return storage[key] || null;
       } catch (e) {
           console.error("Failed to parse MOTM", e);
           return null;
@@ -503,30 +505,33 @@ export const StorageService = {
     }
   },
 
-  isRollcallFinalized: (date: string): boolean => {
+  isRollcallFinalized: (date: string, venue?: string, batch?: string): boolean => {
+      const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
       const storageRaw = localStorage.getItem(FINALIZED_ROLLCALLS_KEY);
       if (!storageRaw) return false;
       try {
           const storage = JSON.parse(storageRaw);
-          return !!storage[date];
+          return !!storage[key];
       } catch (e) {
           return false;
       }
   },
 
-  finalizeRollcall: async (date: string) => {
+  finalizeRollcall: async (date: string, venue?: string, batch?: string) => {
+      const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
       try {
-          await setDoc(doc(db, 'finalized_rollcalls', date), { finalized: true, timestamp: Date.now() });
+          await setDoc(doc(db, 'finalized_rollcalls', key), { finalized: true, timestamp: Date.now(), venue, batch });
       } catch (error) {
-          handleFirestoreError(error, OperationType.WRITE, `finalized_rollcalls/${date}`);
+          handleFirestoreError(error, OperationType.WRITE, `finalized_rollcalls/${key}`);
       }
   },
 
-  unfinalizeRollcall: async (date: string) => {
+  unfinalizeRollcall: async (date: string, venue?: string, batch?: string) => {
+      const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
       try {
-          await deleteDoc(doc(db, 'finalized_rollcalls', date));
+          await deleteDoc(doc(db, 'finalized_rollcalls', key));
       } catch (error) {
-          handleFirestoreError(error, OperationType.DELETE, `finalized_rollcalls/${date}`);
+          handleFirestoreError(error, OperationType.DELETE, `finalized_rollcalls/${key}`);
       }
   },
   
@@ -691,10 +696,6 @@ export const StorageService = {
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `fees/${id}`);
     }
-  },
-  
-  getCurrentUser: () => {
-    return StorageService._currentUser;
   },
 
   getSettings: (): AcademySettings => {

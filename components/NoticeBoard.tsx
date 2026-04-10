@@ -241,21 +241,21 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                 )}
             </div>
 
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-secondary p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10"><Megaphone size={120} className="text-white" /></div>
-                <div className="relative z-10">
-                    <h2 className="text-3xl md:text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        NOTICE <span className="text-brand-primary">BOARD</span>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12"><Megaphone size={120} className="text-white" /></div>
+                <div className="relative z-10 md:space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+                        NOTICE <span className="text-[#CCFF00]">BOARD</span>
                     </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Official Announcements • Academy News • Updates</p>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-4">Official Announcements // Academy Intelligence Stream</p>
                 </div>
                 {(role === 'admin' || role === 'coach') && (
                     <button
                         onClick={() => setShowForm(!showForm)}
-                        className="w-full lg:w-auto flex items-center justify-center gap-3 sm:gap-4 bg-brand-primary text-brand-secondary px-6 sm:px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-[10px] sm:text-xs uppercase tracking-widest italic"
+                        className="w-full lg:w-auto flex items-center justify-center gap-4 bg-brand-primary text-brand-secondary px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-xs uppercase tracking-widest italic border border-white/10"
                     >
                         <Plus size={18} strokeWidth={3} />
-                        NEW ANNOUNCEMENT
+                        CREATE_ANNOUNCEMENT
                     </button>
                 )}
             </div>

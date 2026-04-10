@@ -285,12 +285,13 @@ export const FinanceManager: React.FC = () => {
             {activeTab === 'tracking' ? (
                 <>
                     {/* Header Section */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-500 p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-10 opacity-10"><DollarSign size={160} className="text-white" /></div>
-                        <div className="relative z-10">
-                            <h1 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
-                                FINANCE <span className="text-brand-950">DECK</span>
-                            </h1>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><DollarSign size={120} className="text-white" /></div>
+                        <div className="relative z-10 space-y-2">
+                            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+                                FINANCE <span className="text-[#CCFF00] font-black">DECK</span>
+                            </h2>
+                            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Revenue Tracking // Transaction Records</p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">

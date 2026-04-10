@@ -68,7 +68,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
     const mvpLeaderboard: MvpEntry[] = useMemo(() => {
         const mvps = getTrainingMvps();
         return players.map(p => {
-            const tCount = Object.entries(mvps).filter(([date, pid]) => pid === p.id && date.startsWith(month)).length;
+            const tCount = Object.entries(mvps).filter(([key, val]) => {
+                const entryId = typeof val === 'object' ? (val as any).playerId : val;
+                return entryId === p.id && key.startsWith(month);
+            }).length;
             const mCount = matches.filter(m => m.date.startsWith(month) && m.playerOfTheMatchId === p.id).length;
             return { id: p.id, fullName: p.fullName, photoUrl: p.photoUrl, position: p.position, trainingMvps: tCount, matchMvps: mCount, totalPts: tCount * PTS_TRAINING + mCount * PTS_MATCH };
         }).filter(e => e.totalPts > 0).sort((a, b) => b.totalPts - a.totalPts || b.matchMvps - a.matchMvps || b.trainingMvps - a.trainingMvps);
@@ -118,28 +121,29 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
             {/* ══════════════════════════════════════════════
                 HERO HEADER — dark, dramatic, high contrast
             ══════════════════════════════════════════════ */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-950 shadow-2xl">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-900 border border-white/5 shadow-2xl group">
                 {/* Mesh gradient */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(251,191,36,0.18),_transparent)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.12),_transparent)]" />
-                <div className="absolute top-0 right-0 p-10 opacity-[0.04]"><Medal size={180} /></div>
-
-                <div className="relative z-10 p-8">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                        <div>
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/30">
-                                    <Trophy size={20} className="text-brand-950 fill-brand-950" />
-                                </div>
-                                <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.4em]">MONTHLY POINTS RACE</span>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(251,191,36,0.18),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.12),_transparent)] opacity-40" />
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
+                    <Trophy size={160} className="text-white" />
+                </div>
+                
+                <div className="relative z-10 p-8 md:p-12 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/30">
+                                <Trophy size={18} className="text-brand-900 fill-brand-900" />
                             </div>
-                            <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
-                                ELITE <span className="text-amber-400">LEADERBOARD</span>
-                            </h1>
-                            <p className="text-brand-400 font-bold uppercase text-[10px] tracking-[0.3em] mt-3">{monthName}</p>
+                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.4em] italic leading-none">MONTHLY_POINTS_RACE</span>
+                        </div>
+                        <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
+                            HALL OF <span className="text-brand-primary">FAME</span>
+                        </h1>
+                        <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] mt-4 italic">Academy Excellence // Elite Performance Metrics</p>
 
-                            {leader && (
-                                <div className="mt-4 inline-flex items-center gap-2 bg-amber-400/15 border border-amber-400/30 px-4 py-2 rounded-full backdrop-blur-sm">
+                        {leader && (
+                            <div className="mt-6 inline-flex items-center gap-2 bg-amber-400/15 border border-amber-400/30 px-5 py-2.5 rounded-full backdrop-blur-sm group/leader transition-all hover:bg-amber-400/25">
                                     <Crown size={12} className="text-amber-400 fill-amber-400" />
                                     <span className="text-[11px] font-black text-amber-300 uppercase tracking-widest">Leading: {leader.fullName} · {leader.totalPts} pts</span>
                                 </div>
@@ -171,7 +175,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                         </button>
                     </div>
                 </div>
-            </div>
 
             {/* ══════════════════════════════════════════════
                 MVP LADDER TAB

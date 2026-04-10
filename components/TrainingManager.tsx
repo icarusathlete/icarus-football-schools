@@ -135,24 +135,19 @@ export const TrainingManager: React.FC = () => {
     return (
         <div className="space-y-10 pb-20 animate-in fade-in duration-700">
             {/* Training Ground Header */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Dumbbell size={220} className="text-brand-500" /></div>
-                
-                <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-4">
-                        <span className="px-5 py-2 bg-brand-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg italic">Drill Library</span>
-                        <span className="text-slate-300 text-[10px] font-black tracking-[0.4em] uppercase italic font-mono">v4.0</span>
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-black text-slate-900 italic tracking-tighter uppercase leading-none">
-                        TRAINING <span className="text-brand-500">GROUND</span>
-                    </h1>
-                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.4em] mt-6 italic">Professional Drill Library • Learning Objectives</p>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Dumbbell size={120} className="text-white" /></div>
+                <div className="relative z-10 space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+                        TRAINING <span className="text-[#CCFF00] font-black">GROUND</span>
+                    </h2>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Professional Drill Library // Learning Objectives</p>
                 </div>
                 <button
                     onClick={() => setIsCreating(true)}
-                    className="relative z-10 group/btn flex items-center gap-4 bg-brand-500 text-white px-10 py-5 rounded-2xl hover:scale-105 transition-all shadow-xl shadow-brand-500/20 active:scale-95 font-black text-xs uppercase tracking-widest italic"
+                    className="relative z-10 bg-[#CCFF00] text-brand-950 px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-[#CCFF00]/20"
                 >
-                    <Plus size={20} className="transition-transform group-hover/btn:rotate-90" />
+                    <Plus size={20} strokeWidth={3} />
                     CREATE DRILL
                 </button>
             </div>

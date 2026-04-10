@@ -8,7 +8,6 @@ import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { LoadingList } from './components/ui/LoadingSkeleton';
-import { AttendanceStatus } from './types';
 
 // Helper to retry lazy loading on failure (usually due to deployment/version mismatch)
 const lazyRetry = (importFn: () => Promise<any>) => 
@@ -172,7 +171,7 @@ const App: React.FC = () => {
       case 'register': return <PlayerRegistration />;
       case 'finance': return <FinanceManager />;
       case 'players': return <PlayerManager />;
-      case 'player-dashboard': return <PlayerPortal currentUser={currentUser} />;
+      case 'player-dashboard': return <PlayerPortal user={currentUser} />;
       default: return <div className="p-8 text-white">Select a module to begin</div>;
     }
   };

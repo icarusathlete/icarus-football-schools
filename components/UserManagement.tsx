@@ -103,28 +103,32 @@ export const UserManagement: React.FC = () => {
 
     return (
         <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-brand-800 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-[0.03]"><Shield size={160} className="text-white" /></div>
-                <div className="relative z-10">
-                    <h2 className="text-4xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        USER <span className="text-brand-500">MANAGEMENT</span>
+            {/* Unified Header Section */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"><Users size={120} className="text-white" /></div>
+                <div className="relative z-10 space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none flex items-center gap-4">
+                        USER <span className="text-[#CCFF00] font-black">MANAGEMENT</span>
                     </h2>
-                    <p className="text-brand-500 font-black uppercase text-[10px] tracking-[0.3em] mt-3 italic">Academy Access & Permissions Control</p>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Personnel Authorization // Access Protocol Control</p>
                 </div>
             </div>
 
-            <div className="bg-brand-950 rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl shadow-inner">
-                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-brand-950/50">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 shadow-lg">
-                            <Users size={24} />
-                        </div>
-                        <h3 className="text-xl font-black text-white italic uppercase tracking-tight">Active Users</h3>
+            {/* Active Users Section with Standard Bar Divider */}
+            <section className="space-y-8">
+                <div className="flex items-center justify-between px-2">
+                    <div className="space-y-1">
+                        <h2 className="text-xl font-black text-white uppercase italic tracking-[0.3em] flex items-center gap-3">
+                            <Shield className="text-brand-primary" size={20} /> 
+                            ACTIVE_COMMAND_UNITS
+                            <span className="bg-brand-950 text-brand-primary px-4 py-1 rounded-xl text-xs font-black ml-4 border border-brand-primary/20 shadow-xl">{users.length}</span>
+                        </h2>
+                        <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
                     </div>
-                    <span className="px-4 py-1.5 bg-brand-900 border border-white/10 rounded-xl text-[10px] font-black text-brand-500 uppercase tracking-widest shadow-2xl italic">
-                        {users.length} TOTAL
-                    </span>
                 </div>
+
+                <div className="bg-brand-950 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+                    {/* List Content */}
                 
                 <div className="divide-y divide-white/5">
                     {users.map(user => (
@@ -298,8 +302,9 @@ export const UserManagement: React.FC = () => {
                             No users found
                         </div>
                     )}
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <ConfirmModal
                 isOpen={deleteModalOpen}

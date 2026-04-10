@@ -227,28 +227,24 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   return (
     <div className="space-y-8 pb-24 animate-in fade-in duration-700">
       
-      {/* Header & Controls - Icarus Pro Hero */}
-      <div className="relative group overflow-hidden rounded-[2.5rem] bg-brand-950 p-8 md:p-12 border border-white/5 shadow-2xl transition-all duration-500">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,200,255,0.08),transparent_50%)]" />
-        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 transition-transform group-hover:scale-125 group-hover:rotate-0 duration-700">
-            <CalendarIcon size={200} className="text-white" />
-        </div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><CalendarIcon size={120} className="text-white" /></div>
         
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500">Live</div>
               <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-display font-black italic tracking-tighter text-white uppercase leading-none">
-              ACADEMY <span className="premium-gradient-text">SCHEDULE</span>
+            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+               Academy <span className="text-[#CCFF00] font-black">Schedule</span>
             </h2>
-            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-500/60 italic max-w-md leading-relaxed">
+            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-white/40 italic max-w-md leading-relaxed">
               Manage training sessions, matches, and events.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto mt-6 lg:mt-0">
             {/* View Toggle - Glass Pill */}
             <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner">
                 <button 

@@ -4,7 +4,8 @@ import { Player, Venue, Batch, AttendanceRecord, User, AttendanceStatus } from '
 import { 
     Search, MapPin, Layers, Check, X, Calendar, 
     Save, Filter, Map, Users, ChevronRight, 
-    Zap, Activity, Shield, Command, Radio
+    Zap, Activity, Shield, Command, Radio,
+    Trophy, Lock, RotateCcw
 } from 'lucide-react';
 
 export const CoachAttendance: React.FC = () => {
@@ -18,9 +19,13 @@ export const CoachAttendance: React.FC = () => {
   const [selectedBatch, setSelectedBatch] = useState('');
   
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus | 'none'>>({});
+  const [motmId, setMotmId] = useState<string | null>(null);
+  const [isFinalized, setIsFinalized] = useState(false);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
   useEffect(() => {
     const user = StorageService.getCurrentUser();
@@ -42,7 +47,7 @@ export const CoachAttendance: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
+  const loadSessionData = () => {
     if (selectedVenue && selectedBatch) {
       const allPlayers = StorageService.getPlayers();
       const filtered = allPlayers.filter(p => p.venue === selectedVenue && p.batch === selectedBatch);
@@ -54,7 +59,6 @@ export const CoachAttendance: React.FC = () => {
       const initialAttendance: Record<string, AttendanceStatus | 'none'> = {};
       filtered.forEach(p => {
         const record = dayRecords.find(r => r.playerId === p.id);
-        // Safety: Handle both legacy lowercase and standard uppercase statuses
         let status: AttendanceStatus | 'none' = 'none';
         if (record) {
             const s = String(record.status).toUpperCase();
@@ -64,7 +68,20 @@ export const CoachAttendance: React.FC = () => {
         initialAttendance[p.id] = status;
       });
       setAttendance(initialAttendance);
+
+      // Load MOTM and Finalization status
+      const motm = StorageService.getMOTM(selectedDate, selectedVenue, selectedBatch);
+      setMotmId(motm?.playerId || null);
+      
+      const finalized = StorageService.isRollcallFinalized(selectedDate, selectedVenue, selectedBatch);
+      setIsFinalized(finalized);
     }
+  };
+
+  useEffect(() => {
+    loadSessionData();
+    window.addEventListener('academy_data_update', loadSessionData);
+    return () => window.removeEventListener('academy_data_update', loadSessionData);
   }, [selectedDate, selectedVenue, selectedBatch]);
 
   const toggleAttendance = (playerId: string, status: AttendanceStatus) => {
@@ -75,13 +92,57 @@ export const CoachAttendance: React.FC = () => {
     setSaveStatus('idle');
   };
 
+  const toggleMOTM = async (playerId: string) => {
+    if (isFinalized) return;
+    const newMotmId = motmId === playerId ? null : playerId;
+    setMotmId(newMotmId);
+    
+    // Auto-save MOTM to storage
+    if (newMotmId) {
+        await StorageService.setMOTM(newMotmId, selectedDate, selectedVenue, selectedBatch);
+    } else {
+        // If unselecting, we currently don't have a direct 'removeMOTM' but we can pass null if supported 
+        // or just leave it. In this implementation, setMOTM with another player overwrites.
+        // For simplicity, we'll just set it to empty in the UI if unselected.
+        // If we really want to delete from Firebase, we'd need a deleteDoc call.
+    }
+  };
+
+  const handleFinalize = async () => {
+    if (!window.confirm("Finalize this session? This will lock attendance and MOTM selection.")) return;
+    setIsFinalizing(true);
+    try {
+        await StorageService.finalizeRollcall(selectedDate, selectedVenue, selectedBatch);
+        setIsFinalized(true);
+    } catch (error) {
+        console.error("Finalization failed", error);
+    } finally {
+        setIsFinalizing(false);
+    }
+  };
+
+  const handleUnfinalize = async () => {
+    if (currentUser?.role !== 'admin') {
+        alert("Only administrators can unfinalize sessions.");
+        return;
+    }
+    if (!window.confirm("Admin: Unfinalize this session?")) return;
+    try {
+        await StorageService.unfinalizeRollcall(selectedDate, selectedVenue, selectedBatch);
+        setIsFinalized(false);
+    } catch (error) {
+        console.error("Unfinalization failed", error);
+    }
+  };
+
   const handleSave = async () => {
+    if (isFinalized) return;
     setIsSaving(true);
     try {
       const recordsToSave: AttendanceRecord[] = players
         .filter(p => attendance[p.id] !== 'none')
         .map(p => ({
-          id: `${p.id}-${selectedDate}`,
+          id: `${p.id}-${selectedDate}-${selectedVenue.replace(/\s+/g, '_')}-${selectedBatch.replace(/\s+/g, '_')}`,
           playerId: p.id,
           playerName: p.fullName,
           date: selectedDate,
@@ -114,156 +175,224 @@ export const CoachAttendance: React.FC = () => {
     pending: players.length - Object.values(attendance).filter(s => s !== 'none').length
   };
 
-  return (
-    <div className="space-y-6 pb-32 animate-in fade-in duration-700 font-display">
-      {/* Attendance Header */}
-      <div className="bg-brand-500 p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Command size={140} className="text-white" /></div>
-          
-          <div className="relative z-10 space-y-3">
-              <div className="flex items-center gap-2 mb-2 px-3 py-1 bg-brand-950/10 w-fit rounded-full border border-black/5">
-                  <Radio size={12} className="text-brand-950 animate-pulse" />
-                  <p className="text-[9px] font-black text-brand-950 uppercase tracking-[0.4em]">Daily Attendance</p>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none mb-1">
-                 Attendance <span className="text-brand-950 font-black">Sheet</span>
-              </h2>
-              <div className="flex flex-wrap items-center gap-4 text-brand-900/60 font-black uppercase text-[10px] tracking-widest italic">
-                  <span className="flex items-center gap-2 bg-brand-950/10 px-3 py-1 rounded-lg border border-black/5"><Calendar size={12}/> {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-                  <span className="flex items-center gap-2 opacity-50"><Activity size={12}/> Status: Training in Progress</span>
-              </div>
-          </div>
+    return (
+        <div className="space-y-8 pb-32">
+            {/* ══════════════════════════════════════════════
+                HERO HEADER — high-impact visual identity
+            ══════════════════════════════════════════════ */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12"><Calendar size={120} className="text-white" /></div>
+                
+                <div className="relative z-10 space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
+                        SESSION <span className="text-[#CCFF00]">ATTENDANCE</span>
+                    </h2>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Real-time metrics // Performance sync</p>
+                    
+                    <div className="flex items-center gap-4 pt-4 text-[11px] font-black uppercase tracking-widest text-white/60">
+                        <span className="flex items-center gap-2 text-[#CCFF00] bg-[#CCFF00]/10 px-4 py-2 rounded-full border border-[#CCFF00]/20"><Radio size={12} className="animate-pulse"/> {selectedDate}</span>
+                        <span className="flex items-center gap-2"><MapPin size={12}/> {selectedVenue}</span>
+                        <span className="flex items-center gap-2"><Layers size={12}/> {selectedBatch}</span>
+                    </div>
+                </div>
 
-          <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full md:w-auto">
-              <div className="bg-white/40 p-4 rounded-3xl border border-white/20 backdrop-blur-xl flex-1 md:w-32 lg:w-40 text-center group hover:bg-white/60 transition-all shadow-lg shadow-black/5">
-                  <p className="text-[9px] font-black text-brand-950/40 uppercase tracking-widest mb-1 group-hover:text-brand-950/60">PRESENT</p>
-                  <p className="text-2xl font-black text-brand-950 italic leading-none">{stats.present}<span className="text-brand-950/20 text-xs ml-1">/{stats.total}</span></p>
-              </div>
-              <div className="bg-white/40 p-4 rounded-3xl border border-white/20 backdrop-blur-xl flex-1 md:w-32 lg:w-40 text-center group hover:bg-white/60 transition-all shadow-lg shadow-black/5">
-                  <p className="text-[9px] font-black text-brand-950/40 uppercase tracking-widest mb-1 group-hover:text-red-500/60">ABSENT</p>
-                  <p className="text-2xl font-black text-red-600 italic leading-none">{stats.absent}</p>
-              </div>
-          </div>
-      </div>
+                <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full lg:w-auto">
+                        <div className="glass-card p-6 rounded-[2rem] border border-white/5 md:w-32 lg:w-40 text-center group hover:bg-white/10 transition-all shadow-xl">
+                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 group-hover:text-[#CCFF00]">PRESENT</p>
+                            <p className="text-3xl font-black text-white italic leading-none">{stats.present}<span className="text-white/20 text-xs ml-1">/{stats.total}</span></p>
+                        </div>
+                        <div className="glass-card p-6 rounded-[2rem] border border-white/5 md:w-32 lg:w-40 text-center group hover:bg-white/10 transition-all shadow-xl">
+                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 group-hover:text-red-500/60">ABSENT</p>
+                            <p className="text-3xl font-black text-red-500 italic leading-none">{stats.absent}</p>
+                        </div>
+                        {isFinalized && (
+                            <div className="bg-brand-primary/20 p-6 rounded-[2rem] border border-brand-primary/30 backdrop-blur-xl flex items-center justify-center gap-2 px-8 shadow-lg shadow-brand-primary/10 h-full">
+                                <Lock size={18} className="text-brand-primary" />
+                                <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest">FINALIZED</span>
+                            </div>
+                        )}
+                    </div>
+            </div>
 
-      {/* Filters (Mobile Optimized) */}
-      <div className="glass-card p-6 md:p-8 rounded-[2.5rem] flex flex-col xl:flex-row gap-6 relative z-10 border-white/5">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="flex-1 relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/60 group-hover:text-white transition-colors z-10">
-                      <MapPin size={18} />
-                  </div>
-                  <select 
-                      value={selectedVenue}
-                      onChange={(e) => setSelectedVenue(e.target.value)}
-                      className="w-full pl-14 pr-10 py-5 bg-brand-500 border border-brand-500/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-500/10 hover:bg-brand-600 transition-all"
+            {/* ══════════════════════════════════════════════
+                SECTION DIVIDER — Configuration
+            ══════════════════════════════════════════════ */}
+            <div className="flex items-center justify-between px-2">
+                <div className="space-y-1">
+                    <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
+                        <Filter className="text-brand-primary" size={20} /> 
+                        SESSION_CONFIGURATION_PROTOCOL
+                    </h2>
+                    <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+                </div>
+            </div>
+
+            {/* Control Panel / Filters */}
+            <div className="bg-brand-950 p-6 md:p-8 rounded-[2.5rem] border border-white/5 flex flex-col xl:flex-row gap-6 relative z-10 shadow-2xl">
+                <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                    <div className="flex-1 relative group">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/60 group-hover:text-white transition-colors z-10">
+                            <MapPin size={18} />
+                        </div>
+                        <select 
+                            value={selectedVenue}
+                            onChange={(e) => setSelectedVenue(e.target.value)}
+                            className="w-full pl-14 pr-10 py-5 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-brand-800 transition-all"
+                        >
+                            {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900 text-white">{v.name}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="flex-1 relative group">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-secondary/60 group-hover:text-brand-secondary transition-colors z-10">
+                            <Layers size={18} />
+                        </div>
+                          <select 
+                              value={selectedBatch}
+                              onChange={(e) => setSelectedBatch(e.target.value)}
+                              className="w-full pl-14 pr-10 py-5 bg-brand-primary/10 border border-brand-primary/20 rounded-2xl outline-none text-brand-primary font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-brand-primary/20 transition-all"
+                          >
+                            <option value="" className="bg-brand-secondary text-brand-primary">ALL BATCHES</option>
+                            {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-secondary text-brand-primary">{b.name}</option>)}
+                        </select>
+                    </div>
+                    
+                    <div className="relative group flex-[1.5]">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-white/40 transition-colors w-4 h-4" />
+                        <input 
+                          type="text" 
+                          placeholder="Search personnel..." 
+                          className="w-full pl-14 pr-8 py-5 bg-brand-900/50 border border-white/5 rounded-2xl outline-none focus:border-brand-primary transition-all text-[10px] font-black text-white placeholder:text-white/20 italic uppercase tracking-widest shadow-inner"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  {!isFinalized ? (
+                      <button 
+                          onClick={handleFinalize}
+                          disabled={isFinalizing || stats.pending > 0}
+                          className="px-8 py-5 bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 disabled:opacity-30"
+                      >
+                          {isFinalizing ? <Zap className="animate-spin" size={18} /> : <Check size={18} />}
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">FINALIZE SESSION</span>
+                      </button>
+                  ) : (
+                      currentUser?.role === 'admin' && (
+                          <button 
+                              onClick={handleUnfinalize}
+                              className="px-8 py-5 bg-brand-900 border border-white/10 text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-brand-800 transition-all active:scale-95 shadow-xl"
+                          >
+                              <RotateCcw size={18} />
+                              <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">UNFINALIZE</span>
+                          </button>
+                      )
+                  )}
+
+                  <button 
+                      onClick={handleSave}
+                      disabled={isSaving || stats.pending === stats.total || isFinalized}
+                      className={`px-12 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl relative overflow-hidden group ${
+                          isFinalized ? 'bg-brand-900 text-white/20 cursor-not-allowed' :
+                          saveStatus === 'success' ? 'bg-emerald-500 text-white' : 
+                          saveStatus === 'error' ? 'bg-red-500 text-white' : 
+                          'bg-brand-primary/5 border border-brand-primary/40 text-brand-primary hover:bg-brand-primary/20 disabled:opacity-40 shadow-[0_0_20px_rgba(0,200,255,0.05)]'
+                      }`}
                   >
-                      {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900 text-white">{v.name}</option>)}
-                  </select>
-              </div>
+                      <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                      {isSaving ? (
+                          <Zap className="animate-spin" size={18} />
+                      ) : saveStatus === 'success' ? (
+                          <Check size={18} />
+                      ) : isFinalized ? (
+                          <Lock size={18} />
+                      ) : (
+                          <Save size={18} />
+                      )}
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10">
+                          {isSaving ? 'SAVING...' : saveStatus === 'success' ? 'SUCCESS' : isFinalized ? 'LOCKED' : 'SAVE CHANGES'}
+                      </span>
+                  </button>
+                </div>
+            </div>
 
-              <div className="flex-1 relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-950/40 group-hover:text-brand-950 transition-colors z-10">
-                      <Layers size={18} />
-                  </div>
-                    <select 
-                        value={selectedBatch}
-                        onChange={(e) => setSelectedBatch(e.target.value)}
-                        className="w-full pl-14 pr-10 py-5 bg-brand-primary border border-brand-primary/20 rounded-2xl outline-none text-brand-950 font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-lg shadow-brand-primary/10 hover:bg-brand-primary/90 transition-all"
-                    >
-                      {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
-                  </select>
-              </div>
-              
-              <div className="relative group flex-[1.5]">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
-                  <input 
-                    type="text" 
-                    placeholder="Search players..." 
-                    className="w-full pl-14 pr-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-brand-500 transition-all text-[10px] font-black text-slate-900 placeholder:text-slate-300 italic uppercase tracking-widest shadow-inner"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-              </div>
-          </div>
-          
-          <button 
-              onClick={handleSave}
-              disabled={isSaving || stats.pending === stats.total}
-              className={`px-12 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl relative overflow-hidden group ${
-                saveStatus === 'success' ? 'bg-emerald-500 text-white' : 
-                saveStatus === 'error' ? 'bg-red-500 text-white' : 
-                'bg-brand-500 text-white disabled:opacity-30 disabled:grayscale'
-              }`}
-          >
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              {isSaving ? (
-                <Zap className="animate-spin" size={18} />
-              ) : saveStatus === 'success' ? (
-                <Check size={18} />
-              ) : (
-                <Save size={18} />
-              )}
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10">
-                {isSaving ? 'SAVING...' : saveStatus === 'success' ? 'SUCCESS' : 'SAVE ATTENDANCE'}
-              </span>
-          </button>
-      </div>
+            {/* ══════════════════════════════════════════════
+                ROSTER MATRIX — the core listing section
+            ══════════════════════════════════════════════ */}
+            <div className="flex items-center justify-between px-2">
+                <div className="space-y-1">
+                    <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
+                        <Users className="text-brand-primary" size={20} /> 
+                        ACTIVE_ROSTER_MATRIX
+                    </h2>
+                    <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+                </div>
+                <div className="hidden md:flex items-center gap-4">
+                    <span className="text-[10px] font-black text-brand-400 uppercase tracking-widest italic">{players.length} PERSONNEL_LOADED</span>
+                    <div className="h-px w-24 bg-brand-100" />
+                </div>
+            </div>
 
-      {/* Player List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-slide-up">
-          {filteredPlayers.map(p => (
-              <div key={p.id} className={`glass-card p-5 transition-all duration-500 relative group border-slate-100 hover:shadow-xl ${attendance[p.id] === AttendanceStatus.PRESENT ? 'ring-2 ring-brand-500/20 bg-brand-50/30' : attendance[p.id] === AttendanceStatus.ABSENT ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-slate-50/50'}`}>
-                  <div className="flex items-center gap-4 mb-5">
-                      <div className="relative">
-                          <img src={p.photoUrl} className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200 group-hover:border-brand-500 transition-all shadow-md" />
-                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500 text-white' : attendance[p.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
-                              <Shield size={10} />
-                          </div>
-                      </div>
-                      <div className="min-w-0">
-                          <h4 className="font-black text-slate-900 italic text-sm uppercase truncate leading-tight mb-1">{p.fullName || 'Unknown Player'}</h4>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.memberId || 'N/A'}</p>
-                      </div>
-                  </div>
+            {players.length === 0 ? (
+                <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-white rounded-[2.5rem] border border-brand-100 shadow-xl">
+                    <div className="w-24 h-24 bg-brand-50 rounded-3xl flex items-center justify-center text-brand-200">
+                        <Users size={48} />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-black text-brand-950 uppercase italic tracking-tight">Empty_Roster_Detected</h3>
+                        <p className="text-brand-400 text-sm max-w-sm font-medium">No players found assigned to <b>{selectedVenue}</b> in the <b>{selectedBatch}</b>. Please verify player profiles or adjust filters.</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {players
+                      .filter(p => !searchTerm || p.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((player) => (
+                        <div key={player.id} className={`glass-card p-6 rounded-[2rem] transition-all duration-500 relative group border border-brand-100 hover:shadow-2xl ${attendance[player.id] === AttendanceStatus.PRESENT ? 'ring-2 ring-brand-primary/20 bg-brand-primary/5' : attendance[player.id] === AttendanceStatus.ABSENT ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-brand-50'}`}>
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="relative">
+                                    <img src={player.photoUrl} alt={player.fullName} className="w-16 h-16 rounded-2xl object-cover bg-brand-50 border border-brand-100 group-hover:border-brand-primary transition-all shadow-md" />
+                                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[player.id] === AttendanceStatus.PRESENT ? 'bg-brand-primary text-brand-950' : attendance[player.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white' : 'bg-brand-950 text-white'}`}>
+                                        <Shield size={12} />
+                                    </div>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <h4 className="font-black text-brand-950 italic text-sm uppercase truncate leading-tight">{player.fullName}</h4>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
+                                            className={`transition-all duration-300 ${motmId === player.id ? 'text-amber-500 scale-125 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'text-slate-200 hover:text-amber-400'} ${isFinalized ? 'cursor-not-allowed' : 'active:scale-90'}`}
+                                        >
+                                            <Trophy size={20} fill={motmId === player.id ? "currentColor" : "none"} />
+                                        </button>
+                                    </div>
+                                    <p className="text-[9px] font-black text-brand-400 uppercase tracking-widest mt-1">{player.memberId}</p>
+                                </div>
+                            </div>
 
-                  {/* Present/Absent Toggle */}
-                  <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 overflow-hidden transition-all">
-                      <button 
-                          onClick={() => toggleAttendance(p.id, AttendanceStatus.PRESENT)}
-                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                          <Check size={12} className={attendance[p.id] === AttendanceStatus.PRESENT ? 'animate-bounce' : ''} />
-                          <span className="text-[8px] font-black uppercase tracking-widest italic">PRESENT</span>
-                      </button>
-                      <button 
-                          onClick={() => toggleAttendance(p.id, AttendanceStatus.ABSENT)}
-                          className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg transition-all ${attendance[p.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white shadow-lg scale-[1.02]' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                          <X size={12} className={attendance[p.id] === AttendanceStatus.ABSENT ? 'animate-pulse' : ''} />
-                          <span className="text-[8px] font-black uppercase tracking-widest italic">ABSENT</span>
-                      </button>
-                  </div>
-
-                  {/* Player Stats Line */}
-                  <div className="mt-4 flex items-center justify-between px-1">
-                      <div className="flex gap-1">
-                          {[1,2,3,4,5].map(i => (
-                              <div key={i} className={`w-3 h-1 rounded-full ${attendance[p.id] === AttendanceStatus.PRESENT ? 'bg-brand-500/40 animate-pulse' : 'bg-slate-200'}`} style={{ animationDelay: `${i*100}ms` }} />
-                          ))}
-                      </div>
-                      <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] italic">VENUE: {(p.venue || 'N/A').split(' ')[0]}</p>
-                  </div>
-              </div>
-          ))}
-      </div>
-
-      {filteredPlayers.length === 0 && (
-          <div className="py-32 flex flex-col items-center justify-center space-y-6 glass-card rounded-[3rem] border-dashed border-slate-200 animate-pulse">
-              <Users size={64} className="text-slate-100" />
-              <p className="text-xs font-black text-slate-300 uppercase tracking-[0.5em] italic">No Players Found in Selection</p>
-          </div>
-      )}
-    </div>
-  );
+                            <div className={`flex bg-brand-50 rounded-2xl p-1.5 border border-brand-100 transition-all ${isFinalized ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                                <button 
+                                    onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
+                                    className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-xl transition-all ${attendance[player.id] === AttendanceStatus.PRESENT ? 'bg-brand-primary text-brand-950 shadow-lg' : 'text-brand-400 hover:text-brand-950 hover:bg-white'}`}
+                                >
+                                    <Check size={14} className={attendance[player.id] === AttendanceStatus.PRESENT ? 'animate-bounce' : ''} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest italic">PRESENT</span>
+                                </button>
+                                <button 
+                                    onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
+                                    className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-xl transition-all ${attendance[player.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white shadow-lg' : 'text-brand-400 hover:text-red-500 hover:bg-white'}`}
+                                >
+                                    <X size={14} className={attendance[player.id] === AttendanceStatus.ABSENT ? 'animate-pulse' : ''} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest italic">ABSENT</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 };
+

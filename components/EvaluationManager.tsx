@@ -251,25 +251,20 @@ export const EvaluationManager: React.FC = () => {
     <div className="space-y-10 pb-20">
       {!isEditing && (
         <>
-            <div className="bg-brand-primary p-12 rounded-[3.5rem] border border-white/10 flex flex-col md:flex-row justify-between items-center gap-10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000"><Shield size={200} className="text-white" /></div>
-                <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-secondary/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Shield size={120} className="text-white" /></div>
                 
-                <div className="relative z-10 text-brand-secondary">
-                    <div className="flex items-center gap-4 mb-4">
-                        <span className="px-5 py-2 bg-brand-secondary text-brand-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg italic">Evaluation Form</span>
-                        <span className="text-brand-secondary/40 text-[10px] font-black tracking-[0.4em] uppercase italic font-mono">ACADEMY_v4.0</span>
-                    </div>
-                    <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">PLAYER <span className="text-white">EVALUATIONS</span></h2>
-                    <p className="font-black mt-6 uppercase text-[10px] tracking-[0.5em] opacity-60 italic">Academy Performance Hub • Technical Assessment</p>
+                <div className="relative z-10 space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">PLAYER <span className="text-[#CCFF00] font-black">EVALUATIONS</span></h2>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Academy Performance Hub // Technical Assessment</p>
                 </div>
 
                 <div className="relative w-full md:w-96 z-10">
-                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-primary" strokeWidth={3} />
+                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" strokeWidth={3} />
                     <input 
                         type="text" 
                         placeholder="SEARCH PLAYER..." 
-                        className="w-full pl-16 pr-8 py-6 bg-brand-secondary border border-transparent rounded-[2rem] outline-none focus:ring-4 focus:ring-white/10 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic font-mono"
+                        className="w-full pl-16 pr-8 py-6 bg-white/5 border border-white/5 rounded-[2rem] outline-none focus:ring-4 focus:ring-brand-primary/20 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic font-mono"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />

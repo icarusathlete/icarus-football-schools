@@ -153,24 +153,24 @@ export const MatchManager: React.FC = () => {
 
     return (
         <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-5"><Trophy size={160} className="text-brand-500" /></div>
-                <div className="relative z-10">
-                    <h1 className="text-5xl font-black text-slate-900 italic uppercase tracking-tighter leading-none flex items-center gap-4">
-                        MATCH <span className="text-brand-500">CENTER</span>
+            {/* Unified Header Section */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"><Trophy size={120} className="text-white" /></div>
+                <div className="relative z-10 space-y-2">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none flex items-center gap-4">
+                        MATCH <span className="text-[#CCFF00] font-black">CENTER</span>
                         {matches.some(m => m.isLive) && (
                             <span className="flex h-4 w-4 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
                             </span>
                         )}
-                    </h1>
-                    <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Academy Fixtures & Results Portal</p>
+                    </h2>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Operational Fixtures // Seasonal Results Portal</p>
                 </div>
-                <button onClick={() => setShowForm(true)} className="relative z-10 bg-brand-500 text-white px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-brand-500/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic">
-                    <PlusCircle size={20} />
-                    ADD RECORD
+                <button onClick={() => setShowForm(true)} className="relative z-10 bg-[#CCFF00] text-brand-950 px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-[#CCFF00]/20">
+                    <PlusCircle size={20} strokeWidth={3} />
+                    ADD_MATCH_RECORD
                 </button>
             </div>
 
@@ -195,7 +195,7 @@ export const MatchManager: React.FC = () => {
 
             {/* Live Match Overlay */}
             {activeMatch && (
-                <div className="bg-white rounded-[3rem] border border-slate-100 shadow-3xl shadow-slate-300/20 overflow-hidden animate-in slide-in-from-bottom-12 duration-1000 relative">
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-3xl shadow-slate-300/20 overflow-hidden animate-in slide-in-from-bottom-12 duration-1000 relative">
                     <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent" />
                     <div className="bg-slate-50/50 px-8 py-4 flex justify-between items-center text-slate-400 border-b border-slate-100">
                         <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-red-500 italic">
@@ -265,21 +265,25 @@ export const MatchManager: React.FC = () => {
                 </div>
             )}
 
-            {/* View Selection */}
-            <div className="bg-slate-100 p-1.5 rounded-[2rem] border border-slate-200 flex w-fit shadow-lg shadow-slate-200/50">
-                {['results', 'fixtures'].map((tab) => (
-                    <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-white text-slate-900 shadow-xl shadow-slate-300/20' : 'text-slate-400 hover:text-slate-600'}`}>
-                        {tab === 'results' ? <History size={16} /> : <Calendar size={16} />}
-                        {tab === 'results' ? 'Match Results' : 'Upcoming Fixtures'}
-                    </button>
-                ))}
-            </div>
+            {/* View Selection & Data Stream Divider */}
+            <div className="space-y-10">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                    <div className="bg-slate-100 p-1.5 rounded-[2rem] border border-slate-200 flex w-fit shadow-lg shadow-slate-200/50">
+                        {['results', 'fixtures'].map((tab) => (
+                            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-white text-slate-900 shadow-xl shadow-slate-300/20' : 'text-slate-400 hover:text-slate-600'}`}>
+                                {tab === 'results' ? <History size={16} /> : <Calendar size={16} />}
+                                {tab === 'results' ? 'Match Results' : 'Upcoming Fixtures'}
+                            </button>
+                        ))}
+                    </div>
 
-            {/* Data Stream */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                    <span className="text-[11px] font-black text-slate-200 uppercase tracking-[0.4em] italic whitespace-nowrap">{activeTab === 'results' ? 'MATCH HISTORY' : 'UPCOMING FIXTURES'}</span>
-                    <div className="h-[2px] bg-slate-100 w-full rounded-full" />
+                    <div className="flex-1 max-w-md space-y-1">
+                        <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
+                            {activeTab === 'results' ? <History className="text-brand-primary" size={20} /> : <Calendar className="text-brand-primary" size={20} />}
+                            {activeTab === 'results' ? 'MATCH_HISTORY_LOG' : 'UPCOMING_FIXTURES_SYNC'}
+                        </h2>
+                        <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">

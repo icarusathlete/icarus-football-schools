@@ -220,13 +220,13 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
         <div className="space-y-12 pb-20 animate-in fade-in duration-500">
             
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 bg-brand-500 p-10 rounded-[3.5rem] border border-white/10 shadow-3xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none"><Shield size={160} className="text-white" /></div>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"><Shield size={120} className="text-white" /></div>
                 <div className="relative z-10 space-y-2">
-                    <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center gap-4">
-                        TEAM <span className="text-brand-950">HUB</span>
-                    </h1>
-                    <p className="text-white/80 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">
+                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none flex items-center gap-4">
+                        TEAM <span className="text-[#CCFF00] font-black">HUB</span>
+                    </h2>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">
                         {currentUser.role === 'coach' 
                             ? 'OPERATIONAL_SQUAD_MANAGEMENT' 
                             : myPlayerProfile ? `SQUAD_ROSTER_STREAM // ${myPlayerProfile.batch}` : 'TACTICAL_NETWORK_PERSONNEL'}
@@ -236,10 +236,10 @@ export const Team: React.FC<TeamProps> = ({ currentUser }) => {
                 {/* Filter Toggle (Admin Protocol) */}
                 {(currentUser.role === 'admin') && (
                     <div className="bg-brand-950 p-1.5 rounded-2xl border border-white/10 flex shadow-2xl relative z-10 h-fit">
-                        <button className="px-8 py-3 bg-brand-primary text-brand-secondary rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl italic transition-all">
+                        <button className="px-8 py-3 bg-[#CCFF00] text-brand-950 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(204,255,0,0.4)] italic transition-all">
                             TOTAL_FORCE
                         </button>
-                        <button className="px-8 py-3 text-white/40 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic">
+                        <button className="px-8 py-3 text-white/40 hover:text-[#CCFF00] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic">
                             BATCH_SYNC
                         </button>
                     </div>

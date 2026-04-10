@@ -13,6 +13,11 @@
   --color-brand-800: #1e3a8a;
   --color-brand-900: #0D1B8A;
   --color-brand-950: #0D1B8A;
+  --color-brand-primary: #00C8FF;
+  --color-brand-secondary: #0D1B8A;
+  --color-brand-accent: #C3F629;
+  --color-brand-bg: #00054e;
+  --color-brand-text: #dfe0ff;
 
   --color-lime-default: #C3F629;
   --color-lime-glow: rgba(195, 246, 41, 0.3);

@@ -159,7 +159,7 @@ export const PlayerManager: React.FC = () => {
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Users size={120} className="text-white" /></div>
         <div className="relative z-10 space-y-2">
           <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-             Squad <span className="text-brand-primary font-black">Management</span>
+             Squad <span className="text-[#CCFF00] font-black">Management</span>
           </h2>
         </div>
         

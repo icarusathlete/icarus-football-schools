@@ -3,7 +3,6 @@ import { Upload, Save, X, User, Phone, Shield, Camera, Check, RefreshCw, AlertCi
 import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch } from '../types';
 import { ConfirmModal } from './ConfirmModal';
-import { ConfirmModal } from './ConfirmModal';
 
 export const PlayerRegistration: React.FC = () => {
   const [mode, setMode] = useState<'player' | 'coach'>('player');
@@ -286,30 +285,32 @@ export const PlayerRegistration: React.FC = () => {
         
         {/* Mode Switcher & Header replaced the large heading */}
         
-      <div className="glass-card overflow-hidden relative border-none bg-white mt-8">
-        
-        {/* Header Section - Registration Form */}
-        <div className="relative px-8 py-10 text-white overflow-hidden bg-brand-950 border-b border-white/5">
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,200,255,0.05),transparent_70%)]" />
+      {/* Header Section - Registration Form */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12"><UserPlus size={120} className="text-white" /></div>
           
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-            <div className="flex-1 flex justify-start">
-               <div className="flex gap-2 bg-slate-900/80 p-2 rounded-2xl border border-white/10 shadow-inner backdrop-blur-md relative z-20">
+          <div className="relative z-10 space-y-2">
+            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+               ACADEMY <span className="text-[#CCFF00]">ONBOARDING</span>
+            </h2>
+            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-4">Athlete & Coach Registration Portal</p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center gap-6 relative z-10 w-full lg:w-auto mt-6 lg:mt-0">
+               <div className="flex w-full md:w-auto gap-2 bg-brand-950/80 p-2 rounded-[1.5rem] border border-white/10 shadow-2xl backdrop-blur-sm relative z-20">
                     <button 
                         onClick={() => setMode('player')}
-                        className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-transparent ${mode === 'player' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
+                        className={`flex-1 md:flex-initial px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-transparent ${mode === 'player' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
                     >
                         PLAYERS
                     </button>
                     <button 
                         onClick={() => setMode('coach')}
-                        className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-transparent ${mode === 'coach' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
+                        className={`flex-1 md:flex-initial px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all italic border border-transparent ${mode === 'coach' ? 'bg-[#CCFF00] text-slate-900 shadow-[0_0_20px_rgba(204,255,0,0.4)] border-[#CCFF00]/20' : 'text-white hover:text-[#CCFF00] bg-white/5 hover:bg-white/10'}`}
                     >
                         COACHES
                     </button>
                </div>
-            </div>
             
             <div className="flex items-center gap-6">
                 <div className="bg-brand-500 px-6 py-4 rounded-xl border border-brand-400/20 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden group min-w-[160px]">
@@ -332,7 +333,7 @@ export const PlayerRegistration: React.FC = () => {
         </div>
 
         {/* --- FORM CONTENT --- */}
-        <div className="p-8">
+        <div className="glass-card overflow-hidden relative border-none bg-white p-8 md:p-10">
             {mode === 'player' ? (
                 <form onSubmit={handlePlayerSubmit} className="space-y-12">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -541,7 +542,6 @@ export const PlayerRegistration: React.FC = () => {
                 </form>
             )}
         </div>
-      </div>
 
       {/* Settings Modal - Academy Config */}
       {showConfigModal && (
