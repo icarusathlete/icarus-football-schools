@@ -117,47 +117,45 @@ export const AdminDashboard: React.FC = () => {
               </div>
           </div>
 
-          <div className="bg-brand-900 p-3 sm:p-4 rounded-[2rem] border border-white/5 shadow-2xl">
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {/* All Locations chip */}
+          <div className="bg-brand-900 px-3 py-2.5 rounded-[2rem] border border-white/5 shadow-2xl">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                   <button
                       onClick={() => setSelectedVenue('All Locations')}
-                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-[1.2rem] border transition-all duration-300 group/btn ${
+                      className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${
                           selectedVenue === 'All Locations'
-                          ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_16px_rgba(204,255,0,0.35)]'
-                          : 'bg-white/5 border-white/5 text-white/60 hover:border-[#CCFF00]/30 hover:bg-[#CCFF00]/5 hover:text-white'
+                          ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]'
+                          : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'
                       }`}
                   >
-                      <div className={`p-1.5 rounded-lg transition-all ${selectedVenue === 'All Locations' ? 'bg-brand-950/20' : 'bg-white/5 group-hover/btn:scale-110'}`}>
-                          <Layers size={13} strokeWidth={2.5} />
+                      <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === 'All Locations' ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
+                          <Layers size={11} strokeWidth={2.5} />
                       </div>
-                      <div className="text-left">
-                          <p className="text-[10px] font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">All Locations</p>
-                          <p className={`text-[9px] font-bold italic leading-none mt-0.5 ${selectedVenue === 'All Locations' ? 'text-brand-950/70' : 'text-[#CCFF00]/70'}`}>
+                      <div className="text-left leading-none">
+                          <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">All Locations</p>
+                          <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === 'All Locations' ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>
                               {venueStats['All Locations'] || 0} players
                           </p>
                       </div>
                   </button>
 
-                  {/* Divider */}
-                  <div className="w-px bg-white/10 flex-shrink-0 my-1" />
+                  <div className="w-px h-5 bg-white/10 flex-shrink-0" />
 
                   {availableVenues.map((venue) => (
                       <button
                           key={venue.id}
                           onClick={() => setSelectedVenue(venue.name)}
-                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-[1.2rem] border transition-all duration-300 group/btn ${
+                          className={`flex-shrink-0 flex items-center gap-2 h-10 px-3.5 rounded-[1rem] border transition-all duration-300 group/btn ${
                               selectedVenue === venue.name
-                              ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_16px_rgba(204,255,0,0.35)]'
-                              : 'bg-white/5 border-white/5 text-white/60 hover:border-[#CCFF00]/30 hover:bg-[#CCFF00]/5 hover:text-white'
+                              ? 'bg-[#CCFF00] border-[#CCFF00] text-brand-950 shadow-[0_0_14px_rgba(204,255,0,0.4)]'
+                              : 'bg-white/5 border-white/5 text-white/50 hover:border-[#CCFF00]/25 hover:bg-[#CCFF00]/5 hover:text-white'
                           }`}
                       >
-                          <div className={`p-1.5 rounded-lg transition-all ${selectedVenue === venue.name ? 'bg-brand-950/20' : 'bg-white/5 group-hover/btn:scale-110'}`}>
-                              <MapPin size={13} strokeWidth={2.5} />
+                          <div className={`flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedVenue === venue.name ? 'bg-brand-950/20' : 'bg-white/8 group-hover/btn:scale-110'}`}>
+                              <MapPin size={11} strokeWidth={2.5} />
                           </div>
-                          <div className="text-left">
-                              <p className="text-[10px] font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">{venue.name}</p>
-                              <p className={`text-[9px] font-bold italic leading-none mt-0.5 ${selectedVenue === venue.name ? 'text-brand-950/70' : 'text-[#CCFF00]/70'}`}>
+                          <div className="text-left leading-none">
+                              <p className="text-[10px] font-black uppercase italic tracking-tight whitespace-nowrap">{venue.name}</p>
+                              <p className={`text-[9px] font-bold italic whitespace-nowrap ${selectedVenue === venue.name ? 'text-brand-950/60' : 'text-[#CCFF00]/60'}`}>
                                   {venueStats[venue.name] || 0} players
                               </p>
                           </div>
@@ -166,6 +164,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
           </div>
       </div>
+
 
 
       {/* Academy Insights Grid with Standard Bar Divider */}
