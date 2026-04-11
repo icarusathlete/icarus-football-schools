@@ -261,14 +261,14 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
             </div>
 
             {showForm && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="bg-brand-900 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white/10">
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/80 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="bg-brand-900 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 border border-white/10 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
                         <div className="px-10 py-8 border-b border-white/5 flex justify-between items-center relative bg-brand-secondary">
                             <h3 className="font-black text-2xl text-white italic uppercase tracking-tight">Create <span className="text-brand-primary">Announcement</span></h3>
                             <button onClick={() => setShowForm(false)} className="p-3 hover:bg-white/10 rounded-full text-white/40 transition-colors"><X size={20} /></button>
                         </div>
 
-                        <form onSubmit={handlePost} className="p-10 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                        <form onSubmit={handlePost} className="p-6 sm:p-10 space-y-6 sm:space-y-8 flex-1 overflow-y-auto custom-scrollbar">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] ml-1">Title</label>
                                 <input

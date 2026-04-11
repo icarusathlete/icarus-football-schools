@@ -205,9 +205,9 @@ export const MatchManager: React.FC = () => {
                         <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"><X size={20}/></button>
                     </div>
 
-                    <div className="p-12">
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
-                            <div className="flex items-center gap-12 lg:gap-24">
+                    <div className="p-6 sm:p-12">
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+                            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 lg:gap-24">
                                 <div className="text-center group">
                                     <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-5 border border-slate-100 group-hover:border-brand-500/50 transition-all shadow-xl relative overflow-hidden">
                                         <div className="absolute inset-0 bg-brand-500 opacity-5" />
@@ -219,13 +219,13 @@ export const MatchManager: React.FC = () => {
                                 <div className="flex items-center gap-8">
                                     <div className="flex flex-col items-center gap-4">
                                         <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: activeMatch.scoreFor + 1 })} className="w-14 h-14 rounded-2xl bg-brand-500/5 text-brand-500 flex items-center justify-center hover:bg-brand-500 hover:text-white transition-all border border-brand-500/10 shadow-lg"><TrendingUp size={24} /></button>
-                                        <div className="text-8xl font-black text-slate-900 italic font-display leading-none">{activeMatch.scoreFor}</div>
+                                        <div className="text-6xl sm:text-8xl font-black text-slate-900 italic font-display leading-none">{activeMatch.scoreFor}</div>
                                         <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, activeMatch.scoreFor - 1) })} className="text-slate-300 hover:text-slate-900 transition-colors"><ChevronDown size={28} /></button>
                                     </div>
                                     <div className="text-5xl font-black text-slate-100 italic">:</div>
                                     <div className="flex flex-col items-center gap-4">
                                         <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: activeMatch.scoreAgainst + 1 })} className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all border border-slate-100 shadow-lg"><TrendingUp size={24} /></button>
-                                        <div className="text-8xl font-black text-slate-400 italic font-display leading-none">{activeMatch.scoreAgainst}</div>
+                                        <div className="text-6xl sm:text-8xl font-black text-slate-400 italic font-display leading-none">{activeMatch.scoreAgainst}</div>
                                         <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, activeMatch.scoreAgainst - 1) })} className="text-slate-200 hover:text-slate-900 transition-colors"><ChevronDown size={28} /></button>
                                     </div>
                                 </div>
@@ -336,7 +336,7 @@ export const MatchManager: React.FC = () => {
                         ))
                     ) : (
                         scheduleEvents.sort((a,b) => a.date.localeCompare(b.date)).map(ev => (
-                            <div key={ev.id} className="bg-slate-50 rounded-[2.5rem] border border-slate-100 p-10 flex flex-col lg:flex-row items-center justify-between hover:border-brand-500/30 transition-all group relative overflow-hidden shadow-xl shadow-slate-200/30">
+                            <div key={ev.id} className="bg-slate-50 rounded-[2.5rem] border border-slate-100 p-6 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between hover:border-brand-500/30 transition-all group relative overflow-hidden shadow-xl shadow-slate-200/30 gap-6">
                                 <div className="flex items-center gap-10">
                                     <div className="w-20 h-20 bg-white rounded-3xl flex flex-col items-center justify-center border border-slate-100 group-hover:border-brand-500 transition-all shadow-sm">
                                         <p className="text-[11px] font-black text-brand-500 uppercase italic leading-none mb-1">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>

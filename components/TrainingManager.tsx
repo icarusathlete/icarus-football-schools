@@ -481,7 +481,7 @@ export const TrainingManager: React.FC = () => {
                                     placeholder="https://youtu.be/..."
                                 />
                                 {formEmbedPreview && (
-                                    <div className="mt-4 rounded-xl overflow-hidden aspect-video bg-black w-64 shadow-2xl border border-slate-100 border-l-4 border-l-red-500">
+                                    <div className="mt-4 rounded-xl overflow-hidden aspect-video bg-black w-full max-w-sm shadow-2xl border border-slate-100 border-l-4 border-l-red-500">
                                         <iframe src={formEmbedPreview} className="w-full h-full" title="Video Preview" />
                                     </div>
                                 )}
