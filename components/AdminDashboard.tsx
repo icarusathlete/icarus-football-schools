@@ -5,7 +5,8 @@ import {
   Users, Activity, Command, Star, Clock, Receipt,
   UserPlus, Trophy, AlertTriangle, Timer, XCircle,
   ChevronLeft, Shield, Radio, TrendingUp, Zap,
-  ArrowUp, ArrowDown, Minus, CalendarPlus, Medal
+  ArrowUp, ArrowDown, Minus, CalendarPlus, Medal,
+  MapPin, Layers, ChevronDown
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -149,9 +150,13 @@ const CentreCard: React.FC<{ stat: CentreStat; onClick: () => void }> = ({ stat,
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const AdminDashboard: React.FC = () => {
-  const [drillVenue, setDrillVenue] = useState<string | null>(null);
+  const [selectedVenue, setSelectedVenue] = useState<string>('all');
+  const [selectedBatch, setSelectedBatch] = useState<string>('all');
 
-  // Shared data
+  const [availableVenues, setAvailableVenues] = useState<string[]>([]);
+  const [availableBatches, setAvailableBatches] = useState<string[]>([]);
+
+  // Analytics Data
   const [centres, setCentres] = useState<CentreStat[]>([]);
   const [globalStats, setGlobalStats] = useState({ players: 0, presentToday: 0, rate: 0, alerts: 0, overdueCount: 0, expiringCount: 0, newThisMonth: 0 });
   const [alertItems, setAlertItems] = useState<{ id: string; severity: 'critical' | 'warning' | 'info'; icon: React.ReactNode; label: string; detail: string }[]>([]);
@@ -160,36 +165,59 @@ export const AdminDashboard: React.FC = () => {
   const [topPerformers, setTopPerformers] = useState<{ name: string; rating: number; venue: string }[]>([]);
   const [activityFeed, setActivityFeed] = useState<{ id: string; type: 'player' | 'match' | 'fee'; label: string; sub: string; ts: number }[]>([]);
   const [leagueRankings, setLeagueRankings] = useState<LeagueRanking[]>([]);
-
-  // Drill-down data
-  const [drillPlayers, setDrillPlayers] = useState<PlayerRow[]>([]);
-  const [drillChart, setDrillChart] = useState<ChartPoint[]>([]);
-  const [drillAge, setDrillAge] = useState<AgePoint[]>([]);
-  const [drillStat, setDrillStat] = useState<CentreStat | null>(null);
+  const [playerRoster, setPlayerRoster] = useState<PlayerRow[]>([]);
 
   const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'Senior'];
   const AGE_COLORS = ['#CCFF00', '#a3e635', '#4ade80', '#34d399', '#22d3ee', '#60a5fa', '#818cf8'];
 
   useEffect(() => {
-    const players = StorageService.getPlayers();
-    const venues = StorageService.getVenues();
-    const attendance = StorageService.getAttendance();
-    const matches = StorageService.getMatches();
-    const fees = StorageService.getFees();
+    const allPlayers = StorageService.getPlayers();
+    const allVenues = StorageService.getVenues();
+    const allBatches = StorageService.getBatches();
+    const allAttendance = StorageService.getAttendance();
+    const allMatches = StorageService.getMatches();
+    const allFees = StorageService.getFees();
+
+    // Populate dropdowns
+    setAvailableVenues(allVenues.map(v => v.name));
+    setAvailableBatches(
+      allBatches
+        .filter(b => selectedVenue === 'all' || b.venue === selectedVenue)
+        .map(b => b.name)
+    );
+
+    // Apply Filters
+    let players = allPlayers;
+    if (selectedVenue !== 'all') {
+      players = players.filter(p => p.venue === selectedVenue);
+    }
+    if (selectedBatch !== 'all') {
+      players = players.filter(p => p.batchName === selectedBatch);
+    }
+
+    const playerIds = new Set(players.map(p => p.id));
+    const attendance = allAttendance.filter(a => playerIds.has(a.playerId));
+    const fees = allFees.filter(f => playerIds.has(f.playerId));
+    
+    // activity feed includes matches, which aren't strictly filtered by player except conceptually.
+    // we will leave matches global unless explicitly wanted, but the feed will show them.
 
     const today = getDateOffset(0);
     const ago30 = getDateOffset(-30);
     const in30 = getDateOffset(30);
 
-    // ── Centre stats ─────────────────────────────────────────────────────────
-    const centreData: CentreStat[] = venues.map(v => {
-      const vp = players.filter(p => p.venue === v.name);
-      const vPresent = attendance.filter(r => r.venue === v.name && r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
-      const evaluated = vp.filter(p => p.evaluation?.overallRating);
-      const avgR = evaluated.length > 0 ? Math.round((evaluated.reduce((s, p) => s + (p.evaluation?.overallRating ?? 0), 0) / evaluated.length) * 10) / 10 : 0;
-      const vFees = fees.filter(f => { const pl = players.find(x => x.id === f.playerId); return pl?.venue === v.name && (f.status === 'PENDING' || f.status === 'OVERDUE'); }).length;
-      return { name: v.name, players: vp.length, presentToday: vPresent, attendanceRate: vp.length > 0 ? Math.round((vPresent / vp.length) * 100) : 0, avgRating: avgR, pendingFees: vFees };
-    });
+    // ── Centre stats (always show based on current filtered context) ──────────
+    // If a specific venue is selected, this will just yield 1 centre card. If 'all', all centres.
+    const centreData: CentreStat[] = allVenues
+      .filter(v => selectedVenue === 'all' || v.name === selectedVenue)
+      .map(v => {
+        const vp = players.filter(p => p.venue === v.name);
+        const vPresent = attendance.filter(r => r.venue === v.name && r.date === today && String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
+        const evaluated = vp.filter(p => p.evaluation?.overallRating);
+        const avgR = evaluated.length > 0 ? Math.round((evaluated.reduce((s, p) => s + (p.evaluation?.overallRating ?? 0), 0) / evaluated.length) * 10) / 10 : 0;
+        const vFees = fees.filter(f => { const pl = players.find(x => x.id === f.playerId); return pl?.venue === v.name && (f.status === 'PENDING' || f.status === 'OVERDUE'); }).length;
+        return { name: v.name, players: vp.length, presentToday: vPresent, attendanceRate: vp.length > 0 ? Math.round((vPresent / vp.length) * 100) : 0, avgRating: avgR, pendingFees: vFees };
+      });
     setCentres(centreData);
 
     // ── Alerts ───────────────────────────────────────────────────────────────
@@ -201,7 +229,7 @@ export const AdminDashboard: React.FC = () => {
       if (rec.length < 3) return false;
       return rec.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length / rec.length < 0.6;
     });
-    const underCentres = venues.filter(v => players.filter(p => p.venue === v.name).length < 3);
+    const underCentres = centreData.filter(v => v.players > 0 && v.players < 3);
 
     if (overdueCount > 0) newAlerts.push({ id: 'ov', severity: 'critical', icon: <XCircle size={13} />, label: `${overdueCount} Overdue ${overdueCount > 1 ? 'Fees' : 'Fee'}`, detail: 'Needs immediate collection' });
     if (expiringPkgs > 0) newAlerts.push({ id: 'ex', severity: 'warning', icon: <Timer size={13} />, label: `${expiringPkgs} Package${expiringPkgs > 1 ? 's' : ''} Expiring`, detail: 'Within next 30 days' });
@@ -215,35 +243,32 @@ export const AdminDashboard: React.FC = () => {
     const newThisMonth = players.filter(p => (p.registeredAt || '').startsWith(thisMonth)).length;
     setGlobalStats({ players: players.length, presentToday: global_present, rate: players.length > 0 ? Math.round((global_present / players.length) * 100) : 0, alerts: newAlerts.length, overdueCount, expiringCount: expiringPkgs, newThisMonth });
 
-    // ── 7-day chart (all) ─────────────────────────────────────────────────────
+    // ── 7-day chart (filtered) ────────────────────────────────────────────────
     setChartAll(Array.from({ length: 7 }, (_, i) => {
       const date = getDateOffset(i - 6);
       const day = attendance.filter(r => r.date === date);
       return { name: dayLabel(date), present: day.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length, absent: day.filter(r => String(r.status).toUpperCase() === AttendanceStatus.ABSENT).length };
     }));
 
-    // ── Age dist (all) ────────────────────────────────────────────────────────
+    // ── Age dist (filtered) ───────────────────────────────────────────────────
     const ac: Record<string, number> = {};
     AGE_GROUPS.forEach(g => ac[g] = 0);
     players.forEach(p => { const g = ageGroup(p.dateOfBirth); ac[g] = (ac[g] || 0) + 1; });
     setAgeAll(AGE_GROUPS.map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] })).filter(x => x.value > 0));
 
-    // ── Top performers ────────────────────────────────────────────────────────
+    // ── Top performers (filtered) ─────────────────────────────────────────────
     const tp = players.filter(p => p.evaluation?.overallRating).sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0)).slice(0, 5).map(p => ({ name: p.fullName, rating: p.evaluation!.overallRating, venue: p.venue || '—' }));
     setTopPerformers(tp);
 
-    // ── Activity feed ─────────────────────────────────────────────────────────
+    // ── Activity feed (filtered) ──────────────────────────────────────────────
     const feed: typeof activityFeed = [];
     [...players].sort((a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime()).slice(0, 3).forEach(p => feed.push({ id: `p-${p.id}`, type: 'player', label: `${p.fullName} joined`, sub: p.venue || 'No centre', ts: new Date(p.registeredAt).getTime() }));
-    [...matches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3).forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
+    // To filter matches to specific venue involves more mapping, we will let match feed remain global contextual
+    [...allMatches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3).forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
     [...fees].filter(f => f.invoice).sort((a, b) => new Date(b.invoice!.date).getTime() - new Date(a.invoice!.date).getTime()).slice(0, 3).forEach(f => { const pl = players.find(p => p.id === f.playerId); if (pl) feed.push({ id: `f-${f.id}`, type: 'fee', label: `₹${f.invoice!.amount.toLocaleString('en-IN')} collected`, sub: `${pl.fullName} · Invoice ${f.invoice!.invoiceNo}`, ts: new Date(f.invoice!.date).getTime() }); });
     setActivityFeed(feed.sort((a, b) => b.ts - a.ts).slice(0, 8));
 
-    // ── Academy League Rankings ───────────────────────────────────────────────
-    // Composite score formula:
-    //   40% = overallRating (scout report rating /10 scaled to 0–40)
-    //   35% = 30-day attendance rate (0–35)
-    //   25% = average of 6 skill metrics /10 scaled to 0–25
+    // ── Academy League Rankings (filtered) ────────────────────────────────────
     const computeScore = (overallRating: number, attRate: number, metrics?: { passing: number; juggling: number; shooting: number; beepTest: number; weakFoot: number; longPass: number }) => {
       const ratingPart = (overallRating / 10) * 40;
       const attPart = (attRate / 100) * 35;
@@ -253,7 +278,6 @@ export const AdminDashboard: React.FC = () => {
       return Math.round((ratingPart + attPart + metricPart) * 10) / 10;
     };
 
-    // Compute current rankings for all evaluated players
     const evaluated = players.filter(p => p.evaluation?.overallRating);
     const playerScores = evaluated.map(p => {
       const rec30 = attendance.filter(r => r.playerId === p.id && r.date >= ago30);
@@ -277,7 +301,6 @@ export const AdminDashboard: React.FC = () => {
       };
     }).sort((a, b) => b.compositeScore - a.compositeScore);
 
-    // Compute previous rankings (using last evaluationHistory entry)
     const prevScores = playerScores
       .filter(ps => ps.prevEval)
       .map(ps => {
@@ -316,40 +339,21 @@ export const AdminDashboard: React.FC = () => {
     });
     setLeagueRankings(rankings);
 
-  }, []);
-
-  // ── Drilldown effect (only runs when venue is selected) ───────────────────
-  useEffect(() => {
-    if (!drillVenue) return;
-    const players = StorageService.getPlayers().filter(p => p.venue === drillVenue);
-    const allAtt = StorageService.getAttendance();
-    const ago30 = getDateOffset(-30);
-
-    // Player rows
-    setDrillPlayers(players.map(p => {
-      const rec = allAtt.filter(r => r.playerId === p.id && r.date >= ago30);
+    // ── Player Roster (for filtered lists) ────────────────────────────────────
+    setPlayerRoster(players.map(p => {
+      const rec = attendance.filter(r => r.playerId === p.id && r.date >= ago30);
       const present = rec.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
-      return { name: p.fullName, memberId: p.memberId || '', sessions: rec.length, present, rate: rec.length > 0 ? Math.round((present / rec.length) * 100) : 0, rating: p.evaluation?.overallRating ?? 0 };
+      return { 
+        name: p.fullName, 
+        memberId: p.memberId || '', 
+        sessions: rec.length, 
+        present, 
+        rate: rec.length > 0 ? Math.round((present / rec.length) * 100) : 0, 
+        rating: p.evaluation?.overallRating ?? 0 
+      };
     }).sort((a, b) => a.rate - b.rate));
 
-    // Drilldown chart
-    const vAtt = allAtt.filter(r => r.venue === drillVenue);
-    setDrillChart(Array.from({ length: 7 }, (_, i) => {
-      const date = getDateOffset(i - 6);
-      const day = vAtt.filter(r => r.date === date);
-      return { name: dayLabel(date), present: day.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length, absent: day.filter(r => String(r.status).toUpperCase() === AttendanceStatus.ABSENT).length };
-    }));
-
-    // Drilldown age
-    const ac: Record<string, number> = {};
-    ['U8','U10','U12','U14','U16','U18','Senior'].forEach(g => ac[g] = 0);
-    players.forEach(p => { const g = ageGroup(p.dateOfBirth); ac[g] = (ac[g] || 0) + 1; });
-    const AGE_COLORS = ['#CCFF00', '#a3e635', '#4ade80', '#34d399', '#22d3ee', '#60a5fa', '#818cf8'];
-    setDrillAge(['U8','U10','U12','U14','U16','U18','Senior'].map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] })).filter(x => x.value > 0));
-
-    // Centre stat for drilldown header
-    setDrillStat(centres.find(c => c.name === drillVenue) || null);
-  }, [drillVenue, centres]);
+  }, [selectedVenue, selectedBatch]);
 
   // ── Render helpers ────────────────────────────────────────────────────────
 
@@ -399,157 +403,66 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // DRILL-DOWN VIEW
-  // ═══════════════════════════════════════════════════════════════════════════
-  if (drillVenue && drillStat) {
-    return (
-      <div className="space-y-5 pb-32 font-display animate-in fade-in duration-500">
-
-        {/* Back nav */}
-        <button onClick={() => setDrillVenue(null)} className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group">
-          <div className="w-8 h-8 rounded-xl bg-brand-900 border border-white/5 flex items-center justify-center group-hover:bg-brand-bg transition-colors">
-            <ChevronLeft size={15} />
-          </div>
-          <p className="text-[10px] font-black uppercase italic tracking-[0.3em]">BACK TO OVERVIEW</p>
-        </button>
-
-        {/* Drilldown Hero */}
-        <div className="bg-gradient-to-br from-brand-900 to-brand-950 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.07] shadow-2xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-5">
-            <div>
-              <p className="text-[9px] font-black text-[#CCFF00]/50 uppercase italic tracking-[0.4em] mb-1">CENTRE DRILL-DOWN</p>
-              <h2 className="text-3xl sm:text-4xl font-black italic text-white uppercase tracking-tighter leading-none">{drillVenue}</h2>
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              {[
-                { label: 'Players', value: drillStat.players, color: '#CCFF00' },
-                { label: 'Present Today', value: drillStat.presentToday, color: '#4ade80' },
-                { label: 'Attendance Rate', value: `${drillStat.attendanceRate}%`, color: rateColor(drillStat.attendanceRate) },
-                { label: 'Fees Pending', value: drillStat.pendingFees, color: drillStat.pendingFees > 0 ? '#f87171' : '#6b7280' },
-              ].map((s, i) => (
-                <div key={i} className="bg-brand-950/40 border border-white/5 rounded-2xl px-4 py-2.5 text-center min-w-[64px]">
-                  <p className="text-xl font-black italic" style={{ color: s.color }}>{s.value}</p>
-                  <p className="text-[8px] font-black italic text-white/25 uppercase tracking-wider mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* 7-day chart for this centre */}
-        <div className="bg-brand-900 p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
-          <div className="flex items-center gap-2 mb-5">
-            <Clock size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">7-DAY ATTENDANCE TREND</h3>
-            <div className="ml-auto flex gap-3 text-[9px] font-black italic text-white/25">
-              <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[#CCFF00] inline-block rounded" /> Present</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-400 inline-block rounded" /> Absent</span>
-            </div>
-          </div>
-          <div className="h-[200px]">{renderChart(drillChart)}</div>
-        </div>
-
-        {/* Player roster */}
-        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-white/[0.05] flex items-center gap-3">
-            <Users size={14} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">PLAYER ATTENDANCE · LAST 30 DAYS</h3>
-            <span className="ml-auto text-[9px] font-black text-white/40 bg-brand-950 px-2.5 py-1 rounded-lg">{drillPlayers.length} PLAYERS</span>
-          </div>
-          {drillPlayers.length > 0 ? (
-            <div className="divide-y divide-white/[0.04]">
-              {drillPlayers.map((p, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-black/20 transition-colors">
-                  {/* Avatar */}
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black text-brand-950 flex-shrink-0"
-                    style={{ background: nameColor(p.name) }}>
-                    {initials(p.name)}
-                  </div>
-                  {/* Name */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-black italic text-white truncate">{p.name}</p>
-                    <p className="text-[9px] font-bold text-white/25 italic">{p.memberId || 'No ID'}</p>
-                  </div>
-                  {/* Attendance bar */}
-                  <div className="flex-1 max-w-[120px] space-y-1 hidden sm:block">
-                    <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${p.rate}%`, background: rateColor(p.rate) }} />
-                    </div>
-                    <p className="text-[8px] font-black italic text-white/20">
-                      {p.sessions > 0 ? `${p.present}/${p.sessions} sessions` : 'No records'}
-                    </p>
-                  </div>
-                  {/* Rate */}
-                  <div className="text-right flex-shrink-0 w-12">
-                    {p.sessions > 0
-                      ? <p className="text-[13px] font-black italic" style={{ color: rateColor(p.rate) }}>{p.rate}%</p>
-                      : <p className="text-[11px] font-black italic text-white/15">—</p>}
-                  </div>
-                  {/* Rating */}
-                  <div className="text-right flex-shrink-0 w-10 hidden sm:block">
-                    {p.rating > 0
-                      ? <p className="text-[11px] font-black italic text-white/40">⭐ {p.rating}</p>
-                      : <p className="text-[10px] font-black italic text-white/12">—</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="h-40 flex flex-col items-center justify-center gap-2 opacity-25">
-              <Users size={28} className="text-white/20" />
-              <p className="text-[9px] font-black italic text-white/25 uppercase">No players enrolled here</p>
-            </div>
-          )}
-        </div>
-
-        {/* Age dist - drilldown */}
-        {drillAge.length > 0 && (
-          <div className="bg-brand-900 p-6 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
-            <div className="flex items-center gap-2 mb-5">
-              <TrendingUp size={13} className="text-[#CCFF00]" />
-              <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">AGE GROUP BREAKDOWN</h3>
-            </div>
-            <div className="space-y-2.5">
-              {drillAge.map(g => {
-                const max = Math.max(...drillAge.map(x => x.value));
-                return (
-                  <div key={g.name} className="flex items-center gap-3">
-                    <span className="text-[9px] font-black uppercase italic text-white/30 w-8 flex-shrink-0">{g.name}</span>
-                    <div className="flex-1 h-6 bg-brand-950/60 rounded-xl overflow-hidden">
-                      <div className="h-full rounded-xl flex items-center px-2.5 transition-all duration-700" style={{ width: `${(g.value / max) * 100}%`, background: g.color, minWidth: '2rem' }}>
-                        <span className="text-[10px] font-black italic text-brand-950">{g.value}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-      </div>
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // OVERVIEW VIEW
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <div className="space-y-5 pb-32 font-display animate-in fade-in duration-500">
 
       {/* ── Hero KPIs ───────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#00054e] via-brand-900 to-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#00054e] via-brand-900 to-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-2xl relative overflow-visible">
         <div className="absolute top-0 right-0 p-8 opacity-[0.025] pointer-events-none select-none">
           <Command size={180} className="text-white" />
         </div>
         <div className="relative z-10">
-          <div className="mb-6">
-            <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-              ACADEMY <span className="text-[#CCFF00]">HUB</span>
-            </h1>
-            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.5em] italic mt-2">
-              COMMAND CENTRE · LIVE INTELLIGENCE
-            </p>
+          <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+                ACADEMY <span className="text-[#CCFF00]">HUB</span>
+              </h1>
+              <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.5em] italic mt-2">
+                COMMAND CENTRE · LIVE INTELLIGENCE
+              </p>
+            </div>
+            
+            {/* Global Filters */}
+            <div className="flex bg-brand-950/40 p-2 rounded-2xl border border-white/5 gap-2 backdrop-blur-xl">
+              <div className="relative">
+                <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <select
+                  value={selectedVenue}
+                  onChange={e => {
+                    setSelectedVenue(e.target.value);
+                    setSelectedBatch('all'); // Reset batch when venue changes
+                  }}
+                  className="bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none min-w-[140px] transition-all"
+                >
+                  <option value="all" className="bg-brand-900">ALL LOCATIONS</option>
+                  {availableVenues.map(v => (
+                    <option key={v} value={v} className="bg-brand-900">{v}</option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 border-l border-white/10 pl-2">
+                  <ChevronDown size={12} />
+                </div>
+              </div>
+
+              <div className="relative">
+                <Layers size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <select
+                  value={selectedBatch}
+                  onChange={e => setSelectedBatch(e.target.value)}
+                  className="bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none min-w-[140px] transition-all"
+                >
+                  <option value="all" className="bg-brand-900">ALL BATCHES</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b} className="bg-brand-900">{b}</option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 border-l border-white/10 pl-2">
+                  <ChevronDown size={12} />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* KPI grid */}
@@ -606,7 +519,9 @@ export const AdminDashboard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">ACADEMY RANKINGS</h3>
-                <p className="text-[8px] font-black italic text-white/25 uppercase tracking-[0.3em]">TOP 10 · ALL CENTRES COMBINED</p>
+                <p className="text-[8px] font-black italic text-white/25 uppercase tracking-[0.3em]">
+                  TOP 10 · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
+                </p>
               </div>
             </div>
             <div className="sm:ml-auto flex gap-2 flex-wrap">
@@ -736,16 +651,66 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ── Active Centre Cards ─────────────────────────────────────────────── */}
-      {activeCentres.length > 0 && (
+      {/* ── Filtered Player Roster (Visible when a specific venue/batch is selected) ── */}
+      {(selectedVenue !== 'all' || selectedBatch !== 'all') && playerRoster.length > 0 && (
+        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="px-5 sm:px-8 py-5 border-b border-white/[0.05] flex items-center gap-3">
+            <Users size={14} className="text-[#CCFF00]" />
+            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">PLAYER ATTENDANCE ROSTER</h3>
+            <span className="ml-auto text-[9px] font-black text-white/40 bg-brand-950 px-2.5 py-1 rounded-lg">{playerRoster.length} PLAYERS</span>
+          </div>
+          <div className="divide-y divide-white/[0.04]">
+            {playerRoster.map((p, i) => (
+              <div key={i} className="flex items-center gap-4 px-5 sm:px-8 py-4 hover:bg-black/20 transition-colors">
+                {/* Avatar */}
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black text-brand-950 flex-shrink-0"
+                  style={{ background: nameColor(p.name) }}>
+                  {initials(p.name)}
+                </div>
+                {/* Name */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-black italic text-white truncate">{p.name}</p>
+                  <p className="text-[9px] font-bold text-white/25 italic">{p.memberId || 'No ID'}</p>
+                </div>
+                {/* Attendance bar */}
+                <div className="flex-1 max-w-[120px] space-y-1 hidden sm:block">
+                  <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${p.rate}%`, background: rateColor(p.rate) }} />
+                  </div>
+                  <p className="text-[8px] font-black italic text-white/20">
+                    {p.sessions > 0 ? `${p.present}/${p.sessions} sessions` : 'No records'}
+                  </p>
+                </div>
+                {/* Rate */}
+                <div className="text-right flex-shrink-0 w-12">
+                  {p.sessions > 0
+                    ? <p className="text-[13px] font-black italic" style={{ color: rateColor(p.rate) }}>{p.rate}%</p>
+                    : <p className="text-[11px] font-black italic text-white/15">—</p>}
+                </div>
+                {/* Rating */}
+                <div className="text-right flex-shrink-0 w-10 hidden sm:block">
+                  {p.rating > 0
+                    ? <p className="text-[11px] font-black italic text-white/40">⭐ {p.rating}</p>
+                    : <p className="text-[10px] font-black italic text-white/12">—</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Active Centre Cards (Only shows when no specific batch is selected) ── */}
+      {selectedBatch === 'all' && activeCentres.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap size={12} className="text-[#CCFF00]" />
-            <p className="text-[9px] font-black text-white/30 uppercase italic tracking-[0.35em]">ACTIVE CENTRES — CLICK TO DRILL DOWN</p>
-            <span className="ml-auto text-[8px] font-black text-white/30 bg-brand-950 px-2 py-0.5 rounded-lg border border-white/10">{activeCentres.length} CENTRES</span>
+            <p className="text-[9px] font-black text-white/30 uppercase italic tracking-[0.35em]">
+              {selectedVenue === 'all' ? 'ACTIVE CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
+            </p>
+            <span className="ml-auto text-[8px] font-black text-white/30 bg-brand-950 px-2 py-0.5 rounded-lg border border-white/10">{activeCentres.length} CENTRE{activeCentres.length !== 1 ? 'S' : ''}</span>
           </div>
           <div className={`grid gap-4 ${activeCentres.length === 1 ? 'grid-cols-1 max-w-sm' : activeCentres.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
-            {activeCentres.map(c => <CentreCard key={c.name} stat={c} onClick={() => setDrillVenue(c.name)} />)}
+            {activeCentres.map(c => <CentreCard key={c.name} stat={c} onClick={() => { setSelectedVenue(c.name); setSelectedBatch('all'); }} />)}
           </div>
         </div>
       )}
