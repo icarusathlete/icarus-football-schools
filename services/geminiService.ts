@@ -62,21 +62,27 @@ export const GeminiService = {
          matchesPlayed: playerMatches.length,
          goals: totalGoals,
          averageRating: avgRating,
+         metrics: player.evaluation?.metrics,
+         timeTrials: player.evaluation?.timeTrials,
          recentMatches: playerMatches.slice(0,3).map(m => ({ opponent: m.opponent, result: m.result, myRating: m.playerStats.find(s => s.playerId === player.id)?.rating }))
      };
 
      const prompt = `
-        Generate a "Football Player Report Card" for a student athlete named ${player.fullName}.
-        Data: ${JSON.stringify(context)}
+        You are a Senior Technical Scout at a professional football academy. 
+        Generate an "Elite Player Performance Insight" for a student athlete named ${player.fullName}.
         
-        Write a personalized, motivating assessment in HTML format.
-        Include sections: 
-        1. <h3>Performance Summary</h3> (Comment on their goals and rating)
-        2. <h3>Dedication & Attendance</h3> (Comment on attendance rate)
-        3. <h3>Areas for Improvement</h3> (Based on position ${player.position} and general advice)
-        4. <h3>Coach's Note</h3> (Encouraging closing)
+        PLAYER DATA:
+        ${JSON.stringify(context)}
         
-        Do not output markdown code blocks. Just HTML.
+        INSTRUCTIONS:
+        1. Write in a professional, clinical yet inspiring tone used in top European academies.
+        2. Format as clean HTML (no markdown blocks).
+        3. Use the following structure:
+           - <div class="mb-6"><h3 class="text-brand-500 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">Technical Assessment</h3><p class="text-brand-950/80 text-sm leading-relaxed font-medium">[2 sentences on ball mastery and tactical metrics]</p></div>
+           - <div class="mb-6"><h3 class="text-brand-500 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">Physical Profile</h3><p class="text-brand-950/80 text-sm leading-relaxed font-medium">[1-2 sentences on speed/agility/engine]</p></div>
+           - <div class="mb-2"><h3 class="text-brand-500 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">Scout's Recommendation</h3><p class="text-brand-950/80 text-sm leading-relaxed font-bold italic">[One finishing clinical verdict]</p></div>
+
+        Do not use placeholders. Be specific based on the data provided.
      `;
 
      try {
@@ -86,7 +92,7 @@ export const GeminiService = {
         });
         return response.text;
      } catch (error) {
-        return "<p>Unable to generate AI report at this time.</p>";
+        return "<p class='text-brand-950/50 italic'>Scout data temporarily offline...</p>";
      }
   },
 

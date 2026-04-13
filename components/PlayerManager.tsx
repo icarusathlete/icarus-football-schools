@@ -38,6 +38,8 @@ export const PlayerManager: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    
+    // Listen for data updates from other components
     window.addEventListener('academy_data_update', loadData);
     return () => window.removeEventListener('academy_data_update', loadData);
   }, []);
@@ -46,9 +48,9 @@ export const PlayerManager: React.FC = () => {
     filterData();
   }, [players, coaches, searchTerm, filterVenue, filterBatch, activeTab]);
 
-  const loadData = () => {
+  const loadData = async () => {
     setPlayers(StorageService.getPlayers());
-    const allUsers = StorageService.getUsers();
+    const allUsers = await StorageService.getUsers();
     setCoaches(allUsers.filter(u => u.role?.toLowerCase() === 'coach'));
     setVenues(StorageService.getVenues());
     setBatches(StorageService.getBatches());

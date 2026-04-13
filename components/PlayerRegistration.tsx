@@ -24,13 +24,15 @@ export const PlayerRegistration: React.FC = () => {
   // Coach Form State
   const [coachForm, setCoachForm] = useState({
       username: '',
+      fullName: '',
       contactNumber: '',
       email: '',
       dateOfBirth: '',
       address: '',
       password: '',
+      employeeNumber: '',
       photoUrl: '',
-      role: 'coach',
+      role: 'coach' as const,
       assignedVenues: [] as string[],
       assignedBatches: [] as string[]
   });
@@ -59,11 +61,23 @@ export const PlayerRegistration: React.FC = () => {
   const [statusMsg, setStatusMsg] = useState('');
 
   useEffect(() => {
-    refreshData();
-    // Listen for updates
-    window.addEventListener('academy_data_update', refreshData);
-    return () => window.removeEventListener('academy_data_update', refreshData);
+    loadAcademyConfig();
+    
+    const handleDataUpdate = () => {
+        loadAcademyConfig();
+        refreshData();
+    };
+
+    window.addEventListener('academy_data_update', handleDataUpdate);
+    return () => window.removeEventListener('academy_data_update', handleDataUpdate);
   }, []);
+
+  const loadAcademyConfig = () => {
+      const v = StorageService.getVenues();
+      const b = StorageService.getBatches();
+      setVenues(v);
+      setBatches(b);
+  };
 
   const refreshData = () => {
       const allPlayers = StorageService.getPlayers();
@@ -136,7 +150,9 @@ export const PlayerRegistration: React.FC = () => {
 
   const validateCoach = () => {
       const newErrors: Record<string, string> = {};
-      if (!coachForm.username.trim()) newErrors.username = 'Coach Name is required';
+      if (!coachForm.fullName.trim()) newErrors.fullName = 'Full Name is required';
+      if (!coachForm.username.trim()) newErrors.username = 'Username is required';
+      if (!coachForm.employeeNumber.trim()) newErrors.employeeNumber = 'Employee ID is required';
       if (!coachForm.password.trim()) newErrors.password = 'Password is required';
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
@@ -158,6 +174,10 @@ export const PlayerRegistration: React.FC = () => {
                 ...formData,
                 photoUrl: formData.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName)}&background=0ea5e9&color=fff`
             });
+            
+            // Notify other components to refresh
+            window.dispatchEvent(new CustomEvent('academy_data_update'));
+
             setStatus('success');
             setStatusMsg(`Athlete successfully enrolled!`);
             setFormData({
@@ -191,10 +211,11 @@ export const PlayerRegistration: React.FC = () => {
       }
 
       setStatus('submitting');
-      setTimeout(() => {
+      setTimeout(async () => {
           try {
-              StorageService.addUser({
+              await StorageService.addUser({
                   username: coachForm.username,
+                  fullName: coachForm.fullName,
                   password: coachForm.password,
                   role: 'coach',
                   photoUrl: coachForm.photoUrl,
@@ -206,9 +227,13 @@ export const PlayerRegistration: React.FC = () => {
                   assignedVenues: coachForm.assignedVenues,
                   assignedBatches: coachForm.assignedBatches
               });
+
+              // Notify other components to refresh
+              window.dispatchEvent(new CustomEvent('academy_data_update'));
+
               setStatus('success');
               setStatusMsg(`Coach onboarded!`);
-              setCoachForm({ username: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', photoUrl: '', role: 'coach', assignedVenues: [], assignedBatches: [] });
+              setCoachForm({ username: '', fullName: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', employeeNumber: '', photoUrl: '', role: 'coach', assignedVenues: [], assignedBatches: [] });
               setCoachPreviewUrl(null);
               refreshData();
               setTimeout(() => setStatus('idle'), 4000);
@@ -471,8 +496,16 @@ export const PlayerRegistration: React.FC = () => {
 
                             <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-sm">
                                 <div className="space-y-2">
-                                    <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Full Name / Username</label>
-                                    <input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} placeholder="Coach Name..." />
+                                    <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                    <input type="text" className={getInputClass('fullName')} value={coachForm.fullName} onChange={e => setCoachForm({...coachForm, fullName: e.target.value})} placeholder="Full Name..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Username / Login ID</label>
+                                    <input type="text" className={getInputClass('username')} value={coachForm.username} onChange={e => setCoachForm({...coachForm, username: e.target.value})} placeholder="Username..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] ml-1">Employee Number</label>
+                                    <input type="text" className={getInputClass('employeeNumber')} value={coachForm.employeeNumber} onChange={e => setCoachForm({...coachForm, employeeNumber: e.target.value})} placeholder="EMP-000..." />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Date of Birth</label>

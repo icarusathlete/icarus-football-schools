@@ -99,8 +99,8 @@ const CentreCard: React.FC<{ stat: CentreStat; onClick: () => void }> = ({ stat,
       disabled={empty}
       className={`text-left p-5 rounded-[2rem] border transition-all duration-300 w-full ${
         empty
-          ? 'bg-white/[0.015] border-white/[0.04] opacity-40 cursor-default'
-          : 'bg-white/[0.04] border-white/[0.07] hover:bg-white/[0.07] hover:border-white/[0.12] hover:shadow-[0_0_20px_rgba(204,255,0,0.05)] active:scale-[0.98]'
+          ? 'bg-brand-950/20 border-white/[0.04] opacity-40 cursor-default'
+          : 'bg-brand-900 border-white/[0.07] hover:bg-brand-bg hover:border-white/[0.12] hover:shadow-[0_0_20px_rgba(204,255,0,0.05)] active:scale-[0.98]'
       }`}
     >
       {/* Header */}
@@ -407,7 +407,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Back nav */}
         <button onClick={() => setDrillVenue(null)} className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group">
-          <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+          <div className="w-8 h-8 rounded-xl bg-brand-900 border border-white/5 flex items-center justify-center group-hover:bg-brand-bg transition-colors">
             <ChevronLeft size={15} />
           </div>
           <p className="text-[10px] font-black uppercase italic tracking-[0.3em]">BACK TO OVERVIEW</p>
@@ -427,7 +427,7 @@ export const AdminDashboard: React.FC = () => {
                 { label: 'Attendance Rate', value: `${drillStat.attendanceRate}%`, color: rateColor(drillStat.attendanceRate) },
                 { label: 'Fees Pending', value: drillStat.pendingFees, color: drillStat.pendingFees > 0 ? '#f87171' : '#6b7280' },
               ].map((s, i) => (
-                <div key={i} className="bg-white/5 border border-white/5 rounded-2xl px-4 py-2.5 text-center min-w-[64px]">
+                <div key={i} className="bg-brand-950/40 border border-white/5 rounded-2xl px-4 py-2.5 text-center min-w-[64px]">
                   <p className="text-xl font-black italic" style={{ color: s.color }}>{s.value}</p>
                   <p className="text-[8px] font-black italic text-white/25 uppercase tracking-wider mt-0.5">{s.label}</p>
                 </div>
@@ -454,12 +454,12 @@ export const AdminDashboard: React.FC = () => {
           <div className="px-6 py-5 border-b border-white/[0.05] flex items-center gap-3">
             <Users size={14} className="text-[#CCFF00]" />
             <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">PLAYER ATTENDANCE · LAST 30 DAYS</h3>
-            <span className="ml-auto text-[9px] font-black text-white/20 bg-white/5 px-2.5 py-1 rounded-lg">{drillPlayers.length} PLAYERS</span>
+            <span className="ml-auto text-[9px] font-black text-white/40 bg-brand-950 px-2.5 py-1 rounded-lg">{drillPlayers.length} PLAYERS</span>
           </div>
           {drillPlayers.length > 0 ? (
             <div className="divide-y divide-white/[0.04]">
               {drillPlayers.map((p, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors">
+                <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-black/20 transition-colors">
                   {/* Avatar */}
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black text-brand-950 flex-shrink-0"
                     style={{ background: nameColor(p.name) }}>
@@ -515,7 +515,7 @@ export const AdminDashboard: React.FC = () => {
                 return (
                   <div key={g.name} className="flex items-center gap-3">
                     <span className="text-[9px] font-black uppercase italic text-white/30 w-8 flex-shrink-0">{g.name}</span>
-                    <div className="flex-1 h-6 bg-white/[0.05] rounded-xl overflow-hidden">
+                    <div className="flex-1 h-6 bg-brand-950/60 rounded-xl overflow-hidden">
                       <div className="h-full rounded-xl flex items-center px-2.5 transition-all duration-700" style={{ width: `${(g.value / max) * 100}%`, background: g.color, minWidth: '2rem' }}>
                         <span className="text-[10px] font-black italic text-brand-950">{g.value}</span>
                       </div>
@@ -555,11 +555,11 @@ export const AdminDashboard: React.FC = () => {
           {/* KPI grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-[#CCFF00]/8 border-[#CCFF00]/15' },
-              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.2)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
-              { label: "Today's Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-white/[0.04] border-white/[0.07]' },
-              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} expiring soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
-              { label: 'Active Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-white/[0.04] border-white/[0.07]' },
+              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-brand-950/50 border-[#CCFF00]/15' },
+              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.2)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: "Today's Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-brand-950/50 border-white/10' },
+              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} expiring soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: 'Active Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-brand-950/50 border-white/10' },
             ].map((k, i) => (
               <div key={i} className={`rounded-2xl border p-4 ${k.accent}`}>
                 <div className="flex items-center justify-between mb-3">
@@ -615,7 +615,7 @@ export const AdminDashboard: React.FC = () => {
                 { dot: 'bg-blue-400', label: 'Attendance 35%' },
                 { dot: 'bg-purple-400', label: 'Skill Metrics 25%' },
               ].map((l, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-[8px] font-black italic text-white/25 bg-white/[0.03] border border-white/[0.05] px-2.5 py-1 rounded-xl">
+                <span key={i} className="flex items-center gap-1.5 text-[8px] font-black italic text-white/40 bg-brand-950 border border-white/10 px-2.5 py-1 rounded-xl">
                   <span className={`w-1.5 h-1.5 rounded-full ${l.dot}`} />{l.label}
                 </span>
               ))}
@@ -639,13 +639,13 @@ export const AdminDashboard: React.FC = () => {
                   const trendConfig = {
                     up: { icon: <ArrowUp size={11} />, color: '#4ade80', label: `+${r.posChange}`, bg: 'bg-emerald-500/10 border-emerald-500/20' },
                     down: { icon: <ArrowDown size={11} />, color: '#f87171', label: `-${r.posChange}`, bg: 'bg-red-500/10 border-red-500/20' },
-                    stable: { icon: <Minus size={11} />, color: 'rgba(255,255,255,0.25)', label: '—', bg: 'bg-white/[0.04] border-white/[0.06]' },
+                    stable: { icon: <Minus size={11} />, color: 'rgba(255,255,255,0.25)', label: '—', bg: 'bg-brand-950 border-white/10' },
                     new: { icon: <Zap size={11} />, color: '#f59e0b', label: 'NEW', bg: 'bg-amber-500/10 border-amber-500/20' },
                   }[r.trend];
                   const medalColors = ['#CCFF00', '#C0C0C0', '#CD7F32'];
                   const isTop3 = r.rank <= 3;
                   return (
-                    <tr key={r.name} className="hover:bg-white/[0.02] transition-colors group">
+                    <tr key={r.name} className="hover:bg-black/10 transition-colors group">
                       {/* Rank */}
                       <td className="px-4 py-4 text-center">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-black italic mx-auto ${
@@ -709,7 +709,7 @@ export const AdminDashboard: React.FC = () => {
                       <td className="px-4 py-4 hidden lg:table-cell">
                         <div className="flex flex-wrap gap-1 max-w-[160px]">
                           {r.developmentAreas.slice(0, 2).map((a, i) => (
-                            <span key={i} className="text-[7px] font-black italic text-white/30 bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded-lg">{a}</span>
+                            <span key={i} className="text-[7px] font-black italic text-white/40 bg-brand-950 border border-white/10 px-2 py-0.5 rounded-lg">{a}</span>
                           ))}
                           {r.developmentAreas.length > 2 && (
                             <span className="text-[7px] font-black italic text-white/20">+{r.developmentAreas.length - 2}</span>
@@ -742,7 +742,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2 px-1">
             <Zap size={12} className="text-[#CCFF00]" />
             <p className="text-[9px] font-black text-white/30 uppercase italic tracking-[0.35em]">ACTIVE CENTRES — CLICK TO DRILL DOWN</p>
-            <span className="ml-auto text-[8px] font-black text-white/20 bg-white/[0.04] px-2 py-0.5 rounded-lg border border-white/[0.06]">{activeCentres.length} CENTRES</span>
+            <span className="ml-auto text-[8px] font-black text-white/30 bg-brand-950 px-2 py-0.5 rounded-lg border border-white/10">{activeCentres.length} CENTRES</span>
           </div>
           <div className={`grid gap-4 ${activeCentres.length === 1 ? 'grid-cols-1 max-w-sm' : activeCentres.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
             {activeCentres.map(c => <CentreCard key={c.name} stat={c} onClick={() => setDrillVenue(c.name)} />)}
@@ -819,7 +819,7 @@ export const AdminDashboard: React.FC = () => {
                 return (
                   <div key={g.name} className="flex items-center gap-3">
                     <span className="text-[9px] font-black uppercase italic text-white/30 w-8 flex-shrink-0">{g.name}</span>
-                    <div className="flex-1 h-6 bg-white/[0.05] rounded-xl overflow-hidden">
+                    <div className="flex-1 h-6 bg-brand-950/60 rounded-xl overflow-hidden">
                       <div className="h-full rounded-xl flex items-center px-2.5 transition-all duration-1000"
                         style={{ width: `${(g.value / max) * 100}%`, background: g.color, minWidth: '2rem' }}>
                         <span className="text-[10px] font-black italic text-brand-950">{g.value}</span>
@@ -869,7 +869,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Inactive Centres (collapsed) ───────────────────────────────────── */}
       {emptyCentres.length > 0 && (
-        <div className="bg-white/[0.02] rounded-[2rem] border border-white/[0.04] px-5 py-4">
+        <div className="bg-brand-bg rounded-[2rem] border border-white/[0.04] px-5 py-4">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-white/15" />
             <p className="text-[9px] font-black text-white/20 uppercase italic tracking-[0.3em]">

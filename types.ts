@@ -1,5 +1,5 @@
 
-export type Role = 'admin' | 'coach' | 'player';
+export type Role = 'admin' | 'coach' | 'player' | 'pending' | 'rejected';
 
 export interface User {
   id: string;
@@ -21,6 +21,8 @@ export interface User {
   assignedBatches?: string[];
   onboardingComplete?: boolean;
   specificRole?: string; // head_coach, assistant_coach, academy_director
+  requestedRole?: 'coach' | 'player'; // Self-reported role during pending approval
+  requestReason?: string; // Optional note from user when requesting access
 }
 
 export interface PlayerEvaluation {
@@ -44,6 +46,8 @@ export interface PlayerEvaluation {
   developmentAreas: string[];
   coachName: string;
   evaluationDate: string;
+  actionImageUrl?: string;
+  coachSignatureUrl?: string;
 }
 
 export interface Venue {
@@ -190,4 +194,41 @@ export interface Drill {
   coachingPoints: string[];
   imageUrl?: string; 
   videoUrl?: string; // YouTube link for demonstration
+}
+// --- COMMUNICATION & SUPPORT TYPES ---
+
+export type MessageType = 'push' | 'email' | 'sms';
+
+export interface BroadcastMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  title: string;
+  content: string;
+  type: MessageType;
+  targetAudience: 'all' | 'venue' | 'batch';
+  targetId?: string; // Venue ID or Batch ID if not 'all'
+  timestamp: string;
+  status: 'sent' | 'pending' | 'failed';
+}
+
+export interface SupportTicketMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  timestamp: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  playerId: string;
+  playerName: string;
+  subject: string;
+  description: string;
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
+  messages: SupportTicketMessage[];
 }

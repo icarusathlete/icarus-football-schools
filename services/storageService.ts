@@ -1,6 +1,6 @@
-import { Player, AttendanceRecord, AttendanceStatus, User, Match, ScheduleEvent, Announcement, FeeRecord, AcademySettings, PlayerEvaluation, Venue, Batch, Drill } from '../types';
+import { Player, AttendanceRecord, AttendanceStatus, User, Match, ScheduleEvent, Announcement, FeeRecord, AcademySettings, PlayerEvaluation, Venue, Batch, Drill, BroadcastMessage, SupportTicket } from '../types';
 import { db, auth } from '../firebase';
-import { collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 
 export enum OperationType {
   CREATE = 'create',
@@ -69,6 +69,8 @@ const BATCHES_KEY = 'icarus_batches';
 const DRILLS_KEY = 'icarus_drills';
 const SESSION_MOTM_KEY = 'icarus_session_motm';
 const FINALIZED_ROLLCALLS_KEY = 'icarus_finalized_rollcalls';
+const MESSAGES_KEY = 'icarus_messages';
+const TICKETS_KEY = 'icarus_tickets';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -167,6 +169,8 @@ export const StorageService = {
     syncCollection('drills', DRILLS_KEY);
     syncCollection('session_motm', SESSION_MOTM_KEY, true);
     syncCollection('finalized_rollcalls', FINALIZED_ROLLCALLS_KEY, true);
+    syncCollection('messages', MESSAGES_KEY);
+    syncCollection('tickets', TICKETS_KEY);
 
     if (user.role === 'admin' || user.role === 'coach') {
         syncCollection('users', USERS_KEY);
@@ -232,6 +236,12 @@ export const StorageService = {
     
     try {
         await setDoc(doc(db, 'players', newId), newPlayer);
+        
+        // Update local storage to ensure immediate availability
+        const currentPlayers = StorageService.getPlayers();
+        currentPlayers.push(newPlayer);
+        localStorage.setItem(PLAYERS_KEY, JSON.stringify(currentPlayers));
+        
         console.log("Player successfully added to Firestore:", newId);
         return newPlayer;
     } catch (error) {
@@ -273,6 +283,11 @@ export const StorageService = {
   deletePlayer: async (playerId: string) => {
     try {
       await deleteDoc(doc(db, 'players', playerId));
+      
+      // Update local storage
+      const currentPlayers = StorageService.getPlayers();
+      const filtered = currentPlayers.filter(p => p.id !== playerId);
+      localStorage.setItem(PLAYERS_KEY, JSON.stringify(filtered));
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `players/${playerId}`);
     }
@@ -282,6 +297,14 @@ export const StorageService = {
     try {
       const sanitized = sanitizeObject(player);
       await setDoc(doc(db, 'players', player.id), sanitized);
+      
+      // Update local storage
+      const currentPlayers = StorageService.getPlayers();
+      const index = currentPlayers.findIndex(p => p.id === player.id);
+      if (index !== -1) {
+          currentPlayers[index] = sanitized as Player;
+          localStorage.setItem(PLAYERS_KEY, JSON.stringify(currentPlayers));
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `players/${player.id}`);
     }
@@ -307,6 +330,31 @@ export const StorageService = {
       } catch (error) {
         handleFirestoreError(error, OperationType.WRITE, `players/${playerId}`);
       }
+    }
+  },
+
+  deleteEvaluation: async (playerId: string) => {
+    try {
+      const playerRef = doc(db, 'players', playerId);
+      await updateDoc(playerRef, {
+        evaluation: deleteField()
+      });
+      StorageService.clearDraft(playerId);
+      notifyDataChange();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `players/${playerId}/evaluation`);
+    }
+  },
+
+  clearEvaluationHistory: async (playerId: string) => {
+    try {
+      const playerRef = doc(db, 'players', playerId);
+      await updateDoc(playerRef, {
+        evaluationHistory: deleteField()
+      });
+      notifyDataChange();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `players/${playerId}/evaluationHistory`);
     }
   },
 
@@ -542,6 +590,13 @@ export const StorageService = {
     const newUser = sanitizeObject({...u, id: newId});
     try {
       await setDoc(doc(db, 'users', newId), newUser);
+      
+      // Update local storage to ensure immediate availability
+      const currentUsers = StorageService.getUsers();
+      currentUsers.push(newUser);
+      localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+      
+      notifyDataChange();
       return newUser;
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `users/${newId}`);
@@ -551,6 +606,12 @@ export const StorageService = {
   deleteUser: async (id: string) => {
       try {
         await deleteDoc(doc(db, 'users', id));
+        
+        // Update local storage
+        const currentUsers = StorageService.getUsers();
+        const filtered = currentUsers.filter(u => u.id !== id);
+        localStorage.setItem(USERS_KEY, JSON.stringify(filtered));
+        notifyDataChange();
       } catch (error) {
         handleFirestoreError(error, OperationType.DELETE, `users/${id}`);
       }
@@ -560,6 +621,15 @@ export const StorageService = {
       try {
         const sanitized = sanitizeObject(updatedUser);
         await setDoc(doc(db, 'users', updatedUser.id), sanitized);
+        
+        // Update local storage
+        const currentUsers = StorageService.getUsers();
+        const index = currentUsers.findIndex(u => u.id === updatedUser.id);
+        if (index !== -1) {
+            currentUsers[index] = sanitized;
+            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+            notifyDataChange();
+        }
       } catch (error) {
         handleFirestoreError(error, OperationType.WRITE, `users/${updatedUser.id}`);
       }
@@ -1056,5 +1126,86 @@ export const StorageService = {
       });
 
       console.log("Seeding complete.");
+  },
+
+  // --- COMMUNICATION & SUPPORT METHODS ---
+  getMessages: (): BroadcastMessage[] => {
+    try {
+      return JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  },
+
+  sendBroadcast: async (message: Omit<BroadcastMessage, 'id' | 'timestamp' | 'status'>) => {
+    const id = generateId();
+    const newMessage: BroadcastMessage = sanitizeObject({
+      ...message,
+      id,
+      timestamp: new Date().toISOString(),
+      status: 'sent' // Defaulting to sent for this demo scope
+    });
+
+    try {
+      await setDoc(doc(db, 'messages', id), newMessage);
+      return newMessage;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `messages/${id}`);
+    }
+  },
+
+  deleteMessage: async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'messages', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `messages/${id}`);
+    }
+  },
+
+  getTickets: (): SupportTicket[] => {
+    try {
+      return JSON.parse(localStorage.getItem(TICKETS_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  },
+
+  addTicket: async (ticket: Omit<SupportTicket, 'id' | 'createdAt' | 'updatedAt' | 'messages'>) => {
+    const id = generateId();
+    const now = new Date().toISOString();
+    const newTicket: SupportTicket = sanitizeObject({
+      ...ticket,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      messages: []
+    });
+
+    try {
+      await setDoc(doc(db, 'tickets', id), newTicket);
+      return newTicket;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `tickets/${id}`);
+    }
+  },
+
+  updateTicket: async (ticket: SupportTicket) => {
+    const updatedTicket = {
+      ...ticket,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await setDoc(doc(db, 'tickets', ticket.id), sanitizeObject(updatedTicket));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `tickets/${ticket.id}`);
+    }
+  },
+
+  deleteTicket: async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'tickets', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `tickets/${id}`);
+    }
   }
 };

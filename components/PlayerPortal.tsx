@@ -41,8 +41,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     const [player, setPlayer] = useState<Player | null>(null);
     const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
     const [matches, setMatches] = useState<Match[]>([]);
-    const [reportCard, setReportCard] = useState<string | null>(null);
-    const [loadingReport, setLoadingReport] = useState(false);
     const [viewMode, setViewMode] = useState<'overview' | 'scout'>('overview');
     const [matchAnalysis, setMatchAnalysis] = useState<string | null>(null);
     const [isAnalyzingMatch, setIsAnalyzingMatch] = useState(false);
@@ -236,12 +234,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     const totalStarts = myMatchStats.reduce((acc, m) => acc + (m.myStats?.isStarter ? 1 : 0), 0);
     const avgRating = myMatchStats.length ? (myMatchStats.reduce((acc, m) => acc + (m.myStats?.rating || 0), 0) / myMatchStats.length).toFixed(1) : '0';
 
-    const handleGenerateReport = async () => {
-        setLoadingReport(true);
-        const report = await GeminiService.generateReportCard(player, attendance, matches);
-        setReportCard(report);
-        setLoadingReport(false);
-    };
     const handleAnalyzeMatch = async () => {
         if (!lastMatch || !player) return;
         setIsAnalyzingMatch(true);
@@ -295,7 +287,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
 
             {viewMode === 'scout' ? (
               <div className="animate-in slide-in-from-right-8 duration-500">
-                <EvaluationCard player={player} settings={settings} stats={{ goals: totalGoals, assists: totalAssists, matches: myMatchStats.length, rating: parseFloat(avgRating), attendanceRate, starts: totalStarts }} />
+                <EvaluationCard player={player} settings={settings} attendance={attendance} matches={matches} />
               </div>
             ) : (
                 <div className="space-y-8 animate-in slide-in-from-left-8 duration-500">
@@ -355,7 +347,11 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-black italic uppercase tracking-tighter text-brand-900">
-                                            {checkedInToday ? 'CHECK-IN <span className="premium-gradient-text">COMPLETE</span>' : 'REPORT <span className="premium-gradient-text">READY</span>'}
+                                            {checkedInToday ? (
+                                                <>CHECK-IN <span className="premium-gradient-text">COMPLETE</span></>
+                                            ) : (
+                                                <>REPORT <span className="premium-gradient-text">READY</span></>
+                                            )}
                                         </h3>
                                         <p className="text-[9px] font-black text-brand-900/30 uppercase tracking-[0.3em] mt-1 italic">
                                             {checkedInToday ? 'Operational status: Active at HQ' : 'Action required: Mark your presence'}

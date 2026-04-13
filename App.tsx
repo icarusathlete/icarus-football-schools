@@ -64,6 +64,9 @@ const PlayerRegistration = lazyRetry(() => import('./components/PlayerRegistrati
 const FinanceManager = lazyRetry(() => import('./components/FinanceManager').then(m => ({ default: m.FinanceManager })));
 const PlayerManager = lazyRetry(() => import('./components/PlayerManager').then(m => ({ default: m.PlayerManager })));
 const PlayerPortal = lazyRetry(() => import('./components/PlayerPortal').then(m => ({ default: m.PlayerPortal })));
+const MessagingManager = lazyRetry(() => import('./components/MessagingManager').then(m => ({ default: m.MessagingManager })));
+const SupportManager = lazyRetry(() => import('./components/SupportManager').then(m => ({ default: m.SupportManager })));
+const GuestDashboard = lazyRetry(() => import('./components/GuestDashboard').then(m => ({ default: m.GuestDashboard })));
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -96,11 +99,12 @@ const App: React.FC = () => {
             setCurrentUser(userData);
             StorageService.startFirebaseSync(userData);
             
-            // Default tabs based on role — only if exactly matching a default
-            if (activeTab === '') {
+            // Set default tab based on role
+            if (activeTab === '' || activeTab === 'guest') {
               if (userData.role === 'admin') setActiveTab('admin');
               else if (userData.role === 'coach') setActiveTab('schedule');
               else if (userData.role === 'player') setActiveTab('player-dashboard');
+              else setActiveTab('guest'); // pending or rejected
             }
           }
         }, (error) => {
@@ -139,10 +143,10 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = (user: User) => {
       setCurrentUser(user);
-      // Removed StorageService.startFirebaseSync from here; handled by onAuthStateChanged
       if (user.role === 'admin') setActiveTab('admin');
       else if (user.role === 'coach') setActiveTab('schedule');
       else if (user.role === 'player') setActiveTab('player-dashboard');
+      else setActiveTab('guest'); // pending or rejected
   };
 
   const handleLogout = async () => {
@@ -172,7 +176,10 @@ const App: React.FC = () => {
       case 'finance': return <FinanceManager />;
       case 'players': return <PlayerManager />;
       case 'player-dashboard': return <PlayerPortal user={currentUser} />;
-      default: return <div className="p-8 text-white">Select a module to begin</div>;
+      case 'broadcast': return <MessagingManager />;
+      case 'support': return <SupportManager />;
+      case 'guest': return <GuestDashboard user={currentUser} onLogout={handleLogout} />;
+      default: return <GuestDashboard user={currentUser} onLogout={handleLogout} />;
     }
   };
 
@@ -188,8 +195,11 @@ const App: React.FC = () => {
     return <Login onLogin={handleLoginSuccess} />;
   }
 
-  // Intercept if profile is incomplete
-  if (!currentUser.fullName || !currentUser.memberId) {
+  // Pending/rejected users go straight to the Layout with the guest tab — skip Onboarding
+  const isGuest = currentUser.role === 'pending' || currentUser.role === 'rejected';
+
+  // Intercept if profile is incomplete (admin/coach/player only)
+  if (!isGuest && (!currentUser.fullName || !currentUser.memberId)) {
     return <Onboarding user={currentUser} onComplete={(updated: any) => setCurrentUser(updated)} />;
   }
 

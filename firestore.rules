@@ -89,7 +89,7 @@ service cloud.firestore {
     function isValidUser(data) {
       return hasRequiredFields(['username', 'role']) &&
              data.username is string && data.username.size() > 0 &&
-             data.role in ['admin', 'coach', 'player'];
+             data.role in ['admin', 'coach', 'player', 'pending', 'rejected'];
     }
 
     function isValidPlayer(data) {
@@ -128,10 +128,15 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
-                      (request.resource.data.role == 'player' || isAdmin());
-      allow update: if (isOwner(userId) || isAdmin()) && isValidUser(request.resource.data) &&
-                      (request.resource.data.role == resource.data.role || isAdmin());
+      // Users can only self-register with role 'pending'. Admins can create with any role.
+      allow create: if (isOwner(userId) && request.resource.data.role == 'pending') ||
+                      (isAdmin() && isValidUser(request.resource.data));
+      // Users can update their own doc only for safe fields (requestedRole, requestReason).
+      // Role changes are admin-only.
+      allow update: if isAdmin() ||
+                      (isOwner(userId) &&
+                       request.resource.data.role == resource.data.role &&
+                       isValidUser(request.resource.data));
       allow delete: if isAdmin();
     }
 
@@ -211,6 +216,24 @@ service cloud.firestore {
     match /finalized_rollcalls/{dateId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() || isCoach();
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isCoach();
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if isAuthenticated() && (isAdmin() || isCoach() || 
+                    (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linkedPlayerId == resource.data.playerId ||
+                      request.auth.uid == resource.data.playerId)));
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isAdmin() || isCoach() || 
+                    (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linkedPlayerId == resource.data.playerId ||
+                      request.auth.uid == resource.data.playerId)));
+      allow delete: if isAdmin();
     }
   }
 }

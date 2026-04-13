@@ -44,21 +44,23 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             if (userDoc.exists()) {
                 appUser = { id: userDoc.id, ...userDoc.data() } as User;
             } else {
-                // Create new user
+                // Create new user — only the bootstrap admin gets immediate access.
+                // Everyone else starts as 'pending' and must be approved by an admin.
                 const isDefaultAdmin = firebaseUser.email === 'negidevender19@gmail.com' && firebaseUser.emailVerified;
                 
                 appUser = {
                     id: firebaseUser.uid,
                     username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
                     password: '', // Not used for Google Login
-                    role: isDefaultAdmin ? 'admin' : 'player',
+                    role: isDefaultAdmin ? 'admin' : 'pending',
                     photoUrl: firebaseUser.photoURL || undefined,
+                    email: firebaseUser.email || undefined,
                 };
                 
                 const userData: any = {
                     username: appUser.username,
                     role: appUser.role,
-                    email: firebaseUser.email
+                    email: firebaseUser.email,
                 };
                 if (appUser.photoUrl) userData.photoUrl = appUser.photoUrl;
                 

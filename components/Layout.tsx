@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords } from 'lucide-react';
+import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords, LifeBuoy } from 'lucide-react';
 import { User, Role, AcademySettings } from '../types';
 import { StorageService } from '../services/storageService';
 
@@ -99,8 +99,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       { id: 'notices', label: 'Notices', icon: Megaphone },
     ];
 
+    const communication = [
+      { id: 'broadcast', label: 'Broadcast', icon: Megaphone },
+      { id: 'support', label: 'Support Hub', icon: LifeBuoy },
+    ];
+
     if (currentUser.role === 'player') {
       sections.push({ title: 'ACADEMY CORE', items: [{ id: 'player-dashboard', label: 'Portal', icon: LayoutDashboard }, ...core] });
+      sections.push({ title: 'SUPPORT', items: [{ id: 'support', label: 'Support Hub', icon: LifeBuoy }] });
+      return sections;
+    }
+
+    // Guest users (pending/rejected): single locked tab
+    if (currentUser.role === 'pending' || currentUser.role === 'rejected') {
+      sections.push({ title: 'GUEST ACCESS', items: [{ id: 'guest', label: 'Home', icon: LayoutDashboard }] });
       return sections;
     }
 
@@ -126,10 +138,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
     if (currentUser.role === 'admin') {
       sections.push({ title: 'MANAGEMENT', items: management.slice(0, 5) });
+      sections.push({ title: 'COMMUNICATION', items: communication });
       sections.push({ title: 'ACADEMY TOOLS', items: operations });
       sections.push({ title: 'ANALYTICS', items: intelligence });
       sections.push({ title: 'GENERAL', items: core });
     } else if (currentUser.role === 'coach') {
+      sections.push({ title: 'COMMUNICATION', items: communication });
       sections.push({ title: 'ACADEMY TOOLS', items: operations });
       sections.push({ title: 'ANALYTICS', items: intelligence });
       sections.push({ title: 'GENERAL', items: core });
@@ -157,7 +171,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               {settings.name}
             </h1>
-            <p className="text-[8px] text-white/30 uppercase tracking-[0.25em] font-bold mt-1 leading-none">{currentUser.role} PORTAL</p>
+          <p className="text-[8px] text-white/30 uppercase tracking-[0.25em] font-bold mt-1 leading-none">
+              {(['pending', 'rejected'].includes(currentUser.role) ? 'guest' : currentUser.role).toUpperCase()} PORTAL
+            </p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
@@ -180,7 +196,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               </div>
               <div className="overflow-hidden">
                 <p className="text-[9px] font-black text-white truncate uppercase tracking-wider">{currentUser.username}</p>
-                <p className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] mt-0.5">{currentUser.role.toUpperCase()} PORTAL</p>
+                <p className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] mt-0.5">
+                    {(['pending', 'rejected'].includes(currentUser.role) ? 'guest' : currentUser.role).toUpperCase()} PORTAL
+                  </p>
               </div>
            </div>
            <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/5 hover:bg-red-500/5 hover:text-red-500 hover:border-red-500/10 transition-all text-[8px] font-black uppercase tracking-[0.25em] text-white/20">
@@ -210,7 +228,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative bg-white text-slate-900 custom-scrollbar scroll-smooth box-border">
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative bg-white text-white custom-scrollbar scroll-smooth box-border">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >
