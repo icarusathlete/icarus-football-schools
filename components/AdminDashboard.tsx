@@ -20,11 +20,11 @@ function dayLabel(iso: string) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
 }
 function ageGroup(dob: string) {
-  if (!dob) return 'Unknown';
+  if (!dob) return 'U12';
   const a = new Date().getFullYear() - new Date(dob).getFullYear();
-  if (a <= 8) return 'U8'; if (a <= 10) return 'U10'; if (a <= 12) return 'U12';
-  if (a <= 14) return 'U14'; if (a <= 16) return 'U16'; if (a <= 18) return 'U18';
-  return 'Senior';
+  if (a <= 8) return 'U8';
+  if (a <= 10) return 'U10';
+  return 'U12';
 }
 function initials(name: string) {
   const p = name.trim().split(' ');
@@ -167,12 +167,13 @@ export const AdminDashboard: React.FC = () => {
   const [leagueRankings, setLeagueRankings] = useState<LeagueRanking[]>([]);
   const [playerRoster, setPlayerRoster] = useState<PlayerRow[]>([]);
 
-  const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'Senior'];
-  const AGE_COLORS = ['#CCFF00', '#a3e635', '#4ade80', '#34d399', '#22d3ee', '#60a5fa', '#818cf8'];
+  const AGE_GROUPS = ['U12', 'U10', 'U8'];
+  const AGE_COLORS = ['#CCFF00', '#a3e635', '#4ade80'];
 
   useEffect(() => {
-    const allPlayers = StorageService.getPlayers();
-    const allVenues = StorageService.getVenues();
+    const loadData = () => {
+      const allPlayers = StorageService.getPlayers();
+      const allVenues = StorageService.getVenues();
     const allBatches = StorageService.getBatches();
     const allAttendance = StorageService.getAttendance();
     const allMatches = StorageService.getMatches();
@@ -180,11 +181,7 @@ export const AdminDashboard: React.FC = () => {
 
     // Populate dropdowns
     setAvailableVenues(allVenues.map(v => v.name));
-    setAvailableBatches(
-      allBatches
-        .filter(b => selectedVenue === 'all' || b.venue === selectedVenue)
-        .map(b => b.name)
-    );
+    setAvailableBatches(allBatches.map(b => b.name));
 
     // Apply Filters
     let players = allPlayers;
@@ -192,7 +189,7 @@ export const AdminDashboard: React.FC = () => {
       players = players.filter(p => p.venue === selectedVenue);
     }
     if (selectedBatch !== 'all') {
-      players = players.filter(p => p.batchName === selectedBatch);
+      players = players.filter(p => p.batch === selectedBatch);
     }
 
     const playerIds = new Set(players.map(p => p.id));
@@ -254,7 +251,7 @@ export const AdminDashboard: React.FC = () => {
     const ac: Record<string, number> = {};
     AGE_GROUPS.forEach(g => ac[g] = 0);
     players.forEach(p => { const g = ageGroup(p.dateOfBirth); ac[g] = (ac[g] || 0) + 1; });
-    setAgeAll(AGE_GROUPS.map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] })).filter(x => x.value > 0));
+    setAgeAll(AGE_GROUPS.map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] })));
 
     // ── Top performers (filtered) ─────────────────────────────────────────────
     const tp = players.filter(p => p.evaluation?.overallRating).sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0)).slice(0, 5).map(p => ({ name: p.fullName, rating: p.evaluation!.overallRating, venue: p.venue || '—' }));
@@ -352,7 +349,11 @@ export const AdminDashboard: React.FC = () => {
         rating: p.evaluation?.overallRating ?? 0 
       };
     }).sort((a, b) => a.rate - b.rate));
+    };
 
+    loadData();
+    window.addEventListener('academy_data_update', loadData);
+    return () => window.removeEventListener('academy_data_update', loadData);
   }, [selectedVenue, selectedBatch]);
 
   // ── Render helpers ────────────────────────────────────────────────────────
@@ -420,7 +421,7 @@ export const AdminDashboard: React.FC = () => {
                 ACADEMY <span className="text-[#CCFF00]">HUB</span>
               </h1>
               <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.5em] italic mt-2">
-                COMMAND CENTRE · LIVE INTELLIGENCE
+                ADMINISTRATIVE DASHBOARD · OPERATIONS OVERVIEW
               </p>
             </div>
             
@@ -470,9 +471,9 @@ export const AdminDashboard: React.FC = () => {
             {[
               { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-brand-950/50 border-[#CCFF00]/15' },
               { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.2)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-brand-950/50 border-white/10' },
-              { label: "Today's Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-brand-950/50 border-white/10' },
+              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-brand-950/50 border-white/10' },
               { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} expiring soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-brand-950/50 border-white/10' },
-              { label: 'Active Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-brand-950/50 border-white/10' },
             ].map((k, i) => (
               <div key={i} className={`rounded-2xl border p-4 ${k.accent}`}>
                 <div className="flex items-center justify-between mb-3">
@@ -518,17 +519,17 @@ export const AdminDashboard: React.FC = () => {
                 <Medal size={14} className="text-[#CCFF00]" />
               </div>
               <div>
-                <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">ACADEMY RANKINGS</h3>
+                <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">PERFORMANCE RANKINGS</h3>
                 <p className="text-[8px] font-black italic text-white/25 uppercase tracking-[0.3em]">
-                  TOP 10 · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
+                  TOP 10 PLAYERS · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
                 </p>
               </div>
             </div>
             <div className="sm:ml-auto flex gap-2 flex-wrap">
               {[
-                { dot: 'bg-[#CCFF00]', label: 'Scout Rating 40%' },
+                { dot: 'bg-[#CCFF00]', label: 'Coach Evaluation 40%' },
                 { dot: 'bg-blue-400', label: 'Attendance 35%' },
-                { dot: 'bg-purple-400', label: 'Skill Metrics 25%' },
+                { dot: 'bg-purple-400', label: 'Technical Assessment 25%' },
               ].map((l, i) => (
                 <span key={i} className="flex items-center gap-1.5 text-[8px] font-black italic text-white/40 bg-brand-950 border border-white/10 px-2.5 py-1 rounded-xl">
                   <span className={`w-1.5 h-1.5 rounded-full ${l.dot}`} />{l.label}
@@ -542,7 +543,7 @@ export const AdminDashboard: React.FC = () => {
             <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-white/[0.04]">
-                  {['#', 'PLAYER', 'COMPOSITE', 'SCOUT', 'ATTEND.', 'SKILL AVG', 'TREND', 'AREAS'].map((h, i) => (
+                  {['RANK', 'PLAYER', 'OVERALL SCORE', 'COACH RATING', 'ATTENDANCE', 'TECHNICAL SCORE', 'TREND', 'DEVELOPMENT AREAS'].map((h, i) => (
                     <th key={i} className={`px-4 py-3 text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em] ${
                       i === 0 ? 'w-12 text-center' : i === 1 ? 'text-left' : i === 7 ? 'text-left hidden lg:table-cell' : 'text-center'
                     }`}>{h}</th>
@@ -656,7 +657,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="px-5 sm:px-8 py-5 border-b border-white/[0.05] flex items-center gap-3">
             <Users size={14} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">PLAYER ATTENDANCE ROSTER</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">ATTENDANCE & EVALUATION ROSTER</h3>
             <span className="ml-auto text-[9px] font-black text-white/40 bg-brand-950 px-2.5 py-1 rounded-lg">{playerRoster.length} PLAYERS</span>
           </div>
           <div className="divide-y divide-white/[0.04]">
@@ -705,7 +706,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2 px-1">
             <Zap size={12} className="text-[#CCFF00]" />
             <p className="text-[9px] font-black text-white/30 uppercase italic tracking-[0.35em]">
-              {selectedVenue === 'all' ? 'ACTIVE CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
+              {selectedVenue === 'all' ? 'OPERATIONAL CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
             </p>
             <span className="ml-auto text-[8px] font-black text-white/30 bg-brand-950 px-2 py-0.5 rounded-lg border border-white/10">{activeCentres.length} CENTRE{activeCentres.length !== 1 ? 'S' : ''}</span>
           </div>
@@ -723,7 +724,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Clock size={13} className="text-[#CCFF00]" />
-              <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">7-DAY ATTENDANCE TREND</h3>
+              <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">ATTENDANCE TREND (7 DAYS)</h3>
             </div>
             <div className="flex gap-3 text-[9px] font-black italic text-white/20">
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[#CCFF00] inline-block rounded" /> Present</span>
@@ -737,7 +738,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl flex flex-col">
           <div className="flex items-center gap-2 mb-5">
             <Star size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">TOP PERFORMERS</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">TOP RANKED PLAYERS</h3>
           </div>
           {topPerformers.length > 0 ? (
             <div className="flex-1 space-y-1">
@@ -774,7 +775,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">AGE GROUP DISTRIBUTION</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">DEMOGRAPHIC DISTRIBUTION</h3>
           </div>
           {ageAll.length > 0 ? (
             <div className="space-y-2.5">
@@ -806,7 +807,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
           <div className="flex items-center gap-2 mb-5">
             <Radio size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">LIVE FEED</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">RECENT ACTIVITY</h3>
           </div>
           {activityFeed.length > 0 ? (
             <div className="space-y-0.5">

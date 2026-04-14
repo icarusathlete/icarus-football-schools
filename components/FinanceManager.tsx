@@ -583,79 +583,79 @@ export const FinanceManager: React.FC = () => {
                                     />
 
                                     {/* Absolute-positioned data overlay (v16 GOLDILOCKS "UP AND LEFT" CALIBRATION) */}
-                                    <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
+                                    <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10.5px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
                                         {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '141px', left: '394px', fontSize: '10px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '142px', left: '394px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.invoiceNo.replace('INV-', '')}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '141px', left: '500px', fontSize: '9.5px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '142px', left: '500px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
 
-                                        {/* ── BILLED TO (Athlete Data) ─────────────────── */}
-                                        <span style={{ position: 'absolute', top: '218px', left: '106px', fontWeight: 700 }}>
+                                        {/* BILLED TO section - Corrected Data Mapping */}
+                                        <span style={{ position: 'absolute', top: '236px', left: '106px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.parentName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '218px', left: '331px', fontWeight: 700 }}>
-                                            {(selectedPlayerForInvoice as any).email || ''}
+                                        <span style={{ position: 'absolute', top: '236px', left: '331px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.parentEmail || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '243px', left: '106px', fontWeight: 700 }}>
-                                            {selectedPlayerForInvoice.fullName}
+                                        <span style={{ position: 'absolute', top: '261px', left: '106px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.fullName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '243px', left: '331px', fontSize: '9px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
+                                        <span style={{ position: 'absolute', top: '261px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
                                             {selectedPlayerForInvoice.address || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '268px', left: '106px', fontWeight: 700 }}>
-                                            {selectedPlayerForInvoice.contactNumber || ''}
+                                        <span style={{ position: 'absolute', top: '286px', left: '106px', fontWeight: 700 }}>
+                                            +91 {selectedPlayerForInvoice.parentPhone || ''}
                                         </span>
 
-                                        {/* ── PROGRAM DETAILS ────────────────────────────── */}
-                                        <span style={{ position: 'absolute', top: '352px', left: '125px', fontWeight: 700 }}>
-                                            Monthly Elite Training
+                                        {/* ── PROGRAM DETAILS SECTION ──────────────── */}
+                                        <span style={{ position: 'absolute', top: '368px', left: '125px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.program || 'Monthly Elite Training'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '352px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '368px', left: '335px', fontWeight: 700 }}>
                                             Mon – Fri
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '378px', left: '125px', fontSize: '9px', fontWeight: 700, maxWidth: '210px' }}>
-                                            Playall, Gaur City Sports Complex, Noida
+                                        <span style={{ position: 'absolute', top: '394px', left: '125px', fontWeight: 700, maxWidth: '210px' }}>
+                                            {selectedPlayerForInvoice.venue || 'Playall, Gaur City Sports Complex, Noida'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '378px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '394px', left: '335px', fontWeight: 700 }}>
                                             Aditya Anand
                                         </span>
 
-                                        {/* ── PAYMENT TABLE SUMMARY ─────────────────────────── */}
-                                        <span style={{ position: 'absolute', top: '500px', left: '488px', fontWeight: 800 }}>
+                                        {/* ── PAYMENT TABLE ───────────────────────── */}
+                                        <span style={{ position: 'absolute', top: '512px', left: '488px', fontWeight: 700 }}>
                                             ₹ {taxes.base}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '526px', left: '488px', fontWeight: 800 }}>
+                                        <span style={{ position: 'absolute', top: '538px', left: '488px', fontWeight: 700 }}>
                                             ₹ {taxes.cgst}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '552px', left: '488px', fontWeight: 800 }}>
+                                        <span style={{ position: 'absolute', top: '564px', left: '488px', fontWeight: 700 }}>
                                             ₹ {taxes.sgst}
                                         </span>
                                         {/* FINAL TOTAL — flush in the dark row */}
-                                        <span style={{ position: 'absolute', top: '578px', left: '488px', fontWeight: 850, color: '#fff', fontSize: '11.5px' }}>
+                                        <span style={{ position: 'absolute', top: '590px', left: '488px', fontWeight: 850, color: '#fff' }}>
                                             ₹ {taxes.total}
                                         </span>
 
-                                        {/* ── FOOTER ROW ─────────────────────────────────── */}
-                                        <span style={{ position: 'absolute', top: '615px', left: '105px', fontWeight: 800 }}>
+                                        {/* ── FOOTER BOX (Metadata) ────────────────── */}
+                                        <span style={{ position: 'absolute', top: '612px', left: '125px', fontWeight: 700 }}>
                                             {invoiceForm.paymentMode}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '615px', left: '280px', fontWeight: 800 }}>
+                                        <span style={{ position: 'absolute', top: '617px', left: '335px', fontWeight: 700 }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '615px', left: '460px', fontWeight: 800 }}>
+                                        <span style={{ position: 'absolute', top: '617px', left: '500px', fontWeight: 700 }}>
                                             {invoiceForm.validTill ? new Date(invoiceForm.validTill).toLocaleDateString('en-GB') : ''}
                                         </span>
 
                                         {/* AMOUNT IN WORDS */}
-                                        <span style={{ position: 'absolute', top: '645px', left: '155px', fontSize: '10px', fontWeight: 900, color: '#1a365d' }}>
+                                        <span style={{ position: 'absolute', top: '647px', left: '155px', fontWeight: 700, color: '#1a365d' }}>
                                             {numberToWords(invoiceForm.amount)}
                                         </span>
 
