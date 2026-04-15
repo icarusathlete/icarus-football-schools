@@ -60,14 +60,12 @@ export const FinanceManager: React.FC = () => {
     useEffect(() => {
         const updateScale = () => {
             if (!previewContainerRef.current) return;
-            // Get available width (subtracting padding)
-            const availableWidth = previewContainerRef.current.clientWidth - 48; // p-6 is 24px each side
+            const availableWidth = previewContainerRef.current.clientWidth - 48;
             const scale = Math.min(1, availableWidth / 595);
             setPreviewScale(scale);
         };
 
         if (isInvoiceModalOpen) {
-            // Delay slightly to ensure DOM is painted
             const timer = setTimeout(updateScale, 100);
             window.addEventListener('resize', updateScale);
             return () => {
@@ -75,6 +73,24 @@ export const FinanceManager: React.FC = () => {
                 window.removeEventListener('resize', updateScale);
             };
         }
+    }, [isInvoiceModalOpen]);
+
+    // ── Body scroll lock (iOS-safe) ────────────────────────────────────────
+    // Prevents the background page from scrolling while the invoice modal is open.
+    useEffect(() => {
+        if (!isInvoiceModalOpen) return;
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+        document.body.style.overflowY = 'scroll'; // keep scrollbar width so layout doesn't shift
+        return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflowY = '';
+            window.scrollTo(0, scrollY);
+        };
     }, [isInvoiceModalOpen]);
 
     const loadData = () => {
@@ -437,10 +453,15 @@ export const FinanceManager: React.FC = () => {
             {/* Invoice Generator Modal */}
             {isInvoiceModalOpen && selectedPlayerForInvoice && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
-                    <div className="bg-brand-900 rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-hidden border border-white/10" style={{maxHeight: '95dvh'}}>
+                    {/* On mobile: the whole sheet scrolls (overflow-y-auto + overscroll-y-contain stops scroll bleeding to body).
+                        On desktop (md+): height is fixed at 95dvh and each panel scrolls independently. */}
+                    <div
+                        className="bg-brand-900 rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-y-auto overscroll-y-contain md:overflow-hidden border border-white/10"
+                        style={{maxHeight: '95dvh'}}
+                    >
 
-                        {/* Control Panel: Collapsible on mobile, sidebar on desktop */}
-                        <div className="w-full md:w-1/3 bg-brand-950 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-white/5 overflow-y-auto flex-shrink-0">
+                        {/* Control Panel: full-width on mobile, sidebar on desktop */}
+                        <div className="w-full md:w-1/3 bg-brand-950 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-white/5 md:overflow-y-auto flex-shrink-0">
                             <div className="flex items-center justify-between mb-6 sm:mb-10">
                                 <h3 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-500">GEN</span></h3>
                                 <button onClick={() => setInvoiceModalOpen(false)} className="p-2 hover:bg-brand-500/10 rounded-full text-brand-500 transition-colors"><X size={22} /></button>
@@ -525,10 +546,11 @@ export const FinanceManager: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Right Panel: Live Preview (Responsive Scaling) */}
-                        <div 
+                        {/* Right Panel: Live Preview — on mobile the outer container scrolls,
+                             on desktop (md+) this panel gets its own scroll. */}
+                        <div
                             ref={previewContainerRef}
-                            className="w-full md:w-2/3 bg-brand-900 p-6 overflow-y-auto flex items-start justify-center"
+                            className="w-full md:w-2/3 bg-brand-900 p-6 md:overflow-y-auto flex items-start justify-center"
                         >
                             <div style={{ 
                                 width: '595px', 
