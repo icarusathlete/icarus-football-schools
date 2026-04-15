@@ -691,12 +691,9 @@ export const FinanceManager: React.FC = () => {
 
 
                                         {/* AUTHORIZED SIGNATORY SECTION (Bottom Left signatures box) */}
-                                        <div style={{ position: 'absolute', top: '765px', left: '105px', width: '180px', textAlign: 'center' }}>
+                                        <div style={{ position: 'absolute', top: '768px', left: '175px', textAlign: 'left' }}>
                                             <div style={{ fontWeight: 800, fontSize: '11px', color: '#111', textDecoration: 'underline' }}>
                                                 ABHISHEK BEGAL
-                                            </div>
-                                            <div style={{ fontWeight: 600, fontSize: '8px', color: '#666', textTransform: 'uppercase' }}>
-                                                Head Coach
                                             </div>
                                         </div>
 
