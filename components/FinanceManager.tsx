@@ -373,16 +373,40 @@ export const FinanceManager: React.FC = () => {
                         {filteredPlayers.map(p => {
                             const status = getStatus(p.id);
                             const statusVal = status?.status || 'PENDING';
+                            const daysLeft = getDaysRemaining(status);
+                            const isDueSoon = statusVal !== 'PAID' && statusVal !== 'OVERDUE' && daysLeft > 0 && daysLeft <= 15;
+                            const isOverdue = statusVal === 'OVERDUE' || (statusVal !== 'PAID' && daysLeft <= 0);
+
+                            // Card border tint per status
+                            const cardBorder = statusVal === 'PAID'
+                                ? '!border-[#CCFF00]/25 hover:!border-[#CCFF00]/50'
+                                : isOverdue
+                                ? '!border-red-500/25 hover:!border-red-500/50'
+                                : isDueSoon
+                                ? '!border-orange-500/25 hover:!border-orange-500/50'
+                                : 'hover:!border-brand-500/40';
+
+                            // LED dot colours
+                            const dotColor = statusVal === 'PAID'
+                                ? 'bg-[#CCFF00] shadow-[0_0_7px_3px_rgba(204,255,0,0.65)]'
+                                : isOverdue
+                                ? 'bg-red-500 shadow-[0_0_7px_3px_rgba(239,68,68,0.65)]'
+                                : isDueSoon
+                                ? 'bg-orange-400 shadow-[0_0_7px_3px_rgba(251,146,60,0.65)]'
+                                : 'bg-white/20 shadow-none';
+
                             return (
-                                <div key={p.id} className="glass-card p-6 !rounded-[2.5rem] relative overflow-hidden group hover:!border-brand-500/50 transition-all duration-300 hover:-translate-y-1">
-                                    <div className={`absolute top-0 right-0 px-4 py-2 rounded-bl-2xl text-[10px] font-black tracking-widest uppercase border-b border-l border-white/10 shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
-                                            statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
-                                                'bg-white/10 text-white/60'
-                                        }`}>
-                                        {statusVal === 'PAID' ? 'FEES PAID' : statusVal === 'OVERDUE' ? 'OVERDUE' : 'PENDING'}
+                                <div key={p.id} className={`glass-card p-6 !rounded-[2.5rem] relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 ${cardBorder}`}>
+
+                                    {/* ── LED status dot (top-right) ── */}
+                                    <div className="absolute top-4 right-4 z-10">
+                                        <div className={`relative w-2.5 h-2.5 rounded-full ${dotColor} ${statusVal !== 'PENDING' || isDueSoon || isOverdue ? 'animate-pulse' : ''}`}>
+                                            {/* inner specular highlight — light-bulb feel */}
+                                            <div className="absolute top-[2px] left-[2px] w-[4px] h-[4px] rounded-full bg-white/70" />
+                                        </div>
                                     </div>
                                     
-                                    <div className="flex items-start gap-5 mb-6 mt-4">
+                                    <div className="flex items-start gap-5 mb-6">
                                         <div className="relative">
                                             <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-950 object-cover border-2 border-white/10 shadow-xl group-hover:border-brand-500/30 transition-colors" />
                                             {statusVal === 'PAID' && <div className="absolute -bottom-1 -right-1 bg-lime text-brand-950 p-1 rounded-full shadow-glow-sm"><Check size={12} /></div>}
