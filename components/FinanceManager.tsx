@@ -688,10 +688,7 @@ export const FinanceManager: React.FC = () => {
                                             {numberToWords(invoiceForm.amount)}
                                         </span>
 
-                                        {/* GSTIN Overlay (Bottom Left) */}
-                                        <span style={{ position: 'absolute', top: '805px', left: '50px', fontSize: '9px', fontWeight: 700, color: '#666' }}>
-                                            GSTIN: 09AAHCI6679R1ZD
-                                        </span>
+
 
                                         {/* AUTHORIZED SIGNATORY SECTION (Bottom Left signatures box) */}
                                         <div style={{ position: 'absolute', top: '765px', left: '105px', width: '180px', textAlign: 'center' }}>
