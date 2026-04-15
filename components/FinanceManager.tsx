@@ -613,71 +613,73 @@ export const FinanceManager: React.FC = () => {
                                     <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10.5px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
                                         {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '142px', left: '394px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '412px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.invoiceNo.replace('INV-', '')}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '142px', left: '500px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '141px', left: '504px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
 
                                         {/* BILLED TO section - Corrected Data Mapping */}
-                                        <span style={{ position: 'absolute', top: '236px', left: '106px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '228px', left: '120px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.parentName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '236px', left: '331px', fontWeight: 700 }}>
-                                            {selectedPlayerForInvoice.parentEmail || ''}
+                                        <span style={{ position: 'absolute', top: '228px', left: '331px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.email || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '261px', left: '106px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '253px', left: '120px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.fullName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '261px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
-                                            {selectedPlayerForInvoice.address || ''}
+                                        <span style={{ position: 'absolute', top: '253px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
+                                            {invoiceForm.address || selectedPlayerForInvoice.address || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '286px', left: '106px', fontWeight: 700 }}>
-                                            +91 {selectedPlayerForInvoice.parentPhone || ''}
+                                        <span style={{ position: 'absolute', top: '279px', left: '120px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.contactNumber?.startsWith('+') 
+                                                ? selectedPlayerForInvoice.contactNumber 
+                                                : selectedPlayerForInvoice.contactNumber ? `+91 ${selectedPlayerForInvoice.contactNumber}` : ''}
                                         </span>
 
                                         {/* ── PROGRAM DETAILS SECTION ──────────────── */}
-                                        <span style={{ position: 'absolute', top: '368px', left: '125px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '362px', left: '125px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.program || 'Monthly Elite Training'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '368px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '362px', left: '335px', fontWeight: 700 }}>
                                             Mon – Fri
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '394px', left: '125px', fontWeight: 700, maxWidth: '210px' }}>
-                                            {selectedPlayerForInvoice.venue || 'Playall, Gaur City Sports Complex, Noida'}
+                                        <span style={{ position: 'absolute', top: '388px', left: '125px', fontWeight: 700, maxWidth: '210px' }}>
+                                            {selectedPlayerForInvoice.venue || 'Gaur City, Noida'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '394px', left: '335px', fontWeight: 700 }}>
-                                            Aditya Anand
+                                        <span style={{ position: 'absolute', top: '388px', left: '335px', fontWeight: 700 }}>
+                                            Abhishek Begal
                                         </span>
 
                                         {/* ── PAYMENT TABLE ───────────────────────── */}
-                                        <div style={{ position: 'absolute', top: '512px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
+                                        <div style={{ position: 'absolute', top: '498px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
                                             ₹ {taxes.base}
                                         </div>
-                                        <div style={{ position: 'absolute', top: '538px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
+                                        <div style={{ position: 'absolute', top: '524px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
                                             ₹ {taxes.cgst}
                                         </div>
-                                        <div style={{ position: 'absolute', top: '564px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
+                                        <div style={{ position: 'absolute', top: '550px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
                                             ₹ {taxes.sgst}
                                         </div>
                                         {/* FINAL TOTAL — flush in text row */}
-                                        <div style={{ position: 'absolute', top: '590px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 850, color: '#fff' }}>
+                                        <div style={{ position: 'absolute', top: '576px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 850, color: '#fff' }}>
                                             ₹ {taxes.total}
                                         </div>
 
                                         {/* ── FOOTER BOX (Metadata) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '612px', left: '125px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '612px', left: '95px', fontWeight: 700 }}>
                                             {invoiceForm.paymentMode}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '617px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '612px', left: '275px', fontWeight: 700 }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '617px', left: '500px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '612px', left: '445px', fontWeight: 700 }}>
                                             {invoiceForm.validTill ? new Date(invoiceForm.validTill).toLocaleDateString('en-GB') : ''}
                                         </span>
 
@@ -685,6 +687,21 @@ export const FinanceManager: React.FC = () => {
                                         <span style={{ position: 'absolute', top: '647px', left: '155px', fontWeight: 700, color: '#1a365d' }}>
                                             {numberToWords(invoiceForm.amount)}
                                         </span>
+
+                                        {/* GSTIN Overlay (Bottom Left) */}
+                                        <span style={{ position: 'absolute', top: '805px', left: '50px', fontSize: '9px', fontWeight: 700, color: '#666' }}>
+                                            GSTIN: 09AAHCI6679R1ZD
+                                        </span>
+
+                                        {/* AUTHORIZED SIGNATORY SECTION (Bottom Left signatures box) */}
+                                        <div style={{ position: 'absolute', top: '765px', left: '105px', width: '180px', textAlign: 'center' }}>
+                                            <div style={{ fontWeight: 800, fontSize: '11px', color: '#111', textDecoration: 'underline' }}>
+                                                ABHISHEK BEGAL
+                                            </div>
+                                            <div style={{ fontWeight: 600, fontSize: '8px', color: '#666', textTransform: 'uppercase' }}>
+                                                Head Coach
+                                            </div>
+                                        </div>
 
                                     </div>
                                 </div>
