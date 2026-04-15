@@ -705,7 +705,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap size={12} className="text-[#CCFF00]" />
-            <p className="text-[10px] font-black text-white/50 uppercase italic tracking-[0.35em]">
+            <p className="text-[10px] font-black text-brand-900/40 uppercase italic tracking-[0.35em]">
               {selectedVenue === 'all' ? 'OPERATIONAL CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
             </p>
             <div className="ml-auto flex items-center gap-2">
