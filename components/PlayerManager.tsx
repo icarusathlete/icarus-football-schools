@@ -182,7 +182,7 @@ export const PlayerManager: React.FC = () => {
       </div>
 
       {/* Mobile-Optimised Toolbar */}
-      <div className="glass-card p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row gap-6 bg-white border-slate-100 shadow-sm">
+      <div className="glass-card p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row gap-6 bg-white border-slate-200 shadow-lg mb-4">
           <div className="relative flex-1 group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
               <input 
@@ -215,7 +215,7 @@ export const PlayerManager: React.FC = () => {
       {activeTab === 'players' && (
           <div className="space-y-6">
               {/* Desktop Table View (LG+) */}
-              <div className="hidden lg:block glass-card overflow-hidden bg-white border-slate-100 shadow-sm">
+              <div className="hidden lg:block glass-card overflow-hidden bg-white border-slate-200 shadow-xl overflow-x-auto">
                   <table className="w-full text-left">
                       <thead className="bg-slate-50 border-b border-slate-200">
                           <tr className="italic">
@@ -276,7 +276,7 @@ export const PlayerManager: React.FC = () => {
               {/* Mobile Card Layout (<LG) */}
               <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {filteredPlayers.map(p => (
-                      <div key={p.id} className="glass-card p-6 flex flex-col gap-6 relative overflow-hidden group border-slate-100 bg-white shadow-sm">
+                      <div key={p.id} className="glass-card p-6 flex flex-col gap-6 relative overflow-hidden group border-slate-200 bg-white shadow-xl">
                           <div className="flex justify-between items-start">
                                <div className="flex gap-5 items-center">
                                     <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-slate-50 object-cover border border-slate-200 group-hover:border-brand-500 transition-all shadow-md" />
@@ -314,7 +314,7 @@ export const PlayerManager: React.FC = () => {
       {activeTab === 'coaches' && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-slide-up">
               {filteredCoaches.map(c => (
-                  <div key={c.id} className="glass-card p-10 border-slate-100 bg-white hover:border-brand-500/20 relative group shadow-sm">
+                  <div key={c.id} className="glass-card p-10 border-slate-200 bg-white hover:border-brand-500/40 relative group shadow-xl">
                       <div className="flex items-center gap-6 mb-10">
                           <div className="relative">
                               <img src={c.photoUrl || `https://ui-avatars.com/api/?name=${c.username}&background=0D1B8A&color=00C8FF`} className="w-24 h-24 rounded-full bg-slate-50 object-cover border-4 border-slate-100 shadow-2xl" />
