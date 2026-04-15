@@ -426,16 +426,16 @@ export const AdminDashboard: React.FC = () => {
             </div>
             
             {/* Global Filters */}
-            <div className="flex bg-brand-950/40 p-2 rounded-2xl border border-white/5 gap-2 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto bg-brand-950/40 p-2 rounded-2xl border border-white/5 gap-2 backdrop-blur-xl">
               <div className="relative">
                 <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
                 <select
                   value={selectedVenue}
                   onChange={e => {
                     setSelectedVenue(e.target.value);
-                    setSelectedBatch('all'); // Reset batch when venue changes
+                    setSelectedBatch('all');
                   }}
-                  className="bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none min-w-[140px] transition-all"
+                  className="w-full sm:w-auto bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
                 >
                   <option value="all" className="bg-brand-900">ALL LOCATIONS</option>
                   {availableVenues.map(v => (
@@ -452,7 +452,7 @@ export const AdminDashboard: React.FC = () => {
                 <select
                   value={selectedBatch}
                   onChange={e => setSelectedBatch(e.target.value)}
-                  className="bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none min-w-[140px] transition-all"
+                  className="w-full sm:w-auto bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
                 >
                   <option value="all" className="bg-brand-900">ALL BATCHES</option>
                   {availableBatches.map(b => (
