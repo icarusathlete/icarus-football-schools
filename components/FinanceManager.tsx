@@ -29,7 +29,6 @@ const numberToWords = (num: number): string => {
 };
 
 export const FinanceManager: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'tracking'>('tracking');
     const [players, setPlayers] = useState<Player[]>([]);
     const [fees, setFees] = useState<FeeRecord[]>([]);
     const [venues, setVenues] = useState<Venue[]>([]);
@@ -280,9 +279,8 @@ export const FinanceManager: React.FC = () => {
 
     return (
         <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
-            {/* Removed External Invoice Generator Tab as per request */}
-
-            {activeTab === 'tracking' ? (
+            {/* Student Search & Stats */}
+            <div className="flex flex-col space-y-8">
                 <>
                     {/* Header Section */}
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
@@ -291,12 +289,12 @@ export const FinanceManager: React.FC = () => {
                             <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
                                 FINANCE <span className="text-[#CCFF00] font-black">DECK</span>
                             </h2>
-                            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Revenue Tracking // Transaction Records</p>
+                            <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.4em] italic">Revenue Tracking // Transaction Records</p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Payment Status</label>
+                                <label className="text-[10px] font-black text-white/70 uppercase tracking-widest italic ml-1">Payment Status</label>
                                 <div className="relative">
                                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-lime" />
                                     <select
@@ -312,7 +310,7 @@ export const FinanceManager: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-brand-950 uppercase tracking-widest italic ml-1">Training Location</label>
+                                <label className="text-[10px] font-black text-white/70 uppercase tracking-widest italic ml-1">Training Location</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-lime" />
                                     <select
@@ -328,12 +326,12 @@ export const FinanceManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-brand-500/20 backdrop-blur-xl px-8 py-5 rounded-[2rem] border border-brand-500/40 shadow-inner flex flex-row items-center justify-between gap-6 w-full sm:w-auto">
+                            <div className="bg-white/5 px-8 py-5 rounded-[2rem] border border-white/10 flex flex-row items-center justify-between gap-6 w-full sm:w-auto">
                                 <div>
-                                    <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
+                                    <p className="text-[9px] font-black text-brand-text/60 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-2xl font-black text-lime italic">₹{totalCollected}</span>
-                                        <span className="text-[10px] font-bold text-brand-700">/ ₹{totalDue}</span>
+                                        <span className="text-[10px] font-bold text-white/60">/ ₹{totalDue}</span>
                                     </div>
                                 </div>
                                 <div className="w-12 h-12 rounded-2xl bg-lime/10 flex items-center justify-center text-lime border border-lime/20 shadow-[0_0_20px_rgba(190,242,100,0.1)]">
@@ -345,10 +343,10 @@ export const FinanceManager: React.FC = () => {
 
                     {/* Search Bar */}
                     <div className="relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-500 transition-colors w-5 h-5" />
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-brand-500 transition-colors w-5 h-5" />
                         <input
                             placeholder="Search student athletes..."
-                            className="w-full pl-16 pr-8 py-5 bg-brand-500/5 border border-brand-500/10 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-brand-950 placeholder:text-slate-400 italic tracking-wider backdrop-blur-xl"
+                            className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-[2rem] shadow-xl focus:border-brand-500 outline-none transition-all font-black text-xs text-white placeholder:text-white/50 italic tracking-wider backdrop-blur-xl"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -360,48 +358,48 @@ export const FinanceManager: React.FC = () => {
                             const status = getStatus(p.id);
                             const statusVal = status?.status || 'PENDING';
                             return (
-                                <div key={p.id} className="bg-white/40 backdrop-blur-xl p-6 rounded-[2.5rem] border border-brand-500/10 shadow-2xl relative overflow-hidden group hover:shadow-brand-500/10 hover:border-brand-500/30 transition-all duration-300 hover:-translate-y-1">
-                                    <div className={`absolute top-0 right-0 px-4 py-2 rounded-bl-2xl text-[10px] font-black tracking-widest uppercase border-b border-l border-brand-500/10 shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950 font-bold' :
+                                <div key={p.id} className="glass-card p-6 !rounded-[2.5rem] relative overflow-hidden group hover:!border-brand-500/50 transition-all duration-300 hover:-translate-y-1">
+                                    <div className={`absolute top-0 right-0 px-4 py-2 rounded-bl-2xl text-[10px] font-black tracking-widest uppercase border-b border-l border-white/10 shadow-sm transition-all ${statusVal === 'PAID' ? 'bg-lime text-brand-950' :
                                             statusVal === 'OVERDUE' ? 'bg-red-600 text-white' :
-                                                'bg-slate-100 text-slate-500'
+                                                'bg-white/10 text-white/60'
                                         }`}>
                                         {statusVal === 'PAID' ? 'FEES PAID' : statusVal === 'OVERDUE' ? 'OVERDUE' : 'PENDING'}
                                     </div>
                                     
                                     <div className="flex items-start gap-5 mb-6 mt-4">
                                         <div className="relative">
-                                            <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-900 object-cover border-2 border-brand-500/10 shadow-xl group-hover:border-brand-500/30 transition-colors" />
+                                            <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-950 object-cover border-2 border-white/10 shadow-xl group-hover:border-brand-500/30 transition-colors" />
                                             {statusVal === 'PAID' && <div className="absolute -bottom-1 -right-1 bg-lime text-brand-950 p-1 rounded-full shadow-glow-sm"><Check size={12} /></div>}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="font-black text-brand-950 italic truncate text-lg uppercase leading-none mb-1 group-hover:text-brand-500 transition-colors">{p.fullName}</h3>
-                                            <p className="text-[10px] text-brand-950/50 font-mono tracking-widest uppercase truncate mb-3">{p.memberId}</p>
+                                            <h3 className="font-black text-white italic truncate text-lg uppercase leading-none mb-1 group-hover:text-brand-500 transition-colors">{p.fullName}</h3>
+                                            <p className="text-[10px] text-white/50 font-mono tracking-widest uppercase truncate mb-3">{p.memberId}</p>
                                             
                                             <div className="flex flex-wrap gap-2">
-                                                <div className="flex items-center gap-1 px-2 py-1 bg-brand-500/5 rounded-lg border border-brand-500/5">
+                                                <div className="flex items-center gap-1 px-2 py-1 bg-white/5 rounded-lg border border-white/5">
                                                     <MapPin size={10} className="text-brand-500" />
-                                                    <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">{p.venue || 'NOT ASSIGNED'}</span>
+                                                    <span className="text-[9px] font-black text-white/60 uppercase italic tracking-tighter">{p.venue || 'NOT ASSIGNED'}</span>
                                                 </div>
                                                 {statusVal === 'PAID' && status?.datePaid && (
                                                     <div className="flex items-center gap-1 px-2 py-1 bg-lime/10 rounded-lg border border-lime/20">
                                                         <Calendar size={10} className="text-lime" />
-                                                        <span className="text-[9px] font-black text-brand-950/60 uppercase italic tracking-tighter">PAID: {new Date(status.datePaid).toLocaleDateString()}</span>
+                                                        <span className="text-[9px] font-black text-white/70 uppercase italic tracking-tighter">PAID: {new Date(status.datePaid).toLocaleDateString()}</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-brand-500/5">
+                                    <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-white/5">
                                         <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">FEES DUE</p>
-                                            <p className="font-mono font-black text-brand-950 italic text-2xl">₹24000</p>
+                                            <p className="text-[8px] font-black text-white/60 uppercase tracking-widest italic">FEES DUE</p>
+                                            <p className="font-mono font-black text-white italic text-2xl">₹24000</p>
                                         </div>
                                         <div className="space-y-1 text-right">
-                                            <p className="text-[8px] font-black text-brand-950/40 uppercase tracking-widest italic">NEXT PAYMENT</p>
+                                            <p className="text-[8px] font-black text-white/60 uppercase tracking-widest italic">NEXT PAYMENT</p>
                                             <div className="flex items-center justify-end gap-1.5">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining(status) > 0 ? 'bg-lime' : 'bg-red-500'} animate-pulse`} />
-                                                <p className="font-mono font-black text-brand-950 italic text-sm">
+                                                <p className="font-mono font-black text-white italic text-sm">
                                                     {getDaysRemaining(status) > 0 ? `${getDaysRemaining(status)} Days Left` : `${Math.abs(getDaysRemaining(status))} Overdue`}
                                                 </p>
                                             </div>
@@ -411,7 +409,7 @@ export const FinanceManager: React.FC = () => {
                                     <div className="flex gap-3 mt-2">
                                         <button 
                                             onClick={() => openInvoiceGenerator(p)} 
-                                            className="flex-1 h-12 bg-brand-950 flex items-center justify-center gap-3 rounded-2xl shadow-xl active:scale-95 transition-all text-white group/inv border border-brand-500/20"
+                                            className="flex-1 h-12 bg-white/5 flex items-center justify-center gap-3 rounded-2xl shadow-xl active:scale-95 transition-all text-white group/inv border border-white/10 hover:bg-white/10"
                                             title="Generate Invoice"
                                         >
                                             <FileText size={18} className="text-brand-500 group-hover/inv:scale-110 transition-transform" />
@@ -430,28 +428,11 @@ export const FinanceManager: React.FC = () => {
                                 </div>
                             )
                         })}
-                        {filteredPlayers.length === 0 && <div className="col-span-full text-center text-brand-700 font-black uppercase tracking-widest py-10 italic">No players detected.</div>}
+                        {filteredPlayers.length === 0 && <div className="col-span-full text-center text-white/60 font-black uppercase tracking-widest py-10 italic">No players detected.</div>}
                     </div>
                 </>
-            ) : (
-                <div className="bg-brand-950 rounded-[3rem] shadow-3xl border border-white/10 overflow-hidden h-[800px] relative">
-                    <div className="absolute inset-0 flex flex-col">
-                        <div className="p-6 bg-brand-900 border-b border-white/5 flex items-center justify-between">
-                            <div className="flex items-center gap-3 text-brand-primary">
-                                <AlertCircle size={20} />
-                                <span className="text-sm font-black uppercase tracking-widest italic">Invoice Integration</span>
-                            </div>
-                            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest italic animate-pulse">System Connected</p>
-                        </div>
-                        <iframe
-                            src="https://your-invoice-app-url.run.app"
-                            className="w-full h-full border-none"
-                            title="Invoice Generator"
-                            allow="camera; microphone; geolocation"
-                        />
-                    </div>
-                </div>
-            )}
+            </div>
+
 
             {/* Invoice Generator Modal */}
             {isInvoiceModalOpen && selectedPlayerForInvoice && (
@@ -540,7 +521,7 @@ export const FinanceManager: React.FC = () => {
                                     DOWNLOAD PDF
                                 </button>
 
-                                <p className="text-[9px] text-center text-brand-700 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
+                                <p className="text-[10px] text-center text-white/60 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
                             </div>
                         </div>
 
@@ -629,19 +610,19 @@ export const FinanceManager: React.FC = () => {
                                         </span>
 
                                         {/* ── PAYMENT TABLE ───────────────────────── */}
-                                        <span style={{ position: 'absolute', top: '512px', left: '488px', fontWeight: 700 }}>
+                                        <div style={{ position: 'absolute', top: '512px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
                                             ₹ {taxes.base}
-                                        </span>
-                                        <span style={{ position: 'absolute', top: '538px', left: '488px', fontWeight: 700 }}>
+                                        </div>
+                                        <div style={{ position: 'absolute', top: '538px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
                                             ₹ {taxes.cgst}
-                                        </span>
-                                        <span style={{ position: 'absolute', top: '564px', left: '488px', fontWeight: 700 }}>
+                                        </div>
+                                        <div style={{ position: 'absolute', top: '564px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 700 }}>
                                             ₹ {taxes.sgst}
-                                        </span>
-                                        {/* FINAL TOTAL — flush in the dark row */}
-                                        <span style={{ position: 'absolute', top: '590px', left: '488px', fontWeight: 850, color: '#fff' }}>
+                                        </div>
+                                        {/* FINAL TOTAL — flush in text row */}
+                                        <div style={{ position: 'absolute', top: '590px', left: '488px', width: '65px', textAlign: 'right', fontWeight: 850, color: '#fff' }}>
                                             ₹ {taxes.total}
-                                        </span>
+                                        </div>
 
                                         {/* ── FOOTER BOX (Metadata) ────────────────── */}
                                         <span style={{ position: 'absolute', top: '612px', left: '125px', fontWeight: 700 }}>

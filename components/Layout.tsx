@@ -65,7 +65,7 @@ const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTab
     }`}
   >
     <item.icon className={`w-6 h-6 mb-1 ${activeTab === item.id ? 'fill-white/10' : ''}`} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-    <span className={`text-[9px] font-black uppercase tracking-tight truncate w-full text-center ${activeTab === item.id ? 'opacity-100' : 'opacity-40'}`}>
+    <span className={`text-[9px] font-black uppercase tracking-tight truncate w-full text-center ${activeTab === item.id ? 'opacity-100' : 'opacity-70'}`}>
         {getShortLabel(item.label)}
     </span>
   </button>
@@ -221,14 +221,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                       style={{ fontFamily: settings.fontFamily }}>
                     {settings.name}
                 </span>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
+                <span className="text-[8px] font-black text-white/60 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
             </div>
          </div>
          <button onClick={onLogout} className="shrink-0 p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5 ml-4">
             <LogOut size={20} />
          </button>
       </header>
-      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative bg-white text-white custom-scrollbar scroll-smooth box-border">
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative custom-scrollbar scroll-smooth box-border">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >

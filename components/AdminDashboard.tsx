@@ -420,7 +420,7 @@ export const AdminDashboard: React.FC = () => {
               <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
                 ACADEMY <span className="text-[#CCFF00]">HUB</span>
               </h1>
-              <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.5em] italic mt-2">
+              <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.5em] italic mt-2">
                 ADMINISTRATIVE DASHBOARD · OPERATIONS OVERVIEW
               </p>
             </div>
@@ -469,19 +469,19 @@ export const AdminDashboard: React.FC = () => {
           {/* KPI grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-brand-950/50 border-[#CCFF00]/15' },
-              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.2)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-brand-950/50 border-[#CCFF00]/15 shadow-[0_0_20px_rgba(204,255,0,0.05)]' },
+              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-brand-950/50 border-white/10' },
               { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-brand-950/50 border-white/10' },
-              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} expiring soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-brand-950/50 border-white/10' },
               { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-brand-950/50 border-white/10' },
             ].map((k, i) => (
-              <div key={i} className={`rounded-2xl border p-4 ${k.accent}`}>
+              <div key={i} className={`rounded-3xl border p-5 group transition-all duration-500 hover:scale-[1.02] ${k.accent}`}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-[8px] font-black uppercase italic tracking-[0.25em] text-white/30">{k.label}</p>
-                  <span style={{ color: k.color }} className="opacity-70">{k.icon}</span>
+                  <p className="text-[9px] font-black uppercase italic tracking-[0.2em] text-white/60">{k.label}</p>
+                  <span style={{ color: k.color }} className="opacity-80 group-hover:opacity-100 transition-opacity">{k.icon}</span>
                 </div>
-                <p className="text-3xl font-black italic leading-none" style={{ color: k.color }}>{k.value}</p>
-                <p className="text-[9px] font-black italic text-white/20 mt-1.5">{k.sub}</p>
+                <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color }}>{k.value}</p>
+                <p className="text-[10px] font-black italic text-white/60 mt-2.5">{k.sub}</p>
               </div>
             ))}
           </div>
@@ -493,7 +493,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-brand-900 rounded-[2rem] border border-white/[0.06] overflow-hidden">
           <div className="px-5 py-3.5 border-b border-white/[0.05] flex items-center gap-2">
             <AlertTriangle size={12} className="text-amber-400" />
-            <p className="text-[9px] font-black text-white/35 uppercase italic tracking-[0.3em]">ACTION REQUIRED</p>
+            <p className="text-[9px] font-black text-white/60 uppercase italic tracking-[0.3em]">ACTION REQUIRED</p>
           </div>
           <div className="p-3 flex flex-wrap gap-2">
             {alertItems.map(a => (
@@ -520,32 +520,32 @@ export const AdminDashboard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">PERFORMANCE RANKINGS</h3>
-                <p className="text-[8px] font-black italic text-white/25 uppercase tracking-[0.3em]">
+                <p className="text-[8px] font-black italic text-white/45 uppercase tracking-[0.3em]">
                   TOP 10 PLAYERS · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
                 </p>
               </div>
             </div>
             <div className="sm:ml-auto flex gap-2 flex-wrap">
               {[
-                { dot: 'bg-[#CCFF00]', label: 'Coach Evaluation 40%' },
-                { dot: 'bg-blue-400', label: 'Attendance 35%' },
-                { dot: 'bg-purple-400', label: 'Technical Assessment 25%' },
+                { dot: 'bg-[#CCFF00]', label: 'Coach Assessment 40%' },
+                { dot: 'bg-brand-500', label: 'Attendance 35%' },
+                { dot: 'bg-brand-accent', label: 'Skill Metrics 25%' },
               ].map((l, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-[8px] font-black italic text-white/40 bg-brand-950 border border-white/10 px-2.5 py-1 rounded-xl">
-                  <span className={`w-1.5 h-1.5 rounded-full ${l.dot}`} />{l.label}
+                <span key={i} className="flex items-center gap-1.5 text-[9px] font-black italic text-white/50 bg-black/40 border border-white/10 px-3 py-1.5 rounded-xl">
+                  <span className={`w-1.5 h-1.5 rounded-full ${l.dot} shadow-[0_0_8px_currentColor]`} />{l.label}
                 </span>
               ))}
             </div>
           </div>
 
           {/* Table scroll wrapper */}
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px]">
+          <div className="overflow-x-auto custom-scrollbar-tactical">
+            <table className="w-full min-w-[900px]">
               <thead>
-                <tr className="border-b border-white/[0.04]">
-                  {['RANK', 'PLAYER', 'OVERALL SCORE', 'COACH RATING', 'ATTENDANCE', 'TECHNICAL SCORE', 'TREND', 'DEVELOPMENT AREAS'].map((h, i) => (
-                    <th key={i} className={`px-4 py-3 text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em] ${
-                      i === 0 ? 'w-12 text-center' : i === 1 ? 'text-left' : i === 7 ? 'text-left hidden lg:table-cell' : 'text-center'
+                <tr className="border-b border-white/[0.06] bg-black/20">
+                  {['RANK', 'PLAYER PROFILE', 'COMPOSITE', 'RATING', 'ATTENDANCE', 'SKILLS', 'TREND', 'DEVELOPMENT'].map((h, i) => (
+                    <th key={i} className={`px-6 py-4 text-[9px] font-black italic text-white/60 uppercase tracking-[0.2em] ${
+                      i === 0 ? 'w-20 text-center' : i === 1 ? 'text-left' : 'text-center'
                     }`}>{h}</th>
                   ))}
                 </tr>
@@ -581,17 +581,17 @@ export const AdminDashboard: React.FC = () => {
                           </div>
                           <div className="min-w-0">
                             <p className="text-[12px] font-black italic text-white truncate">{r.name}</p>
-                            <p className="text-[8px] font-bold italic text-white/25 truncate">{r.venue}</p>
+                            <p className="text-[8px] font-bold italic text-white/50 truncate">{r.venue}</p>
                           </div>
                         </div>
                       </td>
                       {/* Composite */}
                       <td className="px-4 py-4 text-center">
                         <div className="inline-flex flex-col items-center">
-                          <span className="text-[18px] font-black italic leading-none" style={{ color: r.compositeScore >= 70 ? '#CCFF00' : r.compositeScore >= 50 ? '#f59e0b' : '#f87171' }}>
+                          <span className="text-[16px] font-black italic leading-none" style={{ color: r.compositeScore >= 70 ? '#CCFF00' : r.compositeScore >= 50 ? '#f59e0b' : '#f87171' }}>
                             {r.compositeScore}
                           </span>
-                          <span className="text-[7px] font-black italic text-white/20">/100</span>
+                          <span className="text-[7px] font-black italic text-white/40">/100</span>
                         </div>
                       </td>
                       {/* Scout rating */}
@@ -705,10 +705,13 @@ export const AdminDashboard: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Zap size={12} className="text-[#CCFF00]" />
-            <p className="text-[9px] font-black text-white/30 uppercase italic tracking-[0.35em]">
+            <p className="text-[10px] font-black text-white/50 uppercase italic tracking-[0.35em]">
               {selectedVenue === 'all' ? 'OPERATIONAL CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
             </p>
-            <span className="ml-auto text-[8px] font-black text-white/30 bg-brand-950 px-2 py-0.5 rounded-lg border border-white/10">{activeCentres.length} CENTRE{activeCentres.length !== 1 ? 'S' : ''}</span>
+            <div className="ml-auto flex items-center gap-2">
+                <span className="text-[9px] font-black text-[#CCFF00] bg-[#CCFF00]/10 border border-[#CCFF00]/20 px-3 py-1 rounded-full uppercase italic tracking-wider shadow-[0_0_15px_rgba(204,255,0,0.1)]">LIVE STATUS</span>
+                <span className="text-[9px] font-black text-white/40 bg-brand-950 px-3 py-1 rounded-lg border border-white/10">{activeCentres.length} CENTRES</span>
+            </div>
           </div>
           <div className={`grid gap-4 ${activeCentres.length === 1 ? 'grid-cols-1 max-w-sm' : activeCentres.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
             {activeCentres.map(c => <CentreCard key={c.name} stat={c} onClick={() => { setSelectedVenue(c.name); setSelectedBatch('all'); }} />)}

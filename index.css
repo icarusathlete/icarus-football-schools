@@ -12,12 +12,12 @@
   --color-brand-700: #1e3a8a;
   --color-brand-800: #1e3a8a;
   --color-brand-900: #0D1B8A;
-  --color-brand-950: #0D1B8A;
+  --color-brand-950: #070b42; /* Deeper midnight for high contrast */
   --color-brand-primary: #00C8FF;
   --color-brand-secondary: #0D1B8A;
   --color-brand-accent: #C3F629;
   --color-brand-bg: #00054e;
-  --color-brand-text: #dfe0ff;
+  --color-brand-text: #e2e8f0; /* Consistent bright silver */
 
   --color-lime-default: #C3F629;
   --color-lime-glow: rgba(195, 246, 41, 0.3);
@@ -31,22 +31,21 @@
 }
 
 :root {
-  --brand-primary: #00C8FF; /* Electric Cyan */
-  --brand-secondary: #0D1B8A; /* Deep Midnight */
-  --brand-accent: #C3F629; /* Neon Lime */
-  --brand-bg: #00054e; /* Kinetic Midnight Foundation */
-  --brand-text: #dfe0ff;
+  --brand-primary: #00C8FF;
+  --brand-secondary: #0D1B8A;
+  --brand-accent: #C3F629;
+  --brand-bg: #00054e;
+  --brand-text: #e2e8f0;
   
-  /* Precision Glassmorphism (Digital Stadium Elite) */
-  --glass-bg: rgba(0, 5, 78, 0.6);
-  --glass-border: rgba(0, 200, 255, 0.1);
+  /* Digital Stadium Elite Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: 24px;
   
   /* Tactical Surface Tokens */
-  --surface-low: #f8fafc;
-  --surface-default: #ffffff;
-  --surface-high: #f1f5f9;
-  --surface-bright: #e2e8f0;
+  --surface-low: #00054e;
+  --surface-default: #070b42;
+  --surface-high: #0D1B8A;
 
   /* Performance Glows */
   --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.15);
@@ -54,8 +53,8 @@
 }
 
 body { 
-  background-color: #f8fafc; /* bg-slate-50 */
-  color: #0f172a; /* bg-slate-900 */
+  background-color: #00054e; /* Academy Portal Base */
+  color: #e2e8f0;
   overflow-x: hidden;
   width: 100vw;
   font-family: "Manrope", sans-serif;
@@ -66,45 +65,44 @@ body {
   overflow-x: hidden;
 }
 
-/* Academy Glassmorphism (Optimized for Light Mode) */
+/* Elite Glassmorphism */
 .glass-card {
-  background: white;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 2rem;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem; /* Standardized radius */
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 200, 255, 0.4);
-  box-shadow: 0 20px 60px rgba(0, 200, 255, 0.1);
-  transform: translateY(-4px) scale(1.005);
+  border-color: rgba(0, 200, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
 }
 
-/* HUD Ghost Border */
+/* HUD Tactical Border */
 .hud-border {
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .premium-gradient-text {
-  background: linear-gradient(135deg, #0f172a 0%, #00C8FF 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #00C8FF 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* Scrollbar Engineering */
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #00C8FF; }
 
-.custom-scrollbar-light::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar-light::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar-light::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.05); border-radius: 10px; }
-.custom-scrollbar-light::-webkit-scrollbar-thumb:hover { background: #00C8FF; }
+.custom-scrollbar-tactical::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar-tactical::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar-tactical::-webkit-scrollbar-thumb { background: rgba(0, 200, 255, 0.2); border-radius: 10px; }
+.custom-scrollbar-tactical::-webkit-scrollbar-thumb:hover { background: #00C8FF; }
 
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }

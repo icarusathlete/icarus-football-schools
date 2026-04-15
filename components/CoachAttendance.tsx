@@ -3,9 +3,7 @@ import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch, AttendanceRecord, User, AttendanceStatus } from '../types';
 import { 
     Search, MapPin, Layers, Check, X, Calendar, 
-    Save, Filter, Map, Users, ChevronRight, 
-    Zap, Activity, Shield, Command, Radio,
-    Trophy, Lock, RotateCcw
+    Save, Filter, Users, Zap, Trophy, Lock, RotateCcw, Radio
 } from 'lucide-react';
 
 export const CoachAttendance: React.FC = () => {
@@ -34,13 +32,11 @@ export const CoachAttendance: React.FC = () => {
       const allVenues = StorageService.getVenues();
       const isAdmin = user.role === 'admin';
       
-      // Safety: Ensure assignedVenues is an array for non-admins
       const assignedVenues = isAdmin ? allVenues : allVenues.filter(v => (user.assignedVenues || []).includes(v.name));
       setVenues(assignedVenues);
       if (assignedVenues.length > 0) setSelectedVenue(assignedVenues[0].name);
 
       const allBatches = StorageService.getBatches();
-      // Safety: Ensure assignedBatches is an array for non-admins
       const assignedBatches = isAdmin ? allBatches : allBatches.filter(b => (user.assignedBatches || []).includes(b.name));
       setBatches(assignedBatches);
       if (assignedBatches.length > 0) setSelectedBatch(assignedBatches[0].name);
@@ -69,7 +65,6 @@ export const CoachAttendance: React.FC = () => {
       });
       setAttendance(initialAttendance);
 
-      // Load MOTM and Finalization status
       const motm = StorageService.getMOTM(selectedDate, selectedVenue, selectedBatch);
       setMotmId(motm?.playerId || null);
       
@@ -78,10 +73,12 @@ export const CoachAttendance: React.FC = () => {
     }
   };
 
+  // Load session data when filters change (date/venue/batch).
+  // We intentionally do NOT subscribe to 'academy_data_update' here because
+  // that event fires on every storage write (including MOTM saves) and would
+  // reset the in-memory attendance state, wiping unsaved coaching work.
   useEffect(() => {
     loadSessionData();
-    window.addEventListener('academy_data_update', loadSessionData);
-    return () => window.removeEventListener('academy_data_update', loadSessionData);
   }, [selectedDate, selectedVenue, selectedBatch]);
 
   const toggleAttendance = (playerId: string, status: AttendanceStatus) => {
@@ -92,19 +89,15 @@ export const CoachAttendance: React.FC = () => {
     setSaveStatus('idle');
   };
 
-  const toggleMOTM = async (playerId: string) => {
+  const toggleMOTM = (playerId: string) => {
     if (isFinalized) return;
     const newMotmId = motmId === playerId ? null : playerId;
+    // Update local state immediately — no await, no reload
     setMotmId(newMotmId);
-    
-    // Auto-save MOTM to storage
+    // Persist in the background without blocking or resetting state
     if (newMotmId) {
-        await StorageService.setMOTM(newMotmId, selectedDate, selectedVenue, selectedBatch);
-    } else {
-        // If unselecting, we currently don't have a direct 'removeMOTM' but we can pass null if supported 
-        // or just leave it. In this implementation, setMOTM with another player overwrites.
-        // For simplicity, we'll just set it to empty in the UI if unselected.
-        // If we really want to delete from Firebase, we'd need a deleteDoc call.
+      StorageService.setMOTM(newMotmId, selectedDate, selectedVenue, selectedBatch)
+        .catch(err => console.error('Failed to save MOTM:', err));
     }
   };
 
@@ -168,6 +161,36 @@ export const CoachAttendance: React.FC = () => {
     (p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const calculateAge = (dob: string) => {
+    if (!dob) return 0;
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+  };
+
+  const getAgeCategory = (dob: string) => {
+    const age = calculateAge(dob);
+    if (age <= 8) return 'U-8';
+    if (age <= 10) return 'U-10';
+    if (age <= 12) return 'U-12';
+    return 'OTHERS';
+  };
+
+  const groupedPlayers = filteredPlayers.reduce((acc, player) => {
+    const category = getAgeCategory(player.dateOfBirth);
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(player);
+    return acc;
+  }, {} as Record<string, Player[]>);
+
+  const categoryOrder = ['U-12', 'U-10', 'U-8', 'OTHERS'];
+  const sortedCategories = Object.keys(groupedPlayers).sort((a, b) => 
+    categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+  );
+
   const stats = {
     total: players.length,
     present: Object.values(attendance).filter(s => s === AttendanceStatus.PRESENT).length,
@@ -175,224 +198,287 @@ export const CoachAttendance: React.FC = () => {
     pending: players.length - Object.values(attendance).filter(s => s !== 'none').length
   };
 
-    return (
-        <div className="space-y-8 pb-32">
-            {/* ══════════════════════════════════════════════
-                HERO HEADER — high-impact visual identity
-            ══════════════════════════════════════════════ */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12"><Calendar size={120} className="text-white" /></div>
-                
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
-                        SESSION <span className="text-[#CCFF00]">ATTENDANCE</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Real-time metrics // Performance sync</p>
-                    
-                    <div className="flex items-center gap-4 pt-4 text-[11px] font-black uppercase tracking-widest text-white/60">
-                        <span className="flex items-center gap-2 text-[#CCFF00] bg-[#CCFF00]/10 px-4 py-2 rounded-full border border-[#CCFF00]/20"><Radio size={12} className="animate-pulse"/> {selectedDate}</span>
-                        <span className="flex items-center gap-2"><MapPin size={12}/> {selectedVenue}</span>
-                        <span className="flex items-center gap-2"><Layers size={12}/> {selectedBatch}</span>
-                    </div>
-                </div>
+  const presentPct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
 
-                <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full lg:w-auto">
-                        <div className="glass-card p-6 rounded-[2rem] border border-white/5 md:w-32 lg:w-40 text-center group hover:bg-white/10 transition-all shadow-xl">
-                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 group-hover:text-[#CCFF00]">PRESENT</p>
-                            <p className="text-3xl font-black text-white italic leading-none">{stats.present}<span className="text-white/20 text-xs ml-1">/{stats.total}</span></p>
-                        </div>
-                        <div className="glass-card p-6 rounded-[2rem] border border-white/5 md:w-32 lg:w-40 text-center group hover:bg-white/10 transition-all shadow-xl">
-                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 group-hover:text-red-500/60">ABSENT</p>
-                            <p className="text-3xl font-black text-red-500 italic leading-none">{stats.absent}</p>
-                        </div>
-                        {isFinalized && (
-                            <div className="bg-brand-primary/20 p-6 rounded-[2rem] border border-brand-primary/30 backdrop-blur-xl flex items-center justify-center gap-2 px-8 shadow-lg shadow-brand-primary/10 h-full">
-                                <Lock size={18} className="text-brand-primary" />
-                                <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest">FINALIZED</span>
-                            </div>
-                        )}
-                    </div>
-            </div>
+  return (
+    <div className="space-y-8 pb-32">
 
-            {/* ══════════════════════════════════════════════
-                SECTION DIVIDER — Configuration
-            ══════════════════════════════════════════════ */}
-            <div className="flex items-center justify-between px-2">
-                <div className="space-y-1">
-                    <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                        <Filter className="text-brand-primary" size={20} /> 
-                        SESSION_CONFIGURATION_PROTOCOL
-                    </h2>
-                    <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
-                </div>
-            </div>
-
-            {/* Control Panel / Filters */}
-            <div className="bg-brand-950 p-6 md:p-8 rounded-[2.5rem] border border-white/5 flex flex-col xl:flex-row gap-6 relative z-10 shadow-2xl">
-                <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                    <div className="flex-1 relative group">
-                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/60 group-hover:text-white transition-colors z-10">
-                            <MapPin size={18} />
-                        </div>
-                        <select 
-                            value={selectedVenue}
-                            onChange={(e) => setSelectedVenue(e.target.value)}
-                            className="w-full pl-14 pr-10 py-5 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-brand-800 transition-all"
-                        >
-                            {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900 text-white">{v.name}</option>)}
-                        </select>
-                    </div>
-
-                    <div className="flex-1 relative group">
-                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-secondary/60 group-hover:text-brand-secondary transition-colors z-10">
-                            <Layers size={18} />
-                        </div>
-                          <select 
-                              value={selectedBatch}
-                              onChange={(e) => setSelectedBatch(e.target.value)}
-                              className="w-full pl-14 pr-10 py-5 bg-brand-primary/10 border border-brand-primary/20 rounded-2xl outline-none text-brand-primary font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-brand-primary/20 transition-all"
-                          >
-                            <option value="" className="bg-brand-secondary text-brand-primary">ALL BATCHES</option>
-                            {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-secondary text-brand-primary">{b.name}</option>)}
-                        </select>
-                    </div>
-                    
-                    <div className="relative group flex-[1.5]">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-white/40 transition-colors w-4 h-4" />
-                        <input 
-                          type="text" 
-                          placeholder="Search personnel..." 
-                          className="w-full pl-14 pr-8 py-5 bg-brand-900/50 border border-white/5 rounded-2xl outline-none focus:border-brand-primary transition-all text-[10px] font-black text-white placeholder:text-white/20 italic uppercase tracking-widest shadow-inner"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  {!isFinalized ? (
-                      <button 
-                          onClick={handleFinalize}
-                          disabled={isFinalizing || stats.pending > 0}
-                          className="px-8 py-5 bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 disabled:opacity-30"
-                      >
-                          {isFinalizing ? <Zap className="animate-spin" size={18} /> : <Check size={18} />}
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">FINALIZE SESSION</span>
-                      </button>
-                  ) : (
-                      currentUser?.role === 'admin' && (
-                          <button 
-                              onClick={handleUnfinalize}
-                              className="px-8 py-5 bg-brand-900 border border-white/10 text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-brand-800 transition-all active:scale-95 shadow-xl"
-                          >
-                              <RotateCcw size={18} />
-                              <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">UNFINALIZE</span>
-                          </button>
-                      )
-                  )}
-
-                  <button 
-                      onClick={handleSave}
-                      disabled={isSaving || stats.pending === stats.total || isFinalized}
-                      className={`px-12 py-5 rounded-2xl flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl relative overflow-hidden group ${
-                          isFinalized ? 'bg-brand-900 text-white/20 cursor-not-allowed' :
-                          saveStatus === 'success' ? 'bg-emerald-500 text-white' : 
-                          saveStatus === 'error' ? 'bg-red-500 text-white' : 
-                          'bg-brand-primary/5 border border-brand-primary/40 text-brand-primary hover:bg-brand-primary/20 disabled:opacity-40 shadow-[0_0_20px_rgba(0,200,255,0.05)]'
-                      }`}
-                  >
-                      <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                      {isSaving ? (
-                          <Zap className="animate-spin" size={18} />
-                      ) : saveStatus === 'success' ? (
-                          <Check size={18} />
-                      ) : isFinalized ? (
-                          <Lock size={18} />
-                      ) : (
-                          <Save size={18} />
-                      )}
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10">
-                          {isSaving ? 'SAVING...' : saveStatus === 'success' ? 'SUCCESS' : isFinalized ? 'LOCKED' : 'SAVE CHANGES'}
-                      </span>
-                  </button>
-                </div>
-            </div>
-
-            {/* ══════════════════════════════════════════════
-                ROSTER MATRIX — the core listing section
-            ══════════════════════════════════════════════ */}
-            <div className="flex items-center justify-between px-2">
-                <div className="space-y-1">
-                    <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                        <Users className="text-brand-primary" size={20} /> 
-                        ACTIVE_ROSTER_MATRIX
-                    </h2>
-                    <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
-                </div>
-                <div className="hidden md:flex items-center gap-4">
-                    <span className="text-[10px] font-black text-brand-400 uppercase tracking-widest italic">{players.length} PERSONNEL_LOADED</span>
-                    <div className="h-px w-24 bg-brand-100" />
-                </div>
-            </div>
-
-            {players.length === 0 ? (
-                <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-white rounded-[2.5rem] border border-brand-100 shadow-xl">
-                    <div className="w-24 h-24 bg-brand-50 rounded-3xl flex items-center justify-center text-brand-200">
-                        <Users size={48} />
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-black text-brand-950 uppercase italic tracking-tight">Empty_Roster_Detected</h3>
-                        <p className="text-brand-400 text-sm max-w-sm font-medium">No players found assigned to <b>{selectedVenue}</b> in the <b>{selectedBatch}</b>. Please verify player profiles or adjust filters.</p>
-                    </div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {players
-                      .filter(p => !searchTerm || p.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
-                      .map((player) => (
-                        <div key={player.id} className={`glass-card p-6 rounded-[2rem] transition-all duration-500 relative group border border-brand-100 hover:shadow-2xl ${attendance[player.id] === AttendanceStatus.PRESENT ? 'ring-2 ring-brand-primary/20 bg-brand-primary/5' : attendance[player.id] === AttendanceStatus.ABSENT ? 'ring-2 ring-red-500/20 bg-red-50/30' : 'hover:bg-brand-50'}`}>
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="relative">
-                                    <img src={player.photoUrl} alt={player.fullName} className="w-16 h-16 rounded-2xl object-cover bg-brand-50 border border-brand-100 group-hover:border-brand-primary transition-all shadow-md" />
-                                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center border-2 border-white shadow-xl transition-all scale-0 group-hover:scale-100 ${attendance[player.id] === AttendanceStatus.PRESENT ? 'bg-brand-primary text-brand-950' : attendance[player.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white' : 'bg-brand-950 text-white'}`}>
-                                        <Shield size={12} />
-                                    </div>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <h4 className="font-black text-brand-950 italic text-sm uppercase truncate leading-tight">{player.fullName}</h4>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
-                                            className={`transition-all duration-300 ${motmId === player.id ? 'text-amber-500 scale-125 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'text-slate-200 hover:text-amber-400'} ${isFinalized ? 'cursor-not-allowed' : 'active:scale-90'}`}
-                                        >
-                                            <Trophy size={20} fill={motmId === player.id ? "currentColor" : "none"} />
-                                        </button>
-                                    </div>
-                                    <p className="text-[9px] font-black text-brand-400 uppercase tracking-widest mt-1">{player.memberId}</p>
-                                </div>
-                            </div>
-
-                            <div className={`flex bg-brand-50 rounded-2xl p-1.5 border border-brand-100 transition-all ${isFinalized ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-                                <button 
-                                    onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
-                                    className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-xl transition-all ${attendance[player.id] === AttendanceStatus.PRESENT ? 'bg-brand-primary text-brand-950 shadow-lg' : 'text-brand-400 hover:text-brand-950 hover:bg-white'}`}
-                                >
-                                    <Check size={14} className={attendance[player.id] === AttendanceStatus.PRESENT ? 'animate-bounce' : ''} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest italic">PRESENT</span>
-                                </button>
-                                <button 
-                                    onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
-                                    className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-xl transition-all ${attendance[player.id] === AttendanceStatus.ABSENT ? 'bg-red-500 text-white shadow-lg' : 'text-brand-400 hover:text-red-500 hover:bg-white'}`}
-                                >
-                                    <X size={14} className={attendance[player.id] === AttendanceStatus.ABSENT ? 'animate-pulse' : ''} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest italic">ABSENT</span>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+      {/* ═══════════════════════════════
+          HERO HEADER
+      ═══════════════════════════════ */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">
+          <Calendar size={140} className="text-white" />
         </div>
-    );
-};
 
+        <div className="relative z-10 space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Icarus // Attendance Protocol</p>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
+            SESSION <span className="text-[#CCFF00]">ROLLCALL</span>
+          </h1>
+          <div className="flex flex-wrap items-center gap-3 pt-4 text-[10px] font-black uppercase tracking-widest">
+            <span className="flex items-center gap-2 text-[#CCFF00] bg-[#CCFF00]/10 px-4 py-2 rounded-full border border-[#CCFF00]/20">
+              <Radio size={10} className="animate-pulse"/> {selectedDate}
+            </span>
+            {selectedVenue && (
+              <span className="flex items-center gap-2 text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                <MapPin size={10}/> {selectedVenue}
+              </span>
+            )}
+            {selectedBatch && (
+              <span className="flex items-center gap-2 text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                <Layers size={10}/> {selectedBatch}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* KPI Stats */}
+        <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full lg:w-auto">
+          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Present</p>
+            <p className="text-3xl font-black text-emerald-400 italic leading-none">{stats.present}</p>
+            <p className="text-[8px] text-white/30 font-black mt-1">of {stats.total}</p>
+          </div>
+          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Absent</p>
+            <p className="text-3xl font-black text-red-400 italic leading-none">{stats.absent}</p>
+            <p className="text-[8px] text-white/30 font-black mt-1">flagged</p>
+          </div>
+          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
+            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Rate</p>
+            <p className="text-3xl font-black text-[#CCFF00] italic leading-none">{presentPct}<span className="text-lg">%</span></p>
+            <p className="text-[8px] text-white/30 font-black mt-1">attendance</p>
+          </div>
+          {isFinalized && (
+            <div className="bg-emerald-500/10 p-5 rounded-[1.75rem] border border-emerald-500/20 flex items-center justify-center gap-2 min-w-[100px]">
+              <Lock size={16} className="text-emerald-400" />
+              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Locked</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════
+          SESSION CONFIGURATION
+      ═══════════════════════════════ */}
+      <div className="flex items-center gap-3 px-2">
+        <Filter size={16} className="text-[#CCFF00]" />
+        <h2 className="text-xs font-black text-white/60 uppercase italic tracking-[0.3em]">Session Configuration</h2>
+        <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+      </div>
+
+      <div className="bg-brand-950 p-6 md:p-8 rounded-[2.5rem] border border-white/5 flex flex-col xl:flex-row gap-6 shadow-2xl">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+
+          {/* Date */}
+          <div className="relative group flex-1">
+            <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
+              style={{ colorScheme: 'dark' }}
+            />
+          </div>
+
+          {/* Venue */}
+          <div className="relative group flex-1">
+            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors z-10 pointer-events-none" />
+            <select
+              value={selectedVenue}
+              onChange={e => setSelectedVenue(e.target.value)}
+              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
+            >
+              {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900">{v.name}</option>)}
+            </select>
+          </div>
+
+          {/* Batch */}
+          <div className="relative group flex-1">
+            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors z-10 pointer-events-none" />
+            <select
+              value={selectedBatch}
+              onChange={e => setSelectedBatch(e.target.value)}
+              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
+            >
+              {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-900">{b.name}</option>)}
+            </select>
+          </div>
+
+          {/* Search */}
+          <div className="relative group flex-[1.5]">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-hover:text-white/50 transition-colors w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search player..."
+              className="w-full pl-12 pr-5 py-4 bg-brand-900/50 border border-white/5 rounded-2xl outline-none text-white placeholder:text-white/30 font-black text-[11px] uppercase tracking-widest focus:border-[#CCFF00]/40 transition-all"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 shrink-0">
+          {!isFinalized ? (
+            <button
+              onClick={handleFinalize}
+              disabled={isFinalizing || stats.pending > 0}
+              className="px-6 py-4 bg-emerald-500 text-white rounded-2xl flex items-center gap-3 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              {isFinalizing ? <Zap className="animate-spin" size={16} /> : <Check size={16} />}
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Finalize</span>
+            </button>
+          ) : (
+            currentUser?.role === 'admin' && (
+              <button
+                onClick={handleUnfinalize}
+                className="px-6 py-4 bg-brand-900 border border-white/10 text-white/70 rounded-2xl flex items-center gap-3 hover:bg-brand-800 hover:text-white transition-all active:scale-95"
+              >
+                <RotateCcw size={16} />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Unlock</span>
+              </button>
+            )
+          )}
+
+          <button
+            onClick={handleSave}
+            disabled={isSaving || isFinalized}
+            className={`px-8 py-4 rounded-2xl flex items-center gap-3 transition-all active:scale-95 shadow-xl relative overflow-hidden group ${
+              isFinalized ? 'bg-brand-900 text-white/20 cursor-not-allowed border border-white/5' :
+              saveStatus === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+              saveStatus === 'error' ? 'bg-red-500 text-white' :
+              'bg-[#CCFF00]/10 border border-[#CCFF00]/30 text-[#CCFF00] hover:bg-[#CCFF00]/20 disabled:opacity-40'
+            }`}
+          >
+            <div className="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+            {isSaving ? <Zap className="animate-spin" size={16} /> :
+             saveStatus === 'success' ? <Check size={16} /> :
+             isFinalized ? <Lock size={16} /> :
+             <Save size={16} />}
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10 whitespace-nowrap">
+              {isSaving ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : isFinalized ? 'Locked' : 'Save'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════
+          ROSTER MATRIX
+      ═══════════════════════════════ */}
+      <div className="flex items-center gap-3 px-2">
+        <Users size={16} className="text-[#CCFF00]" />
+        <h2 className="text-xs font-black text-white/60 uppercase italic tracking-[0.3em]">Active Roster Matrix</h2>
+        <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+      </div>
+
+      {players.length === 0 ? (
+        <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-brand-900 rounded-[2.5rem] border border-white/5">
+          <div className="w-20 h-20 bg-brand-950 rounded-3xl flex items-center justify-center text-white/10 border border-white/5">
+            <Users size={40} />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-black text-white uppercase italic tracking-tight">No Players Found</h3>
+            <p className="text-white/40 text-sm max-w-sm font-medium">
+              No players are assigned to <b className="text-white/60">{selectedVenue}</b> in batch <b className="text-white/60">{selectedBatch}</b>. Verify player profiles or adjust filters.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-10">
+          {sortedCategories.map(category => (
+            <div key={category} className="space-y-5">
+
+              {/* Category Header */}
+              <div className="flex items-center gap-4 px-1">
+                <div className="bg-brand-950 text-white border border-white/10 px-5 py-2 rounded-xl text-[10px] font-black italic tracking-[0.25em] flex items-center gap-2">
+                  {category}
+                  <span className="text-[#CCFF00]/60 ml-1">[{groupedPlayers[category].length}]</span>
+                </div>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+              </div>
+
+              {/* Player Grid */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                {groupedPlayers[category].map((player) => {
+                  const isPresent = attendance[player.id] === AttendanceStatus.PRESENT;
+                  const isAbsent = attendance[player.id] === AttendanceStatus.ABSENT;
+                  const isMotm = motmId === player.id;
+
+                  return (
+                    <div
+                      key={player.id}
+                      className={`relative p-3 md:p-4 rounded-[1.5rem] border transition-all duration-300 group
+                        ${isPresent
+                          ? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/20'
+                          : isAbsent
+                          ? 'bg-red-500/10 border-red-500/30 ring-1 ring-red-500/20'
+                          : 'bg-brand-900 border-white/5 hover:border-white/15 hover:bg-brand-800/60'
+                        }`}
+                    >
+                      {/* Photo & MOTM */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="relative">
+                          <img
+                            src={player.photoUrl}
+                            alt={player.fullName}
+                            className="w-10 h-10 md:w-11 md:h-11 rounded-xl object-cover bg-brand-800 border border-white/10"
+                          />
+                          {attendance[player.id] !== 'none' && (
+                            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-900 shadow
+                              ${isPresent ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                              {isPresent ? <Check size={8} className="text-white" /> : <X size={8} className="text-white" />}
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
+                          className={`transition-all duration-200 p-1 rounded-lg
+                            ${isMotm ? 'text-amber-400 scale-110 bg-amber-400/10' : 'text-white/20 hover:text-amber-400 hover:bg-amber-400/10'}
+                            ${isFinalized ? 'opacity-30 cursor-not-allowed' : 'active:scale-90'}`}
+                        >
+                          <Trophy size={15} fill={isMotm ? "currentColor" : "none"} />
+                        </button>
+                      </div>
+
+                      {/* Player Info */}
+                      <div className="mb-3 min-h-[36px]">
+                        <h4 className="font-black text-white italic text-[10px] md:text-[11px] uppercase truncate leading-tight">
+                          {player.fullName}
+                        </h4>
+                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-0.5">
+                          #{player.memberId}
+                        </p>
+                      </div>
+
+                      {/* Attendance Toggle */}
+                      <div className={`flex bg-brand-950/60 rounded-xl p-0.5 border border-white/5 transition-all
+                        ${isFinalized ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+                        <button
+                          onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
+                          className={`flex-1 py-1.5 flex items-center justify-center rounded-lg transition-all
+                            ${isPresent ? 'bg-emerald-500 text-white shadow-md scale-[1.03]' : 'text-white/30 hover:text-emerald-400 hover:bg-emerald-500/10'}`}
+                        >
+                          <Check size={12} />
+                        </button>
+                        <button
+                          onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
+                          className={`flex-1 py-1.5 flex items-center justify-center rounded-lg transition-all
+                            ${isAbsent ? 'bg-red-500 text-white shadow-md scale-[1.03]' : 'text-white/30 hover:text-red-400 hover:bg-red-500/10'}`}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

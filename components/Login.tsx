@@ -93,12 +93,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             {/* Premium Center-Focus Branding */}
             <div className="mb-14 text-center relative z-10 animate-fade-in">
-                <div className="w-32 h-32 bg-white rounded-[2.5rem] inline-flex items-center justify-center border-4 border-white/10 mb-8 shadow-2xl relative group overflow-hidden transition-transform duration-700 hover:rotate-[10deg]">
+                <div className="w-28 h-28 bg-white rounded-[2rem] inline-flex items-center justify-center border-4 border-white/10 mb-8 shadow-2xl relative group overflow-hidden transition-transform duration-700 hover:rotate-[10deg] p-6">
                     <div className="absolute inset-0 bg-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {settings.logoUrl ? (
-                        <img src={settings.logoUrl} className="w-full h-full object-contain p-5 relative z-10" alt="Icarus Football" />
+                        <img src={settings.logoUrl} className="w-full h-full object-contain relative z-10" alt="Icarus Football" />
                     ) : (
-                        <Trophy className="w-16 h-16 text-brand-500 relative z-10" />
+                        <Trophy className="w-14 h-14 text-brand-500 relative z-10" />
                     )}
                 </div>
                 
@@ -108,16 +108,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <span>{settings.name.split(' ')[0]}</span> 
                         <span className="text-brand-500">{settings.name.split(' ').slice(1).join(' ')}</span>
                     </h1>
-                    <div className="inline-flex items-center gap-4 bg-white/5 backdrop-blur-md px-6 py-2.5 rounded-full border border-white/10 shadow-xl overflow-hidden group">
+                    <div className="inline-flex items-center gap-4 bg-white/5 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 shadow-xl overflow-hidden group">
                         <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_12px_#00C8FF]" />
-                        <p className="text-brand-500 uppercase tracking-[0.6em] text-[9px] font-black italic">Academy Management Interface • v2.0</p>
+                        <p className="text-white uppercase tracking-[0.5em] text-[10px] font-black italic">Academy Management Interface • v2.0</p>
                     </div>
                 </div>
             </div>
 
             {/* Professional Management Card */}
-            <div className="w-full max-w-xl bg-white rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden relative z-10 border border-white/10 animate-slide-up p-1.5 transition-all hover:shadow-[0_60px_120px_-20px_rgba(0,200,255,0.1)]">
-                <div className="bg-slate-50/50 p-12 md:p-16 text-center rounded-[3.8rem] border border-white/40">
+            <div className="w-full max-w-xl bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden relative z-10 border border-white/10 animate-slide-up p-1 transition-all hover:shadow-[0_60px_120px_-20px_rgba(0,200,255,0.1)]">
+                <div className="bg-slate-50/50 p-12 md:p-16 text-center rounded-[2.3rem] border border-white/40">
                     
                     <div className="max-w-xs mx-auto mb-14 space-y-4">
                         <h2 className="text-4xl font-black text-brand-950 italic uppercase tracking-tighter leading-none" style={{ fontFamily: 'Space Grotesk' }}>Professional <span className="text-brand-500">Access</span></h2>
