@@ -89,7 +89,7 @@ export const PlayerPerformanceModal: React.FC<Props> = ({ player, onCancel, onUp
     <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center sm:p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
       {/* ── Modal shell — bottom sheet on mobile, centred dialog on sm+ ── */}
       <div className="bg-brand-900 w-full sm:max-w-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_-24px_80px_-8px_rgba(0,0,0,0.6)] sm:shadow-[0_32px_80px_-8px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col border border-white/[0.07]"
-        style={{ maxHeight: '92vh' }}>
+        style={{ height: '88vh', maxHeight: '88vh' }}>
 
         {/* ── Drag handle (mobile) ── */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
