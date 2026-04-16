@@ -190,12 +190,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         {/* Data Persistence Area - Only for Admins */}
 
         <div className="p-6 border-t border-white/5 bg-white/5">
-           <div className="flex items-center gap-3 mb-5 px-1">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-brand-secondary shadow-sm transition-transform hover:scale-110">
-                <span className="text-[10px] font-black">{currentUser.username[0].toUpperCase()}</span>
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-[9px] font-black text-white truncate uppercase tracking-wider">{currentUser.username}</p>
+            <div className="flex items-center gap-3 mb-5 px-1">
+               <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-brand-secondary shadow-sm transition-transform hover:scale-110">
+                 <span className="text-[10px] font-black">{currentUser?.username?.[0]?.toUpperCase() || 'U'}</span>
+               </div>
+               <div className="overflow-hidden">
+                 <p className="text-[9px] font-black text-white truncate uppercase tracking-wider">{currentUser?.username || 'User'}</p>
                 <p className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] mt-0.5">
                     {(['pending', 'rejected'].includes(currentUser.role) ? 'guest' : currentUser.role).toUpperCase()} PORTAL
                   </p>
@@ -228,7 +228,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             <LogOut size={20} />
          </button>
       </header>
-      <main className={`flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative custom-scrollbar scroll-smooth box-border transition-colors duration-500 ${['admin', 'players'].includes(activeTab) ? 'bg-white' : ''}`}>
+      <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative custom-scrollbar scroll-smooth box-border transition-colors duration-500">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >

@@ -254,7 +254,15 @@ export const AdminDashboard: React.FC = () => {
     setAgeAll(AGE_GROUPS.map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] })));
 
     // ── Top performers (filtered) ─────────────────────────────────────────────
-    const tp = players.filter(p => p.evaluation?.overallRating).sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0)).slice(0, 5).map(p => ({ name: p.fullName, rating: p.evaluation!.overallRating, venue: p.venue || '—' }));
+    const tp = players
+      .filter(p => p.evaluation?.overallRating)
+      .sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0))
+      .slice(0, 5)
+      .map(p => ({
+        name: p.fullName,
+        rating: p.evaluation?.overallRating || 0,
+        venue: p.venue || '—'
+      }));
     setTopPerformers(tp);
 
     // ── Activity feed (filtered) ──────────────────────────────────────────────
@@ -262,16 +270,36 @@ export const AdminDashboard: React.FC = () => {
     [...players].sort((a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime()).slice(0, 3).forEach(p => feed.push({ id: `p-${p.id}`, type: 'player', label: `${p.fullName} joined`, sub: p.venue || 'No centre', ts: new Date(p.registeredAt).getTime() }));
     // To filter matches to specific venue involves more mapping, we will let match feed remain global contextual
     [...allMatches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3).forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
-    [...fees].filter(f => f.invoice).sort((a, b) => new Date(b.invoice!.date).getTime() - new Date(a.invoice!.date).getTime()).slice(0, 3).forEach(f => { const pl = players.find(p => p.id === f.playerId); if (pl) feed.push({ id: `f-${f.id}`, type: 'fee', label: `₹${f.invoice!.amount.toLocaleString('en-IN')} collected`, sub: `${pl.fullName} · Invoice ${f.invoice!.invoiceNo}`, ts: new Date(f.invoice!.date).getTime() }); });
+    [...fees].filter(f => f.invoice).sort((a, b) => new Date(b.invoice?.date || 0).getTime() - new Date(a.invoice?.date || 0).getTime()).slice(0, 3).forEach(f => { 
+      const pl = players.find(p => p.id === f.playerId); 
+      if (pl && f.invoice) {
+        feed.push({ 
+          id: `f-${f.id}`, 
+          type: 'fee', 
+          label: `₹${f.invoice.amount.toLocaleString('en-IN')} collected`, 
+          sub: `${pl.fullName} · Invoice ${f.invoice.invoiceNo}`, 
+          ts: new Date(f.invoice.date).getTime() 
+        }); 
+      }
+    });
     setActivityFeed(feed.sort((a, b) => b.ts - a.ts).slice(0, 8));
 
     // ── Academy League Rankings (filtered) ────────────────────────────────────
-    const computeScore = (overallRating: number, attRate: number, metrics?: { passing: number; juggling: number; shooting: number; beepTest: number; weakFoot: number; longPass: number }) => {
+    const computeScore = (overallRating: number, attRate: number, metrics?: Partial<{ passing: number; juggling: number; shooting: number; beepTest: number; weakFoot: number; longPass: number }>) => {
       const ratingPart = (overallRating / 10) * 40;
       const attPart = (attRate / 100) * 35;
-      const metricPart = metrics
-        ? ((metrics.passing + metrics.juggling + metrics.shooting + metrics.beepTest + metrics.weakFoot + metrics.longPass) / 6 / 10) * 25
-        : 0;
+      
+      const m = metrics || {};
+      const avgMetric = (
+        (m.passing || 0) + 
+        (m.juggling || 0) + 
+        (m.shooting || 0) + 
+        (m.beepTest || 0) + 
+        (m.weakFoot || 0) + 
+        (m.longPass || 0)
+      ) / 6;
+
+      const metricPart = (avgMetric / 10) * 25;
       return Math.round((ratingPart + attPart + metricPart) * 10) / 10;
     };
 
@@ -280,18 +308,21 @@ export const AdminDashboard: React.FC = () => {
       const rec30 = attendance.filter(r => r.playerId === p.id && r.date >= ago30);
       const present30 = rec30.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
       const attRate = rec30.length > 0 ? Math.round((present30 / rec30.length) * 100) : 0;
-      const m = p.evaluation!.metrics;
-      const scoutScore = Math.round(((m.passing + m.juggling + m.shooting + m.beepTest + m.weakFoot + m.longPass) / 6) * 10) / 10;
+      const m = p.evaluation?.metrics || {};
+      const scoutScore = Math.round((
+        ((m.passing || 0) + (m.juggling || 0) + (m.shooting || 0) + (m.beepTest || 0) + (m.weakFoot || 0) + (m.longPass || 0)) / 6
+      ) * 10) / 10;
+
       return {
         id: p.id,
         name: p.fullName,
         venue: p.venue || '—',
         memberId: p.memberId || '',
-        overallRating: p.evaluation!.overallRating,
+        overallRating: p.evaluation?.overallRating || 0,
         attRate,
         scoutScore,
-        compositeScore: computeScore(p.evaluation!.overallRating, attRate, m),
-        developmentAreas: p.evaluation!.developmentAreas || [],
+        compositeScore: computeScore(p.evaluation?.overallRating || 0, attRate, m),
+        developmentAreas: p.evaluation?.developmentAreas || [],
         prevEval: p.evaluationHistory && p.evaluationHistory.length > 0
           ? p.evaluationHistory[p.evaluationHistory.length - 1]
           : null,
@@ -302,8 +333,8 @@ export const AdminDashboard: React.FC = () => {
       .filter(ps => ps.prevEval)
       .map(ps => {
         const prevE = ps.prevEval!;
-        const m2 = prevE.metrics;
-        return { id: ps.id, prevScore: computeScore(prevE.overallRating, ps.attRate, m2) };
+        const m2 = prevE.metrics || {};
+        return { id: ps.id, prevScore: computeScore(prevE.overallRating || 0, ps.attRate, m2) };
       })
       .sort((a, b) => b.prevScore - a.prevScore);
 

@@ -206,15 +206,20 @@ const PhysicalMetricInput: React.FC<{
 
 // --- RATING LOGIC HELPER ---
 const calculateOverallRating = (evaluation: PlayerEvaluation): number => {
+    if (!evaluation) return 0;
+
     // 1. Technical Metrics (0-100 each)
-    const metricsScores = Object.values(evaluation.metrics);
-    const avgTechnical = metricsScores.reduce((a, b) => a + b, 0) / metricsScores.length;
+    const metricsScores = Object.values(evaluation.metrics || {});
+    const avgTechnical = metricsScores.length > 0 
+        ? metricsScores.reduce((a, b) => a + b, 0) / metricsScores.length 
+        : 0;
 
     // 2. Physical Time Trials (Lower is better, normalize to 0-100)
     // Baselines (Targeting typical 10-15 year old ranges)
-    const speedScore = Math.max(0, Math.min(100, ( (7.0 - evaluation.timeTrials.speed) / (7.0 - 4.2) ) * 100));
-    const agilityScore = Math.max(0, Math.min(100, ( (24.0 - evaluation.timeTrials.agility) / (24.0 - 16.0) ) * 100));
-    const dribblingScore = Math.max(0, Math.min(100, ( (28.0 - evaluation.timeTrials.dribbling) / (28.0 - 14.0) ) * 100));
+    const tt = evaluation.timeTrials || { speed: 7.0, agility: 24.0, dribbling: 28.0 };
+    const speedScore = Math.max(0, Math.min(100, ( (7.0 - (tt.speed || 7.0)) / (7.0 - 4.2) ) * 100));
+    const agilityScore = Math.max(0, Math.min(100, ( (24.0 - (tt.agility || 24.0)) / (24.0 - 16.0) ) * 100));
+    const dribblingScore = Math.max(0, Math.min(100, ( (28.0 - (tt.dribbling || 28.0)) / (28.0 - 14.0) ) * 100));
 
     const avgPhysical = (speedScore + agilityScore + dribblingScore) / 3;
 
@@ -222,7 +227,7 @@ const calculateOverallRating = (evaluation: PlayerEvaluation): number => {
     // Technical counts for 70%, Physical for 30%
     const finalRating = (avgTechnical * 0.7) + (avgPhysical * 0.3);
 
-    return Math.round(finalRating);
+    return Math.round(finalRating || 0);
 };
 
 // --- MAIN COMPONENT ---
