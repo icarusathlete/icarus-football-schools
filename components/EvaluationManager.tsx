@@ -51,29 +51,29 @@ const StopwatchTool: React.FC<{
     }, []);
 
     return (
-        <div className="bg-brand-950 border border-white/5 rounded-3xl p-8 flex flex-col gap-6 shadow-2xl relative overflow-hidden group">
-             <div className="absolute inset-0 bg-brand-primary opacity-[0.02]" />
+        <div className="glass-card border border-white/20 rounded-[2.5rem] p-8 flex flex-col gap-6 shadow-xl relative overflow-hidden group">
+             <div className="absolute inset-0 bg-brand-primary opacity-[0.05]" />
              <div className="flex justify-between items-center relative z-10">
-                 <label className="text-[10px] font-black text-brand-primary uppercase tracking-[0.3em] italic">{label}</label>
-                 <span className="text-[8px] font-black text-brand-primary bg-brand-primary/10 px-4 py-1.5 rounded-full border border-brand-primary/20 italic tracking-widest">PREVIOUS: {value}s</span>
+                 <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] italic">{label}</label>
+                 <span className="text-[8px] font-black text-brand-accent bg-brand-accent/10 px-4 py-1.5 rounded-full border border-brand-accent/20 italic tracking-widest">PREVIOUS: {value}s</span>
              </div>
              
-             <div className="flex items-center gap-8 bg-black/40 rounded-[2rem] p-6 shadow-inner justify-between border border-white/5 relative group/timer">
+             <div className="flex items-center gap-8 bg-white/10 rounded-[2rem] p-6 shadow-inner justify-between border border-white/10 relative group/timer">
                  <div className="font-mono text-5xl font-black text-white tracking-tighter w-40 text-center italic" style={{ fontFamily: 'Orbitron' }}>
-                     {formatTime(time)}<span className="text-xs text-brand-primary ml-2 uppercase opacity-50">sec</span>
+                     {formatTime(time)}<span className="text-xs text-brand-accent ml-2 uppercase opacity-50">sec</span>
                  </div>
                  <div className="flex gap-4 relative z-10">
                      <button 
                         onClick={toggleTimer}
                         type="button"
-                        className={`w-16 h-16 rounded-2xl text-brand-secondary transition-all flex items-center justify-center hover:scale-105 active:scale-95 shadow-2xl ${isRunning ? 'bg-red-500 shadow-red-500/20' : 'bg-brand-primary shadow-brand-primary/20'}`}
+                        className={`w-16 h-16 rounded-2xl text-brand-950 transition-all flex items-center justify-center hover:scale-105 active:scale-95 shadow-2xl ${isRunning ? 'bg-red-500 shadow-red-500/20 text-white' : 'bg-brand-accent shadow-brand-accent/20'}`}
                      >
                          {isRunning ? <Square size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
                      </button>
                      <button 
                         onClick={resetTimer}
                         type="button"
-                        className="w-16 h-16 rounded-2xl bg-white/5 text-white/30 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center border border-white/5"
+                        className="w-16 h-16 rounded-2xl bg-white/10 text-white/40 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center border border-white/10"
                      >
                          <RefreshCcw size={24} />
                      </button>
@@ -82,7 +82,7 @@ const StopwatchTool: React.FC<{
              <button 
                 type="button"
                 onClick={applyTime}
-                className="w-full py-5 bg-white/5 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded-2xl hover:bg-brand-primary hover:text-brand-secondary transition-all shadow-xl italic border border-white/10"
+                className="w-full py-5 bg-white/20 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded-2xl hover:bg-white/30 transition-all shadow-xl italic border border-white/10"
              >
                  APPLY TO PROFILE
              </button>
@@ -109,30 +109,30 @@ const MetricTracker: React.FC<{
     const isPrimary = colorClass.includes('brand-primary') || colorClass.includes('brand-500');
 
     return (
-        <div className="space-y-5 group/metric bg-black/20 p-6 rounded-[2rem] border border-white/5 hover:border-brand-primary/20 transition-all">
+        <div className="space-y-5 group/metric bg-white/5 p-6 rounded-[2rem] border border-white/10 hover:border-brand-accent/20 transition-all">
             <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                    <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] italic group-hover/metric:text-brand-primary transition-colors">{label}</label>
+                    <label className="text-[9px] font-black text-white/50 uppercase tracking-[0.3em] italic group-hover/metric:text-brand-accent transition-colors">{label}</label>
                     <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${isPrimary ? 'bg-brand-primary shadow-[0_0_8px_currentColor]' : 'bg-lime-400 shadow-[0_0_8px_currentColor]'}`} />
-                        <span className="text-[8px] font-black text-white/20 font-mono tracking-widest uppercase">{count}/20 ACCURACY</span>
+                        <div className={`w-2 h-2 rounded-full ${isPrimary ? 'bg-brand-accent shadow-[0_0_8px_currentColor]' : 'bg-lime-400 shadow-[0_0_8px_currentColor]'}`} />
+                        <span className="text-[8px] font-black text-white/30 font-mono tracking-widest uppercase">{count}/20 ACCURACY</span>
                     </div>
                 </div>
                 <div className="flex flex-col items-end">
-                     <span className={`text-3xl font-black italic tracking-tighter ${isPrimary ? 'text-brand-primary' : 'text-lime-400'} font-mono`} style={{ fontFamily: 'Orbitron' }}>{value}<span className="text-[10px] ml-1 opacity-40">%</span></span>
+                     <span className={`text-3xl font-black italic tracking-tighter ${isPrimary ? 'text-brand-accent' : 'text-lime-400'} font-mono`} style={{ fontFamily: 'Orbitron' }}>{value}<span className="text-[10px] ml-1 opacity-40">%</span></span>
                 </div>
             </div>
             
             <div className="flex gap-1.5 h-6 select-none relative">
                 {[...Array(20)].map((_, i) => (
                     <div 
-                        key={i}
+                        key={i} 
                         onClick={() => handleClick(i)}
                         className={`
                             flex-1 rounded-[1.5px] cursor-pointer transition-all duration-300 hover:scale-y-125
                              ${i < count 
-                                ? (isPrimary ? 'bg-brand-primary shadow-[0_0_12px_rgba(0,200,255,0.4)]' : 'bg-lime-400 shadow-[0_0_12px_rgba(191,255,0,0.4)]') 
-                                : 'bg-white/[0.05] border border-white/5 hover:bg-white/10'}
+                                ? (isPrimary ? 'bg-brand-accent shadow-[0_0_12px_rgba(195,246,41,0.4)]' : 'bg-lime-400 shadow-[0_0_12px_rgba(191,255,0,0.4)]') 
+                                : 'bg-white/10 border border-white/5 hover:bg-white/20'}
                         `}
                     />
                 ))}
@@ -169,32 +169,32 @@ const PhysicalMetricInput: React.FC<{
 
     return (
         <div className="space-y-4 group/phys">
-            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1 italic group-hover/phys:text-brand-primary transition-colors">{label}</label>
+            <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 italic group-hover/phys:text-brand-accent transition-colors">{label}</label>
             <div className="relative flex items-center gap-4">
                 <div className="relative flex-1 group/input">
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-brand-primary transition-colors">
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-brand-accent transition-colors">
                         {icon}
                     </div>
                     <input 
                         type="number" 
-                        className="w-full pl-14 pr-16 py-6 bg-white/[0.03] border border-white/10 rounded-2xl text-2xl font-black text-white focus:border-brand-primary/50 outline-none transition-all italic font-mono shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full pl-14 pr-16 py-6 bg-white/5 border border-white/10 rounded-2xl text-2xl font-black text-white focus:border-brand-accent/50 outline-none transition-all italic font-mono shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         value={value || ''}
                         onChange={handleInputChange}
                     />
-                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/20 uppercase tracking-widest italic font-mono">{unit}</span>
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/30 uppercase tracking-widest italic font-mono">{unit}</span>
                 </div>
                 <div className="flex flex-col gap-2">
                     <button 
                         type="button"
                         onClick={handleIncrement}
-                        className="p-3 bg-white/5 hover:bg-brand-primary hover:text-brand-secondary text-white/40 rounded-xl border border-white/5 transition-all shadow-lg active:scale-95"
+                        className="p-3 bg-white/10 hover:bg-brand-accent hover:text-brand-950 text-white/60 rounded-xl border border-white/10 transition-all shadow-lg active:scale-95"
                     >
                         <Plus size={20} strokeWidth={3} />
                     </button>
                     <button 
                         type="button"
                         onClick={handleDecrement}
-                        className="p-3 bg-white/5 hover:bg-red-500 hover:text-white text-white/40 rounded-xl border border-white/5 transition-all shadow-lg active:scale-95"
+                        className="p-3 bg-white/10 hover:bg-red-500 hover:text-white text-white/60 rounded-xl border border-white/10 transition-all shadow-lg active:scale-95"
                     >
                         <X size={20} strokeWidth={3} className="rotate-45" />
                     </button>
@@ -424,20 +424,28 @@ export const EvaluationManager: React.FC = () => {
     <div className="space-y-10 pb-20">
       {!isEditing && (
         <>
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Shield size={120} className="text-white" /></div>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 glass-card p-10 md:p-14 rounded-[3rem] border border-white/20 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-12 opacity-[0.05] pointer-events-none group-hover:scale-110 group-hover:opacity-[0.1] transition-all duration-1000">
+                    <Shield size={180} className="text-white" />
+                </div>
                 
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">PLAYER <span className="text-[#CCFF00] font-black">EVALUATIONS</span></h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Academy Performance Hub // Technical Assessment</p>
+                <div className="relative z-10 space-y-4">
+                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-brand-accent/20 border border-brand-accent/30 mb-2">
+                        <Activity size={12} className="text-brand-950" />
+                        <span className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic">PERFORMANCE SENSORS ACTIVE</span>
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">PLAYER <span className="premium-gradient-text">EVALUATIONS</span></h2>
+                    <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.4em] italic flex items-center gap-3">
+                        <Zap size={14} className="text-brand-accent" /> Academy Performance Hub // Technical Assessment
+                    </p>
                 </div>
 
-                <div className="relative w-full md:w-96 z-10">
-                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" strokeWidth={3} />
+                <div className="relative w-full md:w-[28rem] z-10">
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
                     <input 
                         type="text" 
-                        placeholder="SEARCH PLAYER..." 
-                        className="w-full pl-16 pr-8 py-6 bg-white/5 border border-white/5 rounded-[2rem] outline-none focus:ring-4 focus:ring-brand-primary/20 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic font-mono"
+                        placeholder="SCAN SQUAD DATA..." 
+                        className="w-full pl-16 pr-8 py-6 bg-white/10 border border-white/10 rounded-[2rem] outline-none focus:bg-white/20 focus:border-white/20 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -451,34 +459,39 @@ export const EvaluationManager: React.FC = () => {
                         <div 
                             key={p.id} 
                             onClick={() => handleSelectPlayer(p)}
-                            className="bg-brand-900/50 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/5 hover:border-brand-primary/50 cursor-pointer transition-all duration-500 shadow-2xl hover:-translate-y-2 flex flex-col gap-6 group relative overflow-hidden"
+                            className="glass-card p-10 rounded-[3rem] border border-white/20 hover:border-brand-accent/40 cursor-pointer transition-all duration-500 shadow-xl hover:-translate-y-2 hover:scale-[1.02] flex flex-col gap-8 group relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity -mr-8 -mt-8 rotate-12">
-                                <Zap size={120} className="text-brand-primary" />
+                            <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity -mr-8 -mt-8 rotate-12">
+                                <Zap size={120} className="text-white" />
                             </div>
 
                             <div className="flex items-center gap-6">
                                 <div className="relative">
-                                    <div className="absolute inset-0 bg-brand-primary rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-                                    <img 
-                                        src={p.photoUrl || FALLBACK_IMAGE} 
-                                        onError={(e) => {e.currentTarget.src = FALLBACK_IMAGE}}
-                                        className="w-16 h-16 rounded-full bg-brand-950 border-2 border-white/10 object-cover relative z-10 transition-transform duration-500 group-hover:scale-110" 
-                                    />
-                                    {hasDraft && <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full border-2 border-brand-950 flex items-center justify-center z-20 animate-bounce shadow-lg"><Save size={10} className="text-brand-950" /></div>}
+                                    <div className="absolute inset-x-0 -bottom-2 h-4 bg-brand-accent/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="w-20 h-20 rounded-[2rem] bg-brand-950 border-2 border-white/20 overflow-hidden relative z-10 transition-transform duration-500 group-hover:scale-105">
+                                        <img 
+                                            src={p.photoUrl || FALLBACK_IMAGE} 
+                                            onError={(e) => {e.currentTarget.src = FALLBACK_IMAGE}}
+                                            className="w-full h-full object-cover" 
+                                        />
+                                    </div>
+                                    {hasDraft && <div className="absolute -top-2 -right-2 w-7 h-7 bg-brand-accent rounded-full border-4 border-brand-900 flex items-center justify-center z-20 shadow-lg"><Save size={12} className="text-brand-950" /></div>}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-xl font-black text-white truncate group-hover:text-brand-primary transition-colors uppercase italic tracking-tighter leading-none">{p.fullName}</h3>
-                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 font-mono italic">#{p.memberId}</p>
+                                    <h3 className="text-2xl font-black text-white truncate group-hover:text-brand-accent transition-colors uppercase italic tracking-tighter leading-none mb-2">{p.fullName}</h3>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 border border-white/10">
+                                        <Shield size={10} className="text-white/40" />
+                                        <span className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em] italic">#{p.memberId}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-white/5 flex flex-col gap-4">
+                            <div className="pt-8 border-t border-white/10 flex flex-col gap-6">
                                 {p.evaluation ? (
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest italic mb-1">OVERALL_RATING</span>
-                                            <span className="text-2xl font-black text-brand-primary italic tracking-tighter font-mono" style={{ fontFamily: 'Orbitron' }}>{p.evaluation.overallRating}<span className="text-[10px] ml-1 opacity-40">/100</span></span>
+                                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic mb-1">DATA_INDEX</span>
+                                            <span className="text-4xl font-black text-brand-accent italic tracking-tighter font-mono" style={{ fontFamily: 'Orbitron' }}>{p.evaluation.overallRating}<span className="text-xs ml-1 opacity-40 font-bold">/100</span></span>
                                         </div>
                                         <div className="flex gap-2">
                                             <button 
@@ -486,17 +499,19 @@ export const EvaluationManager: React.FC = () => {
                                                     e.stopPropagation();
                                                     setShowDeleteConfirm(p.id);
                                                 }}
-                                                className="p-3 bg-white/5 text-white/20 hover:text-red-500 hover:bg-white/10 rounded-xl transition-all border border-white/5"
+                                                className="w-12 h-12 bg-red-500/10 text-red-500/60 hover:text-white hover:bg-red-500 rounded-2xl transition-all border border-red-500/20 flex items-center justify-center shadow-lg"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={18} />
                                             </button>
-                                            <div className="bg-brand-primary/10 text-brand-primary px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.3em] border border-brand-primary/20 italic">READY</div>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-black text-white/10 uppercase tracking-widest italic">AWAITING_EVALUATION</span>
-                                        <div className="bg-white/5 text-white/20 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.3em] border border-white/5 italic">PENDING</div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic mb-1">DATA_INDEX</span>
+                                            <span className="text-4xl font-black text-white/20 italic tracking-tighter font-mono" style={{ fontFamily: 'Orbitron' }}>--<span className="text-xs ml-1 opacity-40 font-bold">/100</span></span>
+                                        </div>
+                                        <div className="bg-white/10 text-white/40 px-5 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] border border-white/10 italic">AWAITING</div>
                                     </div>
                                 )}
                             </div>
@@ -504,10 +519,12 @@ export const EvaluationManager: React.FC = () => {
                     );
                 })}
                 {filteredPlayers.length === 0 && (
-                    <div className="col-span-full py-32 text-center glass-card border-dashed">
-                        <Loader2 className="w-12 h-12 text-white/5 mx-auto mb-6 animate-spin" />
-                        <h3 className="text-2xl font-black text-white/10 uppercase tracking-widest italic">No Data Signal</h3>
-                        <p className="text-[10px] font-black text-white/5 uppercase tracking-widest mt-2 italic">Search parameters returned zero results.</p>
+                    <div className="col-span-full py-48 text-center glass-card rounded-[4rem] border-dashed border-white/20">
+                        <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2.5rem] bg-white/5 mb-8">
+                            <Activity size={48} className="text-white/10" />
+                        </div>
+                        <h3 className="text-3xl font-black text-white/10 uppercase tracking-[0.4em] italic leading-tight">NO SIGNAL <br/> RETRIEVED</h3>
+                        <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.5em] mt-6 italic">RECALIBRATE SEARCH PARAMETERS</p>
                     </div>
                 )}
             </div>

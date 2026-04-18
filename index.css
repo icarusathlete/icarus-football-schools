@@ -16,8 +16,8 @@
   --color-brand-primary: #00C8FF;
   --color-brand-secondary: #0D1B8A;
   --color-brand-accent: #C3F629;
-  --color-brand-bg: #00054e;
-  --color-brand-text: #e2e8f0; /* Consistent bright silver */
+  --color-brand-bg: #ffffff;
+  --color-brand-text: #0f172a; /* Dark slate for high readability on white */
 
   --color-lime-default: #C3F629;
   --color-lime-glow: rgba(195, 246, 41, 0.3);
@@ -34,27 +34,30 @@
   --brand-primary: #00C8FF;
   --brand-secondary: #0D1B8A;
   --brand-accent: #C3F629;
-  --brand-bg: #00054e;
-  --brand-text: #e2e8f0;
+  --brand-bg: #ffffff;
+  --brand-text: #0f172a;
   
-  /* Digital Stadium Elite Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 24px;
+  /* Digital Stadium Pro Glassmorphism */
+  /* Global Tactical Container - Updated for white background */
+  --glass-bg: linear-gradient(135deg, #0D1B8A 0%, #1e3a8a 100%);
+  --glass-bg-alt: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  --glass-border: rgba(13, 27, 138, 0.1);
+  --glass-blur: 16px;
   
-  /* Tactical Surface Tokens */
-  --surface-low: #00054e;
-  --surface-default: #070b42;
-  --surface-high: #0D1B8A;
+  /* Tactical Surface Tokens - Light mode optimized */
+  --surface-low: #f8fafc;
+  --surface-default: #ffffff;
+  --surface-high: #f1f5f9;
 
   /* Performance Glows */
+  --blue-glow: 0 10px 40px rgba(13, 27, 138, 0.1);
   --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.15);
   --lime-glow: 0 10px 40px rgba(195, 246, 41, 0.15);
 }
 
 body { 
-  background-color: #00054e; /* Academy Portal Base */
-  color: #e2e8f0;
+  background-color: #ffffff; /* High visibility white base */
+  color: #0f172a;
   overflow-x: hidden;
   width: 100vw;
   font-family: "Manrope", sans-serif;
@@ -66,19 +69,47 @@ body {
 }
 
 /* Elite Glassmorphism */
+/* Elite Tactical Cards - Now using blue gradients for depth on white */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.5rem; /* Standardized radius */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--blue-glow);
+  color: white; /* Ensure text inside blue cards is white */
 }
 
-.glass-card:hover {
-  border-color: rgba(0, 200, 255, 0.3);
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+.glass-card-alt {
+  background: var(--glass-bg-alt);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--blue-glow);
+  color: white;
+}
+
+.glass-card:hover, .glass-card-alt:hover {
+  border-color: rgba(0, 200, 255, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -10px rgba(13, 27, 138, 0.3);
+}
+
+/* Light Surface Card for secondary items */
+.surface-card {
+  background: var(--surface-default);
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.surface-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 /* HUD Tactical Border */
@@ -115,4 +146,37 @@ body {
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Dark-mode date / datetime inputs ─────────── */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+/* ── Select options dark background ──────────── */
+select option {
+  background-color: #10131f;
+  color: #ffffff;
+}
+
+/* ── Shimmer / shine sweep ────────────────────── */
+@keyframes shimmer {
+  from { transform: translateX(-110%) skewX(-20deg); }
+  to   { transform: translateX(110%)  skewX(-20deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 0.7s ease-in-out forwards;
+}
+
+/* ── Scan line animation ──────────────────────── */
+@keyframes scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+
+.animate-scan {
+  animation: scan 2.5s linear infinite;
 }

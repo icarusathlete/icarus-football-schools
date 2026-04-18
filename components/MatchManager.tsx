@@ -154,24 +154,38 @@ export const MatchManager: React.FC = () => {
     return (
         <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
             {/* Unified Header Section */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"><Trophy size={120} className="text-white" /></div>
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none flex items-center gap-4">
-                        MATCH <span className="text-[#CCFF00] font-black">CENTER</span>
-                        {matches.some(m => m.isLive) && (
-                            <span className="flex h-4 w-4 relative">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
-                            </span>
-                        )}
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Operational Fixtures // Seasonal Results Portal</p>
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-brand-100 shadow-xl group p-8 md:p-12">
+                {/* Mesh gradient — subtle on white */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(59,130,246,0.05),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.03),_transparent)] opacity-40" />
+                <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
+                    <Trophy size={120} className="text-brand-950" />
                 </div>
-                <button onClick={() => setShowForm(true)} className="relative z-10 w-full lg:w-auto bg-[#CCFF00] text-brand-950 px-8 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-[#CCFF00]/20">
-                    <PlusCircle size={18} strokeWidth={3} />
-                    ADD MATCH
-                </button>
+                
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
+                            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center shadow-lg shadow-brand-500/5">
+                                <Activity size={18} className="text-brand-500" />
+                            </div>
+                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">TACTICAL_REPORT_SYNC</span>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black italic text-brand-950 uppercase tracking-tighter leading-none flex items-center gap-4">
+                            MATCH <span className="text-brand-500 font-black">CENTER</span>
+                            {matches.some(m => m.isLive) && (
+                                <span className="flex h-4 w-4 relative">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
+                                </span>
+                            )}
+                        </h2>
+                        <p className="text-brand-400 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Operational Fixtures // Seasonal Results Portal</p>
+                    </div>
+                    <button onClick={() => setShowForm(true)} className="relative z-10 w-full lg:w-auto bg-brand-950 text-white px-8 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-brand-950/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-white/10">
+                        <PlusCircle size={18} strokeWidth={3} />
+                        ADD MATCH
+                    </button>
+                </div>
             </div>
 
             {/* Metrics Dashboard */}
@@ -268,9 +282,9 @@ export const MatchManager: React.FC = () => {
             {/* View Selection & Data Stream Divider */}
             <div className="space-y-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                    <div className="bg-slate-100 p-1.5 rounded-[2rem] border border-slate-200 flex w-fit shadow-lg shadow-slate-200/50">
+                    <div className="bg-brand-50 p-1.5 rounded-[2rem] border border-brand-100 flex w-fit shadow-xl shadow-brand-500/5">
                         {['results', 'fixtures'].map((tab) => (
-                            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-white text-slate-900 shadow-xl shadow-slate-300/20' : 'text-slate-400 hover:text-slate-600'}`}>
+                            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}>
                                 {tab === 'results' ? <History size={16} /> : <Calendar size={16} />}
                                 {tab === 'results' ? 'Match Results' : 'Upcoming Fixtures'}
                             </button>
@@ -279,10 +293,10 @@ export const MatchManager: React.FC = () => {
 
                     <div className="flex-1 max-w-md space-y-1">
                         <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                            {activeTab === 'results' ? <History className="text-brand-primary" size={20} /> : <Calendar className="text-brand-primary" size={20} />}
+                            {activeTab === 'results' ? <History className="text-brand-500" size={20} /> : <Calendar className="text-brand-500" size={20} />}
                             {activeTab === 'results' ? 'MATCH_HISTORY_LOG' : 'UPCOMING_FIXTURES_SYNC'}
                         </h2>
-                        <div className="h-1 w-32 bg-brand-primary/20 rounded-full" />
+                        <div className="h-1 w-32 bg-brand-500/20 rounded-full" />
                     </div>
                 </div>
 

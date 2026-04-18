@@ -206,56 +206,73 @@ export const CoachAttendance: React.FC = () => {
       {/* ═══════════════════════════════
           HERO HEADER
       ═══════════════════════════════ */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">
-          <Calendar size={140} className="text-white" />
+      <div className="glass-card p-8 md:p-12 relative overflow-hidden group">
+        {/* Tactical Scan Line overlay */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+          <div className="w-full h-[2px] bg-brand-400 absolute top-0 shadow-[0_0_15px_rgba(0,200,255,0.8)] animate-scan" />
+        </div>
+        
+        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">
+          <Calendar size={140} className="text-brand-500/20" />
         </div>
 
-        <div className="relative z-10 space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Icarus // Attendance Protocol</p>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
-            SESSION <span className="text-[#CCFF00]">ROLLCALL</span>
-          </h1>
-          <div className="flex flex-wrap items-center gap-3 pt-4 text-[10px] font-black uppercase tracking-widest">
-            <span className="flex items-center gap-2 text-[#CCFF00] bg-[#CCFF00]/10 px-4 py-2 rounded-full border border-[#CCFF00]/20">
-              <Radio size={10} className="animate-pulse"/> {selectedDate}
-            </span>
-            {selectedVenue && (
-              <span className="flex items-center gap-2 text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                <MapPin size={10}/> {selectedVenue}
-              </span>
-            )}
-            {selectedBatch && (
-              <span className="flex items-center gap-2 text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                <Layers size={10}/> {selectedBatch}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* KPI Stats */}
-        <div className="grid grid-cols-2 sm:flex gap-4 relative z-10 w-full lg:w-auto">
-          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
-            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Present</p>
-            <p className="text-3xl font-black text-emerald-400 italic leading-none">{stats.present}</p>
-            <p className="text-[8px] text-white/30 font-black mt-1">of {stats.total}</p>
-          </div>
-          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
-            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Absent</p>
-            <p className="text-3xl font-black text-red-400 italic leading-none">{stats.absent}</p>
-            <p className="text-[8px] text-white/30 font-black mt-1">flagged</p>
-          </div>
-          <div className="bg-brand-950/80 backdrop-blur-xl p-5 rounded-[1.75rem] border border-white/5 text-center min-w-[100px]">
-            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Rate</p>
-            <p className="text-3xl font-black text-[#CCFF00] italic leading-none">{presentPct}<span className="text-lg">%</span></p>
-            <p className="text-[8px] text-white/30 font-black mt-1">attendance</p>
-          </div>
-          {isFinalized && (
-            <div className="bg-emerald-500/10 p-5 rounded-[1.75rem] border border-emerald-500/20 flex items-center justify-center gap-2 min-w-[100px]">
-              <Lock size={16} className="text-emerald-400" />
-              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Locked</span>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 relative z-10">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-300 italic opacity-80">Icarus // Attendance Protocol</p>
+              <h1 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
+                SESSION <span className="text-brand-400">ROLLCALL</span>
+              </h1>
             </div>
-          )}
+            
+            <div className="flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-widest">
+              <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                <Radio size={10} className="animate-pulse text-brand-500"/> {selectedDate}
+              </span>
+              {selectedVenue && (
+                <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                  <MapPin size={10} className="text-brand-500"/> {selectedVenue}
+                </span>
+              )}
+              {selectedBatch && (
+                <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                  <Layers size={10} className="text-brand-500"/> {selectedBatch}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* KPI Stats - Tactical Grid */}
+          <div className="grid grid-cols-2 sm:flex gap-4 w-full lg:w-auto">
+            <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center min-w-[110px] transition-all hover:bg-white/10 hover:border-brand-500/30 group/stat">
+              <p className="text-[9px] font-black text-brand-300 uppercase tracking-widest mb-2 opacity-60">Present</p>
+              <p className="text-3xl font-black text-emerald-400 italic leading-none group-hover:scale-110 transition-transform">{stats.present}</p>
+              <p className="text-[8px] text-white/30 font-black mt-2">ACTIVE SQUAD</p>
+            </div>
+            
+            <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center min-w-[110px] transition-all hover:bg-white/10 hover:border-red-500/30 group/stat">
+              <p className="text-[9px] font-black text-brand-300 uppercase tracking-widest mb-2 opacity-60">Absent</p>
+              <p className="text-3xl font-black text-red-400 italic leading-none group-hover:scale-110 transition-transform">{stats.absent}</p>
+              <p className="text-[8px] text-white/30 font-black mt-2">FLAGGED</p>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center min-w-[110px] transition-all hover:bg-white/10 hover:border-brand-400/30 group/stat relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-8 h-8 bg-brand-500/10 blur-xl" />
+              <p className="text-[9px] font-black text-brand-300 uppercase tracking-widest mb-2 opacity-60">Tactical %</p>
+              <div className="flex items-baseline justify-center gap-0.5">
+                  <p className="text-3xl font-black text-brand-400 italic leading-none group-hover:scale-110 transition-transform">{presentPct}</p>
+                  <span className="text-sm font-black text-brand-300/40 italic">%</span>
+              </div>
+              <p className="text-[8px] text-white/30 font-black mt-2">EFFICIENCY</p>
+            </div>
+
+            {isFinalized && (
+              <div className="bg-emerald-500/20 backdrop-blur-xl p-5 rounded-2xl border border-emerald-500/30 flex flex-col items-center justify-center gap-1 min-w-[110px]">
+                <Lock size={18} className="text-emerald-400 animate-pulse" />
+                <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">LOCKED</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -263,57 +280,56 @@ export const CoachAttendance: React.FC = () => {
           SESSION CONFIGURATION
       ═══════════════════════════════ */}
       <div className="flex items-center gap-3 px-2">
-        <Filter size={16} className="text-[#CCFF00]" />
-        <h2 className="text-xs font-black text-white/60 uppercase italic tracking-[0.3em]">Session Configuration</h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+        <Filter size={16} className="text-brand-500" />
+        <h2 className="text-xs font-black text-brand-950/40 uppercase italic tracking-[0.3em]">Session Configuration</h2>
+        <div className="h-px flex-1 bg-brand-100" />
       </div>
 
-      <div className="bg-brand-950 p-6 md:p-8 rounded-[2.5rem] border border-white/5 flex flex-col xl:flex-row gap-6 shadow-2xl">
+      <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-brand-100 flex flex-col xl:flex-row gap-6 shadow-2xl shadow-brand-500/10">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
 
           {/* Date */}
           <div className="relative group flex-1">
-            <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors" />
+            <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors pointer-events-none" />
             <input
               type="date"
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
-              style={{ colorScheme: 'dark' }}
+              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
             />
           </div>
 
           {/* Venue */}
           <div className="relative group flex-1">
-            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors z-10 pointer-events-none" />
+            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors z-10 pointer-events-none" />
             <select
               value={selectedVenue}
               onChange={e => setSelectedVenue(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
+              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
             >
-              {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-900">{v.name}</option>)}
+              {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
             </select>
           </div>
 
           {/* Batch */}
           <div className="relative group flex-1">
-            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 group-hover:text-[#CCFF00] transition-colors z-10 pointer-events-none" />
+            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors z-10 pointer-events-none" />
             <select
               value={selectedBatch}
               onChange={e => setSelectedBatch(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-900 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-white/20 transition-all focus:border-[#CCFF00]/40"
+              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
             >
-              {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-900">{b.name}</option>)}
+              {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
             </select>
           </div>
 
           {/* Search */}
           <div className="relative group flex-[1.5]">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-hover:text-white/50 transition-colors w-4 h-4" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 group-hover:text-brand-500 transition-colors w-4 h-4 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search player..."
-              className="w-full pl-12 pr-5 py-4 bg-brand-900/50 border border-white/5 rounded-2xl outline-none text-white placeholder:text-white/30 font-black text-[11px] uppercase tracking-widest focus:border-[#CCFF00]/40 transition-all"
+              placeholder="Search athlete matrix..."
+              className="w-full pl-12 pr-5 py-4 bg-brand-50/30 border border-brand-100 rounded-2xl outline-none text-brand-950 placeholder:text-brand-200 font-bold text-[11px] uppercase tracking-widest focus:bg-white focus:border-brand-500/40 focus:ring-4 focus:ring-brand-500/5 transition-all"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -329,16 +345,16 @@ export const CoachAttendance: React.FC = () => {
               className="px-6 py-4 bg-emerald-500 text-white rounded-2xl flex items-center gap-3 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isFinalizing ? <Zap className="animate-spin" size={16} /> : <Check size={16} />}
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Finalize</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Finalize Session</span>
             </button>
           ) : (
             currentUser?.role === 'admin' && (
               <button
                 onClick={handleUnfinalize}
-                className="px-6 py-4 bg-brand-900 border border-white/10 text-white/70 rounded-2xl flex items-center gap-3 hover:bg-brand-800 hover:text-white transition-all active:scale-95"
+                className="px-6 py-4 bg-white border border-brand-100 text-brand-400 rounded-2xl flex items-center gap-3 hover:bg-brand-50 hover:text-brand-950 transition-all active:scale-95 shadow-sm"
               >
                 <RotateCcw size={16} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Unlock</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Unlock Protocols</span>
               </button>
             )
           )}
@@ -347,19 +363,23 @@ export const CoachAttendance: React.FC = () => {
             onClick={handleSave}
             disabled={isSaving || isFinalized}
             className={`px-8 py-4 rounded-2xl flex items-center gap-3 transition-all active:scale-95 shadow-xl relative overflow-hidden group ${
-              isFinalized ? 'bg-brand-900 text-white/20 cursor-not-allowed border border-white/5' :
-              saveStatus === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/30' :
+              isFinalized ? 'bg-brand-50 text-brand-200 cursor-not-allowed border border-brand-100' :
+              saveStatus === 'success' ? 'bg-brand-950 text-white shadow-brand-950/20' :
               saveStatus === 'error' ? 'bg-red-500 text-white' :
-              'bg-[#CCFF00]/10 border border-[#CCFF00]/30 text-[#CCFF00] hover:bg-[#CCFF00]/20 disabled:opacity-40'
+              'bg-brand-500 text-brand-950 hover:shadow-brand-500/40 hover:-translate-y-0.5 disabled:opacity-40'
             }`}
           >
-            <div className="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+            {/* Shimmer Effect */}
+            {!isSaving && !isFinalized && saveStatus === 'idle' && (
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none" />
+            )}
+            
             {isSaving ? <Zap className="animate-spin" size={16} /> :
              saveStatus === 'success' ? <Check size={16} /> :
              isFinalized ? <Lock size={16} /> :
              <Save size={16} />}
             <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10 whitespace-nowrap">
-              {isSaving ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : isFinalized ? 'Locked' : 'Save'}
+              {isSaving ? 'Synchronizing...' : saveStatus === 'success' ? 'Synchronized!' : isFinalized ? 'Protocol Locked' : 'Commit Protocol'}
             </span>
           </button>
         </div>
@@ -369,20 +389,20 @@ export const CoachAttendance: React.FC = () => {
           ROSTER MATRIX
       ═══════════════════════════════ */}
       <div className="flex items-center gap-3 px-2">
-        <Users size={16} className="text-[#CCFF00]" />
-        <h2 className="text-xs font-black text-white/60 uppercase italic tracking-[0.3em]">Active Roster Matrix</h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+        <Users size={16} className="text-brand-500" />
+        <h2 className="text-xs font-black text-brand-950/40 uppercase italic tracking-[0.3em]">Active Roster Matrix</h2>
+        <div className="h-px flex-1 bg-brand-100" />
       </div>
 
       {players.length === 0 ? (
-        <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-brand-900 rounded-[2.5rem] border border-white/5">
-          <div className="w-20 h-20 bg-brand-950 rounded-3xl flex items-center justify-center text-white/10 border border-white/5">
+        <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-brand-50 rounded-[2.5rem] border border-brand-100">
+          <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center text-brand-100 border border-brand-100">
             <Users size={40} />
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-black text-white uppercase italic tracking-tight">No Players Found</h3>
-            <p className="text-white/40 text-sm max-w-sm font-medium">
-              No players are assigned to <b className="text-white/60">{selectedVenue}</b> in batch <b className="text-white/60">{selectedBatch}</b>. Verify player profiles or adjust filters.
+            <h3 className="text-lg font-black text-brand-950 uppercase italic tracking-tight">No Players linked</h3>
+            <p className="text-brand-400 text-sm max-w-sm font-medium">
+              No players are assigned to <b className="text-brand-950">{selectedVenue}</b> in batch <b className="text-brand-950">{selectedBatch}</b>. Verify player profiles or adjust filters.
             </p>
           </div>
         </div>
@@ -393,11 +413,11 @@ export const CoachAttendance: React.FC = () => {
 
               {/* Category Header */}
               <div className="flex items-center gap-4 px-1">
-                <div className="bg-brand-950 text-white border border-white/10 px-5 py-2 rounded-xl text-[10px] font-black italic tracking-[0.25em] flex items-center gap-2">
+                <div className="bg-brand-950 text-white px-5 py-2 rounded-xl text-[10px] font-black italic tracking-[0.25em] flex items-center gap-2 shadow-lg">
                   {category}
-                  <span className="text-[#CCFF00]/60 ml-1">[{groupedPlayers[category].length}]</span>
+                  <span className="text-brand-500 ml-1">[{groupedPlayers[category].length}]</span>
                 </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+                <div className="h-px flex-1 bg-brand-100" />
               </div>
 
               {/* Player Grid */}
@@ -410,65 +430,89 @@ export const CoachAttendance: React.FC = () => {
                   return (
                     <div
                       key={player.id}
-                      className={`relative p-3 md:p-4 rounded-[1.5rem] border transition-all duration-300 group
-                        ${isPresent
-                          ? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/20'
-                          : isAbsent
-                          ? 'bg-red-500/10 border-red-500/30 ring-1 ring-red-500/20'
-                          : 'bg-brand-900 border-white/5 hover:border-white/15 hover:bg-brand-800/60'
+                      className={`glass-card p-5 !rounded-[2.5rem] relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 
+                        ${isPresent 
+                          ? '!border-emerald-500/30 hover:!border-emerald-500/50' 
+                          : isAbsent 
+                          ? '!border-red-500/30 hover:!border-red-500/50' 
+                          : 'hover:!border-brand-400/40 focus-within:!border-brand-400/40 border-white/10'
                         }`}
                     >
-                      {/* Photo & MOTM */}
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="relative">
-                          <img
-                            src={player.photoUrl}
-                            alt={player.fullName}
-                            className="w-10 h-10 md:w-11 md:h-11 rounded-xl object-cover bg-brand-800 border border-white/10"
-                          />
-                          {attendance[player.id] !== 'none' && (
-                            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-900 shadow
-                              ${isPresent ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                              {isPresent ? <Check size={8} className="text-white" /> : <X size={8} className="text-white" />}
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
-                          className={`transition-all duration-200 p-1 rounded-lg
-                            ${isMotm ? 'text-amber-400 scale-110 bg-amber-400/10' : 'text-white/20 hover:text-amber-400 hover:bg-amber-400/10'}
-                            ${isFinalized ? 'opacity-30 cursor-not-allowed' : 'active:scale-90'}`}
+                      {/* ── LED status dot (top-right) ── */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <div className={`relative w-2.5 h-2.5 rounded-full 
+                          ${isPresent 
+                            ? 'bg-emerald-500 shadow-[0_0_7px_3px_rgba(16,185,129,0.5)] animate-pulse' 
+                            : isAbsent 
+                            ? 'bg-red-500 shadow-[0_0_7_px_3px_rgba(239,68,68,0.5)] animate-pulse' 
+                            : 'bg-white/20 shadow-none'
+                          }`}
                         >
-                          <Trophy size={15} fill={isMotm ? "currentColor" : "none"} />
-                        </button>
+                          <div className="absolute top-[2px] left-[2px] w-[4px] h-[4px] rounded-full bg-white/70" />
+                        </div>
                       </div>
 
-                      {/* Player Info */}
-                      <div className="mb-3 min-h-[36px]">
-                        <h4 className="font-black text-white italic text-[10px] md:text-[11px] uppercase truncate leading-tight">
-                          {player.fullName}
-                        </h4>
-                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-0.5">
-                          #{player.memberId}
-                        </p>
+                      <div className="flex items-start gap-4 mb-5">
+                        <div className="relative shrink-0">
+                          <img 
+                            src={player.photoUrl} 
+                            className={`w-14 h-14 rounded-2xl bg-brand-950 object-cover border-2 shadow-xl transition-all duration-300 
+                              ${isPresent ? 'border-emerald-500/50' : isAbsent ? 'border-red-500/50' : 'border-white/10 group-hover:border-brand-400/30'}`} 
+                          />
+                          {isPresent && <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-brand-950 p-0.5 rounded-full shadow-glow-sm"><Check size={10} strokeWidth={4} /></div>}
+                          {isAbsent && <div className="absolute -bottom-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-glow-sm"><X size={10} strokeWidth={4} /></div>}
+                        </div>
+                        
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-1">
+                            <h3 className="font-black text-white italic truncate text-sm uppercase leading-tight group-hover:text-brand-400 transition-colors">
+                              {player.fullName.split(' ')[0]}<br/>{player.fullName.split(' ').slice(1).join(' ')}
+                            </h3>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
+                              className={`transition-all duration-300 p-1.5 rounded-lg shrink-0
+                                ${isMotm ? 'text-amber-500 scale-110 bg-amber-500/10 shadow-glow-sm' : 'text-white/10 hover:text-amber-500 hover:bg-white/5'}
+                                ${isFinalized ? 'opacity-30 cursor-not-allowed' : 'active:scale-90'}`}
+                            >
+                              <Trophy size={16} fill={isMotm ? "currentColor" : "none"} />
+                            </button>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/[0.03] rounded border border-white/5">
+                              <span className="text-[8px] font-black text-white/40 uppercase italic tracking-tighter">#{player.memberId}</span>
+                            </div>
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 rounded border border-brand-400/20">
+                              <span className="text-[8px] font-black text-brand-400 uppercase italic tracking-tighter">{player.position || 'TBD'}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Attendance Toggle */}
-                      <div className={`flex bg-brand-950/60 rounded-xl p-0.5 border border-white/5 transition-all
-                        ${isFinalized ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+                      {/* Tactical Attendance Toggle */}
+                      <div className={`flex gap-2 mt-2 transition-all duration-300 ${isFinalized ? 'opacity-40 pointer-events-none' : ''}`}>
                         <button
                           onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
-                          className={`flex-1 py-1.5 flex items-center justify-center rounded-lg transition-all
-                            ${isPresent ? 'bg-emerald-500 text-white shadow-md scale-[1.03]' : 'text-white/30 hover:text-emerald-400 hover:bg-emerald-500/10'}`}
+                          className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 border
+                            ${isPresent 
+                              ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-glow-sm' 
+                              : 'bg-white/[0.03] border-white/10 text-white/20 hover:bg-white/5 hover:border-emerald-500/30 hover:text-emerald-500/60'
+                            }`}
                         >
-                          <Check size={12} />
+                          <Check size={14} strokeWidth={4} />
+                          <span className="text-[9px] font-black uppercase tracking-widest italic">PRE</span>
                         </button>
+                        
                         <button
                           onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
-                          className={`flex-1 py-1.5 flex items-center justify-center rounded-lg transition-all
-                            ${isAbsent ? 'bg-red-500 text-white shadow-md scale-[1.03]' : 'text-white/30 hover:text-red-400 hover:bg-red-500/10'}`}
+                          className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 border
+                            ${isAbsent 
+                              ? 'bg-red-500/20 border-red-500/50 text-red-400 shadow-glow-sm' 
+                              : 'bg-white/[0.03] border-white/10 text-white/20 hover:bg-white/5 hover:border-red-500/30 hover:text-red-500/60'
+                            }`}
                         >
-                          <X size={12} />
+                          <X size={14} strokeWidth={4} />
+                          <span className="text-[9px] font-black uppercase tracking-widest italic">ABS</span>
                         </button>
                       </div>
                     </div>

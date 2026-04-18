@@ -227,35 +227,42 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
   return (
     <div className="space-y-8 pb-24 animate-in fade-in duration-700">
       
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><CalendarIcon size={120} className="text-white" /></div>
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-brand-100 shadow-xl group p-8 md:p-12">
+        {/* Mesh gradient — subtle on white */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(59,130,246,0.05),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.03),_transparent)] opacity-40" />
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
+          <CalendarIcon size={120} className="text-brand-950" />
+        </div>
         
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="px-3 py-1 bg-brand-500/10 rounded-full border border-brand-500/20 text-[8px] font-black uppercase tracking-[0.3em] text-brand-500">Live</div>
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,200,255,0.5)]" />
+            <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
+              <div className="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center shadow-lg shadow-brand-500/5">
+                <CalendarIcon size={18} className="text-brand-500" />
+              </div>
+              <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">ACADEMY_OPERATIONS_HUB</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-               Academy <span className="text-[#CCFF00] font-black">Schedule</span>
+            <h2 className="text-4xl md:text-5xl font-black italic text-brand-950 uppercase tracking-tighter leading-none">
+               Academy <span className="text-brand-500">Schedule</span>
             </h2>
-            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-white/40 italic max-w-md leading-relaxed">
+            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-400 italic max-w-md leading-relaxed">
               Manage training sessions, matches, and events.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full lg:w-auto mt-6 lg:mt-0">
-            {/* View Toggle - Glass Pill */}
-            <div className="flex bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-inner self-start">
+            {/* View Toggle - Light Pill */}
+            <div className="flex bg-brand-50 p-1.5 rounded-2xl border border-brand-100 shadow-inner self-start">
                 <button 
                   onClick={() => setViewMode('list')} 
-                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}
                 >
                     <LayoutList size={14} strokeWidth={2.5} /> LIST
                 </button>
                 <button 
                   onClick={() => setViewMode('calendar')} 
-                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}
                 >
                     <Calendar size={14} strokeWidth={2.5} /> CAL
                 </button>
@@ -269,21 +276,21 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
                     { id: 'match', label: 'MATCHES', icon: Trophy },
                     { id: 'social', label: 'SOCIAL', icon: PartyPopper }
                 ].map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-white text-brand-950 border-white shadow-xl shadow-white/5 scale-105' : 'text-white/20 border-white/5 hover:border-white/20 hover:text-white'}`}
-                    >
-                        <tab.icon size={12} strokeWidth={activeTab === tab.id ? 3 : 2} />
-                        {tab.label}
-                    </button>
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-brand-950 text-white border-brand-950 shadow-lg scale-105' : 'text-brand-400 border-brand-100 bg-brand-50 hover:border-brand-300 hover:text-brand-600'}`}
+                        >
+                            <tab.icon size={12} strokeWidth={activeTab === tab.id ? 3 : 2} />
+                            {tab.label}
+                        </button>
                 ))}
             </div>
 
             {(role === 'admin' || role === 'coach') && (
                 <button 
                     onClick={handleCreate}
-                    className="flex items-center gap-2.5 bg-brand-500 text-white px-6 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-white/10 ml-auto"
+                    className="flex items-center gap-2.5 bg-brand-500 text-white px-6 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-brand-400/20 ml-auto"
                 >
                     <Plus size={16} strokeWidth={3} />
                     ADD EVENT

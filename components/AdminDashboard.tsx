@@ -405,9 +405,9 @@ export const AdminDashboard: React.FC = () => {
   const renderChart = (data: ChartPoint[]) => {
     const hasData = data.some(d => d.present > 0 || d.absent > 0);
     if (!hasData) return (
-      <div className="h-full flex flex-col items-center justify-center gap-2 opacity-25">
-        <Activity size={24} className="text-white/20" />
-        <p className="text-[9px] font-black text-white/25 uppercase italic tracking-widest">No attendance records yet</p>
+      <div className="h-full flex flex-col items-center justify-center gap-2 opacity-10">
+        <Activity size={24} className="text-brand-900" />
+        <p className="text-[9px] font-black text-brand-900 uppercase italic tracking-widest">No attendance records yet</p>
       </div>
     );
     return (
@@ -423,11 +423,15 @@ export const AdminDashboard: React.FC = () => {
               <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="2 6" stroke="rgba(255,255,255,0.04)" vertical={false} />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 900 }} dy={8} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 900 }} />
-          <Tooltip contentStyle={{ backgroundColor: '#0D1B8A', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1rem', fontSize: 11 }} labelStyle={{ color: 'rgba(255,255,255,0.35)', fontWeight: 900, fontSize: 9 }} itemStyle={{ fontWeight: 900 }} />
-          <Area type="monotone" dataKey="present" name="Present" stroke="#CCFF00" strokeWidth={2} fill="url(#g1)" dot={false} />
+          <CartesianGrid strokeDasharray="2 6" stroke="rgba(255,255,255,0.06)" vertical={false} />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9, fontWeight: 900 }} dy={8} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9, fontWeight: 900 }} />
+          <Tooltip 
+            contentStyle={{ backgroundColor: '#0D1B8A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', fontSize: 11, color: 'white' }} 
+            labelStyle={{ color: 'rgba(255,255,255,0.6)', fontWeight: 900, fontSize: 9 }} 
+            itemStyle={{ fontWeight: 900, color: 'white' }} 
+          />
+          <Area type="monotone" dataKey="present" name="Present" stroke="#CCFF00" strokeWidth={3} fill="url(#g1)" dot={false} />
           <Area type="monotone" dataKey="absent" name="Absent" stroke="#f87171" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#g2)" dot={false} />
         </AreaChart>
       </ResponsiveContainer>
@@ -441,14 +445,14 @@ export const AdminDashboard: React.FC = () => {
     <div className="space-y-5 pb-32 font-display animate-in fade-in duration-500">
 
       {/* ── Hero KPIs ───────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#00054e] via-brand-900 to-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-2xl relative overflow-visible">
-        <div className="absolute top-0 right-0 p-8 opacity-[0.025] pointer-events-none select-none">
+      <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] relative overflow-visible ring-1 ring-white/10">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none">
           <Command size={180} className="text-white" />
         </div>
         <div className="relative z-10">
           <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
+              <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-sm">
                 ACADEMY <span className="text-[#CCFF00]">HUB</span>
               </h1>
               <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.5em] italic mt-2">
@@ -457,40 +461,40 @@ export const AdminDashboard: React.FC = () => {
             </div>
             
             {/* Global Filters */}
-            <div className="flex flex-col sm:flex-row w-full md:w-auto bg-brand-950/40 p-2 rounded-2xl border border-white/5 gap-2 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto bg-black/30 p-2 rounded-2xl border border-white/10 gap-2 backdrop-blur-xl">
               <div className="relative">
-                <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
                 <select
                   value={selectedVenue}
                   onChange={e => {
                     setSelectedVenue(e.target.value);
                     setSelectedBatch('all');
                   }}
-                  className="w-full sm:w-auto bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
+                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20 active:bg-white/20 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
                 >
-                  <option value="all" className="bg-brand-900">ALL LOCATIONS</option>
+                  <option value="all" className="bg-[#0D1B8A]">ALL LOCATIONS</option>
                   {availableVenues.map(v => (
-                    <option key={v} value={v} className="bg-brand-900">{v}</option>
+                    <option key={v} value={v} className="bg-[#0D1B8A]">{v}</option>
                   ))}
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 border-l border-white/10 pl-2">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40 border-l border-white/10 pl-2">
                   <ChevronDown size={12} />
                 </div>
               </div>
 
               <div className="relative">
-                <Layers size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <Layers size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
                 <select
                   value={selectedBatch}
                   onChange={e => setSelectedBatch(e.target.value)}
-                  className="w-full sm:w-auto bg-white/5 hover:bg-white/10 active:bg-white/10 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
+                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20 active:bg-white/20 text-white font-bold text-[10px] uppercase tracking-widest pl-8 pr-8 py-2.5 rounded-xl border-none outline-none cursor-pointer appearance-none sm:min-w-[140px] transition-all"
                 >
-                  <option value="all" className="bg-brand-900">ALL BATCHES</option>
+                  <option value="all" className="bg-[#0D1B8A]">ALL BATCHES</option>
                   {availableBatches.map(b => (
-                    <option key={b} value={b} className="bg-brand-900">{b}</option>
+                    <option key={b} value={b} className="bg-[#0D1B8A]">{b}</option>
                   ))}
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 border-l border-white/10 pl-2">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40 border-l border-white/10 pl-2">
                   <ChevronDown size={12} />
                 </div>
               </div>
@@ -500,11 +504,11 @@ export const AdminDashboard: React.FC = () => {
           {/* KPI grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-brand-950/50 border-[#CCFF00]/15 shadow-[0_0_20px_rgba(204,255,0,0.05)]' },
-              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/6 border-emerald-500/15' : 'bg-brand-950/50 border-white/10' },
-              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-brand-950/50 border-white/10' },
-              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/6 border-red-500/15' : 'bg-brand-950/50 border-white/10' },
-              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/6 border-amber-500/15' : 'bg-brand-950/50 border-white/10' },
+              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-black/20 border-white/10 shadow-[0_0_20px_rgba(204,255,0,0.05)]' },
+              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-black/20 border-white/10' },
+              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-black/20 border-white/10' },
+              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/10 border-red-500/20' : 'bg-black/20 border-white/10' },
+              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-black/20 border-white/10' },
             ].map((k, i) => (
               <div key={i} className={`rounded-3xl border p-5 group transition-all duration-500 hover:scale-[1.02] ${k.accent}`}>
                 <div className="flex items-center justify-between mb-3">
@@ -512,7 +516,7 @@ export const AdminDashboard: React.FC = () => {
                   <span style={{ color: k.color }} className="opacity-80 group-hover:opacity-100 transition-opacity">{k.icon}</span>
                 </div>
                 <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color }}>{k.value}</p>
-                <p className="text-[10px] font-black italic text-white/60 mt-2.5">{k.sub}</p>
+                <p className="text-[10px] font-black italic text-white/50 mt-2.5">{k.sub}</p>
               </div>
             ))}
           </div>
@@ -521,18 +525,18 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Alerts ─────────────────────────────────────────────────────────── */}
       {alertItems.length > 0 && (
-        <div className="bg-brand-900 rounded-[2rem] border border-white/[0.06] overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-white/[0.05] flex items-center gap-2">
-            <AlertTriangle size={12} className="text-amber-400" />
+        <div className="glass-card rounded-[2rem] border border-white/10 overflow-hidden ring-1 ring-white/5">
+          <div className="px-5 py-3.5 border-b border-white/10 flex items-center gap-2 bg-black/5">
+            <AlertTriangle size={12} className="text-amber-400 font-bold" />
             <p className="text-[9px] font-black text-white/60 uppercase italic tracking-[0.3em]">ACTION REQUIRED</p>
           </div>
           <div className="p-3 flex flex-wrap gap-2">
             {alertItems.map(a => (
-              <div key={a.id} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-[1.25rem] border ${alertStyle[a.severity]}`}>
+              <div key={a.id} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-[1.25rem] border backdrop-blur-md ${alertStyle[a.severity]}`}>
                 {a.icon}
                 <div>
-                  <p className="text-[10px] font-black italic leading-tight">{a.label}</p>
-                  <p className="text-[8px] font-bold italic opacity-60">{a.detail}</p>
+                  <p className="text-[10px] font-black italic leading-tight text-white">{a.label}</p>
+                  <p className="text-[8px] font-bold italic opacity-60 text-white/80">{a.detail}</p>
                 </div>
               </div>
             ))}
@@ -542,9 +546,9 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Academy League Rankings ─────────────────────────────────────────── */}
       {leagueRankings.length > 0 && (
-        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden">
+        <div className="glass-card rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden ring-1 ring-white/5">
           {/* Header */}
-          <div className="px-5 sm:px-8 py-5 border-b border-white/[0.05] flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="px-5 sm:px-8 py-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center gap-3 bg-black/5">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-2xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center">
                 <Medal size={14} className="text-[#CCFF00]" />
@@ -562,7 +566,7 @@ export const AdminDashboard: React.FC = () => {
                 { dot: 'bg-brand-500', label: 'Attendance 35%' },
                 { dot: 'bg-brand-accent', label: 'Skill Metrics 25%' },
               ].map((l, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-[9px] font-black italic text-white/50 bg-black/40 border border-white/10 px-3 py-1.5 rounded-xl">
+                <span key={i} className="flex items-center gap-1.5 text-[9px] font-black italic text-white/50 bg-black/20 border border-white/5 px-3 py-1.5 rounded-xl">
                   <span className={`w-1.5 h-1.5 rounded-full ${l.dot} shadow-[0_0_8px_currentColor]`} />{l.label}
                 </span>
               ))}
@@ -573,7 +577,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="overflow-x-auto custom-scrollbar-tactical">
             <table className="w-full min-w-[900px]">
               <thead>
-                <tr className="border-b border-white/[0.06] bg-black/20">
+                <tr className="border-b border-white/[0.04] bg-black/10">
                   {['RANK', 'PLAYER PROFILE', 'COMPOSITE', 'RATING', 'ATTENDANCE', 'SKILLS', 'TREND', 'DEVELOPMENT'].map((h, i) => (
                     <th key={i} className={`px-6 py-4 text-[9px] font-black italic text-white/60 uppercase tracking-[0.2em] ${
                       i === 0 ? 'w-20 text-center' : i === 1 ? 'text-left' : 'text-center'
@@ -581,7 +585,7 @@ export const AdminDashboard: React.FC = () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.03]">
+              <tbody className="divide-y divide-white/[0.02]">
                 {leagueRankings.map((r) => {
                   const trendConfig = {
                     up: { icon: <ArrowUp size={11} />, color: '#4ade80', label: `+${r.posChange}`, bg: 'bg-emerald-500/10 border-emerald-500/20' },
@@ -671,13 +675,13 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Legend footer */}
-          <div className="px-5 sm:px-8 py-3.5 border-t border-white/[0.04] flex flex-wrap gap-4">
+          <div className="px-5 sm:px-8 py-3.5 border-t border-white/[0.04] flex flex-wrap gap-4 bg-black/5">
             {[
               { icon: <ArrowUp size={9} className="text-emerald-400" />, label: 'Climbing vs last evaluation', color: 'text-emerald-400' },
               { icon: <ArrowDown size={9} className="text-red-400" />, label: 'Dropped vs last evaluation', color: 'text-red-400' },
               { icon: <Zap size={9} className="text-amber-400" />, label: 'First time ranked', color: 'text-amber-400' },
             ].map((l, i) => (
-              <span key={i} className={`flex items-center gap-1 text-[8px] font-black italic ${l.color} opacity-50`}>{l.icon}{l.label}</span>
+              <span key={i} className={`flex items-center gap-1 text-[8px] font-black italic ${l.color} opacity-80`}>{l.icon}{l.label}</span>
             ))}
           </div>
         </div>
@@ -685,11 +689,11 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Filtered Player Roster (Visible when a specific venue/batch is selected) ── */}
       {(selectedVenue !== 'all' || selectedBatch !== 'all') && playerRoster.length > 0 && (
-        <div className="bg-brand-900 rounded-[2.5rem] border border-white/[0.06] shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="px-5 sm:px-8 py-5 border-b border-white/[0.05] flex items-center gap-3">
+        <div className="glass-card rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 ring-1 ring-white/5">
+          <div className="px-5 sm:px-8 py-5 border-b border-white/10 flex items-center gap-3 bg-black/5">
             <Users size={14} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/60 tracking-[0.25em]">ATTENDANCE & EVALUATION ROSTER</h3>
-            <span className="ml-auto text-[9px] font-black text-white/40 bg-brand-950 px-2.5 py-1 rounded-lg">{playerRoster.length} PLAYERS</span>
+            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">ATTENDANCE & EVALUATION ROSTER</h3>
+            <span className="ml-auto text-[9px] font-black text-white/40 bg-black/30 px-2.5 py-1 rounded-lg ring-1 ring-white/5">{playerRoster.length} PLAYERS</span>
           </div>
           <div className="divide-y divide-white/[0.04]">
             {playerRoster.map((p, i) => (
@@ -735,13 +739,13 @@ export const AdminDashboard: React.FC = () => {
       {selectedBatch === 'all' && activeCentres.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
-            <Zap size={12} className="text-[#CCFF00]" />
-            <p className="text-[10px] font-black text-brand-900/40 uppercase italic tracking-[0.35em]">
+            <Zap size={12} className="text-brand-900" />
+            <p className="text-[10px] font-black text-brand-900/60 uppercase italic tracking-[0.35em]">
               {selectedVenue === 'all' ? 'OPERATIONAL CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
             </p>
             <div className="ml-auto flex items-center gap-2">
-                <span className="text-[9px] font-black text-[#CCFF00] bg-[#CCFF00]/10 border border-[#CCFF00]/20 px-3 py-1 rounded-full uppercase italic tracking-wider shadow-[0_0_15px_rgba(204,255,0,0.1)]">LIVE STATUS</span>
-                <span className="text-[9px] font-black text-white/40 bg-brand-950 px-3 py-1 rounded-lg border border-white/10">{activeCentres.length} CENTRES</span>
+                <span className="text-[9px] font-black text-brand-900 bg-brand-900/5 border border-brand-900/10 px-3 py-1 rounded-full uppercase italic tracking-wider">LIVE STATUS</span>
+                <span className="text-[9px] font-black text-brand-900/40 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">{activeCentres.length} CENTRES</span>
             </div>
           </div>
           <div className={`grid gap-4 ${activeCentres.length === 1 ? 'grid-cols-1 max-w-sm' : activeCentres.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -754,13 +758,13 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* 7-day chart */}
-        <div className="lg:col-span-2 bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="lg:col-span-2 glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden ring-1 ring-white/5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Clock size={13} className="text-[#CCFF00]" />
-              <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">ATTENDANCE TREND (7 DAYS)</h3>
+              <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">ATTENDANCE TREND (7 DAYS)</h3>
             </div>
-            <div className="flex gap-3 text-[9px] font-black italic text-white/20">
+            <div className="flex gap-3 text-[9px] font-black italic text-white/40">
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[#CCFF00] inline-block rounded" /> Present</span>
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-400 inline-block rounded" /> Absent</span>
             </div>
@@ -769,10 +773,10 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Top performers */}
-        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl flex flex-col">
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl flex flex-col ring-1 ring-white/5">
           <div className="flex items-center gap-2 mb-5">
             <Star size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">TOP RANKED PLAYERS</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">TOP RANKED PLAYERS</h3>
           </div>
           {topPerformers.length > 0 ? (
             <div className="flex-1 space-y-1">
@@ -806,10 +810,10 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         {/* Age distribution */}
-        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl ring-1 ring-white/5">
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">DEMOGRAPHIC DISTRIBUTION</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">DEMOGRAPHIC DISTRIBUTION</h3>
           </div>
           {ageAll.length > 0 ? (
             <div className="space-y-2.5">
@@ -818,8 +822,8 @@ export const AdminDashboard: React.FC = () => {
                 const total = ageAll.reduce((s, x) => s + x.value, 0);
                 return (
                   <div key={g.name} className="flex items-center gap-3">
-                    <span className="text-[9px] font-black uppercase italic text-white/30 w-8 flex-shrink-0">{g.name}</span>
-                    <div className="flex-1 h-6 bg-brand-950/60 rounded-xl overflow-hidden">
+                    <span className="text-[9px] font-black uppercase italic text-white/40 w-8 flex-shrink-0">{g.name}</span>
+                    <div className="flex-1 h-6 bg-black/20 rounded-xl overflow-hidden">
                       <div className="h-full rounded-xl flex items-center px-2.5 transition-all duration-1000"
                         style={{ width: `${(g.value / max) * 100}%`, background: g.color, minWidth: '2rem' }}>
                         <span className="text-[10px] font-black italic text-brand-950">{g.value}</span>
@@ -838,10 +842,10 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Activity feed */}
-        <div className="bg-brand-900 p-6 sm:p-8 rounded-[2.5rem] border border-white/[0.06] shadow-xl">
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl ring-1 ring-white/5">
           <div className="flex items-center gap-2 mb-5">
             <Radio size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white/50 tracking-[0.25em]">RECENT ACTIVITY</h3>
+            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">RECENT ACTIVITY</h3>
           </div>
           {activityFeed.length > 0 ? (
             <div className="space-y-0.5">
@@ -869,13 +873,13 @@ export const AdminDashboard: React.FC = () => {
 
       {/* ── Inactive Centres (collapsed) ───────────────────────────────────── */}
       {emptyCentres.length > 0 && (
-        <div className="bg-brand-bg rounded-[2rem] border border-white/[0.04] px-5 py-4">
+        <div className="bg-slate-100 rounded-[2rem] border border-slate-200 px-5 py-4">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-white/15" />
-            <p className="text-[9px] font-black text-white/20 uppercase italic tracking-[0.3em]">
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+            <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-[0.3em]">
               {emptyCentres.length} INACTIVE CENTRE{emptyCentres.length > 1 ? 'S' : ''} (NO PLAYERS ENROLLED)
             </p>
-            <p className="text-[9px] font-bold italic text-white/15 ml-auto">{emptyCentres.map(c => c.name).join(' · ')}</p>
+            <p className="text-[9px] font-bold italic text-slate-400 ml-auto">{emptyCentres.map(c => c.name).join(' · ')}</p>
           </div>
         </div>
       )}

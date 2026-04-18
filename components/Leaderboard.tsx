@@ -121,26 +121,26 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
             {/* ══════════════════════════════════════════════
                 HERO HEADER — dark, dramatic, high contrast
             ══════════════════════════════════════════════ */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-900 border border-white/5 shadow-2xl group">
-                {/* Mesh gradient */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(251,191,36,0.18),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.12),_transparent)] opacity-40" />
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
-                    <Trophy size={160} className="text-white" />
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-brand-100 shadow-xl group">
+                {/* Mesh gradient — subtle on white */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(59,130,246,0.05),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.03),_transparent)] opacity-40" />
+                <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
+                    <Trophy size={160} className="text-brand-950" />
                 </div>
                 
                 <div className="relative z-10 p-8 md:p-12 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
-                            <div className="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/30">
-                                <Trophy size={18} className="text-brand-900 fill-brand-900" />
+                            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center shadow-lg shadow-brand-500/5">
+                                <Trophy size={18} className="text-brand-500 fill-brand-500" />
                             </div>
-                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.4em] italic leading-none">MONTHLY_POINTS_RACE</span>
+                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">MONTHLY_POINTS_RACE</span>
                         </div>
-                        <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
-                            HALL OF <span className="text-brand-primary">FAME</span>
+                        <h1 className="text-5xl font-black text-brand-950 italic uppercase tracking-tighter leading-none">
+                            HALL OF <span className="text-brand-500">FAME</span>
                         </h1>
-                        <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] mt-4 italic">Academy Excellence // Elite Performance Metrics</p>
+                        <p className="text-brand-400 font-black uppercase text-[10px] tracking-[0.4em] mt-4 italic">Academy Excellence // Elite Performance Metrics</p>
 
                         {leader && (
                             <div className="mt-6 inline-flex items-center gap-2 bg-amber-400/15 border border-amber-400/30 px-5 py-2.5 rounded-full backdrop-blur-sm group/leader transition-all hover:bg-amber-400/25">
@@ -151,26 +151,26 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                         </div>
 
                         <div className="flex flex-wrap gap-3 shrink-0">
-                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl backdrop-blur-sm">
-                                <Calendar size={14} className="text-brand-400" />
+                            <div className="flex items-center gap-2 bg-brand-50 border border-brand-100 px-4 py-3 rounded-2xl transition-all hover:border-brand-300">
+                                <Calendar size={14} className="text-brand-500" />
                                 <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-                                    className="bg-transparent text-white font-black text-sm outline-none cursor-pointer w-28" />
+                                    className="bg-transparent text-brand-950 font-black text-sm outline-none cursor-pointer w-28" />
                             </div>
                             <button onClick={exportToPDF} disabled={isExporting}
-                                className="flex items-center gap-2 bg-amber-400 text-brand-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-300 active:scale-95 transition-all shadow-lg shadow-amber-400/25">
+                                className="flex items-center gap-2 bg-brand-950 text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-800 active:scale-95 transition-all shadow-lg shadow-brand-950/10">
                                 {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Printer size={14} />} Report
                             </button>
                         </div>
                     </div>
 
                     {/* Tab switcher */}
-                    <div className="mt-6 flex gap-1 bg-white/5 border border-white/10 p-1 rounded-2xl w-fit">
+                    <div className="mt-6 flex gap-1 bg-brand-50 border border-brand-100 p-1 rounded-2xl w-fit">
                         <button onClick={() => setTab('mvp')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${tab === 'mvp' ? 'bg-amber-400 text-brand-950 shadow-lg' : 'text-brand-400 hover:text-white'}`}>
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${tab === 'mvp' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}>
                             <Trophy size={12} /> MVP Points
                         </button>
                         <button onClick={() => setTab('stats')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${tab === 'stats' ? 'bg-brand-500 text-white shadow-lg' : 'text-brand-400 hover:text-white'}`}>
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${tab === 'stats' ? 'bg-brand-950 text-white shadow-lg' : 'text-brand-400 hover:text-brand-600'}`}>
                             <Activity size={12} /> Match Stats
                         </button>
                     </div>

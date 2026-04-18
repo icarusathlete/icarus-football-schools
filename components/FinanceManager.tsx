@@ -296,13 +296,13 @@ export const FinanceManager: React.FC = () => {
             <div className="flex flex-col space-y-8">
                 <>
                     {/* Header Section */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-950/40 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-8 md:p-12 !rounded-[2.5rem] relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><DollarSign size={120} className="text-white" /></div>
                         <div className="relative z-10 space-y-2">
                             <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
                                 FINANCE <span className="text-brand-primary font-black">DECK</span>
                             </h2>
-                            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-2">Revenue Tracking // Transaction Records</p>
+                            <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.4em] italic pt-2">Revenue Tracking // Transaction Records</p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
@@ -313,11 +313,11 @@ export const FinanceManager: React.FC = () => {
                                     <select
                                         value={feeStatusFilter}
                                         onChange={e => setFeeStatusFilter(e.target.value)}
-                                        className="w-full pl-12 pr-10 py-4 bg-brand-950 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:border-brand-primary/40 transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-white/20 transition-all focus:ring-4 focus:ring-brand-primary/10"
                                     >
-                                        <option value="All" className="bg-brand-950 text-white">All Statuses</option>
-                                        <option value="Pending" className="bg-brand-950 text-white">Pending / Overdue</option>
-                                        <option value="Paid" className="bg-brand-950 text-white">Fees Paid</option>
+                                        <option value="All" className="bg-brand-secondary text-white">All Statuses</option>
+                                        <option value="Pending" className="bg-brand-secondary text-white">Pending / Overdue</option>
+                                        <option value="Paid" className="bg-brand-secondary text-white">Fees Paid</option>
                                     </select>
                                 </div>
                             </div>
@@ -329,25 +329,25 @@ export const FinanceManager: React.FC = () => {
                                     <select
                                         value={selectedVenue}
                                         onChange={e => setSelectedVenue(e.target.value)}
-                                        className="w-full pl-12 pr-10 py-4 bg-brand-950 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:border-brand-primary/40 transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-white/20 transition-all focus:ring-4 focus:ring-brand-primary/10"
                                     >
-                                        <option value="All" className="bg-brand-950 text-white">All Locations</option>
+                                        <option value="All" className="bg-brand-secondary text-white">All Locations</option>
                                         {venues.map(v => (
-                                            <option key={v.id} value={v.name} className="bg-brand-950 text-white">{v.name}</option>
+                                            <option key={v.id} value={v.name} className="bg-brand-secondary text-white">{v.name}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="bg-white/[0.03] backdrop-blur-md px-8 py-5 rounded-[2rem] border border-white/10 flex flex-row items-center justify-between gap-6 w-full sm:w-auto shadow-xl">
+                            <div className="bg-white/10 backdrop-blur-md px-8 py-5 rounded-[2rem] border border-white/20 flex flex-row items-center justify-between gap-6 w-full sm:w-auto shadow-xl">
                                 <div>
-                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
+                                    <p className="text-[9px] font-black text-white/60 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-2xl font-black text-brand-primary italic">₹{totalCollected}</span>
-                                        <span className="text-[10px] font-bold text-white/20">/ ₹{totalDue}</span>
+                                        <span className="text-[10px] font-bold text-white/40">/ ₹{totalDue}</span>
                                     </div>
                                 </div>
-                                <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/20 shadow-glow-sm">
+                                <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 flex items-center justify-center text-brand-primary border border-brand-primary/30 shadow-glow-sm">
                                     <Trophy size={20} />
                                 </div>
                             </div>
@@ -356,10 +356,10 @@ export const FinanceManager: React.FC = () => {
 
                     {/* Search Bar */}
                     <div className="relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
                         <input
                             placeholder="SEARCH_STUDENT_ATHLETES_..."
-                            className="w-full pl-16 pr-8 py-5 bg-white/[0.03] border border-white/10 rounded-[2rem] shadow-2xl focus:border-brand-primary outline-none transition-all font-black text-xs text-white placeholder:text-white/20 italic tracking-[0.2em] backdrop-blur-xl"
+                            className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 rounded-[2rem] shadow-sm focus:border-brand-primary outline-none transition-all font-black text-xs text-slate-900 placeholder:text-slate-300 italic tracking-[0.2em]"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -465,7 +465,7 @@ export const FinanceManager: React.FC = () => {
                                 </div>
                             )
                         })}
-                        {filteredPlayers.length === 0 && <div className="col-span-full text-center text-white/60 font-black uppercase tracking-widest py-10 italic">No players detected.</div>}
+                        {filteredPlayers.length === 0 && <div className="col-span-full text-center text-slate-400 font-black uppercase tracking-widest py-20 italic bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">No student athletes found in records.</div>}
                     </div>
                 </>
             </div>
@@ -473,70 +473,68 @@ export const FinanceManager: React.FC = () => {
 
             {/* Invoice Generator Modal */}
             {isInvoiceModalOpen && selectedPlayerForInvoice && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/90 backdrop-blur-xl animate-in fade-in">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in">
                     {/* On mobile: the whole sheet scrolls (overflow-y-auto + overscroll-y-contain stops scroll bleeding to body).
                         On desktop (md+): height is fixed at 95dvh and each panel scrolls independently. */}
                     <div
-                        className="bg-brand-900 rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-y-auto overscroll-y-contain md:overflow-hidden border border-white/10"
+                        className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-y-auto overscroll-y-contain md:overflow-hidden border border-slate-200"
                         style={{maxHeight: '95dvh'}}
                     >
 
                          {/* Control Panel: full-width on mobile, sidebar on desktop */}
-                        <div className="w-full md:w-1/3 bg-brand-950 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-white/10 md:overflow-y-auto flex-shrink-0">
+                        <div className="w-full md:w-1/3 bg-slate-50 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-slate-100 md:overflow-y-auto flex-shrink-0">
                             <div className="flex items-center justify-between mb-6 sm:mb-10">
-                                <h3 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-primary">GEN</span></h3>
-                                <button onClick={() => setInvoiceModalOpen(false)} className="p-3 hover:bg-white/5 rounded-2xl text-white/40 hover:text-brand-primary transition-all border border-transparent hover:border-white/10"><X size={22} /></button>
+                                <h3 className="text-xl sm:text-2xl font-black text-slate-900 italic uppercase tracking-tighter">INVOICE <span className="text-brand-primary">GEN</span></h3>
+                                <button onClick={() => setInvoiceModalOpen(false)} className="p-3 hover:bg-slate-200/50 rounded-2xl text-slate-400 hover:text-brand-primary transition-all border border-transparent hover:border-slate-200"><X size={22} /></button>
                             </div>
 
                             <div className="space-y-5 sm:space-y-8">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Invoice No</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Invoice No</label>
                                     <input
                                         type="text"
                                         value={invoiceForm.invoiceNo}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, invoiceNo: e.target.value })}
-                                        className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-white italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Invoice Date</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Invoice Date</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.date}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, date: e.target.value })}
-                                        className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-white italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
-                                        style={{ colorScheme: 'dark' }}
+                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Valid Until</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Valid Until</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.validTill}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, validTill: e.target.value })}
-                                        className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-white italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
-                                        style={{ colorScheme: 'dark' }}
+                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Amount (₹)</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Amount (₹)</label>
                                         <input
                                             type="number"
                                             value={invoiceForm.amount}
                                             onChange={e => setInvoiceForm({ ...invoiceForm, amount: parseInt(e.target.value) })}
-                                            className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Payment Mode</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Payment Mode</label>
                                         <select
                                             value={invoiceForm.paymentMode}
                                             onChange={e => setInvoiceForm({ ...invoiceForm, paymentMode: e.target.value as any })}
-                                            className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest bg-brand-950 transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest appearance-none transition-all focus:ring-4 focus:ring-brand-primary/10"
                                         >
                                             <option value="Cash">Cash</option>
                                             <option value="UPI">UPI Payment</option>
@@ -559,13 +557,13 @@ export const FinanceManager: React.FC = () => {
 
                                 <button
                                     onClick={handleDownloadPDF}
-                                    className="w-full py-5 bg-white/[0.03] border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 hover:border-brand-primary/30 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic backdrop-blur-md shadow-xl active:scale-95"
+                                    className="w-full py-5 bg-slate-100 border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic shadow-md active:scale-95"
                                 >
                                     <Download size={20} className="text-brand-primary" />
                                     DOWNLOAD PDF
                                 </button>
 
-                                <p className="text-[9px] text-center text-white/20 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
+                                <p className="text-[9px] text-center text-slate-400 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
                             </div>
                         </div>
 
@@ -706,22 +704,22 @@ export const FinanceManager: React.FC = () => {
 
             {/* Confirmation Modal */}
             {confirmPaymentId && (
-                <div className="fixed inset-0 bg-brand-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-                    <div className="glass-card p-10 max-w-sm w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-300 !rounded-[3rem] border border-white/10 text-center">
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white p-10 max-w-sm w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-300 !rounded-[3rem] border border-slate-200 text-center shadow-3xl">
                         <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center text-brand-primary mb-6 shadow-glow-sm border border-brand-primary/20">
+                            <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center text-brand-primary mb-6 shadow-sm border border-brand-primary/20">
                                 <Check size={40} strokeWidth={4} />
                             </div>
                             
-                            <h3 className="font-black text-white text-2xl tracking-tighter uppercase italic mb-2 leading-none">Confirm <span className="text-brand-primary">Payment</span></h3>
-                            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest italic mb-8">
+                            <h3 className="font-black text-slate-900 text-2xl tracking-tighter uppercase italic mb-2 leading-none">Confirm <span className="text-brand-primary">Payment</span></h3>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest italic mb-8">
                                 ARE YOU SURE YOU WANT TO MARK THESE FEES AS PAID? THIS ACTION CANNOT BE UNDONE.
                             </p>
                             
                             <div className="flex gap-4 w-full">
                                 <button 
                                     onClick={() => setConfirmPaymentId(null)}
-                                    className="flex-1 bg-white/[0.03] hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all border border-white/10 active:scale-95"
+                                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all border border-slate-200 active:scale-95"
                                 >
                                     Cancel
                                 </button>
@@ -730,7 +728,7 @@ export const FinanceManager: React.FC = () => {
                                         updateStatus(confirmPaymentId, 'PAID');
                                         setConfirmPaymentId(null);
                                     }}
-                                    className="flex-1 bg-gradient-to-br from-brand-primary to-[#A3D900] text-brand-secondary font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all shadow-xl shadow-brand-primary/20 border border-white/10 active:scale-105"
+                                    className="flex-1 glass-card text-white font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all shadow-xl active:scale-105"
                                 >
                                     Confirm
                                 </button>

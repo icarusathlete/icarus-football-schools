@@ -207,9 +207,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
            </button>
         </div>
       </aside>
-      <header className="md:hidden bg-brand-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-2xl overflow-hidden">
+      <header className="md:hidden bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm overflow-hidden">
          <div className="flex items-center gap-4 overflow-hidden flex-1">
-            <div className="shrink-0 w-10 h-10 rounded-full shadow-2xl border border-brand-500/20 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/10 active:scale-95 transition-transform">
+            <div className="shrink-0 w-10 h-10 rounded-full shadow-sm border border-slate-200 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/5 active:scale-95 transition-transform">
                 {settings.logoUrl ? (
                     <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-full" />
                 ) : (
@@ -217,21 +217,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 )}
             </div>
             <div className="overflow-hidden flex-1">
-                <span className="font-black text-white tracking-tighter uppercase text-sm block leading-none truncate" 
+                <span className="font-black text-slate-900 tracking-tighter uppercase text-sm block leading-none truncate" 
                       style={{ fontFamily: settings.fontFamily }}>
                     {settings.name}
                 </span>
-                <span className="text-[8px] font-black text-white/60 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
             </div>
          </div>
-         <button onClick={onLogout} className="shrink-0 p-3 bg-white/5 text-brand-600 hover:text-red-500 rounded-xl transition-all border border-white/5 ml-4">
+         <button onClick={onLogout} className="shrink-0 p-3 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-all border border-slate-100 ml-4">
             <LogOut size={20} />
          </button>
       </header>
       <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative custom-scrollbar scroll-smooth box-border transition-colors duration-500">
         <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
       </main>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)] bg-brand-950 border-t border-white/10" >
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(13,27,138,0.3)] bg-brand-secondary border-t border-white/10" >
         <div className="flex justify-around items-center h-20">
           {allNavItems.slice(0, 4).map(item => <BottomNavItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
           {allNavItems.length > 4 && (
@@ -246,13 +246,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         </div>
       </nav>
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-950/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 backdrop-blur-3xl bg-brand-secondary/95 md:hidden flex flex-col p-8 overflow-y-auto animate-in fade-in duration-300">
            <div className="flex justify-between items-center mb-12">
                 <div>
                     <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white leading-none">ADMIN <span className="text-brand-500">DASHBOARD</span></h2>
-                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.3em] mt-3">Academy Management Portal</p>
+                    <p className="text-[10px] text-brand-500/60 font-black uppercase tracking-[0.3em] mt-3">Academy Management Portal</p>
                 </div>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-brand-500/10 rounded-[2rem] text-brand-500 hover:text-white border border-brand-500/30 shadow-2xl transition-all active:scale-90">
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-white/5 rounded-[2rem] text-white hover:text-brand-500 border border-white/10 shadow-2xl transition-all active:scale-90">
                     <X size={28} />
                 </button>
            </div>
@@ -262,7 +262,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 <button 
                     key={item.id} 
                     onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }} 
-                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all duration-500 ${activeTab === item.id ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-[0_10px_30px_rgba(14,165,233,0.2)] scale-[1.05] z-10' : 'bg-brand-950/50 border-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}
+                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all duration-500 ${activeTab === item.id ? 'bg-brand-500 text-brand-950 border-brand-500 shadow-[0_10px_30px_rgba(14,165,233,0.2)] scale-[1.05] z-10' : 'bg-white/5 border-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}
                 >
                     <div className={`p-4 rounded-2xl mb-4 ${activeTab === item.id ? 'bg-brand-950/10' : 'bg-white/5 border border-white/10'}`}>
                         <item.icon size={28} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
