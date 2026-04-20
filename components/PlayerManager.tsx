@@ -624,7 +624,7 @@ export const PlayerManager: React.FC = () => {
                             { label: 'ASSET DESIGNATION', val: editingPlayer.fullName, key: 'fullName', type: 'text' },
                             { label: 'OPERATIONAL SECTOR', val: editingPlayer.venue, key: 'venue', type: 'select', opts: venues },
                             { label: 'TACTICAL DIVISION', val: editingPlayer.batch, key: 'batch', type: 'select', opts: batches },
-                            { label: 'COMBAT POSITION', val: editingPlayer.position, key: 'position', type: 'select', opts: ['Forward','Midfielder','Defender','Goalkeeper','TBD'] },
+                            { label: 'COMBAT POSITION', val: editingPlayer.position, key: 'position', type: 'select', opts: ['Forward','Midfielder','Defender','Goalkeeper'] },
                             { label: 'COMMS FREQUENCY', val: editingPlayer.contactNumber, key: 'contactNumber', type: 'text' },
                             { label: 'DIGITAL ADDRESS', val: editingPlayer.email || '', key: 'email', type: 'email' },
                             { label: 'GENESIS DATE (DOB)', val: editingPlayer.dateOfBirth, key: 'dateOfBirth', type: 'date' },

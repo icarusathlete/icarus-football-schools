@@ -40,31 +40,33 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in">
-      <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className={`${type === 'danger' ? 'bg-red-50 border-red-100' : 'bg-brand-50 border-brand-100'} px-8 py-6 border-b flex items-center gap-4`}>
-          <div className={`p-2.5 ${type === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-brand-500/10 text-brand-500'} rounded-xl`}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in">
+      <div className="glass-card w-full max-w-md rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden animate-in zoom-in-95 duration-200 ring-1 ring-white/5">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
+        
+        <div className={`${type === 'danger' ? 'bg-red-500/10 border-red-500/20' : 'bg-white/5 border-white/10'} px-8 py-6 border-b flex items-center gap-4 relative`}>
+          <div className={`p-2.5 ${type === 'danger' ? 'bg-red-500/20 text-red-500 shadow-lg shadow-red-500/20' : 'bg-[#CCFF00]/10 text-[#CCFF00] shadow-lg shadow-[#CCFF00]/20'} rounded-xl border border-white/5`}>
             <AlertTriangle size={20} />
           </div>
-          <h3 className="font-black text-slate-900 uppercase tracking-tight text-lg italic">{title}</h3>
-          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-white rounded-xl text-slate-300 hover:text-slate-900 transition-all border border-transparent hover:border-slate-100 shadow-sm">
+          <h3 className="font-black text-white uppercase tracking-tight text-lg italic font-display">{title}</h3>
+          <button onClick={handleCancel} className="ml-auto p-2 hover:bg-white/5 rounded-xl text-white/20 hover:text-white transition-all border border-transparent hover:border-white/10">
             <X size={20} />
           </button>
         </div>
         
         <div className="p-8">
-          <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8 italic uppercase tracking-wider">{message}</p>
+          <p className="text-white/60 text-sm font-bold leading-relaxed mb-8 italic uppercase tracking-wider">{message}</p>
           
           {requireTypeToConfirm && (
-            <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+            <div className="mb-8 p-6 bg-white/5 rounded-2xl border border-white/10 shadow-inner ring-1 ring-white/5">
+              <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">
                 Type "{requireTypeToConfirm}" to confirm
               </label>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-5 py-3.5 text-sm font-black text-slate-900 placeholder:text-slate-300 focus:border-brand-500 outline-none transition-all shadow-sm italic uppercase tracking-widest"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-black text-white placeholder:text-white/20 focus:border-[#CCFF00] outline-none transition-all shadow-sm italic uppercase tracking-widest"
                 placeholder={requireTypeToConfirm}
               />
             </div>
@@ -73,7 +75,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <div className="flex gap-4">
             <button
               onClick={handleCancel}
-              className="flex-1 py-4 px-6 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-900 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all border border-slate-200 shadow-sm italic"
+              className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all border border-white/10 shadow-sm italic"
             >
               Cancel
             </button>
@@ -82,8 +84,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               disabled={requireTypeToConfirm ? inputValue !== requireTypeToConfirm : false}
               className={`flex-1 py-4 px-6 font-black uppercase tracking-[0.15em] text-[10px] rounded-[1.5rem] transition-all shadow-xl transform active:scale-95 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed italic ${
                 type === 'danger' 
-                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20' 
-                  : 'bg-brand-500 hover:bg-brand-600 text-slate-900 shadow-brand-500/20'
+                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/30' 
+                  : 'bg-[#CCFF00] hover:scale-[1.02] text-brand-950 shadow-[#CCFF00]/30'
               }`}
             >
               {confirmText}

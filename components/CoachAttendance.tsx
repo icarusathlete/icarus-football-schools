@@ -483,7 +483,7 @@ export const CoachAttendance: React.FC = () => {
                               <span className="text-[8px] font-black text-white/40 uppercase italic tracking-tighter">#{player.memberId}</span>
                             </div>
                             <div className="flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 rounded border border-brand-400/20">
-                              <span className="text-[8px] font-black text-brand-400 uppercase italic tracking-tighter">{player.position || 'TBD'}</span>
+                              <span className="text-[8px] font-black text-brand-400 uppercase italic tracking-tighter">{player.position || ''}</span>
                             </div>
                           </div>
                         </div>

@@ -209,32 +209,53 @@ export const FinanceManager: React.FC = () => {
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff',
-                windowWidth: invoiceRef.current.scrollWidth,
-                windowHeight: invoiceRef.current.scrollHeight,
+                // Use fixed dimensions for the capture viewport to ensure consistency
+                windowWidth: 595,
+                windowHeight: 842,
+                width: 595,
+                height: 842,
                 y: 0,
-                x: 0
+                x: 0,
+                onclone: (clonedDoc) => {
+                    // Reset the scale and centering of the element in the clone
+                    // so html2canvas renders it at 100% size without offsets.
+                    const el = clonedDoc.getElementById('icarus-invoice-capture');
+                    if (el) {
+                        el.style.transform = 'none';
+                        el.style.left = '0';
+                        el.style.marginLeft = '0';
+                        el.style.top = '0';
+                    }
+                }
             });
 
-            const imgData = canvas.toDataURL('image/png');
+            const imgData = canvas.toDataURL('image/png', 1.0);
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'px',
-                format: [canvas.width / 3, canvas.height / 3]
+                format: [595, 842]
             });
 
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 3, canvas.height / 3);
+            // Since we captured the canvas at scale:3, we render it at the base dimensions
+            pdf.addImage(imgData, 'PNG', 0, 0, 595, 842, undefined, 'FAST');
             pdf.save(`Invoice_${selectedPlayerForInvoice?.fullName.replace(/\s+/g, '_')}_${invoiceForm.invoiceNo}.pdf`);
+        } catch (error) {
+            console.error('Invoice Export Error:', error);
         } finally {
             window.scrollTo(0, originalScrollPos);
         }
     };
 
-    // Tax Calculation Logic (18% GST included in Total)
+    // Tax Calculation Logic (18% GST inclusive: 9% CGST + 9% SGST)
     const calculateTaxes = (total: number) => {
+        // CGST = (Total - (Total / 1.18)) / 2
+        const gstHalf = Math.round(((total - (total / 1.18)) / 2) * 100) / 100;
+        const baseAmount = Math.round((total - (gstHalf * 2)) * 100) / 100;
+        
         return {
-            base: total,
-            cgst: 0,
-            sgst: 0,
+            base: baseAmount,
+            cgst: gstHalf,
+            sgst: gstHalf,
             total: total
         };
     };
@@ -581,6 +602,7 @@ export const FinanceManager: React.FC = () => {
                             }}>
                                 <div
                                     ref={invoiceRef}
+                                    id="icarus-invoice-capture"
                                     style={{ 
                                         position: 'absolute', 
                                         top: 0,
@@ -606,89 +628,90 @@ export const FinanceManager: React.FC = () => {
                                         }}
                                     />
 
-                                    {/* Absolute-positioned data overlay (v16 GOLDILOCKS "UP AND LEFT" CALIBRATION) */}
+                                    {/* Absolute-positioned data overlay (v19 GOLDILOCKS "FINAL" CALIBRATION) */}
                                     <div style={{ position: 'absolute', inset: 0, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10.5px', color: '#111', pointerEvents: 'none', zIndex: 10 }}>
 
                                         {/* ── HEADER BOX (Top Right) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '141px', left: '412px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '133px', left: '412px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.invoiceNo.replace('INV-', '')}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '141px', left: '504px', fontWeight: 800, color: '#111' }}>
+                                        <span style={{ position: 'absolute', top: '133px', left: '504px', fontWeight: 800, color: '#111' }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
 
                                         {/* BILLED TO section - Corrected Data Mapping */}
-                                        <span style={{ position: 'absolute', top: '228px', left: '120px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '220px', left: '120px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.parentName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '228px', left: '331px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '220px', left: '331px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.email || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '253px', left: '120px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '245px', left: '120px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.fullName || ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '253px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
+                                        <span style={{ position: 'absolute', top: '245px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
                                             {invoiceForm.address || selectedPlayerForInvoice.address || ''}
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '279px', left: '120px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '271px', left: '120px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.contactNumber?.startsWith('+') 
                                                 ? selectedPlayerForInvoice.contactNumber 
                                                 : selectedPlayerForInvoice.contactNumber ? `+91 ${selectedPlayerForInvoice.contactNumber}` : ''}
                                         </span>
+                                        <span style={{ position: 'absolute', top: '271px', left: '331px', fontWeight: 700 }}>
+                                            {selectedPlayerForInvoice.position ? selectedPlayerForInvoice.position : ''}
+                                        </span>
 
                                         {/* ── PROGRAM DETAILS SECTION ──────────────── */}
-                                        <span style={{ position: 'absolute', top: '362px', left: '125px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '354px', left: '125px', fontWeight: 700 }}>
                                             {selectedPlayerForInvoice.program || 'Monthly Elite Training'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '362px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '354px', left: '335px', fontWeight: 700 }}>
                                             Mon – Fri
                                         </span>
 
-                                        <span style={{ position: 'absolute', top: '388px', left: '125px', fontWeight: 700, maxWidth: '210px' }}>
+                                        <span style={{ position: 'absolute', top: '380px', left: '125px', fontWeight: 700, maxWidth: '210px' }}>
                                             {selectedPlayerForInvoice.venue || 'Gaur City, Noida'}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '388px', left: '335px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '380px', left: '335px', fontWeight: 700 }}>
                                             Abhishek Begal
                                         </span>
 
                                         {/* ── PAYMENT TABLE ───────────────────────── */}
-                                        <div style={{ position: 'absolute', top: '498px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
+                                        <div style={{ position: 'absolute', top: '490px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
                                             ₹ {taxes.base}
                                         </div>
-                                        <div style={{ position: 'absolute', top: '524px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
-                                            ₹ 0
+                                        <div style={{ position: 'absolute', top: '516px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
+                                            ₹ {taxes.cgst}
                                         </div>
-                                        <div style={{ position: 'absolute', top: '550px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
-                                            ₹ 0
+                                        <div style={{ position: 'absolute', top: '542px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 700 }}>
+                                            ₹ {taxes.sgst}
                                         </div>
                                         {/* FINAL TOTAL — flush in text row */}
-                                        <div style={{ position: 'absolute', top: '576px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 850, color: '#fff' }}>
+                                        <div style={{ position: 'absolute', top: '568px', left: '425px', width: '120px', textAlign: 'left', fontWeight: 850, color: '#fff' }}>
                                             ₹ {taxes.total}
                                         </div>
-
+                                        
                                         {/* ── FOOTER BOX (Metadata) ────────────────── */}
-                                        <span style={{ position: 'absolute', top: '612px', left: '95px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '604px', left: '95px', fontWeight: 700 }}>
                                             {invoiceForm.paymentMode}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '612px', left: '275px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '604px', left: '275px', fontWeight: 700 }}>
                                             {invoiceForm.date ? new Date(invoiceForm.date).toLocaleDateString('en-GB') : ''}
                                         </span>
-                                        <span style={{ position: 'absolute', top: '612px', left: '445px', fontWeight: 700 }}>
+                                        <span style={{ position: 'absolute', top: '604px', left: '445px', fontWeight: 700 }}>
                                             {invoiceForm.validTill ? new Date(invoiceForm.validTill).toLocaleDateString('en-GB') : ''}
                                         </span>
 
                                         {/* AMOUNT IN WORDS */}
-                                        <span style={{ position: 'absolute', top: '647px', left: '155px', fontWeight: 700, color: '#1a365d' }}>
+                                        <span style={{ position: 'absolute', top: '639px', left: '155px', fontWeight: 700, color: '#1a365d' }}>
                                             {numberToWords(invoiceForm.amount)}
                                         </span>
 
-
-
                                         {/* AUTHORIZED SIGNATORY SECTION (Bottom Left signatures box) */}
-                                        <div style={{ position: 'absolute', top: '768px', left: '175px', textAlign: 'left' }}>
+                                        <div style={{ position: 'absolute', top: '754px', left: '135px', textAlign: 'left' }}>
                                             <div style={{ fontWeight: 800, fontSize: '11px', color: '#111', textDecoration: 'underline' }}>
                                                 ABHISHEK BEGAL
                                             </div>

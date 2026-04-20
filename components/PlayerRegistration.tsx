@@ -3,7 +3,8 @@ import {
   Upload, Save, X, User, Phone, Shield, Camera, Check, RefreshCw,
   AlertCircle, Calendar, Briefcase, Trash2, MapPin, Settings, Map,
   Layers, Plus, Edit2, Key, UserCheck, FileText, Zap, UserPlus,
-  Command, Activity, Radio, ChevronDown, ChevronRight, Award
+  Command, Activity, Radio, ChevronDown, ChevronRight, Award,
+  ArrowRight
 } from 'lucide-react';
 import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch } from '../types';
@@ -18,17 +19,22 @@ const SectionHeader: React.FC<{
   title: string;
   accent: string;
   subtitle: string;
+  iconGlow?: string;
   accentClass?: string;
-}> = ({ icon, title, accent, subtitle, accentClass = 'text-brand-accent' }) => (
-  <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/[0.1]">
-    <div className="p-3.5 rounded-2xl bg-white/[0.1] border border-white/[0.1] shadow-inner">
+}> = ({ icon, title, accent, subtitle, iconGlow = 'shadow-[#CCFF00]/20', accentClass = 'text-[#CCFF00]' }) => (
+  <div className="flex items-center gap-5 mb-10 pb-8 border-b border-white/10 relative">
+    <div className={`p-4 rounded-2xl bg-white/5 text-white shadow-xl ${iconGlow} relative z-10 border border-white/10`}>
       {icon}
+      <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
-    <div>
-      <h3 className="text-sm font-black text-white uppercase tracking-widest italic">
+    <div className="flex-1">
+      <h3 className="text-sm font-black text-white uppercase tracking-widest italic leading-tight font-display">
         {title} <span className={accentClass}>{accent}</span>
       </h3>
-      <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em] mt-1 italic">{subtitle}</p>
+      <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.25em] mt-1.5 italic opacity-80">{subtitle}</p>
+    </div>
+    <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-[0.03] scale-150 pointer-events-none text-white">
+      {icon}
     </div>
   </div>
 );
@@ -37,13 +43,28 @@ const FieldLabel: React.FC<{ icon?: React.ReactNode; label: string; required?: b
   icon, label, required
 }) => (
   <div className="flex items-center gap-2 mb-2.5">
-    {icon && <span className="text-white/30">{icon}</span>}
-    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic">
+    {icon && <span className="text-white/20">{icon}</span>}
+    <label className="text-[11px] font-black text-white/40 uppercase tracking-[0.15em] italic">
       {label}
-      {required && <span className="text-brand-accent ml-1.5">*</span>}
+      {required && <span className="text-[#CCFF00] ml-2">*</span>}
     </label>
   </div>
 );
+
+const INITIAL_COACH_FORM = {
+  username: '',
+  fullName: '',
+  contactNumber: '',
+  email: '',
+  dateOfBirth: '',
+  address: '',
+  password: '',
+  employeeNumber: '',
+  photoUrl: '',
+  role: 'coach' as const,
+  assignedVenues: [] as string[],
+  assignedBatches: [] as string[]
+};
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Main Component                                                              */
@@ -110,29 +131,50 @@ export const PlayerRegistration: React.FC = () => {
   }, []);
 
   const loadAcademyConfig = () => {
-    setVenues(StorageService.getVenues());
-    setBatches(StorageService.getBatches());
+    try {
+      const v = StorageService.getVenues() || [];
+      const b = StorageService.getBatches() || [];
+      setVenues(Array.isArray(v) ? v : []);
+      setBatches(Array.isArray(b) ? b : []);
+    } catch (error) {
+      console.error("Failed to load academy config:", error);
+      setVenues([]);
+      setBatches([]);
+    }
   };
 
-  const refreshData = () => {
-    const allPlayers = StorageService.getPlayers();
-    setPlayers(allPlayers);
-    updateNextIdPreview(allPlayers);
-    const v = StorageService.getVenues();
-    const b = StorageService.getBatches();
-    setVenues(v);
-    setBatches(b);
-    setFormData(prev => ({
-      ...prev,
-      venue: prev.venue || (v.length > 0 ? v[0].name : ''),
-      batch: prev.batch || (b.length > 0 ? b[0].name : '')
-    }));
+  const refreshData = async () => {
+    try {
+      const allPlayers = StorageService.getPlayers() || [];
+      setPlayers(Array.isArray(allPlayers) ? allPlayers : []);
+      
+      const v = StorageService.getVenues() || [];
+      const b = StorageService.getBatches() || [];
+      setVenues(Array.isArray(v) ? v : []);
+      setBatches(Array.isArray(b) ? b : []);
+
+      updateNextIdPreview(Array.isArray(allPlayers) ? allPlayers : []);
+
+      setFormData(prev => ({
+        ...prev,
+        venue: prev.venue || (v.length > 0 ? v[0].name : ''),
+        batch: prev.batch || (b.length > 0 ? b[0].name : '')
+      }));
+    } catch (error) {
+      console.error("Refresh data failed:", error);
+    }
   };
 
   const updateNextIdPreview = (currentPlayers: Player[]) => {
-    if (currentPlayers.length === 0) { setNextId('ICR-0001'); return; }
+    if (!Array.isArray(currentPlayers) || currentPlayers.length === 0) { 
+      setNextId('ICR-0001'); 
+      return; 
+    }
     const ids = currentPlayers
-      .map(p => { const m = p.memberId?.match(/ICR-(\d+)/); return m ? parseInt(m[1], 10) : 0; })
+      .map(p => { 
+        const m = p.memberId?.match(/ICR-(\d+)/); 
+        return m ? parseInt(m[1], 10) : 0; 
+      })
       .filter(id => !isNaN(id));
     const maxId = ids.length > 0 ? Math.max(...ids) : 0;
     setNextId(`ICR-${(maxId + 1).toString().padStart(4, '0')}`);
@@ -194,7 +236,6 @@ export const PlayerRegistration: React.FC = () => {
         setFormData({ fullName: '', dateOfBirth: '', parentName: '', contactNumber: '', address: '', position: 'POSITION', photoUrl: '', venue: venues.length > 0 ? venues[0].name : '', batch: batches.length > 0 ? batches[0].name : '' });
         setPreviewUrl(null);
         refreshData();
-        setTimeout(() => setStatus('idle'), 4000);
       } catch {
         setStatus('error');
         setStatusMsg('Failed to save profile. Please try again.');
@@ -220,7 +261,6 @@ export const PlayerRegistration: React.FC = () => {
         setCoachForm({ username: '', fullName: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', employeeNumber: '', photoUrl: '', role: 'coach', assignedVenues: [], assignedBatches: [] });
         setCoachPreviewUrl(null);
         refreshData();
-        setTimeout(() => setStatus('idle'), 4000);
       } catch (err: any) {
         setStatus('error');
         setStatusMsg(err.message || 'Failed to create account.');
@@ -274,10 +314,10 @@ export const PlayerRegistration: React.FC = () => {
   };
 
   /* ── Styled Input Helpers ── */
-  const inputBase = 'w-full rounded-xl px-4 py-3.5 text-sm font-medium text-white outline-none transition-all duration-300 border';
-  const inputNormal = `${inputBase} bg-white/[0.05] border-white/[0.08] placeholder:text-white/20 focus:border-brand-accent/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-brand-accent/10`;
-  const inputError = `${inputBase} bg-red-500/10 border-red-500/40 placeholder:text-red-300/30 text-red-200 focus:border-red-400/60 focus:ring-2 focus:ring-red-500/10`;
-  const selectBase = `${inputBase} bg-white/[0.05] border-white/[0.08] appearance-none cursor-pointer hover:bg-white/[0.08] focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/10`;
+  const inputBase = 'w-full rounded-xl px-4 py-3.5 text-sm font-bold text-white outline-none transition-all duration-300 border backdrop-blur-md';
+  const inputNormal = `${inputBase} bg-white/5 border-white/10 placeholder:text-white/20 focus:border-brand-500 focus:bg-white/10 focus:ring-4 focus:ring-brand-500/5 shadow-inner`;
+  const inputError = `${inputBase} bg-red-500/10 border-red-500/20 placeholder:text-red-500/30 text-red-400 focus:border-red-500/40 focus:ring-4 focus:ring-red-500/5`;
+  const selectBase = `${inputBase} bg-white/5 border-white/10 appearance-none cursor-pointer hover:bg-white/10 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 shadow-inner`;
 
   const inp = (field: string) => errors[field] ? inputError : inputNormal;
   const sel = (field: string) => errors[field] ? `${inputError} appearance-none cursor-pointer` : selectBase;
@@ -289,127 +329,104 @@ export const PlayerRegistration: React.FC = () => {
   /*  Render                                                                  */
   /* ─────────────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-brand-bg font-sans selection:bg-brand-accent/30 selection:text-brand-accent">
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 pt-10 pb-32 space-y-8">
+    <div className="min-h-screen bg-transparent p-4 sm:p-10 md:p-16 font-['Manrope'] selection:bg-brand-500/20 relative overflow-hidden">
+      {/* Subtle Background Accents */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05]"
+        style={{ backgroundImage: 'repeating-linear-gradient(0deg,#ffffff 0,#ffffff 1px,transparent 1px,transparent 40px),repeating-linear-gradient(90deg,#ffffff 0,#ffffff 1px,transparent 1px,transparent 40px)' }} />
 
-        {/* ─── Page Header ────────────────────────────────────────────────── */}
-        <div className="relative rounded-[3rem] overflow-hidden border border-brand-secondary/10 shadow-2xl"
-          style={{ background: 'linear-gradient(135deg, #0D1B8A 0%, #1e3a8a 40%, #070b42 100%)' }}>
-          {/* Grid overlay */}
-          <div className="absolute inset-0 opacity-[0.08]"
-            style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 40px),repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 40px)' }} />
-          
-          {/* Dynamics scan line */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent via-brand-primary/5 to-transparent h-20 -translate-y-full animate-scan pointer-events-none" />
-
-          {/* Glow accent top-right */}
-          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full opacity-30"
-            style={{ background: 'radial-gradient(circle, #00C8FF 0%, transparent 70%)' }} />
-          <div className="absolute -bottom-20 left-20 w-60 h-60 rounded-full opacity-20"
-            style={{ background: 'radial-gradient(circle, #C3F629 0%, transparent 70%)' }} />
-
-          <div className="relative z-10 px-12 py-16 flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10">
-            <div className="space-y-6">
-              {/* System badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-accent/10 border border-brand-accent/20 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_12px_#C3F629]" />
-                <span className="text-[10px] font-black text-brand-accent uppercase tracking-[0.2em] italic">Tactical System Ready</span>
-              </div>
-
-              <div className="space-y-1">
-                <h1 className="text-6xl sm:text-8xl font-black text-white uppercase italic tracking-tighter leading-[0.85]">
-                  Registration
-                </h1>
-                <h1 className="text-6xl sm:text-8xl font-black uppercase italic tracking-tighter leading-[0.85] flex items-center gap-4"
-                  style={{ background: 'linear-gradient(90deg, #00C8FF, #C3F629)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  Command
-                  <Command size={48} className="text-white/20 -rotate-12" />
-                </h1>
-              </div>
-
-              <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.5em] italic">
-                Elite Athlete & Coach Onboarding Portal
-              </p>
+      {/* ─── Success Overlay ────────────────────────────────────────────── */}
+      {status === 'success' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
+          <div className="relative bg-[#CCFF00] p-12 rounded-[3rem] shadow-2xl flex flex-col items-center text-center max-w-sm">
+            <div className="w-24 h-24 bg-brand-950 rounded-full flex items-center justify-center mb-8 shadow-inner">
+              <Check size={48} className="text-[#CCFF00]" />
             </div>
-
-            {/* Right controls */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Mode switcher */}
-              <div className="flex p-1 rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl gap-1">
-                {([['player', User, 'Athletes'], ['coach', Shield, 'Coaches']] as const).map(([m, Icon, label]) => (
-                  <button key={m} onClick={() => setMode(m as any)}
-                    className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-500
-                      ${mode === m
-                        ? m === 'player'
-                          ? 'bg-brand-accent text-brand-950 shadow-[0_8px_24px_rgba(195,246,41,0.35)]'
-                          : 'bg-brand-primary text-brand-950 shadow-[0_8px_24px_rgba(0,200,255,0.35)]'
-                        : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'}`}>
-                    <Icon size={13} className={mode === m ? '' : ''} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* ID Badge */}
-              {mode === 'player' && (
-                <div className="px-6 py-3.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl text-center min-w-[130px]">
-                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Next ID</p>
-                  <p className="text-xl font-black text-brand-accent font-mono tracking-tight">{nextId}</p>
-                </div>
-              )}
-
-              {/* Settings */}
-              <button onClick={() => setShowConfigModal(true)}
-                className="p-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-brand-accent hover:border-brand-accent/30 transition-all duration-300 group">
-                <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-              </button>
-            </div>
+            <h2 className="text-3xl font-black text-brand-950 uppercase tracking-tighter mb-4 font-display italic">Protocol Complete</h2>
+            <p className="text-brand-950/70 text-sm font-bold uppercase tracking-widest mb-8 leading-relaxed">
+              {statusMsg}
+            </p>
+            <button onClick={() => setStatus('idle')}
+              className="w-full py-4 rounded-2xl bg-brand-950 text-[#CCFF00] font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 italic">
+              Acknowledge & Continue
+            </button>
           </div>
         </div>
+      )}
 
-        {/* ─── Status Banner ───────────────────────────────────────────────── */}
-        {status !== 'idle' && (
-          <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border text-sm font-semibold animate-in fade-in slide-in-from-top-4 duration-500 ${
-            status === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-            status === 'error'   ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                                   'bg-brand-primary/10 border-brand-primary/30 text-brand-primary'
-          }`}>
-            {status === 'success' && <Check size={18} />}
-            {status === 'error'   && <AlertCircle size={18} />}
-            {status === 'submitting' && <RefreshCw size={18} className="animate-spin" />}
-            {statusMsg || (status === 'submitting' ? 'Processing…' : '')}
+      <div className="max-w-7xl mx-auto space-y-12 relative z-10 animate-fade-in">
+
+        {/* ─── Page Header HUD ────────────────────────────────────────────── */}
+        <div className="glass-card flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 p-10 md:p-14 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group mb-10 mt-0 ring-1 ring-white/5">
+          <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-12">
+            <User size={280} className="text-white" />
           </div>
-        )}
+          
+          <div className="relative z-10 space-y-4">
+            <div className="flex items-center gap-4 text-brand-500 font-bold uppercase text-[10px] tracking-[0.4em] italic mb-2">
+              <span className="w-10 h-px bg-white/10"></span>
+              Official Registration Portal
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-[0.85] flex flex-col md:flex-row md:items-center gap-x-4 font-display">
+              ACADEMY <span className="text-[#CCFF00] font-black">ONBOARDING</span>
+            </h2>
+            <p className="text-white/40 font-bold uppercase text-[10px] tracking-[0.3em] pt-2">System Node: Onboarding // Operational Dataset Intake</p>
+          </div>
+
+          <div className="relative z-10 flex flex-wrap items-center gap-4">
+            <div className="flex gap-2 bg-white/5 p-2.5 rounded-[2rem] border border-white/10 shadow-inner">
+              {( [['player', User, 'Athletes'], ['coach', Shield, 'Coaches']] as const).map(([m, Icon, label]) => (
+                <button 
+                  key={m} 
+                  onClick={() => { setMode(m as any); setErrors({}); }}
+                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-500 italic
+                    ${mode === m
+                      ? 'bg-[#CCFF00] text-brand-950 shadow-lg shadow-[#CCFF00]/20 border-[#CCFF00] scale-[1.02]'
+                      : 'text-white/40 hover:text-[#CCFF00] hover:bg-white/10'}`}
+                >
+                  <Icon size={16} />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {mode === 'player' && (
+              <div className="px-8 py-3 rounded-2xl bg-brand-900/50 backdrop-blur-xl border border-white/10 flex flex-col items-center min-w-[120px] shadow-2xl ring-1 ring-white/5">
+                <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-0.5">NEXT ASSIGNMENT</p>
+                <p className="text-xl font-black text-[#CCFF00] italic tracking-tighter">{nextId}</p>
+              </div>
+            )}
+
+            <button onClick={() => setShowConfigModal(true)}
+              className="p-4 rounded-2xl bg-brand-900/50 backdrop-blur-xl border border-white/10 text-white/40 hover:text-[#CCFF00] hover:bg-brand-900 transition-all duration-300 group shadow-2xl ring-1 ring-white/5">
+              <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+            </button>
+          </div>
+        </div>
 
         {/* ─── Forms ─────────────────────────────────────────────────────── */}
         <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
           {mode === 'player' ? (
-            /* ══════════════════ ATHLETE FORM ══════════════════ */
             <form onSubmit={handlePlayerSubmit} className="space-y-6">
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-                {/* LEFT — Profile & Position */}
                 <div className="xl:col-span-4 space-y-6">
-
-                  {/* Profile Photo Card */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
+                  <div className="glass-card p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                     <SectionHeader
-                      icon={<Camera size={16} className="text-brand-accent" />}
+                      icon={<Camera size={16} className="text-[#CCFF00]" />}
                       title="Athlete" accent="Photo"
                       subtitle="Profile identity capture"
                     />
-
-                    {/* Photo upload area */}
                     <div className="flex flex-col items-center">
                       <div className="relative group/photo mb-6">
-                        <div className={`w-44 h-52 rounded-2xl overflow-hidden border-2 border-dashed transition-all duration-500 flex items-center justify-center
-                          ${previewUrl ? 'border-brand-accent/40 shadow-[0_0_40px_rgba(195,246,41,0.12)]' : 'border-white/10 group-hover/photo:border-white/20'}`}>
+                        <div className={`w-44 h-52 rounded-[2rem] overflow-hidden border-2 border-dashed transition-all duration-500 flex items-center justify-center
+                          ${previewUrl ? 'border-[#CCFF00]/40 shadow-lg shadow-[#CCFF00]/5' : 'border-white/10 group-hover/photo:border-white/20'}`}>
                           {previewUrl ? (
                             <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="flex flex-col items-center gap-3 text-white/20 group-hover/photo:text-white/30 transition-colors">
+                            <div className="flex flex-col items-center gap-3 text-white/20 group-hover/photo:text-white/40 transition-colors">
                               <Camera size={40} strokeWidth={1.5} />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Upload Photo</span>
+                              <span className="text-[10px] font-bold uppercase tracking-widest">Upload Profile</span>
                             </div>
                           )}
                         </div>
@@ -418,23 +435,18 @@ export const PlayerRegistration: React.FC = () => {
                           <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                         </label>
                       </div>
-
-                      {previewUrl && (
-                        <button type="button" onClick={() => { setPreviewUrl(null); setFormData(p => ({ ...p, photoUrl: '' })); }}
-                          className="mt-2 text-[10px] font-bold text-white/30 hover:text-red-400 uppercase tracking-widest transition-colors flex items-center gap-1.5">
-                          <X size={12} /> Remove
-                        </button>
-                      )}
                     </div>
                   </div>
+                </div>
 
-                  {/* Basic Identity */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
+                <div className="xl:col-span-8 space-y-10">
+                  <div className="glass-card p-10 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                     <SectionHeader
-                      icon={<User size={16} className="text-brand-primary" />}
+                      icon={<User size={16} className="text-white" />}
                       title="Personal" accent="Information"
                       subtitle="Core identity details"
-                      accentClass="text-brand-primary"
+                      accentClass="text-white"
                     />
                     <div className="space-y-5">
                       <div>
@@ -442,24 +454,38 @@ export const PlayerRegistration: React.FC = () => {
                         <input type="text" className={inp('fullName')} value={formData.fullName}
                           onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                           placeholder="Athlete's full name" />
-                        {errors.fullName && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.fullName}</p>}
                       </div>
                       <div>
                         <FieldLabel icon={<Calendar size={11} />} label="Date of Birth" required />
                         <input type="date" className={inp('dateOfBirth')} value={formData.dateOfBirth}
                           onChange={e => setFormData({ ...formData, dateOfBirth: e.target.value })} />
-                        {errors.dateOfBirth && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.dateOfBirth}</p>}
                       </div>
                     </div>
                   </div>
 
-                  {/* Position */}
-                  <div className="rounded-2xl border               {/* Logistics & Primary Contact */}
+                  <div className="glass-card p-10 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
+                    <FieldLabel icon={<Briefcase size={11} />} label="Player Position" required />
+                    <div className="relative">
+                      <select
+                        className={sel('position')}
+                        value={formData.position}
+                        onChange={e => setFormData({ ...formData, position: e.target.value as Player['position'] })}
+                      >
+                        <option value="POSITION" className="bg-brand-950 text-white/40">Select Position</option>
+                        {positions.map(p => <option key={p} value={p} className="bg-brand-950 text-white">{p}</option>)}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                {/* Deployment Group */}
-                <div className="glass-card p-10 bg-white/[0.01]">
+                  <div className="glass-card p-10 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                   <SectionHeader
-                    icon={<MapPin size={28} className="text-brand-accent" />}
+                    icon={<MapPin size={28} className="text-[#CCFF00]" />}
                     title="Academy"
                     accent="Deployment"
                     subtitle="Venue & Cluster Assignment"
@@ -474,8 +500,8 @@ export const PlayerRegistration: React.FC = () => {
                           value={formData.venue}
                           onChange={e => setFormData({ ...formData, venue: e.target.value })}
                         >
-                          <option value="" className="bg-[#0D1B8A]">Select Venue</option>
-                          {venues.map(v => <option key={v.id} value={v.name} className="bg-[#0D1B8A]">{v.name}</option>)}
+                          <option value="" className="bg-brand-950 text-white/40">Select Venue</option>
+                          {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-950 text-white">{v.name}</option>)}
                         </select>
                         <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
                       </div>
@@ -489,8 +515,8 @@ export const PlayerRegistration: React.FC = () => {
                           value={formData.batch}
                           onChange={e => setFormData({ ...formData, batch: e.target.value })}
                         >
-                          <option value="" className="bg-[#0D1B8A]">Select Batch</option>
-                          {batches.map(b => <option key={b.id} value={b.name} className="bg-[#0D1B8A]">{b.name}</option>)}
+                          <option value="" className="bg-brand-950 text-white/40">Select Batch</option>
+                          {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-950 text-white">{b.name}</option>)}
                         </select>
                         <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
                       </div>
@@ -498,8 +524,8 @@ export const PlayerRegistration: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Guardian Details */}
-                <div className="glass-card p-10">
+                <div className="glass-card p-10 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-orange-500 opacity-40" />
                   <SectionHeader
                     icon={<Phone size={28} className="text-orange-400" />}
                     title="Guardian"
@@ -518,7 +544,6 @@ export const PlayerRegistration: React.FC = () => {
                         onChange={e => setFormData({ ...formData, parentName: e.target.value })}
                         placeholder="Parent Name"
                       />
-                      {errors.parentName && <p className="mt-2 text-[10px] text-red-400 font-black italic uppercase tracking-wider">{errors.parentName}</p>}
                     </div>
 
                     <div className="group/input">
@@ -530,7 +555,6 @@ export const PlayerRegistration: React.FC = () => {
                         onChange={e => setFormData({ ...formData, contactNumber: e.target.value })}
                         placeholder="+91"
                       />
-                      {errors.contactNumber && <p className="mt-2 text-[10px] text-red-400 font-black italic uppercase tracking-wider">{errors.contactNumber}</p>}
                     </div>
 
                     <div className="group/input col-span-1 md:col-span-2">
@@ -547,22 +571,22 @@ export const PlayerRegistration: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Bar */}
-              <div className="glass-card p-10 flex flex-col sm:flex-row items-center justify-between gap-8 border-t-2 border-t-brand-accent/20">
+              <div className="glass-card p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500 opacity-40" />
                 <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-full bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center">
-                    <Check size={24} className="text-brand-accent" />
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <Check size={24} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase italic tracking-widest">Enrolment Phase Ready</h4>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] mt-1">Status: Operational</p>
+                    <h4 className="text-sm font-black text-white uppercase italic tracking-widest font-display">Enrolment Phase Ready</h4>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em] mt-1 italic">Status: Operational</p>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={status === 'submitting'}
-                  className="w-full sm:w-auto min-w-[300px] h-20 bg-brand-accent text-brand-950 font-black uppercase italic tracking-[0.25em] text-sm rounded-[1.5rem] shadow-[0_20px_50px_rgba(195,246,41,0.3)] hover:shadow-[0_25px_60px_rgba(195,246,41,0.5)] hover:scale-[1.02] active:scale-95 transition-all duration-500 flex items-center justify-center gap-4 relative overflow-hidden group"
+                  className="w-full sm:w-auto min-w-[300px] h-20 bg-[#CCFF00] text-brand-950 font-black uppercase italic tracking-[0.25em] text-sm rounded-[1.5rem] shadow-2xl shadow-[#CCFF00]/30 hover:shadow-[#CCFF00]/50 hover:scale-[1.02] active:scale-95 transition-all duration-500 flex items-center justify-center gap-4 relative overflow-hidden group"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
                   {status === 'submitting' ? (
@@ -573,157 +597,117 @@ export const PlayerRegistration: React.FC = () => {
                 </button>
               </div>
             </form>
-x] font-bold text-white/50 uppercase tracking-widest">System Ready</p>
-                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Profile sync on submit</p>
-                      </div>
-                    </div>
-
-                    <button type="submit" disabled={status === 'submitting'}
-                      className="group relative overflow-hidden bg-brand-accent text-brand-950 font-black py-4 px-10 rounded-2xl text-[12px] uppercase tracking-[0.3em] shadow-[0_12px_40px_rgba(195,246,41,0.3)] hover:shadow-[0_18px_50px_rgba(195,246,41,0.45)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center gap-3 disabled:opacity-50">
-                      <div className="absolute inset-0 bg-white/20 translate-x-[-110%] skew-x-[-20deg] group-hover:translate-x-[110%] transition-transform duration-700" />
-                      <span className="relative z-10 flex items-center gap-2.5">
-                        {status === 'submitting'
-                          ? <><RefreshCw size={16} className="animate-spin" /> Enrolling…</>
-                          : <><UserPlus size={16} className="group-hover:scale-110 transition-transform" /> Enroll Athlete</>}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
 
           ) : (
-            /* ══════════════════ COACH FORM ══════════════════ */
             <form onSubmit={handleCoachSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-                {/* LEFT — Coach Identity */}
                 <div className="xl:col-span-4 space-y-6">
-
-                  {/* Photo */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
+                  <div className="glass-card p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                     <SectionHeader
-                      icon={<Camera size={16} className="text-brand-accent" />}
-                      title="Coach" accent="Photo"
-                      subtitle="Personnel identity"
+                      icon={<Camera size={16} />}
+                      title="Coach" accent="Protocol"
+                      subtitle="Personnel Identity Capture"
                     />
                     <div className="flex flex-col items-center">
                       <div className="relative group/photo mb-6">
                         <div className={`w-44 h-52 rounded-2xl overflow-hidden border-2 border-dashed transition-all duration-500 flex items-center justify-center
-                          ${coachPreviewUrl ? 'border-brand-primary/50 shadow-[0_0_40px_rgba(0,200,255,0.12)]' : 'border-white/10 group-hover/photo:border-white/20'}`}>
+                          ${coachPreviewUrl ? 'border-[#CCFF00]/40 shadow-lg shadow-[#CCFF00]/5' : 'border-white/10 group-hover/photo:border-white/20'}`}>
                           {coachPreviewUrl ? (
-                            <img src={coachPreviewUrl} alt="Coach" className="w-full h-full object-cover" />
+                            <img src={coachPreviewUrl} alt="Preview" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="flex flex-col items-center gap-3 text-white/20 group-hover/photo:text-white/30 transition-colors">
-                              <Camera size={40} strokeWidth={1.5} />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Upload Photo</span>
+                            <div className="flex flex-col items-center gap-3 text-white/20 group-hover/photo:text-white/40 transition-colors">
+                              <User size={40} strokeWidth={1.5} />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Upload Bio Photo</span>
                             </div>
                           )}
                         </div>
-                        <label className="absolute -bottom-4 -right-4 cursor-pointer bg-brand-primary text-brand-950 p-3.5 rounded-xl shadow-[0_8px_24px_rgba(0,200,255,0.4)] hover:scale-110 active:scale-95 transition-all z-10">
+                        <label className="absolute -bottom-4 -right-4 cursor-pointer bg-[#CCFF00] text-brand-950 p-3.5 rounded-xl shadow-[0_8px_24px_rgba(204,255,0,0.4)] hover:scale-110 active:scale-95 transition-all z-10">
                           <Upload size={16} />
                           <input type="file" accept="image/*" className="hidden" onChange={handleCoachFileChange} />
                         </label>
                       </div>
-                      {coachPreviewUrl && (
-                        <button type="button" onClick={() => { setCoachPreviewUrl(null); setCoachForm(p => ({ ...p, photoUrl: '' })); }}
-                          className="mt-2 text-[10px] font-bold text-white/30 hover:text-red-400 uppercase tracking-widest transition-colors flex items-center gap-1.5">
-                          <X size={12} /> Remove
-                        </button>
-                      )}
                     </div>
                   </div>
 
-                  {/* Core credentials */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
+                  <div className="glass-card p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                     <SectionHeader
-                      icon={<Shield size={16} className="text-brand-primary" />}
-                      title="Core" accent="Credentials"
-                      subtitle="Identity & access info"
-                      accentClass="text-brand-primary"
+                      icon={<Shield size={16} />}
+                      title="Personnel" accent="Metrics"
+                      subtitle="Official coach credentials"
                     />
-                    <div className="space-y-5">
+                    <div className="grid grid-cols-1 gap-6">
                       <div>
-                        <FieldLabel icon={<User size={11} />} label="Full Name" required />
+                        <FieldLabel icon={<UserCheck size={11} />} label="Full Display Name" required />
                         <input type="text" className={inp('fullName')} value={coachForm.fullName}
                           onChange={e => setCoachForm({ ...coachForm, fullName: e.target.value })}
                           placeholder="Coach's full name" />
-                        {errors.fullName && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.fullName}</p>}
                       </div>
                       <div>
-                        <FieldLabel icon={<Shield size={11} />} label="Username" required />
+                        <FieldLabel icon={<Award size={11} />} label="System Username" required />
                         <input type="text" className={inp('username')} value={coachForm.username}
                           onChange={e => setCoachForm({ ...coachForm, username: e.target.value })}
-                          placeholder="Unique login username" />
-                        {errors.username && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.username}</p>}
+                          placeholder="e.g. coach_john" />
                       </div>
                       <div>
-                        <FieldLabel icon={<Activity size={11} />} label="Employee ID" required />
+                        <FieldLabel icon={<FileText size={11} />} label="Employee Number" required />
                         <input type="text" className={inp('employeeNumber')} value={coachForm.employeeNumber}
                           onChange={e => setCoachForm({ ...coachForm, employeeNumber: e.target.value })}
-                          placeholder="EMP-12345" />
-                        {errors.employeeNumber && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.employeeNumber}</p>}
+                          placeholder="ICR-XXXX" />
+                      </div>
+                      <div>
+                        <FieldLabel icon={<Key size={11} />} label="Access Password" required />
+                        <input type="password" className={inp('password')} value={coachForm.password}
+                          onChange={e => setCoachForm({ ...coachForm, password: e.target.value })}
+                          placeholder="Secure password" />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* RIGHT — Assignments & Contact */}
                 <div className="xl:col-span-8 space-y-6">
-
-                  {/* Venue Assignments */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
+                  <div className="glass-card p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
                     <SectionHeader
-                      icon={<MapPin size={16} className="text-brand-primary" />}
-                      title="Venue" accent="Assignments"
-                      subtitle="Select all applicable venues"
-                      accentClass="text-brand-primary"
+                      icon={<MapPin size={16} />}
+                      title="Zone" accent="Assignment"
+                      subtitle="Operational venue reach"
                     />
-                    {venues.length === 0 ? (
-                      <p className="text-[11px] text-white/30 italic">No venues configured. Use the settings panel to add venues.</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-3">
-                        {venues.map(v => (
-                          <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider border transition-all duration-300
-                              ${coachForm.assignedVenues.includes(v.name)
-                                ? 'bg-brand-primary/20 border-brand-primary/50 text-brand-primary shadow-[0_4px_14px_rgba(0,200,255,0.2)]'
-                                : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.15]'}`}>
-                            {coachForm.assignedVenues.includes(v.name) && <Check size={11} />}
-                            {v.name}
-                          </button>
-                        ))}
+                    <div className="space-y-6">
+                      <div>
+                        <FieldLabel label="Select Assigned Venues" />
+                        <div className="flex flex-wrap gap-2">
+                          {venues.map(v => (
+                            <button key={v.id} type="button" onClick={() => toggleCoachAssignment('venue', v.name)}
+                              className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border
+                                ${coachForm.assignedVenues.includes(v.name)
+                                  ? 'bg-[#CCFF00] text-brand-950 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/20'
+                                  : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'}`}>
+                              {v.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    )}
+                      <div>
+                        <FieldLabel label="Select Assigned Batches" />
+                        <div className="flex flex-wrap gap-2">
+                          {batches.map(b => (
+                            <button key={b.id} type="button" onClick={() => toggleCoachAssignment('batch', b.name)}
+                              className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border
+                                ${coachForm.assignedBatches.includes(b.name)
+                                  ? 'bg-[#CCFF00] text-brand-950 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/20'
+                                  : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'}`}>
+                              {b.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Batch Assignments */}
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
-                    <SectionHeader
-                      icon={<Layers size={16} className="text-brand-accent" />}
-                      title="Batch" accent="Assignments"
-                      subtitle="Select all applicable batches"
-                    />
-                    {batches.length === 0 ? (
-                      <p className="text-[11px] text-white/30 italic">No batches configured. Use the settings panel to add batches.</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-3">
-                        {batches.map(b => (
-                          <button key={b.id} type="button" onClick={() => toggleCoachAssignment('batch', b.name)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider border transition-all duration-300
-                              ${coachForm.assignedBatches.includes(b.name)
-                                ? 'bg-brand-accent/20 border-brand-accent/50 text-brand-accent shadow-[0_4px_14px_rgba(195,246,41,0.2)]'
-                                : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.15]'}`}>
-                            {coachForm.assignedBatches.includes(b.name) && <Check size={11} />}
-                            {b.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Contact & Security */}
-                  <div className="glass-card p-10">
+                  <div className="glass-card p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-orange-500 opacity-40" />
                     <SectionHeader
                       icon={<Key size={16} className="text-orange-400" />}
                       title="Contact &" accent="Security"
@@ -748,7 +732,6 @@ x] font-bold text-white/50 uppercase tracking-widest">System Ready</p>
                         <input type="password" className={inp('password')} value={coachForm.password}
                           onChange={e => setCoachForm({ ...coachForm, password: e.target.value })}
                           placeholder="Choose a strong password" />
-                        {errors.password && <p className="mt-1.5 text-[10px] text-red-400 font-bold">{errors.password}</p>}
                       </div>
                       <div>
                         <FieldLabel icon={<Calendar size={11} />} label="Date of Birth" />
@@ -764,124 +747,124 @@ x] font-bold text-white/50 uppercase tracking-widest">System Ready</p>
                     </div>
                   </div>
 
-                  {/* Footer */}
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-2">
-                    <div className="flex items-center gap-3 px-5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-                      <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
+                    <div className="flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-white/5">
+                      <div className="w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse" />
                       <div>
-                        <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">System Ready</p>
-                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Account creation on submit</p>
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Registration Status</p>
+                        <p className="text-xs font-black text-white italic uppercase font-display">Initial Entry Mode</p>
                       </div>
                     </div>
-                    <button type="submit" disabled={status === 'submitting'}
-                      className="group relative overflow-hidden bg-brand-primary text-brand-950 font-black py-4 px-10 rounded-2xl text-[12px] uppercase tracking-[0.3em] shadow-[0_12px_40px_rgba(0,200,255,0.3)] hover:shadow-[0_18px_50px_rgba(0,200,255,0.45)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center gap-3 disabled:opacity-50">
-                      <div className="absolute inset-0 bg-white/20 translate-x-[-110%] skew-x-[-20deg] group-hover:translate-x-[110%] transition-transform duration-700" />
-                      <span className="relative z-10 flex items-center gap-2.5">
-                        {status === 'submitting'
-                          ? <><RefreshCw size={16} className="animate-spin" /> Creating…</>
-                          : <><UserCheck size={16} className="group-hover:scale-110 transition-transform" /> Register Coach</>}
-                      </span>
-                    </button>
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <button type="button" onClick={() => setCoachForm(INITIAL_COACH_FORM)}
+                          className="flex-1 sm:px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] font-black text-white/40 uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all italic">
+                          Reset Protocol
+                        </button>
+                        <button type="submit" disabled={status === 'submitting'}
+                          className="flex-[2] sm:px-12 py-4 rounded-2xl bg-[#CCFF00] text-brand-950 font-black text-[11px] uppercase tracking-widest hover:scale-[1.02] shadow-xl shadow-[#CCFF00]/20 transition-all flex items-center justify-center gap-3 italic group">
+                          {status === 'submitting' ? (
+                            <RefreshCw size={16} className="animate-spin" />
+                          ) : (
+                            <><span>Authenticate & Create</span> <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" /></>
+                          )}
+                        </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </form>
           )}
+          </div>
         </div>
-      </div>
 
       {/* ─── Config Modal ───────────────────────────────────────────────────── */}
       {showConfigModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-xl rounded-3xl border border-white/[0.08] bg-[#0e1020] shadow-[0_40px_100px_rgba(0,0,0,0.6)] overflow-hidden animate-in zoom-in-95 duration-500">
-            {/* Accent line */}
-            <div className="h-[2px] bg-gradient-to-r from-brand-accent via-brand-primary to-transparent" />
-
-            {/* Header */}
-            <div className="flex justify-between items-center p-7 border-b border-white/[0.06]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-xl glass-card rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 ring-1 ring-white/5">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-[#CCFF00] opacity-40" />
+            
+            <div className="flex justify-between items-center p-8 border-b border-white/10 bg-white/5">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-brand-accent/10 border border-brand-accent/20">
-                  <Settings size={18} className="text-brand-accent" />
+                <div className="p-3.5 rounded-2xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00]">
+                  <Settings size={22} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white uppercase tracking-wider">Academy Config</h3>
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-0.5">Venues & Batch Management</p>
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight italic font-display">Academy <span className="text-[#CCFF00]">Config</span></h3>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Venues & Batch Management</p>
                 </div>
               </div>
               <button onClick={() => setShowConfigModal(false)}
-                className="p-2.5 rounded-xl text-white/30 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent hover:border-white/[0.08]">
-                <X size={18} />
+                className="p-3 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all border border-transparent hover:border-white/10">
+                <X size={20} />
               </button>
             </div>
 
-            {/* Tab switcher */}
-            <div className="px-7 pt-6">
-              <div className="flex gap-1 p-1 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+            <div className="px-8 pt-6">
+              <div className="flex gap-1.5 p-1.5 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
                 {(['venues', 'batches'] as const).map(t => (
                   <button key={t} onClick={() => setConfigTab(t)}
-                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-300
-                      ${configTab === t ? 'bg-brand-accent text-brand-950 shadow-[0_4px_14px_rgba(195,246,41,0.3)]' : 'text-white/40 hover:text-white'}`}>
+                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-500 italic
+                      ${configTab === t ? 'bg-[#CCFF00] text-brand-950 shadow-lg shadow-[#CCFF00]/20' : 'text-white/40 hover:text-white'}`}>
                     {t === 'venues' ? 'Venues' : 'Batches'}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Add / Edit Input */}
-            <div className="px-7 pt-5 flex gap-3">
-              <input type="text" className={inputNormal}
+            <div className="px-8 pt-6 flex gap-3">
+              <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold text-white placeholder:text-white/20 focus:border-[#CCFF00] outline-none transition-all shadow-inner"
                 value={newItemName} onChange={e => setNewItemName(e.target.value)}
                 placeholder={editingItem ? 'Update name…' : `Add new ${configTab === 'venues' ? 'venue' : 'batch'}…`}
                 onKeyDown={e => e.key === 'Enter' && (editingItem ? handleUpdateItem() : handleAddItem())} />
               <button onClick={editingItem ? handleUpdateItem : handleAddItem}
-                className="shrink-0 px-5 py-3 rounded-xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent font-black text-[11px] uppercase tracking-widest hover:bg-brand-accent/20 transition-all flex items-center gap-2">
-                {editingItem ? <Check size={14} /> : <Plus size={14} />}
+                className="shrink-0 px-7 py-4 rounded-2xl bg-[#CCFF00] text-brand-950 font-black text-[11px] uppercase tracking-widest hover:scale-[1.05] shadow-lg shadow-[#CCFF00]/20 transition-all flex items-center gap-2 italic">
+                {editingItem ? <Check size={16} /> : <Plus size={16} />}
                 {editingItem ? 'Save' : 'Add'}
               </button>
               {editingItem && (
                 <button onClick={() => { setEditingItem(null); setNewItemName(''); }}
-                  className="shrink-0 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-white transition-all">
-                  <X size={14} />
+                  className="shrink-0 px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all">
+                  <X size={16} />
                 </button>
               )}
             </div>
 
             {/* List */}
-            <div className="px-7 py-5 max-h-[280px] overflow-y-auto custom-scrollbar-tactical space-y-2">
+            <div className="px-8 py-6 max-h-[320px] overflow-y-auto space-y-2.5">
               {(configTab === 'venues' ? venues : batches).map(item => (
                 <div key={item.id}
-                  className="flex justify-between items-center px-4 py-3 rounded-xl border border-white/[0.05] bg-white/[0.02] group/item hover:border-brand-accent/20 transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent/60 group-hover/item:bg-brand-accent transition-colors" />
-                    <span className="text-sm font-semibold text-white/70 group-hover/item:text-white transition-colors">{item.name}</span>
+                  className="flex justify-between items-center px-6 py-4 rounded-2xl border border-white/10 bg-white/5 group/item hover:border-[#CCFF00]/30 hover:bg-white/10 transition-all duration-300 shadow-sm hover:shadow-md ring-1 ring-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-[#CCFF00]/40 group-hover/item:bg-[#CCFF00] transition-colors" />
+                    <span className="text-sm font-bold text-white group-hover/item:text-[#CCFF00] transition-colors italic font-display">{item.name}</span>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                  <div className="flex items-center gap-2 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
                     <button onClick={() => { setEditingItem(item); setNewItemName(item.name); }}
-                      className="p-2 rounded-lg text-white/30 hover:text-brand-primary hover:bg-brand-primary/10 transition-all">
-                      <Edit2 size={13} />
+                      className="p-2.5 rounded-xl text-white/40 hover:text-[#CCFF00] hover:bg-white/5 transition-all">
+                      <Edit2 size={15} />
                     </button>
                     <button onClick={() => handleSecureDelete(configTab === 'venues' ? 'venue' : 'batch', item.id, item.name)}
-                      className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all">
-                      <Trash2 size={13} />
+                      className="p-2.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
               ))}
               {(configTab === 'venues' ? venues : batches).length === 0 && (
-                <div className="py-16 flex flex-col items-center gap-3 text-white/20">
-                  <Layers size={32} strokeWidth={1.5} />
-                  <p className="text-[10px] font-bold uppercase tracking-widest">
-                    No {configTab === 'venues' ? 'venues' : 'batches'} added yet
+                <div className="py-20 flex flex-col items-center gap-4 text-white/10">
+                  <Layers size={40} strokeWidth={1.5} />
+                  <p className="text-[11px] font-black uppercase tracking-widest italic opacity-50">
+                    No {configTab === 'venues' ? 'venues' : 'batches'} added
                   </p>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="px-7 py-5 border-t border-white/[0.06] flex justify-end">
+            <div className="px-8 py-6 bg-white/5 border-t border-white/10 flex justify-end">
               <button onClick={() => setShowConfigModal(false)}
-                className="px-6 py-2.5 rounded-xl text-[11px] font-bold text-white/50 uppercase tracking-widest hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] transition-all">
-                Done
+                className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-[11px] font-black text-white/40 uppercase tracking-widest hover:text-white hover:bg-white/10 shadow-sm transition-all italic tracking-[0.2em]">
+                Close Protocol
               </button>
             </div>
           </div>
