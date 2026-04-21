@@ -176,10 +176,29 @@ export const StorageService = {
         syncCollection('users', USERS_KEY);
         syncCollection('fees', FEES_KEY);
     } else {
-        // For players, sync only their own user doc and coaches
-        import('firebase/firestore').then(({ query, where, or, documentId }) => {
-            const usersQuery = query(collection(db, 'users'), or(where('role', '==', 'coach'), where(documentId(), '==', user.id)));
-            syncQuery(usersQuery, USERS_KEY);
+        import('firebase/firestore').then(({ query, where, collection, doc, onSnapshot }) => {
+            let coachesData: any[] = [];
+            let myData: any = null;
+
+            const updateStoredUsers = () => {
+                const combined = myData ? [myData, ...coachesData.filter(c => c.id !== user.id)] : coachesData;
+                localStorage.setItem(USERS_KEY, JSON.stringify(combined));
+                notifyDataChange();
+            };
+
+            const unsubCoaches = onSnapshot(query(collection(db, 'users'), where('role', '==', 'coach')), (snap) => {
+                coachesData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateStoredUsers();
+            });
+
+            const unsubMe = onSnapshot(doc(db, 'users', user.id), (snap) => {
+                if (snap.exists()) {
+                    myData = { id: snap.id, ...snap.data() };
+                    updateStoredUsers();
+                }
+            });
+
+            syncUnsubscribers.push(unsubCoaches, unsubMe);
 
             if (user.linkedPlayerId) {
                 const feesQuery = query(collection(db, 'fees'), where('playerId', '==', user.linkedPlayerId));

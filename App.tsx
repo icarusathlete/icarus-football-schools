@@ -37,10 +37,10 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
   render() {
     if (this.state.hasError) return (
-       <div className="p-8 text-white">
-          <h2>Application Error</h2>
-          <p>Please refresh the page or contact the administrator.</p>
-       </div>
+        <div className="p-8 text-brand-secondary">
+           <h2 className="text-xl font-black uppercase italic mb-4">Application Error</h2>
+           <p className="text-sm opacity-70 italic font-medium">Please refresh the page or contact the administrator if the problem persists.</p>
+        </div>
     );
     return this.props.children;
   }

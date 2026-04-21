@@ -620,7 +620,7 @@ export const PlayerManager: React.FC = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
                           {[
-                            { label: 'UNIT IDENTIFICATION (UID)', val: editingPlayer.memberId, readOnly: true },
+                            { label: 'UNIT IDENTIFICATION (UID)', val: editingPlayer.memberId, key: 'memberId', type: 'text' },
                             { label: 'ASSET DESIGNATION', val: editingPlayer.fullName, key: 'fullName', type: 'text' },
                             { label: 'OPERATIONAL SECTOR', val: editingPlayer.venue, key: 'venue', type: 'select', opts: venues },
                             { label: 'TACTICAL DIVISION', val: editingPlayer.batch, key: 'batch', type: 'select', opts: batches },

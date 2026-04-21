@@ -207,24 +207,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
            </button>
         </div>
       </aside>
-      <header className="md:hidden bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm overflow-hidden">
+      <header className="md:hidden bg-brand-secondary/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm overflow-hidden">
          <div className="flex items-center gap-4 overflow-hidden flex-1">
-            <div className="shrink-0 w-10 h-10 rounded-full shadow-sm border border-slate-200 flex items-center justify-center bg-white p-1 overflow-hidden ring-2 ring-brand-500/5 active:scale-95 transition-transform">
+            <div className="shrink-0 w-10 h-10 rounded-lg shadow-sm border border-white/10 flex items-center justify-center bg-brand-900 p-1 overflow-hidden ring-1 ring-white/10 active:scale-95 transition-transform">
                 {settings.logoUrl ? (
-                    <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-full" />
+                    <img src={settings.logoUrl} className="w-8 h-8 object-contain rounded-md" />
                 ) : (
                     <div className="p-2 rounded-lg" style={{ background: settings.primaryColor }}><Trophy className="w-6 h-6 text-white" /></div>
                 )}
             </div>
             <div className="overflow-hidden flex-1">
-                <span className="font-black text-slate-900 tracking-tighter uppercase text-sm block leading-none truncate" 
+                <span className="font-black text-white tracking-tighter uppercase text-sm block leading-none truncate" 
                       style={{ fontFamily: settings.fontFamily }}>
                     {settings.name}
                 </span>
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1 block truncate">Management Center</span>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] mt-1 block truncate">Official Portal</span>
             </div>
          </div>
-         <button onClick={onLogout} className="shrink-0 p-3 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-all border border-slate-100 ml-4">
+         <button onClick={onLogout} className="shrink-0 p-3 bg-white/5 text-white/40 hover:text-red-500 rounded-xl transition-all border border-white/10 ml-4">
             <LogOut size={20} />
          </button>
       </header>

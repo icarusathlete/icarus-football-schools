@@ -194,7 +194,7 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
       }
 
       return (
-          <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.05)] animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-brand-900/40 backdrop-blur-xl border-white/5 shadow-2xl">
               <div className="p-5 md:p-10 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/50 backdrop-blur-xl">
                   <h3 className="text-xl md:text-2xl font-black text-slate-900 flex items-center gap-3 uppercase tracking-tighter italic">
                       <div className="p-2 md:p-3 bg-brand-500/10 rounded-2xl border border-brand-500/20">

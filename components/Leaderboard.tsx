@@ -154,7 +154,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                             <div className="flex items-center gap-2 bg-brand-50 border border-brand-100 px-4 py-3 rounded-2xl transition-all hover:border-brand-300">
                                 <Calendar size={14} className="text-brand-500" />
                                 <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-                                    className="bg-transparent text-brand-950 font-black text-sm outline-none cursor-pointer w-28" />
+                                    className="bg-transparent text-white transition-all transform hover:scale-110" />
                             </div>
                             <button onClick={exportToPDF} disabled={isExporting}
                                 className="flex items-center gap-2 bg-brand-950 text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-800 active:scale-95 transition-all shadow-lg shadow-brand-950/10">
@@ -184,21 +184,21 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
 
                     {/* Points legend */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-white rounded-[1.5rem] border border-brand-100 p-5 flex items-center gap-4 shadow-sm">
+                        <div className="bg-brand-900/60 backdrop-blur-xl border-white/10 shadow-2xl">
                             <div className="w-11 h-11 rounded-2xl bg-brand-500/10 flex items-center justify-center shrink-0"><Zap size={18} className="text-brand-500" /></div>
-                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">Session MVP</p><p className="text-xl font-black text-brand-950">{PTS_TRAINING} <span className="text-sm font-bold text-brand-400">pt</span></p></div>
+                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">Session MVP</p><p className="text-white font-black text-xl">{PTS_TRAINING} <span className="text-sm font-bold text-brand-400">pt</span></p></div>
                         </div>
                         <div className="bg-white rounded-[1.5rem] border border-amber-200 p-5 flex items-center gap-4 shadow-sm">
                             <div className="w-11 h-11 rounded-2xl bg-amber-400/15 flex items-center justify-center shrink-0"><Trophy size={18} className="text-amber-500 fill-amber-500" /></div>
-                            <div><p className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Match MVP</p><p className="text-xl font-black text-brand-950">{PTS_MATCH} <span className="text-sm font-bold text-brand-400">pts</span></p></div>
+                            <div><p className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Match MVP</p><p className="text-white font-black text-xl">{PTS_MATCH} <span className="text-sm font-bold text-brand-400">pts</span></p></div>
                         </div>
-                        <div className="bg-white rounded-[1.5rem] border border-brand-100 p-5 flex items-center gap-4 shadow-sm">
+                        <div className="bg-brand-900/60 backdrop-blur-xl border-white/10 shadow-2xl">
                             <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0"><Users size={18} className="text-emerald-500" /></div>
-                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">On Board</p><p className="text-xl font-black text-brand-950">{mvpLeaderboard.length}</p></div>
+                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">On Board</p><p className="text-white font-black text-xl">{mvpLeaderboard.length}</p></div>
                         </div>
-                        <div className="bg-white rounded-[1.5rem] border border-brand-100 p-5 flex items-center gap-4 shadow-sm">
+                        <div className="bg-brand-900/60 backdrop-blur-xl border-white/10 shadow-2xl">
                             <div className="w-11 h-11 rounded-2xl bg-rose-500/10 flex items-center justify-center shrink-0"><Target size={18} className="text-rose-500" /></div>
-                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">Total MVPs</p><p className="text-xl font-black text-brand-950">{mvpLeaderboard.reduce((s, e) => s + e.trainingMvps + e.matchMvps, 0)}</p></div>
+                            <div><p className="text-[8px] font-black text-brand-400 uppercase tracking-widest">Total MVPs</p><p className="text-white font-black text-xl">{mvpLeaderboard.reduce((s, e) => s + e.trainingMvps + e.matchMvps, 0)}</p></div>
                         </div>
                     </div>
 
@@ -210,15 +210,15 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                             <div className="order-2 md:order-1">
                                 {top3[1] && (
                                     <div onClick={() => setViewingEntry(top3[1])}
-                                        className="bg-white rounded-[2rem] border border-slate-200 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg group min-h-[280px]">
+                                        className="bg-brand-900/60 border-white/10 p-6 flex flex-col items-center cursor-pointer hover:scale-[1.02] transition-all duration-300 shadow-2xl group min-h-[280px] p-8">
                                         <div className="relative mb-4">
                                             <div className="w-[4.5rem] h-[4.5rem] rounded-full overflow-hidden border-[3px] border-slate-300 shadow-xl group-hover:scale-110 transition-transform">
                                                 <img src={top3[1].photoUrl} alt={top3[1].fullName} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center text-[11px] font-black text-white border-2 border-white">2</div>
                                         </div>
-                                        <p className="font-black text-slate-900 text-base italic uppercase tracking-tight text-center truncate w-full">{top3[1].fullName}</p>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{top3[1].position || 'PLAYER'}</p>
+                                        <p className="text-white font-black text-base italic uppercase tracking-tight text-center truncate w-full">{top3[1].fullName}</p>
+                                        <p className="text-white/40 font-bold uppercase tracking-widest mt-1 mb-4">{top3[1].position || 'PLAYER'}</p>
                                         <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-auto">
                                             <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">SESSION</p><p className="font-black text-slate-900 text-lg">{top3[1].trainingMvps}</p></div>
                                             <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">MATCH</p><p className="font-black text-slate-900 text-lg">{top3[1].matchMvps}</p></div>
@@ -277,8 +277,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                             </div>
                                             <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center text-[11px] font-black text-white border-2 border-white">3</div>
                                         </div>
-                                        <p className="font-black text-slate-900 text-base italic uppercase tracking-tight text-center truncate w-full">{top3[2].fullName}</p>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{top3[2].position || 'PLAYER'}</p>
+                                        <p className="text-white font-black text-base italic uppercase tracking-tight text-center truncate w-full">{top3[2].fullName}</p>
+                                        <p className="text-white/40 font-bold uppercase tracking-widest mt-1 mb-4">{top3[2].position || 'PLAYER'}</p>
                                         <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-auto">
                                             <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">SESSION</p><p className="font-black text-slate-900 text-lg">{top3[2].trainingMvps}</p></div>
                                             <div className="text-center"><p className="text-[8px] font-black text-slate-300 uppercase mb-1">MATCH</p><p className="font-black text-slate-900 text-lg">{top3[2].matchMvps}</p></div>
@@ -341,13 +341,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ role }) => {
                                                 </td>
                                                 <td className="px-4 py-4 text-center">
                                                     <span className="inline-flex flex-col items-center">
-                                                        <span className="text-xl font-black text-brand-950">{entry.trainingMvps}</span>
+                                                        <span className="text-white font-black text-xl">{entry.trainingMvps}</span>
                                                         <span className="text-[8px] text-brand-400">{entry.trainingMvps * PTS_TRAINING} pt</span>
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 text-center">
                                                     <span className="inline-flex flex-col items-center">
-                                                        <span className="text-xl font-black text-brand-950">{entry.matchMvps}</span>
+                                                        <span className="text-white font-black text-xl">{entry.matchMvps}</span>
                                                         <span className="text-[8px] text-brand-400">{entry.matchMvps * PTS_MATCH} pts</span>
                                                     </span>
                                                 </td>

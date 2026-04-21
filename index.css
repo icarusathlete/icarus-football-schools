@@ -16,8 +16,8 @@
   --color-brand-primary: #00C8FF;
   --color-brand-secondary: #0D1B8A;
   --color-brand-accent: #C3F629;
-  --color-brand-bg: #ffffff;
-  --color-brand-text: #0f172a; /* Dark slate for high readability on white */
+  --color-brand-bg: #020617;
+  --color-brand-text: #ffffff;
 
   --color-lime-default: #C3F629;
   --color-lime-glow: rgba(195, 246, 41, 0.3);
@@ -34,8 +34,8 @@
   --brand-primary: #00C8FF;
   --brand-secondary: #0D1B8A;
   --brand-accent: #C3F629;
-  --brand-bg: #ffffff;
-  --brand-text: #0f172a;
+  --brand-bg: #020617; /* Deep Navy Dark Mode Base */
+  --brand-text: #ffffff;
   
   /* Digital Stadium Pro Glassmorphism */
   /* Global Tactical Container - Updated for white background */
@@ -56,8 +56,8 @@
 }
 
 body { 
-  background-color: #ffffff; /* High visibility white base */
-  color: #0f172a;
+  background-color: var(--brand-bg); /* High visibility dark base */
+  color: #ffffff;
   overflow-x: hidden;
   width: 100vw;
   font-family: "Manrope", sans-serif;
