@@ -285,6 +285,7 @@ export const MessagingManager: React.FC = () => {
                         )}
                     </div>
                 </div>
+            </div>
 
             {/* Compose Modal - High Contrast Midnight */}
             {showCompose && (
