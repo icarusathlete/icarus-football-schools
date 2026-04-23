@@ -16,7 +16,7 @@
   --color-brand-primary: #00C8FF;
   --color-brand-secondary: #0D1B8A;
   --color-brand-accent: #C3F629;
-  --color-brand-bg: #020617;
+  --color-brand-bg: #070b42;
   --color-brand-text: #ffffff;
 
   --color-lime-default: #C3F629;
@@ -34,30 +34,30 @@
   --brand-primary: #00C8FF;
   --brand-secondary: #0D1B8A;
   --brand-accent: #C3F629;
-  --brand-bg: #020617; /* Deep Navy Dark Mode Base */
+  --brand-bg: #070b42; /* Elite Midnight - Dark Mode Base */
   --brand-text: #ffffff;
   
   /* Digital Stadium Pro Glassmorphism */
-  /* Global Tactical Container - Updated for white background */
-  --glass-bg: linear-gradient(135deg, #0D1B8A 0%, #1e3a8a 100%);
-  --glass-bg-alt: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  --glass-border: rgba(13, 27, 138, 0.1);
+  /* Global Tactical Container - Re-optimized for contrast on white background */
+  --glass-bg: linear-gradient(135deg, rgba(7, 11, 66, 0.98) 0%, rgba(13, 27, 138, 0.95) 100%);
+  --glass-bg-alt: linear-gradient(135deg, rgba(13, 27, 138, 0.95) 0%, rgba(7, 11, 66, 0.92) 100%);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-blur: 16px;
   
   /* Tactical Surface Tokens - Light mode optimized */
   --surface-low: #f8fafc;
   --surface-default: #ffffff;
   --surface-high: #f1f5f9;
-
-  /* Performance Glows */
-  --blue-glow: 0 10px 40px rgba(13, 27, 138, 0.1);
-  --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.15);
-  --lime-glow: 0 10px 40px rgba(195, 246, 41, 0.15);
+  
+  /* Performance Glows - Adjusted for light background */
+  --blue-glow: 0 10px 40px rgba(13, 27, 138, 0.15);
+  --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.2);
+  --lime-glow: 0 10px 40px rgba(195, 246, 41, 0.2);
 }
 
 body { 
-  background-color: var(--brand-bg); /* High visibility dark base */
-  color: #ffffff;
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
   overflow-x: hidden;
   width: 100vw;
   font-family: "Manrope", sans-serif;
@@ -112,16 +112,47 @@ body {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+/* Green Light Design Language */
+.green-light-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #C3F629;
+  opacity: 0.6;
+  box-shadow: 0 0 15px rgba(195, 246, 41, 0.5);
+  z-index: 10;
+}
+
+.tactical-border-neon {
+  border: 1px solid rgba(195, 246, 41, 0.2);
+  box-shadow: inset 0 0 10px rgba(195, 246, 41, 0.05);
+}
+
+.icon-glow-lime {
+  filter: drop-shadow(0 0 8px rgba(195, 246, 41, 0.5));
+}
+
+.icon-glow-blue {
+  filter: drop-shadow(0 0 8px rgba(0, 200, 255, 0.3));
+}
+
 /* HUD Tactical Border */
 .hud-border {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .premium-gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #00C8FF 100%);
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.6) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.tactical-accent-text {
+  color: #C3F629;
+  text-shadow: 0 0 10px rgba(195, 246, 41, 0.3);
 }
 
 /* Scrollbar Engineering */

@@ -1167,10 +1167,17 @@ export const StorageService = {
 
     try {
       await setDoc(doc(db, 'messages', id), newMessage);
-      return newMessage;
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `messages/${id}`);
+      console.warn("Firestore write failed for messages, using local fallback", error);
     }
+    
+    // Fallback: update local storage directly so UI updates immediately
+    const messages = StorageService.getMessages();
+    messages.push(newMessage);
+    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
+    window.dispatchEvent(new Event('academy_data_update'));
+    
+    return newMessage;
   },
 
   deleteMessage: async (id: string) => {

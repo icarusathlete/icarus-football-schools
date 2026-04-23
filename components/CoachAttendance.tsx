@@ -279,57 +279,58 @@ export const CoachAttendance: React.FC = () => {
       {/* ═══════════════════════════════
           SESSION CONFIGURATION
       ═══════════════════════════════ */}
-      <div className="flex items-center gap-3 px-2">
-        <Filter size={16} className="text-brand-500" />
-        <h2 className="text-xs font-black text-brand-950/40 uppercase italic tracking-[0.3em]">Session Configuration</h2>
-        <div className="h-px flex-1 bg-brand-100" />
+      <div className="flex items-center gap-3 px-4">
+        <Filter size={16} className="text-brand-400" />
+        <h2 className="text-[10px] font-black text-white/40 uppercase italic tracking-[0.3em]">Session Configuration</h2>
+        <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-brand-100 flex flex-col xl:flex-row gap-6 shadow-2xl shadow-brand-500/10">
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
-
+      <div className="glass-card p-6 md:p-8 flex flex-col xl:flex-row gap-6 shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-brand-primary opacity-[0.02] pointer-events-none" />
+        
+        <div className="flex flex-col sm:flex-row gap-4 flex-1 relative z-10">
           {/* Date */}
           <div className="relative group flex-1">
-            <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors pointer-events-none" />
+            <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-hover:text-brand-400 transition-colors pointer-events-none" />
             <input
               type="date"
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
+              className="w-full pl-12 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest cursor-pointer hover:border-brand-400/30 transition-all focus:bg-white/10 focus:ring-4 focus:ring-brand-400/5 hover:bg-white/10"
             />
           </div>
 
           {/* Venue */}
           <div className="relative group flex-1">
-            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors z-10 pointer-events-none" />
+            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-hover:text-brand-400 transition-colors z-10 pointer-events-none" />
             <select
               value={selectedVenue}
               onChange={e => setSelectedVenue(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
+              className="w-full pl-12 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-400/30 transition-all focus:bg-brand-bg focus:ring-4 focus:ring-brand-400/5 hover:bg-white/10"
             >
-              {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+              {venues.map(v => <option key={v.id} value={v.name} className="bg-brand-bg">{v.name}</option>)}
             </select>
           </div>
 
           {/* Batch */}
           <div className="relative group flex-1">
-            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 w-4 h-4 group-hover:text-brand-500 transition-colors z-10 pointer-events-none" />
+            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-hover:text-brand-400 transition-colors z-10 pointer-events-none" />
             <select
               value={selectedBatch}
               onChange={e => setSelectedBatch(e.target.value)}
-              className="w-full pl-12 pr-5 py-4 bg-brand-50/50 border border-brand-100 rounded-2xl outline-none text-brand-950 font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-500/30 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/5"
+              className="w-full pl-12 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black text-[11px] uppercase tracking-widest appearance-none cursor-pointer hover:border-brand-400/30 transition-all focus:bg-brand-bg focus:ring-4 focus:ring-brand-400/5 hover:bg-white/10"
             >
-              {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+              {batches.map(b => <option key={b.id} value={b.name} className="bg-brand-bg">{b.name}</option>)}
             </select>
           </div>
 
           {/* Search */}
           <div className="relative group flex-[1.5]">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-300 group-hover:text-brand-500 transition-colors w-4 h-4 pointer-events-none" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-brand-400 transition-colors w-4 h-4 pointer-events-none" />
             <input
               type="text"
               placeholder="Search athlete matrix..."
-              className="w-full pl-12 pr-5 py-4 bg-brand-50/30 border border-brand-100 rounded-2xl outline-none text-brand-950 placeholder:text-brand-200 font-bold text-[11px] uppercase tracking-widest focus:bg-white focus:border-brand-500/40 focus:ring-4 focus:ring-brand-500/5 transition-all"
+              className="w-full pl-12 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none text-white placeholder:text-white/10 font-bold text-[11px] uppercase tracking-widest focus:bg-white/10 focus:border-brand-400/40 focus:ring-4 focus:ring-brand-400/5 transition-all hover:bg-white/10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -337,21 +338,21 @@ export const CoachAttendance: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 shrink-0">
+        <div className="flex gap-3 shrink-0 relative z-10">
           {!isFinalized ? (
             <button
               onClick={handleFinalize}
               disabled={isFinalizing || stats.pending > 0}
-              className="px-6 py-4 bg-emerald-500 text-white rounded-2xl flex items-center gap-3 hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-6 py-4 bg-[#CCFF00] text-brand-950 rounded-2xl flex items-center gap-3 hover:scale-105 transition-all active:scale-95 shadow-xl shadow-[#CCFF00]/20 disabled:opacity-30 disabled:cursor-not-allowed group/final"
             >
-              {isFinalizing ? <Zap className="animate-spin" size={16} /> : <Check size={16} />}
+              {isFinalizing ? <Zap className="animate-spin" size={16} /> : <Check size={16} strokeWidth={3} className="group-hover/final:rotate-12 transition-transform" />}
               <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Finalize Session</span>
             </button>
           ) : (
             currentUser?.role === 'admin' && (
               <button
                 onClick={handleUnfinalize}
-                className="px-6 py-4 bg-white border border-brand-100 text-brand-400 rounded-2xl flex items-center gap-3 hover:bg-brand-50 hover:text-brand-950 transition-all active:scale-95 shadow-sm"
+                className="px-6 py-4 bg-white/10 border border-white/10 text-white/40 rounded-2xl flex items-center gap-3 hover:bg-white/20 hover:text-white transition-all active:scale-95 shadow-sm"
               >
                 <RotateCcw size={16} />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] italic whitespace-nowrap">Unlock Protocols</span>
@@ -363,19 +364,19 @@ export const CoachAttendance: React.FC = () => {
             onClick={handleSave}
             disabled={isSaving || isFinalized}
             className={`px-8 py-4 rounded-2xl flex items-center gap-3 transition-all active:scale-95 shadow-xl relative overflow-hidden group ${
-              isFinalized ? 'bg-brand-50 text-brand-200 cursor-not-allowed border border-brand-100' :
-              saveStatus === 'success' ? 'bg-brand-950 text-white shadow-brand-950/20' :
+              isFinalized ? 'bg-white/5 text-white/10 cursor-not-allowed border border-white/10' :
+              saveStatus === 'success' ? 'bg-[#CCFF00] text-brand-950 shadow-[#CCFF00]/20' :
               saveStatus === 'error' ? 'bg-red-500 text-white' :
-              'bg-brand-500 text-brand-950 hover:shadow-brand-500/40 hover:-translate-y-0.5 disabled:opacity-40'
+              'bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-brand-400/40 hover:-translate-y-0.5 disabled:opacity-40'
             }`}
           >
             {/* Shimmer Effect */}
             {!isSaving && !isFinalized && saveStatus === 'idle' && (
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none" />
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none" />
             )}
             
             {isSaving ? <Zap className="animate-spin" size={16} /> :
-             saveStatus === 'success' ? <Check size={16} /> :
+             saveStatus === 'success' ? <Check size={16} strokeWidth={3} /> :
              isFinalized ? <Lock size={16} /> :
              <Save size={16} />}
             <span className="text-[10px] font-black uppercase tracking-[0.3em] italic relative z-10 whitespace-nowrap">
@@ -388,40 +389,42 @@ export const CoachAttendance: React.FC = () => {
       {/* ═══════════════════════════════
           ROSTER MATRIX
       ═══════════════════════════════ */}
-      <div className="flex items-center gap-3 px-2">
-        <Users size={16} className="text-brand-500" />
-        <h2 className="text-xs font-black text-brand-950/40 uppercase italic tracking-[0.3em]">Active Roster Matrix</h2>
-        <div className="h-px flex-1 bg-brand-100" />
+      <div className="flex items-center gap-3 px-4">
+        <Users size={16} className="text-brand-400" />
+        <h2 className="text-[10px] font-black text-white/40 uppercase italic tracking-[0.3em]">Active Roster Matrix</h2>
+        <div className="h-px flex-1 bg-white/10" />
       </div>
 
       {players.length === 0 ? (
-        <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-brand-50 rounded-[2.5rem] border border-brand-100">
-          <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center text-brand-100 border border-brand-100">
-            <Users size={40} />
+        <div className="py-24 flex flex-col items-center justify-center p-12 text-center space-y-8 glass-card border-dashed border-white/20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-brand-primary opacity-[0.02] pointer-events-none" />
+          <div className="w-24 h-24 bg-white/5 backdrop-blur-3xl shadow-2xl rounded-[2.5rem] flex items-center justify-center text-white/10 border border-white/10 relative group/icon">
+             <div className="absolute inset-0 bg-brand-400/5 blur-2xl group-hover/icon:blur-3xl transition-all" />
+            <Users size={48} className="relative z-10" />
           </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-black text-brand-950 uppercase italic tracking-tight">No Players linked</h3>
-            <p className="text-brand-400 text-sm max-w-sm font-medium">
-              No players are assigned to <b className="text-brand-950">{selectedVenue}</b> in batch <b className="text-brand-950">{selectedBatch}</b>. Verify player profiles or adjust filters.
+          <div className="space-y-4 relative z-10">
+            <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">NO SIGNAL <br/><span className="text-brand-400">RETRIEVED</span></h3>
+            <p className="text-white/30 text-[10px] max-w-sm font-black uppercase tracking-[0.4em] italic leading-relaxed mx-auto">
+              No players are assigned to <b className="text-white">{selectedVenue}</b> in batch <b className="text-white">{selectedBatch}</b>. <br/>Recalibrate search parameters.
             </p>
           </div>
         </div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-12">
           {sortedCategories.map(category => (
-            <div key={category} className="space-y-5">
+            <div key={category} className="space-y-6">
 
               {/* Category Header */}
-              <div className="flex items-center gap-4 px-1">
-                <div className="bg-brand-950 text-white px-5 py-2 rounded-xl text-[10px] font-black italic tracking-[0.25em] flex items-center gap-2 shadow-lg">
-                  {category}
-                  <span className="text-brand-500 ml-1">[{groupedPlayers[category].length}]</span>
+              <div className="flex items-center gap-4 px-2">
+                <div className="bg-[#CCFF00] text-brand-950 px-6 py-2.5 rounded-2xl text-[10px] font-black italic tracking-[0.25em] flex items-center gap-3 shadow-xl shadow-[#CCFF00]/10">
+                  <span className="opacity-40">//</span> {category}
+                  <span className="text-brand-950/60 ml-1">[{groupedPlayers[category].length}]</span>
                 </div>
-                <div className="h-px flex-1 bg-brand-100" />
+                <div className="h-px flex-1 bg-white/5" />
               </div>
 
               {/* Player Grid */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5">
                 {groupedPlayers[category].map((player) => {
                   const isPresent = attendance[player.id] === AttendanceStatus.PRESENT;
                   const isAbsent = attendance[player.id] === AttendanceStatus.ABSENT;
@@ -430,90 +433,109 @@ export const CoachAttendance: React.FC = () => {
                   return (
                     <div
                       key={player.id}
-                      className={`glass-card p-5 !rounded-[2.5rem] relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 
+                      className={`glass-card p-6 !rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1.5 
                         ${isPresent 
-                          ? '!border-emerald-500/30 hover:!border-emerald-500/50' 
+                          ? '!border-emerald-500/40 shadow-[0_10px_30px_rgba(16,185,129,0.1)] bg-emerald-500/[0.02]' 
                           : isAbsent 
-                          ? '!border-red-500/30 hover:!border-red-500/50' 
-                          : 'hover:!border-brand-400/40 focus-within:!border-brand-400/40 border-white/10'
+                          ? '!border-red-500/40 shadow-[0_10px_30px_rgba(239,68,68,0.1)] bg-red-500/[0.02]' 
+                          : 'border-white/10 hover:!border-white/20'
                         }`}
                     >
-                      {/* ── LED status dot (top-right) ── */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <div className={`relative w-2.5 h-2.5 rounded-full 
-                          ${isPresent 
-                            ? 'bg-emerald-500 shadow-[0_0_7px_3px_rgba(16,185,129,0.5)] animate-pulse' 
-                            : isAbsent 
-                            ? 'bg-red-500 shadow-[0_0_7_px_3px_rgba(239,68,68,0.5)] animate-pulse' 
-                            : 'bg-white/20 shadow-none'
-                          }`}
-                        >
-                          <div className="absolute top-[2px] left-[2px] w-[4px] h-[4px] rounded-full bg-white/70" />
-                        </div>
+                      {/* Decorative elements */}
+                      {isPresent && <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 blur-[40px] pointer-events-none" />}
+                      {isAbsent && <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 blur-[40px] pointer-events-none" />}
+                      
+                      {/* LED Status Indicator */}
+                      <div className="absolute top-5 right-5 z-20">
+                          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-500 
+                            ${isPresent ? 'bg-emerald-500 shadow-[0_0_10px_3px_rgba(16,185,129,0.5)] animate-pulse' : 
+                              isAbsent ? 'bg-red-500 shadow-[0_0_10px_3px_rgba(239,68,68,0.5)] animate-pulse' : 
+                              'bg-white/10 ring-1 ring-white/10 shadow-inner'}`} 
+                          />
                       </div>
 
-                      <div className="flex items-start gap-4 mb-5">
-                        <div className="relative shrink-0">
+                      <div className="flex flex-col items-center text-center relative z-10">
+                        {/* Avatar Section */}
+                        <div className="relative mb-4 group/avatar">
+                          <div className={`absolute -inset-1 rounded-2xl opacity-10 blur-sm group-hover/avatar:opacity-30 transition-opacity
+                            ${isPresent ? 'bg-emerald-500' : isAbsent ? 'bg-red-500' : 'bg-brand-400'}`} />
+                          
                           <img 
                             src={player.photoUrl} 
-                            className={`w-14 h-14 rounded-2xl bg-brand-950 object-cover border-2 shadow-xl transition-all duration-300 
-                              ${isPresent ? 'border-emerald-500/50' : isAbsent ? 'border-red-500/50' : 'border-white/10 group-hover:border-brand-400/30'}`} 
+                            className={`w-24 h-24 rounded-2xl bg-brand-bg object-cover border-2 transition-all duration-500 relative z-10
+                              ${isPresent ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' : 
+                                isAbsent ? 'border-red-500 shadow-lg shadow-red-500/20' : 
+                                'border-white/10 grayscale-[100%] opacity-40 group-hover:grayscale-0 group-hover:opacity-100'}`} 
                           />
-                          {isPresent && <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-brand-950 p-0.5 rounded-full shadow-glow-sm"><Check size={10} strokeWidth={4} /></div>}
-                          {isAbsent && <div className="absolute -bottom-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-glow-sm"><X size={10} strokeWidth={4} /></div>}
-                        </div>
-                        
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-1">
-                            <h3 className="font-black text-white italic truncate text-sm uppercase leading-tight group-hover:text-brand-400 transition-colors">
-                              {player.fullName.split(' ')[0]}<br/>{player.fullName.split(' ').slice(1).join(' ')}
-                            </h3>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
-                              className={`transition-all duration-300 p-1.5 rounded-lg shrink-0
-                                ${isMotm ? 'text-amber-500 scale-110 bg-amber-500/10 shadow-glow-sm' : 'text-white/10 hover:text-amber-500 hover:bg-white/5'}
-                                ${isFinalized ? 'opacity-30 cursor-not-allowed' : 'active:scale-90'}`}
-                            >
-                              <Trophy size={16} fill={isMotm ? "currentColor" : "none"} />
-                            </button>
-                          </div>
                           
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/[0.03] rounded border border-white/5">
-                              <span className="text-[8px] font-black text-white/40 uppercase italic tracking-tighter">#{player.memberId}</span>
+                          {/* Award Badges */}
+                          {isMotm && (
+                            <div className="absolute -top-3 -left-3 bg-amber-500 text-brand-950 w-8 h-8 rounded-xl flex items-center justify-center shadow-xl shadow-amber-500/20 ring-4 ring-brand-bg z-20 rotate-[-12deg]">
+                              <Trophy size={14} fill="currentColor" />
                             </div>
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-brand-400/10 rounded border border-brand-400/20">
-                              <span className="text-[8px] font-black text-brand-400 uppercase italic tracking-tighter">{player.position || ''}</span>
-                            </div>
+                          )}
+                          
+                          {/* Mini status indicator */}
+                          <div className={`absolute -bottom-2 -right-2 p-1.5 rounded-xl border-2 ring-4 ring-brand-bg z-20 transition-all scale-0 group-hover:scale-100 duration-300
+                            ${isPresent ? 'bg-emerald-500 text-brand-950 border-emerald-400 scale-100' : 
+                              isAbsent ? 'bg-red-500 text-white border-red-400 scale-100' : 
+                              'bg-white/20 text-white border-white/40'}`}>
+                            {isPresent ? <Check size={12} strokeWidth={4} /> : isAbsent ? <X size={12} strokeWidth={4} /> : <Zap size={12} />}
                           </div>
                         </div>
-                      </div>
 
-                      {/* Tactical Attendance Toggle */}
-                      <div className={`flex gap-2 mt-2 transition-all duration-300 ${isFinalized ? 'opacity-40 pointer-events-none' : ''}`}>
-                        <button
-                          onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
-                          className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 border
-                            ${isPresent 
-                              ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-glow-sm' 
-                              : 'bg-white/[0.03] border-white/10 text-white/20 hover:bg-white/5 hover:border-emerald-500/30 hover:text-emerald-500/60'
-                            }`}
-                        >
-                          <Check size={14} strokeWidth={4} />
-                          <span className="text-[9px] font-black uppercase tracking-widest italic">PRE</span>
-                        </button>
-                        
-                        <button
-                          onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
-                          className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 border
-                            ${isAbsent 
-                              ? 'bg-red-500/20 border-red-500/50 text-red-400 shadow-glow-sm' 
-                              : 'bg-white/[0.03] border-white/10 text-white/20 hover:bg-white/5 hover:border-red-500/30 hover:text-red-500/60'
-                            }`}
-                        >
-                          <X size={14} strokeWidth={4} />
-                          <span className="text-[9px] font-black uppercase tracking-widest italic">ABS</span>
-                        </button>
+                        <div className="space-y-1 mb-6 px-1">
+                          <h3 className="text-sm font-black text-white uppercase italic tracking-tight leading-none truncate w-full">
+                            {player.fullName}
+                          </h3>
+                          <div className="flex items-center justify-center gap-2">
+                             <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] italic">#{player.memberId}</span>
+                             <span className="w-1 h-1 bg-white/10 rounded-full" />
+                             <span className="text-[9px] font-black text-brand-400 uppercase italic tracking-widest">{player.position || 'RESERVE'}</span>
+                          </div>
+                        </div>
+
+                        {/* MOTM & Tactical Controls */}
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                          <button
+                            onClick={() => toggleAttendance(player.id, AttendanceStatus.PRESENT)}
+                            disabled={isFinalized}
+                            className={`flex flex-col items-center justify-center gap-1.5 py-4 rounded-2xl border transition-all duration-300 relative overflow-hidden group/btn
+                              ${isPresent 
+                                ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' 
+                                : 'bg-white/5 border-white/10 text-white/20 hover:border-emerald-500/40 hover:text-emerald-500/60 hover:bg-emerald-500/[0.02]'
+                              } ${isFinalized ? 'opacity-20 cursor-not-allowed' : 'active:scale-95'}`}
+                          >
+                            <Check size={14} strokeWidth={4} className={`${isPresent ? 'scale-110' : 'opacity-40'}`} />
+                            <span className="text-[8px] font-black tracking-[0.2em] uppercase italic">Present</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => toggleAttendance(player.id, AttendanceStatus.ABSENT)}
+                            disabled={isFinalized}
+                            className={`flex flex-col items-center justify-center gap-1.5 py-4 rounded-2xl border transition-all duration-300 relative overflow-hidden group/btn
+                              ${isAbsent 
+                                ? 'bg-red-500/10 border-red-500/50 text-red-400' 
+                                : 'bg-white/5 border-white/10 text-white/20 hover:border-red-500/40 hover:text-red-500/60 hover:bg-red-500/[0.02]'
+                              } ${isFinalized ? 'opacity-20 cursor-not-allowed' : 'active:scale-95'}`}
+                          >
+                            <X size={14} strokeWidth={4} className={`${isAbsent ? 'scale-110' : 'opacity-40'}`} />
+                            <span className="text-[8px] font-black tracking-[0.2em] uppercase italic">Absent</span>
+                          </button>
+
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
+                            disabled={isFinalized}
+                            className={`col-span-2 py-3 rounded-xl border transition-all duration-300 flex items-center justify-center gap-3
+                              ${isMotm 
+                                ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
+                                : 'bg-white/5 border-white/10 text-white/10 hover:text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/30'
+                              } ${isFinalized ? 'opacity-20 cursor-not-allowed' : 'active:scale-95'}`}
+                          >
+                            <Trophy size={14} fill={isMotm ? "currentColor" : "none"} />
+                            <span className="text-[9px] font-black tracking-[0.2em] uppercase italic">Star of the Match</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );

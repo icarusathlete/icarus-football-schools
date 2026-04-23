@@ -176,27 +176,29 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
 
     if (user?.linkedPlayerId && !player) {
         return (
-            <div className="min-h-screen bg-brand-950 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000">
-                <div className="relative w-32 h-32 mb-12">
-                    <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-brand-primary animate-spin-slow" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Shield size={32} className="text-brand-primary animate-pulse-slow" />
+            <div className="flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000 min-h-[60vh]">
+                <div className="glass-card p-12 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group max-w-md w-full">
+                    <div className="relative w-32 h-32 mb-12 mx-auto">
+                        <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-brand-primary animate-spin-slow" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Shield size={32} className="text-brand-primary animate-pulse-slow" />
+                        </div>
                     </div>
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic mb-4">
+                        SYNCING <span className="text-brand-primary">PROFILE</span>
+                    </h2>
+                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mb-6">
+                        <div className="h-full bg-brand-primary animate-progress w-full" />
+                    </div>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] italic leading-relaxed">Secure Tactical Handshake<br/>Fetching Athlete Data</p>
                 </div>
-                <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic mb-4">
-                    SYNCING <span className="text-brand-primary">PROFILE</span>
-                </h2>
-                <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-primary animate-progress w-full" />
-                </div>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-6 italic">Secure Tactical Handshake - Fetching Athlete Data</p>
             </div>
         );
     }
 
     if (!player) {
         return (
-            <div className="min-h-screen bg-brand-950 flex items-center justify-center p-6">
+            <div className="flex items-center justify-center p-6 min-h-[60vh]">
                 <div className="glass-card p-12 max-w-md w-full text-center space-y-8 relative overflow-hidden group rounded-[3rem]">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity text-white"><Users size={120} /></div>
                     <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
@@ -292,9 +294,9 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                         <button key={m} onClick={() => setViewMode(m as any)}
                             className={`px-10 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-2.5 italic
                                 ${viewMode === m
-                                    ? 'bg-brand-primary text-brand-950 shadow-xl shadow-brand-primary/20'
+                                    ? 'bg-brand-secondary text-white shadow-[0_10px_30px_rgba(13,27,138,0.5)] border border-brand-accent/30'
                                     : 'text-white/40 hover:text-white hover:bg-white/5'}`}>
-                            {m === 'scout' ? <Target size={14} /> : <Command size={14} />}
+                            {m === 'scout' ? <Target size={14} className={viewMode === m ? 'text-brand-accent' : ''} /> : <Command size={14} className={viewMode === m ? 'text-brand-accent' : ''} />}
                             {label}
                         </button>
                     ))}
@@ -323,10 +325,11 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
             ) : (
                 <div className="space-y-10 animate-in slide-in-from-left-8 duration-500">
                     {/* ─── Athlete Hero HUD (Digital Stadium Elite) ────────────────── */}
-                    <div className="relative rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-2xl overflow-hidden group bg-brand-900/50 backdrop-blur-2xl">
+                    <div className="relative rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-2xl overflow-hidden group bg-brand-900/40 backdrop-blur-3xl">
+                        <div className="green-light-bar" />
                         {/* Background Elements */}
-                        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
-                             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+                        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+                             style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 21px)' }} />
                         <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 pointer-events-none">
                             <Shield size={400} className="text-white" />
                         </div>
@@ -338,16 +341,16 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                     <div className="relative w-44 h-44 md:w-60 md:h-60 rounded-[2.5rem] p-1.5 bg-white/5 border border-white/10 shadow-2xl overflow-hidden">
                                         <img src={player.photoUrl} className="w-full h-full rounded-[2rem] object-cover filter saturate-[1.2] contrast-[1.05]" />
                                     </div>
-                                    <div className="absolute -bottom-4 -right-4 bg-brand-primary text-brand-950 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl border-4 border-brand-950 italic">
+                                    <div className="absolute -bottom-4 -right-4 bg-brand-secondary text-white px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl border-2 border-brand-accent/50 italic">
                                         {player.position}
                                     </div>
                                 </div>
                                 
                                 <div className="text-center md:text-left">
                                     <div className="flex items-center gap-4 mb-6 justify-center md:justify-start">
-                                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-brand-primary/20 border border-brand-primary/20 backdrop-blur-md">
-                                            <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_12px_rgba(0,200,255,0.6)]" />
-                                            <span className="text-[9px] font-black text-brand-primary uppercase tracking-[0.2em] italic">Elite Status</span>
+                                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-brand-accent/10 border border-brand-accent/20 backdrop-blur-md">
+                                            <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_12px_rgba(195,246,41,0.6)]" />
+                                            <span className="text-[9px] font-black text-brand-accent uppercase tracking-[0.2em] italic">Elite Status</span>
                                         </div>
                                         <span className="text-white/20 text-[11px] font-black tracking-[0.4em] uppercase italic">ID: {player.memberId}</span>
                                     </div>
@@ -365,8 +368,8 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                             </div>
                             
                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 w-full xl:w-auto">
-                                <button onClick={handleDownloadIDCard} className="p-8 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-white/10 transition-all shadow-2xl group/btn text-center backdrop-blur-xl">
-                                    <PlayCircle size={32} className="text-brand-primary group-hover/btn:scale-110 transition-transform mx-auto mb-4" />
+                                <button onClick={handleDownloadIDCard} className="p-8 rounded-[2rem] bg-white/5 border border-white/5 hover:bg-brand-secondary hover:border-brand-accent/30 transition-all shadow-2xl group/btn text-center backdrop-blur-xl">
+                                    <Download size={32} className="text-brand-accent group-hover/btn:scale-110 transition-transform mx-auto mb-4" />
                                     <span className="block text-[9px] font-black text-white/40 group-hover/btn:text-white uppercase tracking-[0.3em] italic">DOWNLOAD ID</span>
                                 </button>
                                 <button onClick={handleDownloadInvoice} disabled={!feeStatus?.invoice} className={`p-8 rounded-[2rem] border transition-all shadow-2xl group/btn text-center backdrop-blur-xl ${feeStatus?.status === 'PAID' ? 'bg-white/5 border-white/5 hover:bg-brand-primary hover:text-brand-950' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
@@ -603,22 +606,52 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                 </div>
                             </div>
 
-                            {/* Kit Requirements (Digital Stadium Style) */}
-                            <div className="glass-card rounded-[3rem] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
+                            {/* Tactical Gear Brief */}
+                            <div className="glass-card rounded-[3.5rem] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
+                                <div className="green-light-bar" />
                                 <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><Shirt size={140} className="text-white" /></div>
-                                <h4 className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] mb-8 italic">Kit Protocol</h4>
+                                <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.4em] mb-10 italic">Tactical Gear Brief</h4>
                                 {upcomingEvents[0] ? (
-                                    <div className="flex items-center gap-8 relative z-10">
-                                        <div className={`p-6 rounded-3xl border shadow-xl ${getKitRequirement(upcomingEvents[0].date).style.replace('bg-slate-50', 'bg-white/5').replace('text-slate-400', 'text-white/40').replace('border-slate-200', 'border-white/10')}`}>
-                                            <Shirt size={32} />
+                                    <div className="space-y-8 relative z-10">
+                                        <div className="flex items-center gap-8">
+                                            <div className={`p-6 rounded-[2rem] border shadow-2xl transition-all duration-500 group-hover:rotate-6 ${getKitRequirement(upcomingEvents[0].date).style.replace('bg-slate-50', 'bg-white/5').replace('text-slate-400', 'text-white/40').replace('border-slate-200', 'border-white/10')}`}>
+                                                <Shirt size={36} className="icon-glow-lime" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">PRIMARY KIT</div>
+                                                <div className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">{getKitRequirement(upcomingEvents[0].date).color}</div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div className="text-2xl font-black text-white italic uppercase tracking-tighter">{getKitRequirement(upcomingEvents[0].date).color}</div>
-                                            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mt-2 italic">Standard Tactical Uniform</p>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-3">FOOTWEAR</div>
+                                                <div className="flex items-center gap-3">
+                                                    <Dumbbell size={14} className="text-brand-accent" />
+                                                    <span className="text-[10px] font-black text-white uppercase italic">Firm Ground</span>
+                                                </div>
+                                            </div>
+                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-3">HYDRATION</div>
+                                                <div className="flex items-center gap-3">
+                                                    <Coffee size={14} className="text-brand-accent" />
+                                                    <span className="text-[10px] font-black text-white uppercase italic">1.5L Mineral</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-brand-accent" />
+                                                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">EQUIPMENT READINESS: VERIFIED</span>
+                                            </div>
+                                            <Zap size={14} className="text-brand-accent animate-pulse" />
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-[10px] font-black text-white/10 uppercase tracking-widest italic py-4">Awaiting next session data…</div>
+                                    <div className="text-center py-12">
+                                        <div className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em] italic">AWAITING MISSION DATA</div>
+                                    </div>
                                 )}
                             </div>
                         </div>

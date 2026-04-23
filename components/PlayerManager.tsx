@@ -6,7 +6,7 @@ import {
     Phone, MapPin, Layers, Map, Filter, Camera, 
     Shield, Check, Key, Activity, Users, History, 
     Zap, ChevronRight, MoreVertical, Target,
-    Database, CheckCircle2, Download
+    Database, CheckCircle2, Download, ChevronDown
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { PlayerPerformanceModal } from './PlayerPerformanceModal';
@@ -232,6 +232,7 @@ export const PlayerManager: React.FC = () => {
       {/* ── Hero Section ───────────────────────────────────────────────────── */}
       {/* ── Hero Section ───────────────────────────────────────────────────── */}
       <div className="glass-card p-8 md:p-12 rounded-[3.5rem] border border-white/20 shadow-[0_20px_50px_rgba(13,27,138,0.3)] relative overflow-hidden group ring-1 ring-white/10">
+        <div className="green-light-bar" />
         <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
           <Users size={320} className="text-white -mr-16 -mt-16" />
         </div>
@@ -267,24 +268,28 @@ export const PlayerManager: React.FC = () => {
           </div>
 
           {/* KPI Grid Integration */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: 'Total Roster', value: stats.totalPlayers, sub: 'Active Assets', icon: <Users size={16} />, color: '#CCFF00' },
-              { label: 'New Joiners', value: stats.newThisMonth, sub: 'This Month', icon: <Zap size={16} />, color: stats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)' },
-              { label: 'Command staff', value: stats.activeCoaches, sub: 'Active Personnel', icon: <Shield size={16} />, color: '#60a5fa' },
-              { label: 'OPERATIONAL SECTORS', value: stats.venuesCount, sub: 'Active Venues', icon: <MapPin size={16} />, color: '#f59e0b' }
+              { label: 'Total Roster', value: stats.totalPlayers, sub: 'Active Assets', icon: <Users size={18} />, color: '#C3F629' },
+              { label: 'New Joiners', value: stats.newThisMonth, sub: 'This Month', icon: <Zap size={18} />, color: stats.newThisMonth > 0 ? '#C3F629' : 'rgba(255,255,255,0.4)' },
+              { label: 'Command staff', value: stats.activeCoaches, sub: 'Active Personnel', icon: <Shield size={18} />, color: '#60a5fa' },
+              { label: 'OPERATIONAL SECTORS', value: stats.venuesCount, sub: 'Active Venues', icon: <MapPin size={18} />, color: '#f59e0b' }
             ].map((k, i) => (
-              <div key={i} className="bg-black/40 border border-white/[0.08] p-6 rounded-[2rem] group/kpi hover:bg-black/60 hover:border-white/20 transition-all duration-500 shadow-xl backdrop-blur-md">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.25em] italic">{k.label}</p>
-                  <div style={{ color: k.color }} className="opacity-60 group-hover/kpi:opacity-100 transition-opacity translate-x-1 -translate-y-1">
-                    {k.icon}
-                  </div>
+              <div key={i} className="glass-card-alt p-8 rounded-[2.5rem] group/kpi hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
+                <div className="green-light-bar" />
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/kpi:scale-110 transition-transform duration-700">
+                    <div style={{ color: k.color }}>{k.icon}</div>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-black italic leading-none tracking-tighter text-white group-hover/kpi:text-brand-accent transition-colors duration-500">{k.value}</p>
+                <div className="relative z-10">
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-4">{k.label}</p>
+                    <div className="flex items-baseline gap-2">
+                        <p className="text-5xl font-black italic leading-none tracking-tighter text-white group-hover/kpi:text-brand-accent transition-colors duration-500">{k.value}</p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4">
+                        <span className="w-6 h-[1px] bg-white/10"></span>
+                        <p className="text-[10px] font-black italic text-white/20 uppercase tracking-widest">{k.sub}</p>
+                    </div>
                 </div>
-                <p className="text-[10px] font-black italic text-white/20 mt-3 uppercase tracking-widest">{k.sub}</p>
               </div>
             ))}
           </div>
@@ -292,7 +297,8 @@ export const PlayerManager: React.FC = () => {
       </div>
 
       {/* ── Strategic Filters ────────────────────────────────────────────────── */}
-      <div className="glass-card p-4 rounded-[2.5rem] border border-white/10 backdrop-blur-xl flex flex-col lg:flex-row gap-4 items-center shadow-2xl relative overflow-hidden ring-1 ring-white/5 mx-1">
+      <div className="glass-card-alt p-6 rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-4 items-center mx-1">
+          <div className="green-light-bar" />
           <div className="absolute top-0 left-0 w-64 h-64 bg-brand-accent/5 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
           
           <div className="relative flex-1 w-full group/input">
@@ -300,7 +306,7 @@ export const PlayerManager: React.FC = () => {
               <input 
                 type="text" 
                 placeholder={`ENTER ASSET IDENTIFIER OR NAME...`} 
-                className="w-full pl-14 pr-6 py-5 bg-white/5 border border-white/10 rounded-2xl text-[12px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all placeholder:text-white/15 uppercase tracking-[0.15em]"
+                className="w-full pl-14 pr-6 py-6 bg-white/5 border border-white/10 rounded-2xl text-[12px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all placeholder:text-white/15 uppercase tracking-[0.15em] shadow-inner"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -314,275 +320,235 @@ export const PlayerManager: React.FC = () => {
                   <div key={i} className="relative group/select min-w-[180px]">
                       <f.icon size={12} className={`absolute left-5 top-1/2 -translate-y-1/2 text-white/25 group-hover/select:${f.color} transition-colors duration-500 z-10`} />
                       <select 
-                        className="w-full pl-11 pr-10 py-5 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all appearance-none uppercase tracking-[0.1em] cursor-pointer"
+                        className="w-full pl-11 pr-10 py-6 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all appearance-none uppercase tracking-[0.1em] cursor-pointer shadow-inner"
                         value={f.val}
                         onChange={(e) => f.set(e.target.value)}
                       >
-                          <option value="ALL" className="bg-brand-950">ALL {f.label.toUpperCase()}</option>
-                          {f.opts.map(v => <option key={v.id} value={v.name} className="bg-brand-950">{v.name}</option>)}
+                          <option value="ALL" className="bg-[#0a0f2d] text-white">ALL {f.label.toUpperCase()}</option>
+                          {f.opts.map(v => <option key={v.id} value={v.name} className="bg-[#0a0f2d] text-white">{v.name}</option>)}
                       </select>
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-white/15 group-hover/select:text-white/40 transition-all">
-                          <ChevronRight size={12} className="rotate-90" />
-                      </div>
+                      <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none group-hover/select:text-brand-accent transition-colors" />
                   </div>
               ))}
           </div>
       </div>
-
       {/* ── Player Roster ──────────────────────────────────────────────────── */}
       {activeTab === 'players' && (
-        <div className="space-y-6">
-          {/* Desktop Matrix */}
-          <div className="hidden md:block overflow-hidden rounded-[2.5rem] border border-white/10 glass-card shadow-2xl ring-1 ring-white/5">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/[0.05] bg-black/20">
-                  {['PLAYER PROFILE', 'UID', 'AGE GROUP', 'SECTOR / DIVISION', 'COMMANDER / CONTACT', 'ACTIONS'].map((h, i) => (
-                    <th key={i} className={`px-8 py-6 text-[9px] font-black text-white/40 uppercase tracking-[0.25em] italic ${i === 5 ? 'text-right' : ''}`}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.03]">
-                {filteredPlayers.length > 0 ? filteredPlayers.map((player) => (
-                    <tr key={player.id} className="group hover:bg-white/[0.04] transition-all duration-300">
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500"
-                            style={{ background: nameColor(player.fullName || 'P'), color: '#000' }}>
-                            {initials(player.fullName || 'P')}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[13px] font-black text-white uppercase tracking-tight italic truncate">{player.fullName || 'UNKNOWN PLAYER'}</p>
-                            <p className="text-[9px] font-bold text-brand-accent uppercase tracking-[0.15em] mt-1 flex items-center gap-1.5 opacity-60">
-                                <Activity size={10} /> {player.playerRole || 'SQUAD'}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                          <span className="text-[10px] font-mono font-bold text-white/30 tracking-[0.2em] uppercase bg-black/30 px-2.5 py-1 rounded-lg border border-white/[0.05]">
-                              {player.id.slice(0, 8)}
-                          </span>
-                      </td>
-                      <td className="px-8 py-5">
-                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20">
-                            <span className="text-[10px] font-black text-brand-primary uppercase italic">{ageGroup(player.dateOfBirth)}</span>
-                          </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="space-y-1.5">
-                            <div className="flex items-center gap-2 group/venue">
-                                <MapPin size={10} className="text-brand-accent/60" />
-                                <span className="text-[11px] font-black text-white/80 uppercase italic tracking-wider">{player.venue}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Layers size={10} className="text-brand-primary/60" />
-                                <span className="text-[10px] font-bold text-white/40 uppercase italic tracking-widest">{player.batch}</span>
-                            </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <p className="text-[11px] font-black text-white/80 uppercase italic leading-none">{player.parentFirstName} {player.parentLastName}</p>
-                        <div className="flex items-center gap-2 mt-2 opacity-40">
-                            <Phone size={10} />
-                            <p className="text-[10px] font-bold tracking-widest">{player.contactNumber}</p>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                          <div className="flex items-center justify-end gap-2.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                              <button 
-                                onClick={() => setViewingPerformance(player)}
-                                className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-brand-accent hover:bg-brand-accent/10 hover:border-brand-accent/30 flex items-center justify-center transition-all shadow-xl"
-                                title="Performance Metrics"
-                              >
-                                  <Target size={16} />
-                              </button>
-                              <button 
-                                onClick={() => openEditModal(player, 'player')}
-                                className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:bg-white/10 hover:border-white/20 flex items-center justify-center transition-all shadow-xl"
-                                title="Edit Profile"
-                              >
-                                  <Edit2 size={16} />
-                              </button>
-                              <button 
-                                onClick={() => handleSecureDelete(player, 'player')}
-                                className="w-10 h-10 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500/20 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/30 flex items-center justify-center transition-all shadow-xl"
-                                title="Terminate Record"
-                              >
-                                  <Trash2 size={16} />
-                              </button>
-                          </div>
-                      </td>
-                    </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={6} className="px-8 py-40 text-center">
-                      <div className="flex flex-col items-center gap-4 opacity-10">
-                        <Users size={64} className="text-white" />
-                        <p className="text-sm font-black uppercase tracking-[0.5em] text-white italic">NO SQUAD PERSONNEL DETECTED</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Force Units */}
-          <div className="md:hidden space-y-5">
-            {filteredPlayers.map((player) => (
-                <div key={player.id} className="glass-card p-7 rounded-[2.5rem] border border-white/20 relative overflow-hidden group shadow-2xl">
-                  <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
-                    <Users size={160} className="text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {filteredPlayers.length > 0 ? filteredPlayers.map((player) => {
+            const rating = player.evaluation?.overallRating || 0;
+            const metrics = player.evaluation?.metrics || { passing: 0, shooting: 0, beepTest: 0 };
+            
+            return (
+              <div key={player.id} className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-700 shadow-2xl relative">
+                <div className="green-light-bar" />
+                
+                {/* Card Top HUD */}
+                <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-brand-accent uppercase tracking-widest italic">{player.position}</span>
+                    <div className="w-1 h-1 rounded-full bg-white/20" />
+                    <span className="text-[9px] font-mono text-white/40">{player.memberId}</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-accent to-green-500 flex items-center justify-center text-brand-950 text-xl font-black italic shadow-[0_10px_25px_rgba(195,246,41,0.3)]">
-                          {(player.fullName || 'P')[0]}
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-none">{player.fullName || 'UNKNOWN PLAYER'}</h3>
-                          <p className="text-[10px] font-black text-brand-accent uppercase tracking-[0.2em] italic mt-2 opacity-90 flex items-center gap-1.5">
-                              <Activity size={10} /> {player.playerRole || 'SQUAD'}
-                          </p>
-                        </div>
+                  {rating > 0 && (
+                    <div className="px-3 py-1 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center gap-2">
+                      <span className="text-[10px] font-black text-brand-accent">RTG</span>
+                      <span className="text-sm font-black text-white italic">{rating}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-8 relative z-10">
+                  {/* Digital Avatar Area */}
+                  <div className="flex justify-center mb-8">
+                    <div className="relative group/avatar">
+                      <div className="absolute -inset-4 bg-brand-accent/10 rounded-full blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
+                      <div className="w-32 h-32 rounded-[2.5rem] border-2 border-white/10 group-hover/avatar:border-brand-accent/40 overflow-hidden relative z-10 transition-all duration-500 shadow-2xl group-hover/avatar:rotate-2 group-hover/avatar:scale-105">
+                        {player.photoUrl ? (
+                          <img src={player.photoUrl} alt={player.fullName} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl font-black italic bg-gradient-to-br from-brand-accent/20 to-brand-900 text-white">
+                            {initials(player.fullName)}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 to-transparent opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
                       </div>
-                      <div className="bg-white/10 border border-white/20 px-3 py-1.5 rounded-xl">
-                          <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.1em]">{player.id.slice(0, 8)}</p>
+                      <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-brand-950 border border-white/10 flex items-center justify-center text-brand-accent shadow-xl z-20 group-hover/avatar:scale-110 transition-transform">
+                        <Activity size={16} />
                       </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-8">
+                  {/* Player Identity */}
+                  <div className="text-center mb-8">
+                    <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-tight group-hover:text-brand-accent transition-colors duration-500">
+                      {player.fullName || 'UNKNOWN'}
+                    </h3>
+                    <div className="flex items-center justify-center gap-4 mt-3">
+                      <div className="flex items-center gap-2">
+                        <MapPin size={10} className="text-white/40" />
+                        <span className="text-[10px] font-black text-white/40 uppercase italic tracking-widest">{player.venue}</span>
+                      </div>
+                      <div className="w-1 h-1 rounded-full bg-white/10" />
+                      <div className="flex items-center gap-2">
+                        <Layers size={10} className="text-white/40" />
+                        <span className="text-[10px] font-black text-white/40 uppercase italic tracking-widest">{player.batch}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tactical Metrics Grid */}
+                  <div className="space-y-4 pt-6 border-t border-white/5">
                     {[
-                      { l: 'SECTOR', v: player.venue, c: 'text-white', i: MapPin },
-                      { l: 'DIVISION', v: player.batch, c: 'text-brand-primary', i: Layers },
-                      { l: 'COMMANDER', v: player.parentFirstName, c: 'text-white/80', i: UserIcon },
-                      { l: 'FREQUENCY', v: player.contactNumber, c: 'text-white/40', i: Phone }
-                    ].map((item, i) => (
-                      <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <div className="flex items-center gap-2 mb-2">
-                            <item.i size={10} className="text-white/20" />
-                            <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">{item.l}</p>
+                      { label: 'Passing', val: metrics.passing || 0, color: 'from-blue-500 to-cyan-400' },
+                      { label: 'Shooting', val: metrics.shooting || 0, color: 'from-emerald-500 to-[#CCFF00]' },
+                      { label: 'Fitness', val: metrics.beepTest || 0, color: 'from-orange-500 to-amber-400' }
+                    ].map((m, idx) => (
+                      <div key={idx}>
+                        <div className="flex justify-between items-center mb-1.5 px-1">
+                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] italic">{m.label}</span>
+                          <span className="text-[10px] font-mono font-bold text-white/60">{m.val}%</span>
                         </div>
-                        <p className={`text-[11px] font-black uppercase italic truncate ${item.c}`}>{item.v}</p>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03]">
+                          <div 
+                            className={`h-full bg-gradient-to-r ${m.color} transition-all duration-1000 ease-out`}
+                            style={{ width: `${m.val || 10}%` }}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
-
-                  <div className="flex gap-3">
-                      <button 
-                        onClick={() => setViewingPerformance(player)}
-                        className="flex-1 py-4 bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black text-white/50 uppercase tracking-[0.2em] italic hover:bg-brand-accent/20 hover:text-brand-accent transition-all"
-                      >
-                          METRICS
-                      </button>
-                      <button 
-                        onClick={() => openEditModal(player, 'player')}
-                        className="flex-1 py-4 bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black text-white/50 uppercase tracking-[0.2em] italic hover:bg-white/20 hover:text-white transition-all"
-                      >
-                          MODIFY
-                      </button>
-                      <button 
-                         onClick={() => handleSecureDelete(player, 'player')}
-                         className="px-5 py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500/60 hover:bg-red-500 hover:text-white transition-all shadow-lg"
-                      >
-                          <Trash2 size={16} />
-                      </button>
-                  </div>
                 </div>
-            ))}
-          </div>
+
+                {/* Card Actions */}
+                <div className="px-6 py-6 bg-white/[0.02] border-t border-white/5 flex gap-3">
+                  <button 
+                    onClick={() => setViewingPerformance(player)}
+                    className="flex-1 h-12 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-widest italic hover:bg-brand-accent/10 hover:text-brand-accent hover:border-brand-accent/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Target size={14} /> METRICS
+                  </button>
+                  <button 
+                    onClick={() => openEditModal(player, 'player')}
+                    className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button 
+                    onClick={() => handleSecureDelete(player, 'player')}
+                    className="w-12 h-12 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500/30 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            );
+          }) : (
+            <div className="col-span-full py-40 text-center">
+              <div className="flex flex-col items-center gap-4 opacity-10">
+                <Users size={64} className="text-white" />
+                <p className="text-sm font-black uppercase tracking-[0.5em] text-white italic">NO SQUAD PERSONNEL DETECTED</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* ── Coaching Staff ────────────────────────────────────────────────── */}
       {activeTab === 'coaches' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredCoaches.length > 0 ? filteredCoaches.map((coach) => (
-            <div key={coach.id} className="glass-card rounded-[3rem] border border-white/20 overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 shadow-xl relative">
-              <div className="absolute top-0 right-0 p-10 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
-                <Shield size={180} className="text-white" />
-              </div>
+            <div key={coach.id} className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-700 shadow-2xl relative flex flex-col h-full">
+              <div className="green-light-bar" />
               
-              <div className="p-10 relative z-10 flex flex-col h-full">
-                <div className="flex flex-col items-center text-center mb-10">
-                  <div className="relative mb-6">
-                      <div className="absolute -inset-1 bg-gradient-to-br from-brand-accent to-green-500 rounded-[2.5rem] opacity-20 blur-sm group-hover:opacity-40 transition-opacity"></div>
-                      <div className="w-24 h-24 rounded-[2.2rem] bg-brand-900 border-2 border-white/20 flex items-center justify-center text-brand-950 text-4xl font-black italic relative z-10 overflow-hidden shadow-2xl">
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-accent to-green-400"></div>
-                        <span className="relative z-10">{coach.username?.[0] || 'C'}</span>
-                      </div>
-                      <div className="absolute -bottom-2 right-0 w-8 h-8 rounded-full bg-brand-950 border-2 border-brand-accent flex items-center justify-center text-brand-accent shadow-lg animate-pulse">
-                          <Zap size={12} fill="currentColor" />
-                      </div>
+              {/* Card Top HUD */}
+              <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_#C3F629]" />
+                  <span className="text-[10px] font-black text-brand-accent uppercase tracking-widest italic">{coach.role || 'STAFF'}</span>
+                </div>
+                <span className="text-[9px] font-mono text-white/40">{coach.employeeNumber || 'STAFF'}</span>
+              </div>
+
+              <div className="p-8 relative z-10 flex-1 flex flex-col">
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative mb-8 group/avatar">
+                    <div className="absolute -inset-4 bg-brand-primary/10 rounded-full blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
+                    <div className="w-28 h-28 rounded-[2.2rem] border-2 border-white/10 group-hover/avatar:border-brand-primary/40 overflow-hidden relative z-10 transition-all duration-500 shadow-2xl group-hover/avatar:-rotate-2 group-hover/avatar:scale-105">
+                      {coach.photoUrl ? (
+                        <img src={coach.photoUrl} alt={coach.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-2xl font-black italic bg-gradient-to-br from-brand-primary/20 to-brand-900 text-white">
+                          {initials(coach.fullName || coach.username)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-brand-950 border border-white/10 flex items-center justify-center text-brand-primary shadow-xl z-20 group-hover/avatar:scale-110 transition-transform">
+                      <Shield size={16} />
+                    </div>
                   </div>
                   
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-3 group-hover:text-brand-accent transition-colors">{coach.username}</h3>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/20 border border-brand-primary/30">
-                      <Shield size={10} className="text-brand-primary" />
-                      <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] italic">{coach.role || 'COMMANDER'}</span>
-                  </div>
+                  <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-none mb-6 group-hover:text-brand-primary transition-colors duration-500">
+                    {coach.fullName || coach.username}
+                  </h3>
                 </div>
 
                 <div className="space-y-6 flex-1">
                   <div className="space-y-3">
-                      <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] italic text-white/40 px-1">
-                          <span>SECTOR ASSIGNMENTS</span>
-                          <MapPin size={10} />
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                          {coach.assignedVenues && coach.assignedVenues.length > 0 ? coach.assignedVenues.map(v => (
-                            <span key={v} className="px-4 py-2 bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold text-white/80 uppercase italic tracking-wider">
-                              {v}
-                            </span>
-                          )) : (
-                            <span className="text-[10px] font-bold text-white/20 italic p-2 border border-white/10 border-dashed rounded-xl w-full text-center uppercase tracking-widest">No Sectors Assigned</span>
-                          )}
-                      </div>
+                    <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] italic text-white/30 px-1">
+                      <span>SECTOR ASSIGNMENT</span>
+                      <MapPin size={10} />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {coach.assignedVenues && coach.assignedVenues.length > 0 ? coach.assignedVenues.map(v => (
+                        <span key={v} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white/70 uppercase italic tracking-wider">
+                          {v}
+                        </span>
+                      )) : (
+                        <div className="w-full py-3 border border-dashed border-white/10 rounded-xl text-center text-[10px] font-bold text-white/20 uppercase tracking-widest italic">UNASSIGNED</div>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="space-y-3">
-                      <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] italic text-white/40 px-1">
-                          <span>DIVISION OPERATIONS</span>
-                          <Layers size={10} />
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                          {coach.assignedBatches && coach.assignedBatches.length > 0 ? coach.assignedBatches.map(b => (
-                            <span key={b} className="px-4 py-2 bg-brand-accent/20 border border-brand-accent/30 rounded-xl text-[10px] font-bold text-brand-accent uppercase italic tracking-wider">
-                              {b}
-                            </span>
-                          )) : (
-                            <span className="text-[10px] font-bold text-white/20 italic p-2 border border-white/10 border-dashed rounded-xl w-full text-center uppercase tracking-widest">No Divisions Active</span>
-                          )}
-                      </div>
+                    <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] italic text-white/30 px-1">
+                      <span>OPERATIONAL REACH</span>
+                      <Layers size={10} />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {coach.assignedBatches && coach.assignedBatches.length > 0 ? coach.assignedBatches.map(b => (
+                        <span key={b} className="px-4 py-2 bg-brand-accent/10 border border-brand-accent/20 rounded-xl text-[10px] font-black text-brand-accent uppercase italic tracking-wider">
+                          {b}
+                        </span>
+                      )) : (
+                        <div className="w-full py-3 border border-dashed border-white/10 rounded-xl text-center text-[10px] font-bold text-white/20 uppercase tracking-widest italic">NO DIVISION</div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-10 pt-8 border-t border-white/10 flex gap-4">
-                   <button 
-                    onClick={() => openEditModal(coach, 'coach')} 
-                    className="flex-1 py-4 rounded-[1.5rem] bg-white/10 border border-white/10 text-[10px] font-black text-white/60 uppercase tracking-[0.2em] italic hover:bg-white/20 hover:border-white/20 hover:text-white transition-all"
-                   >
-                      RECALIBRATE
-                   </button>
-                   <button 
-                    onClick={() => handleSecureDelete(coach, 'coach')} 
-                    className="px-6 py-4 bg-red-500/10 border border-red-500/20 text-red-500/60 rounded-[1.5rem] hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-xl"
-                   >
-                      <Trash2 size={16} />
-                   </button>
+                <div className="mt-10 pt-8 border-t border-white/5 flex gap-3">
+                  <button 
+                    onClick={() => openEditModal(coach, 'coach')}
+                    className="flex-1 h-12 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-widest italic hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Edit2 size={14} /> RECALIBRATE
+                  </button>
+                  <button 
+                    onClick={() => handleSecureDelete(coach, 'coach')}
+                    className="w-12 h-12 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500/30 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             </div>
           )) : (
             <div className="col-span-full py-40 text-center">
-               <div className="flex flex-col items-center gap-6 opacity-20">
-                  <Shield size={80} className="text-white" />
-                  <p className="text-sm font-black uppercase tracking-[0.5em] text-white italic">NO COMMAND PERSONNEL DETECTED</p>
-                </div>
+              <div className="flex flex-col items-center gap-6 opacity-20">
+                <Shield size={80} className="text-white" />
+                <p className="text-sm font-black uppercase tracking-[0.5em] text-white italic">NO COMMAND PERSONNEL DETECTED</p>
+              </div>
             </div>
           )}
         </div>
@@ -593,6 +559,7 @@ export const PlayerManager: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
               <div className="absolute inset-0 bg-[#050714]/80 backdrop-blur-2xl animate-in fade-in duration-500" onClick={() => setEditingPlayer(null)}></div>
               <div className="w-full max-w-2xl glass-card rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
+                  <div className="green-light-bar" />
                   <div className="p-8 md:p-10 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                       <div>
                         <h3 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter">DATA <span className="premium-gradient-text">RECALIBRATION</span></h3>
@@ -681,6 +648,7 @@ export const PlayerManager: React.FC = () => {
            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
                <div className="absolute inset-0 bg-[#050714]/80 backdrop-blur-2xl animate-in fade-in duration-500" onClick={() => setEditingCoach(null)}></div>
                <div className="w-full max-w-2xl glass-card rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
+                  <div className="green-light-bar" />
                   <div className="p-8 md:p-10 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 bg-brand-accent/10 border border-brand-accent/20 rounded-2xl flex items-center justify-center text-brand-accent shadow-glow">
@@ -732,7 +700,7 @@ export const PlayerManager: React.FC = () => {
                            </div>
                            <div className="flex flex-wrap gap-3">
                               {batches.map(b => (
-                                <button key={b.id} type="button" onClick={() => toggleCoachAssignment('batch', b.name)} className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic border-2 transition-all duration-300 ${editingCoach.assignedBatches?.includes(b.name) ? 'bg-brand-primary text-white border-brand-primary shadow-[0_15px_30px_rgba(59,130,246,0.2)] scale-[1.05]' : 'bg-white/10 text-white/40 border-white/10 hover:border-white/20'}`}>{b.name}</button>
+                                <button key={b.id} type="button" onClick={() => toggleCoachAssignment('batch', b.name)} className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic border-2 transition-all duration-300 ${editingCoach.assignedBatches?.includes(b.name) ? 'bg-brand-primary text-white border-brand-primary shadow-[0_15px_30px_rgba(59,130,246,0.2)] scale-[1.05]' : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'}`}>{b.name}</button>
                               ))}
                            </div>
                         </div>

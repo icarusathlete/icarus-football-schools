@@ -99,7 +99,7 @@ export const SupportManager: React.FC = () => {
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
     return (
-        <div className="min-h-screen bg-brand-950 space-y-8 pb-20 animate-in fade-in duration-700">
+        <div className="space-y-8 pb-20 animate-in fade-in duration-700">
             {/* Header Section - Tactical Midnight Blue Card */}
             <div className="bg-brand-950 p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group mx-4">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">

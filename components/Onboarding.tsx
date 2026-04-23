@@ -87,7 +87,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#00054e] flex items-center justify-center p-6 relative overflow-hidden font-display">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-display">
       {/* Background layers - matching PendingApproval/Login style */}
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" 
            style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />

@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Player, AcademySettings, PlayerEvaluation, AttendanceRecord, Match } from '../types';
-import { Trophy, Star, Shield, Download, Loader2, Timer, Zap, Calendar, Gauge, Award, Target, Brain, Info, Footprints, Activity, Camera } from 'lucide-react';
+import { Trophy, Star, Shield, Download, Loader2, Timer, Zap, Calendar, Gauge, Award, Target, Brain, Info, Footprints, Activity, Camera, Quote, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { GeminiService } from '../services/geminiService';
@@ -11,6 +11,8 @@ interface EvaluationCardProps {
   settings: AcademySettings;
   attendance?: AttendanceRecord[];
   matches?: Match[];
+  onClose?: () => void;
+  isCoach?: boolean;
 }
 
 // Custom Circular Gauge Component
@@ -77,18 +79,18 @@ const PhysicalBar = ({ value, label, max = 100, unit = '', inverse = false }: { 
     );
 };
 
-export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings, attendance = [], matches = [] }) => {
+export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings, attendance = [], matches = [], onClose, isCoach }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
-  const evalData = player.evaluation;
+  const evalData = player?.evaluation;
   
   useEffect(() => {
-    if (evalData && !aiReport) {
+    if (evalData && !aiReport && player?.id) {
       handleGenerateAIReport();
     }
-  }, [player.id, evalData]);
+  }, [player?.id, evalData]);
 
   const handleGenerateAIReport = async () => {
     setIsLoadingAI(true);
@@ -102,7 +104,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     }
   };
 
-  if (!evalData) return (
+  if (!player || !evalData) return (
     <div className="p-12 text-center bg-brand-950/20 rounded-[2.5rem] border-2 border-dashed border-brand-500/20 shadow-2xl backdrop-blur-xl">
       <div className="w-20 h-20 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-500/20">
         <Trophy className="w-10 h-10 text-brand-500/40" />
@@ -113,6 +115,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   );
 
   const calculateAge = (dob: string) => {
+    if (!dob) return 0;
     const today = new Date();
     const birthDate = new Date(dob);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -122,8 +125,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   };
 
   const handleDownloadPDF = async () => {
-    if (!cardRef.current) return;
+    const element = cardRef.current;
+    if (!element) return;
     setIsGenerating(true);
+
+    const originalStyle = element.style.width;
+    element.style.width = '1200px';
 
     try {
         const canvas = await html2canvas(cardRef.current, {
@@ -145,11 +152,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         });
 
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-        pdf.save(`${player.fullName.replace(/\s+/g, '_')}_ICARUS_SCOUT_REPORT.pdf`);
+        pdf.save(`${player?.fullName?.replace(/\s+/g, '_') || 'PLAYER'}_ICARUS_SCOUT_REPORT.pdf`);
     } catch (error) {
         console.error("PDF Generation failed:", error);
         alert("Export failed. Large images might be causing an issue.");
     } finally {
+        if (element) element.style.width = originalStyle;
         setIsGenerating(false);
     }
   };
@@ -157,6 +165,14 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   return (
     <div className="space-y-8">
         <div className="flex justify-end gap-3 px-4">
+             {onClose && (
+                <button 
+                    onClick={onClose}
+                    className="bg-red-500/10 border border-red-500/20 text-red-500 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all flex items-center gap-2"
+                >
+                    <X size={16}/> EXIT_REPORT
+                </button>
+             )}
              <button 
                 onClick={handleGenerateAIReport}
                 disabled={isLoadingAI}
@@ -176,7 +192,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         </div>
 
         {/* --- PROFESSIONAL SCOUT DOSSIER --- */}
-        <div ref={cardRef} className="max-w-[1200px] mx-auto bg-[#040054] text-white p-16 overflow-hidden relative select-none border border-white/10 rounded-[4rem] shadow-2xl" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div ref={cardRef} className="w-full max-w-[1200px] mx-auto bg-[#040054] text-white p-6 md:p-16 overflow-hidden relative select-none border border-white/10 rounded-3xl md:rounded-[4rem] shadow-2xl" style={{ fontFamily: 'Inter, sans-serif' }}>
             
             {/* Ambient Background Elements */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(204,255,0,0.08),transparent_60%)]" />
@@ -207,8 +223,8 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             <span className="px-3 py-1 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-brand-500 italic rounded-md">ELITE PROSPECT</span>
                             <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.5em] italic">#{player.memberId}</span>
                         </div>
-                        <h1 className="text-6xl font-black italic tracking-tighter uppercase leading-none text-white">
-                            {player.fullName.split(' ')[0]} <span className="text-brand-500">{player.fullName.split(' ').slice(1).join(' ')}</span>
+                        <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none text-white">
+                            {player?.fullName?.split(' ')?.[0] || 'PLAYER'} <span className="text-brand-500">{player?.fullName?.split(' ')?.slice(1).join(' ') || ''}</span>
                         </h1>
                         <div className="flex gap-8">
                             <div className="flex flex-col">
@@ -221,7 +237,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">HT / WT</span>
-                                <span className="text-sm font-black italic uppercase tracking-widest text-white/80">{evalData.height}CM / {evalData.weight}KG</span>
+                                <span className="text-sm font-black italic uppercase tracking-widest text-white/80">{evalData?.height || '--'}CM / {evalData?.weight || '--'}KG</span>
                             </div>
                         </div>
                     </div>
@@ -230,7 +246,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                 <div className="flex flex-col items-end">
                     <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.8em] mb-4 italic">COMPOSITE_SCORE</span>
                     <div className="flex items-start gap-4">
-                        <div className="text-9xl font-black italic leading-[0.85] tracking-tighter text-white font-mono" style={{ filter: 'drop-shadow(0 0 20px rgba(204,255,0,0.3))' }}>
+                        <div className="text-7xl md:text-9xl font-black italic leading-[0.85] tracking-tighter text-white font-mono" style={{ filter: 'drop-shadow(0 0 20px rgba(204,255,0,0.3))' }}>
                             {evalData.overallRating}
                         </div>
                         <div className="pt-2">
@@ -250,28 +266,28 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             <Shield size={16} className="text-brand-500" />
                             <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">TECHNICAL_INDEX</h3>
                         </div>
-                        <div className="space-y-12">
-                            <CircularGauge value={evalData.metrics.passing} label="Passing" icon={Zap} color="#CCFF00" />
-                            <CircularGauge value={evalData.metrics.shooting} label="Shooting" icon={Target} color="#CCFF00" />
-                            <CircularGauge value={evalData.metrics.juggling} label="Control" icon={Footprints} color="#CCFF00" />
-                            <CircularGauge value={evalData.metrics.weakFoot} label="Weak Foot" icon={Activity} color="#CCFF00" />
+                        <div className="grid grid-cols-2 lg:grid-cols-1 gap-10">
+                            <CircularGauge value={evalData?.metrics?.passing || 0} label="Passing" icon={Zap} color="#CCFF00" />
+                            <CircularGauge value={evalData?.metrics?.shooting || 0} label="Shooting" icon={Target} color="#CCFF00" />
+                            <CircularGauge value={evalData?.metrics?.juggling || 0} label="Control" icon={Footprints} color="#CCFF00" />
+                            <CircularGauge value={evalData?.metrics?.weakFoot || 0} label="Weak Foot" icon={Activity} color="#CCFF00" />
                         </div>
                     </div>
                 </div>
 
                 {/* 2. CENTER: THE KINETIC HERO (6 Cols) */}
-                <div className="col-span-12 lg:col-span-6 flex flex-col items-center justify-center relative min-h-[550px]">
+                <div className="col-span-12 lg:col-span-6 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-[550px]">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(204,255,0,0.02),transparent_70%)] rounded-[4rem]" />
                     
                     {/* The Large Hero Action Image */}
                     {evalData.actionImageUrl ? (
                         <div className="relative w-full h-full flex items-center justify-center group/hero">
                             {/* Decorative Frame */}
-                            <div className="absolute inset-0 border-x border-white/5 rounded-[4rem] -z-10" />
+                            <div className="absolute inset-0 border-x border-white/5 rounded-3xl md:rounded-[4rem] -z-10" />
                             
                             <img 
                                 src={evalData.actionImageUrl} 
-                                className="relative z-10 w-[110%] h-[110%] object-contain object-bottom drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)] transition-all duration-1000 group-hover/hero:scale-[1.05]"
+                                className="relative z-10 w-full md:w-[110%] h-auto md:h-[110%] object-contain object-bottom drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)] transition-all duration-1000 group-hover/hero:scale-[1.05]"
                                 style={{ 
                                     maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
                                 }}
@@ -279,15 +295,15 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             
                             {/* Overlay UI Elements */}
                             <div className="absolute bottom-4 left-0 right-0 text-center z-20">
-                                <div className="inline-flex items-center gap-3 bg-brand-500 text-brand-950 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.5em] italic shadow-2xl">
+                                <div className="inline-flex items-center gap-3 bg-brand-500 text-brand-950 px-4 md:px-8 py-2 md:py-3 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-[0.5em] italic shadow-2xl">
                                     <Camera size={14} /> KINETIC_CAPTURE_LIVE
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center gap-8 opacity-5 border-2 border-dashed border-white/10 w-full h-[500px] rounded-[4rem]">
-                            <Camera size={120} strokeWidth={0.5} />
-                            <span className="text-[14px] font-black uppercase tracking-[1.5em] italic">SIGNAL_LOST:UPLOAD_HERO_ASSET</span>
+                        <div className="flex flex-col items-center justify-center gap-8 opacity-5 border-2 border-dashed border-white/10 w-full h-[300px] md:h-[500px] rounded-3xl md:rounded-[4rem]">
+                            <Camera size={80} strokeWidth={0.5} />
+                            <span className="text-[10px] md:text-[14px] font-black uppercase tracking-[1em] md:tracking-[1.5em] italic">SIGNAL_LOST:UPLOAD_HERO_ASSET</span>
                         </div>
                     )}
                 </div>
@@ -299,12 +315,14 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">PHYSICAL_ENGINE</h3>
                             <Gauge size={16} className="text-brand-500" />
                         </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-12">
+                            <PhysicalBar value={evalData?.timeTrials?.speed || 7.0} label="SPRINT SPEED" unit="s" max={7.0} inverse />
+                            <PhysicalBar value={evalData?.timeTrials?.agility || 24.0} label="AGILITY DRILL" unit="s" max={24.0} inverse />
+                            <PhysicalBar value={evalData?.timeTrials?.dribbling || 28.0} label="DRIBBLING" unit="s" max={28.0} inverse />
+                            <PhysicalBar value={evalData?.metrics?.beepTest || 0} label="STAMINA" max={100} />
+                        </div>
+                        
                         <div className="space-y-12">
-                            <PhysicalBar value={evalData.timeTrials.speed} label="SPRINT SPEED" unit="s" max={7.0} inverse />
-                            <PhysicalBar value={evalData.timeTrials.agility} label="AGILITY DRILL" unit="s" max={24.0} inverse />
-                            <PhysicalBar value={evalData.timeTrials.dribbling} label="DRIBBLING" unit="s" max={28.0} inverse />
-                            <PhysicalBar value={evalData.metrics.beepTest} label="STAMINA" max={100} />
-                            
                             {/* Level Progress */}
                             <div className="pt-10 border-t border-white/5">
                                 <div className="flex justify-between items-center mb-4">
@@ -320,59 +338,97 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                 </div>
             </div>
 
-            {/* LOWER SECTION: VERDICT & STRATEGY */}
-            <div className="mt-20 grid grid-cols-12 gap-12 relative z-10">
-                {/* AI Verdict (Larger Impact) */}
-                <div className="col-span-12 lg:col-span-7 bg-white/[0.03] p-12 rounded-[3rem] border border-white/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform"><Brain size={160} /></div>
-                    <div className="flex items-center gap-4 mb-8">
-                        <Brain size={20} className="text-brand-500" />
-                        <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-white/40 italic">SCOUT_INSIGHT_REPORT</h4>
-                    </div>
-                    <div className="min-h-[160px]">
-                        {isLoadingAI ? (
-                            <div className="flex flex-col items-center justify-center py-16 gap-4">
-                                <Loader2 className="animate-spin text-brand-500" size={32} />
-                                <span className="text-[9px] font-black uppercase tracking-[0.6em] text-white/10">ANALYZING_PERFORMANCE_SIGNAL...</span>
+                {/* Qualitative Assessments: Coach & AI */}
+                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                    {/* Coach Verdict - Elite Executive Assessment */}
+                    <div className="bg-[#050066] p-8 md:p-12 rounded-3xl md:rounded-[3.5rem] border border-brand-500/30 relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 pointer-events-none">
+                            <Award size={140} />
+                        </div>
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-2 rounded-xl bg-brand-500/20 text-brand-500">
+                                <Award size={18} strokeWidth={2.5} />
                             </div>
-                        ) : (
-                            <p className="text-xl font-medium italic text-white/95 leading-relaxed font-serif">
-                                "{aiReport || 'Performance stream awaiting synchronization. Re-generate to view AI analysis.'}"
-                            </p>
-                        )}
+                            <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.5em] text-brand-500 italic">OFFICIAL_TECHNICAL_VERDICT</h4>
+                        </div>
+                        <div className="min-h-[160px] relative">
+                            <div className="absolute -top-4 -left-2 text-brand-500/10"><Quote size={32} /></div>
+                            {evalData.coachRemarks ? (
+                                <p className="text-base md:text-xl font-medium italic text-white/90 leading-relaxed tracking-tight relative z-10" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                    {evalData.coachRemarks}
+                                </p>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-10 gap-3 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                                    <Info size={24} className="text-white/10" />
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-white/20 italic">AWAITING_LEAD_COACH_INPUT</span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">VALIDATION_STAMP</span>
+                                <span className="text-[9px] font-bold text-brand-500/60 uppercase tracking-widest">{new Date(evalData.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}</span>
+                            </div>
+                            <div className="h-8 w-[1px] bg-white/10 mx-4" />
+                            <div className="flex-1 text-right">
+                                <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">AUTHORISING_OFFICER</span>
+                                <span className="text-[10px] font-black text-white uppercase tracking-wider block">{evalData.coachName || 'ICARUS_DIRECTOR'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* AI Verdict (Strategic Analytics) */}
+                    <div className="bg-white/[0.03] p-8 md:p-12 rounded-3xl md:rounded-[3rem] border border-white/10 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Brain size={120} /></div>
+                        <div className="flex items-center gap-4 mb-6 md:mb-8">
+                            <Zap size={20} className="text-cyan-400" />
+                            <h4 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] text-cyan-400/60 italic">AI_KINETIC_ANALYTICS</h4>
+                        </div>
+                        <div className="min-h-[140px]">
+                            {isLoadingAI ? (
+                                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                    <Loader2 className="animate-spin text-cyan-400" size={32} />
+                                    <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/10">SYNCING_MATRIX...</span>
+                                </div>
+                            ) : (
+                                <p className="text-base md:text-lg font-medium italic text-white/70 leading-relaxed">
+                                    {aiReport || 'Performance stream awaiting synchronization.'}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Priority & Signature (Symmetrical Right) */}
-                <div className="col-span-12 lg:col-span-5 flex flex-col gap-12">
-                    <div className="bg-brand-500/[0.03] p-10 rounded-[3rem] border border-brand-500/10 flex-1">
-                        <div className="flex items-center gap-4 mb-8">
+                {/* Priority & Signature Area */}
+                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mt-4">
+                    <div className="bg-white/[0.02] p-8 md:p-10 rounded-3xl md:rounded-[3rem] border border-white/10">
+                        <div className="flex items-center gap-4 mb-6 md:mb-8">
                             <Target size={20} className="text-brand-500" />
-                            <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-brand-500/40 italic">PRIORITY_DEVELOPMENT</h4>
+                            <h4 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] text-white/20 italic">STRATEGIC_DIRECTIVES</h4>
                         </div>
-                        <div className="flex flex-wrap gap-4 flex-1 content-start">
-                            {evalData.developmentAreas.map(area => (
-                                <span key={area} className="px-6 py-3 bg-brand-500 text-brand-950 text-[10px] font-black uppercase tracking-widest rounded-xl italic flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-brand-950/30" />
+                        <div className="flex flex-wrap gap-3">
+                            {evalData?.developmentAreas?.map(area => (
+                                <span key={area} className="px-4 md:px-6 py-2 md:py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 text-[8px] md:text-[10px] font-black uppercase tracking-widest rounded-xl italic flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500/40" />
                                     {area}
                                 </span>
                             ))}
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between px-6">
+                    <div className="flex items-center justify-between px-4 md:px-6 py-4">
                          <div className="flex-1">
-                            <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-6 italic">VALIDATION_SIGNATURE</span>
+                            <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-4 md:mb-6 italic">VALIDATION_SIGNAL</span>
                             {evalData.coachSignatureUrl ? (
-                                <img src={evalData.coachSignatureUrl} className="h-20 object-contain brightness-200 invert-[0.9] opacity-90 mix-blend-screen scale-110 -ml-4" />
+                                <img src={evalData.coachSignatureUrl} className="h-16 md:h-20 object-contain brightness-200 invert-[0.9] opacity-90 mix-blend-screen scale-110 -ml-4" />
                             ) : (
-                                <div className="h-20 flex items-center text-[10px] font-black italic text-white/10 uppercase tracking-[0.8em]">PENDING_SIGNAL</div>
+                                <div className="h-16 md:h-20 flex items-center text-[10px] font-black italic text-white/10 uppercase tracking-[0.8em]">AWAITING_AUTH</div>
                             )}
                         </div>
                         <div className="text-right">
-                             <div className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-3 italic">HEAD_SCOUT_ICARUS</div>
-                            <div className="text-2xl font-black italic text-brand-500 uppercase tracking-tighter leading-none">{evalData.coachName}</div>
-                            <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-4 font-mono">{evalData.evaluationDate}</div>
+                             <div className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-2 md:mb-3 italic">LEAD_INSTRUCTOR</div>
+                            <div className="text-xl md:text-2xl font-black italic text-brand-500 uppercase tracking-tighter leading-none">{evalData.coachName}</div>
+                            <div className="text-[9px] md:text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-3 md:mt-4 font-mono">{evalData.evaluationDate}</div>
                         </div>
                     </div>
                 </div>
@@ -394,6 +450,5 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
             {/* Final Background Grain Overlay */}
             <div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
         </div>
-    </div>
   );
 };

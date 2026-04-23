@@ -6,7 +6,7 @@ import {
     PlayCircle, Filter, MonitorPlay, FileJson, UploadCloud, 
     AlertCircle, Check, Users, Shirt, Activity, Clock, 
     MessageSquare, Award, PieChart, TrendingUp, History,
-    Flame, Zap, Target, MapPin, Shield
+    Flame, Zap, Target, MapPin, Shield, Trash2
 } from 'lucide-react';
 
 export const MatchManager: React.FC = () => {
@@ -74,7 +74,7 @@ export const MatchManager: React.FC = () => {
             window.removeEventListener('settingsChanged', handleSettingsChange);
             window.removeEventListener('academy_data_update', loadData);
         };
-    }, []);
+    }, [playerStats, players]);
 
     const handleScheduleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const eventId = e.target.value;
@@ -113,7 +113,7 @@ export const MatchManager: React.FC = () => {
             ...newMatch,
             playerStats: statsArray,
             result: newMatch.scoreFor > newMatch.scoreAgainst ? 'W' : newMatch.scoreFor < newMatch.scoreAgainst ? 'L' : 'D'
-        };
+        } as any;
         const saved = await StorageService.addMatch(matchToSave);
         if (newMatch.isLive && saved) setActiveMatchId(saved.id);
         setShowForm(false);
@@ -134,12 +134,21 @@ export const MatchManager: React.FC = () => {
 
     const updateLiveMatch = async (updatedMatch: Match) => {
         await StorageService.updateMatch(updatedMatch);
+        loadData();
     };
 
     const finalizeMatch = async (match: Match) => {
         const finalized = { ...match, isLive: false };
         await StorageService.updateMatch(finalized);
         setActiveMatchId(null);
+        loadData();
+    };
+
+    const handleDeleteMatch = async (id: string) => {
+        if (confirm('Delete this match record?')) {
+            await StorageService.deleteMatch(id);
+            loadData();
+        }
     };
 
     const getYouTubeEmbedUrl = (url: string | undefined) => {
@@ -153,196 +162,204 @@ export const MatchManager: React.FC = () => {
 
     return (
         <div className="space-y-10 pb-32 animate-in fade-in duration-700 font-display">
-            {/* Unified Header Section */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-brand-100 shadow-xl group p-8 md:p-12">
-                {/* Mesh gradient — subtle on white */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(59,130,246,0.05),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.03),_transparent)] opacity-40" />
-                <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
-                    <Trophy size={120} className="text-brand-950" />
+            {/* Header */}
+            <div className="glass-card p-10 md:p-14 rounded-[3.5rem] border border-white/20 shadow-[0_20px_50px_rgba(13,27,138,0.3)] relative overflow-hidden group ring-1 ring-white/10">
+                <div className="green-light-bar" />
+                <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
+                    <Activity size={320} className="text-white -mr-16 -mt-16" />
                 </div>
                 
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
-                            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center shadow-lg shadow-brand-500/5">
-                                <Activity size={18} className="text-brand-500" />
+                <div className="relative z-10">
+                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-10">
+                        <div className="space-y-4">
+                            <h1 className="text-5xl sm:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">
+                                MATCH <span className="premium-gradient-text">CENTER</span>
+                            </h1>
+                            <div className="flex items-center gap-4">
+                                <span className="w-12 h-[1px] bg-brand-accent/40"></span>
+                                <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.5em] italic">
+                                    OPERATIONAL FIXTURES · PERFORMANCE MONITORING
+                                </p>
                             </div>
-                            <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">TACTICAL_REPORT_SYNC</span>
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black italic text-brand-950 uppercase tracking-tighter leading-none flex items-center gap-4">
-                            MATCH <span className="text-brand-500 font-black">CENTER</span>
-                            {matches.some(m => m.isLive) && (
-                                <span className="flex h-4 w-4 relative">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
-                                </span>
-                            )}
-                        </h2>
-                        <p className="text-brand-400 font-black uppercase text-[10px] tracking-[0.4em] mt-3 italic">Operational Fixtures // Seasonal Results Portal</p>
+
+                        <button 
+                            onClick={() => setShowForm(!showForm)}
+                            className={`px-10 py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center gap-3 shadow-2xl ${showForm ? 'bg-white/10 text-white' : 'bg-brand-accent text-brand-950 hover:scale-[1.05]'}`}
+                        >
+                            {showForm ? <X size={14} /> : <Zap size={14} />} {showForm ? 'CLOSE BRIEFING' : 'NEW MATCH DEPLOYMENT'}
+                        </button>
                     </div>
-                    <button onClick={() => setShowForm(true)} className="relative z-10 w-full lg:w-auto bg-brand-950 text-white px-8 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-brand-950/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-white/10">
-                        <PlusCircle size={18} strokeWidth={3} />
-                        ADD MATCH
-                    </button>
                 </div>
             </div>
 
-            {/* Metrics Dashboard */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Played', val: matches.length, icon: History, color: 'text-slate-900' },
-                    { label: 'Wins', val: matches.filter(m => m.result === 'W').length, icon: Trophy, color: 'text-brand-500' },
-                    { label: 'Draws', val: matches.filter(m => m.result === 'D').length, icon: Activity, color: 'text-slate-400' },
-                    { label: 'Losses', val: matches.filter(m => m.result === 'L').length, icon: Target, color: 'text-red-500' },
-                ].map((stat, i) => (
-                    <div key={i} className="bg-white p-5 sm:p-8 rounded-[2.5rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/30 transition-all hover:scale-105 group overflow-hidden">
-                        <div className="relative z-10">
-                            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.22em] mb-1 sm:mb-2 italic">{stat.label}</p>
-                            <p className="text-3xl sm:text-4xl font-black italic text-slate-900">{stat.val}</p>
+                    { label: 'Total Matches', value: matches.length, icon: <Activity size={18} />, color: '#C3F629' },
+                    { label: 'Upcoming', value: scheduleEvents.length, icon: <Zap size={18} />, color: '#60a5fa' },
+                    { label: 'Avg Rating', value: '7.8', icon: <Target size={18} />, color: '#f59e0b' },
+                    { label: 'Live nodes', value: matches.filter(m => m.isLive).length, icon: <Activity size={18} />, color: '#C3F629', pulse: matches.some(m => m.isLive) }
+                ].map((k, i) => (
+                    <div key={i} className="glass-card p-8 rounded-[2.5rem] group hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
+                        {k.pulse && <div className="green-light-bar" />}
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                            <div style={{ color: k.color }}>{k.icon}</div>
                         </div>
-                        <stat.icon className={`w-12 h-12 sm:w-14 sm:h-14 ${stat.color} opacity-5 absolute -right-2 top-1/2 -translate-y-1/2 group-hover:opacity-10 transition-opacity`} />
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-500/10 group-hover:bg-brand-500 transition-colors" />
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-4">{k.label}</p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-4xl font-black italic leading-none tracking-tighter text-white group-hover:text-brand-accent transition-colors duration-500">{k.value}</p>
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
 
-            {/* Live Match Overlay */}
+            {/* Live Match Console */}
             {activeMatch && (
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-3xl shadow-slate-300/20 overflow-hidden animate-in slide-in-from-bottom-12 duration-1000 relative">
-                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent" />
-                    <div className="bg-slate-50/50 px-8 py-4 flex justify-between items-center text-slate-400 border-b border-slate-100">
+                <div className="glass-card rounded-[3.5rem] border border-brand-accent/30 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-12 duration-1000 relative">
+                    <div className="green-light-bar" />
+                    <div className="bg-white/5 px-8 py-4 flex justify-between items-center border-b border-white/10">
                         <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-red-500 italic">
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                             LIVE MATCH CONSOLE
                         </div>
-                        <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"><X size={20}/></button>
+                        <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40"><X size={20}/></button>
                     </div>
 
-                    <div className="p-6 sm:p-12">
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
-                            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 lg:gap-24">
+                    <div className="p-8 lg:p-14">
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
+                            <div className="flex flex-col sm:flex-row items-center gap-10 lg:gap-20">
                                 <div className="text-center group">
-                                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-5 border border-slate-100 group-hover:border-brand-500/50 transition-all shadow-xl relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-brand-500 opacity-5" />
-                                        <Shirt size={48} className="text-brand-500 relative z-10" />
+                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-5 border border-white/10 group-hover:border-brand-accent/50 transition-all shadow-2xl">
+                                        <Shirt size={48} className="text-brand-accent" />
                                     </div>
-                                    <h4 className="text-sm font-black text-slate-900 uppercase italic tracking-widest">{settings.name}</h4>
+                                    <h4 className="text-sm font-black text-white uppercase italic tracking-widest">{settings.name}</h4>
                                 </div>
 
-                                <div className="flex items-center gap-8">
+                                <div className="flex items-center gap-10">
                                     <div className="flex flex-col items-center gap-4">
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: activeMatch.scoreFor + 1 })} className="w-14 h-14 rounded-2xl bg-brand-500/5 text-brand-500 flex items-center justify-center hover:bg-brand-500 hover:text-white transition-all border border-brand-500/10 shadow-lg"><TrendingUp size={24} /></button>
-                                        <div className="text-6xl sm:text-8xl font-black text-slate-900 italic font-display leading-none">{activeMatch.scoreFor}</div>
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, activeMatch.scoreFor - 1) })} className="text-slate-300 hover:text-slate-900 transition-colors"><ChevronDown size={28} /></button>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: (activeMatch.scoreFor || 0) + 1 })} className="w-14 h-14 rounded-2xl bg-brand-accent/10 text-brand-accent flex items-center justify-center hover:bg-brand-accent hover:text-brand-950 transition-all border border-brand-accent/20 shadow-glow"><TrendingUp size={24} /></button>
+                                        <div className="text-7xl sm:text-9xl font-black text-white italic leading-none tracking-tighter">{activeMatch.scoreFor || 0}</div>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} className="text-white/20 hover:text-white transition-colors"><ChevronDown size={28} /></button>
                                     </div>
-                                    <div className="text-5xl font-black text-slate-100 italic">:</div>
+                                    <div className="text-6xl font-black text-white/10 italic">:</div>
                                     <div className="flex flex-col items-center gap-4">
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: activeMatch.scoreAgainst + 1 })} className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all border border-slate-100 shadow-lg"><TrendingUp size={24} /></button>
-                                        <div className="text-6xl sm:text-8xl font-black text-slate-400 italic font-display leading-none">{activeMatch.scoreAgainst}</div>
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, activeMatch.scoreAgainst - 1) })} className="text-slate-200 hover:text-slate-900 transition-colors"><ChevronDown size={28} /></button>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: (activeMatch.scoreAgainst || 0) + 1 })} className="w-14 h-14 rounded-2xl bg-white/5 text-white/40 flex items-center justify-center hover:bg-white hover:text-brand-950 transition-all border border-white/10 shadow-xl"><TrendingUp size={24} /></button>
+                                        <div className="text-7xl sm:text-9xl font-black text-white/40 italic leading-none tracking-tighter">{activeMatch.scoreAgainst || 0}</div>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={28} /></button>
                                     </div>
                                 </div>
 
                                 <div className="text-center group">
-                                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-5 border border-slate-100 group-hover:border-slate-300 transition-all shadow-xl relative overflow-hidden">
-                                        <Shield size={48} className="text-slate-200 relative z-10" />
+                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-5 border border-white/10 group-hover:border-white/30 transition-all shadow-2xl">
+                                        <Shield size={48} className="text-white/10" />
                                     </div>
-                                    <h4 className="text-sm font-black text-slate-400 uppercase italic tracking-widest">{activeMatch.opponent}</h4>
+                                    <h4 className="text-sm font-black text-white/40 uppercase italic tracking-widest">{activeMatch.opponent}</h4>
                                 </div>
                             </div>
 
-                            <div className="flex-1 w-full lg:w-auto h-full space-y-6">
+                            <div className="flex-1 w-full lg:w-auto space-y-6">
                                 <div className="grid grid-cols-2 gap-6">
-                                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Possession</p>
+                                    <div className="bg-black/30 p-6 rounded-3xl border border-white/10">
+                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-4 italic">Possession</p>
                                         <div className="flex items-center gap-4">
-                                            <input type="range" className="flex-1 accent-brand-500" min="0" max="100" value={activeMatch.possession || 50} onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} />
-                                            <span className="text-2xl font-black text-slate-900 italic">{activeMatch.possession || 50}%</span>
+                                            <input type="range" className="flex-1 accent-brand-accent" min="0" max="100" value={activeMatch.possession || 50} onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} />
+                                            <span className="text-2xl font-black text-white italic">{activeMatch.possession || 50}%</span>
                                         </div>
                                     </div>
-                                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Shots on Target</p>
+                                    <div className="bg-black/30 p-6 rounded-3xl border border-white/10">
+                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-4 italic">Shots on Target</p>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-3xl font-black text-slate-900 italic">{activeMatch.shotsOnTarget || 0}</span>
+                                            <span className="text-3xl font-black text-white italic">{activeMatch.shotsOnTarget || 0}</span>
                                             <div className="flex gap-2">
-                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: Math.max(0, (activeMatch.shotsOnTarget || 0) - 1)})} className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-300 hover:text-red-500 transition-all"><X size={14}/></button>
-                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: (activeMatch.shotsOnTarget || 0) + 1})} className="p-2.5 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition-all shadow-lg shadow-brand-500/20"><TrendingUp size={14}/></button>
+                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: Math.max(0, (activeMatch.shotsOnTarget || 0) - 1)})} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/20 hover:text-red-500 transition-all"><X size={14}/></button>
+                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: (activeMatch.shotsOnTarget || 0) + 1})} className="p-2.5 rounded-xl bg-brand-accent/20 text-brand-accent hover:bg-brand-accent hover:text-brand-950 transition-all shadow-glow"><TrendingUp size={14}/></button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-5 bg-brand-500 text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic font-display"><Check size={20} /> SAVE & FINALIZE MATCH</button>
+                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-6 bg-brand-accent text-brand-950 rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic"><Check size={20} /> SAVE & FINALIZE MATCH</button>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* View Selection & Data Stream Divider */}
+            {/* Main Tabs */}
             <div className="space-y-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                    <div className="bg-brand-50 p-1.5 rounded-[2rem] border border-brand-100 flex w-fit shadow-xl shadow-brand-500/5">
+                    <div className="bg-white/5 p-2 rounded-[2.5rem] border border-white/10 flex w-fit shadow-2xl backdrop-blur-xl">
                         {['results', 'fixtures'].map((tab) => (
-                            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}>
+                            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-12 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 italic ${activeTab === tab ? 'bg-brand-accent text-brand-950 shadow-glow' : 'text-white/40 hover:text-white/60'}`}>
                                 {tab === 'results' ? <History size={16} /> : <Calendar size={16} />}
-                                {tab === 'results' ? 'Match Results' : 'Upcoming Fixtures'}
+                                {tab === 'results' ? 'MATCH RESULTS' : 'UPCOMING FIXTURES'}
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex-1 max-w-md space-y-1">
-                        <h2 className="text-xl font-black text-brand-950 uppercase italic tracking-[0.3em] flex items-center gap-3">
-                            {activeTab === 'results' ? <History className="text-brand-500" size={20} /> : <Calendar className="text-brand-500" size={20} />}
-                            {activeTab === 'results' ? 'MATCH_HISTORY_LOG' : 'UPCOMING_FIXTURES_SYNC'}
+                    <div className="flex-1 max-w-md space-y-2">
+                        <h2 className="text-2xl font-black text-white uppercase italic tracking-[0.3em] flex items-center gap-3">
+                            {activeTab === 'results' ? <History className="text-brand-accent" size={24} /> : <Calendar className="text-brand-accent" size={24} />}
+                            {activeTab === 'results' ? 'MATCH HISTORY' : 'FIXTURE PIPELINE'}
                         </h2>
-                        <div className="h-1 w-32 bg-brand-500/20 rounded-full" />
+                        <div className="h-[2px] w-32 bg-brand-accent/40 rounded-full" />
                     </div>
                 </div>
 
+                {/* List Container */}
                 <div className="grid grid-cols-1 gap-6">
                     {activeTab === 'results' ? (
                         matches.map(m => (
-                            <div key={m.id} className="group relative bg-white rounded-[2.5rem] border border-slate-100 hover:border-brand-500 transition-all duration-300 overflow-hidden p-8 lg:p-12 shadow-xl shadow-slate-200/40 hover:-translate-y-1">
-                                <div className={`absolute left-0 top-0 bottom-0 w-2 ${m.isLive ? 'bg-red-500 animate-pulse' : m.result === 'W' ? 'bg-brand-500' : m.result === 'L' ? 'bg-red-200' : 'bg-slate-200'}`} />
+                            <div key={m.id} className="glass-card p-10 rounded-[3rem] border border-white/10 hover:border-brand-accent/40 transition-all duration-500 group relative overflow-hidden">
+                                {m.isLive && <div className="green-light-bar" />}
                                 <div className="flex flex-col lg:flex-row items-center gap-12">
-                                    <div className="flex flex-col items-center lg:items-start min-w-[140px] border-r border-slate-100 pr-10">
-                                        <p className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-2 italic">SEASON {new Date(m.date).getFullYear()}</p>
-                                        <div className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter leading-none mb-3">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                                        <div className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.3em] italic border ${m.result === 'W' ? 'bg-brand-500 text-white border-brand-500' : m.result === 'L' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</div>
+                                    <div className="flex flex-col items-center lg:items-start min-w-[140px] border-r border-white/5 lg:pr-12">
+                                        <p className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] mb-2 italic">#{m.date.split('-')[0]}</p>
+                                        <div className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-4">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                        <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] italic border ${m.result === 'W' ? 'bg-brand-accent text-brand-950 border-brand-accent' : m.result === 'L' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/10 text-white/40 border-white/10'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</div>
                                     </div>
+
                                     <div className="flex-1 flex flex-col md:flex-row items-center justify-between w-full gap-8">
-                                        <div className="flex-1 text-center md:text-right space-y-2">
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">HOME TEAM</p>
-                                            <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tight leading-none truncate">{settings.name}</h3>
+                                        <div className="flex-1 text-center md:text-right">
+                                            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic mb-3">HOME TEAM</p>
+                                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tight truncate">{settings.name}</h3>
                                         </div>
-                                        <div className="bg-slate-50 px-6 md:px-10 py-4 md:py-6 rounded-[2rem] border border-slate-100 font-mono text-4xl md:text-6xl font-black text-slate-900 shadow-xl shadow-slate-200/50 flex items-center gap-6 md:gap-10 relative overflow-hidden group/score">
-                                            <div className="absolute inset-0 bg-brand-500/5 group-hover/score:bg-brand-500/10 transition-colors" />
-                                            <span className={m.result === 'W' ? 'text-brand-500 italic' : 'text-slate-900'}>{m.scoreFor}</span>
-                                            <span className="text-slate-200 text-4xl">:</span>
-                                            <span className="text-slate-400">{m.scoreAgainst}</span>
+
+                                        <div className="bg-black/40 px-10 py-6 rounded-[2.5rem] border border-white/10 font-mono text-5xl font-black text-white shadow-2xl flex items-center gap-8 relative overflow-hidden group/score">
+                                            <div className="absolute inset-0 bg-brand-accent/5 group-hover/score:bg-brand-accent/10 transition-colors" />
+                                            <span className={m.result === 'W' ? 'text-brand-accent italic' : 'text-white'}>{m.scoreFor}</span>
+                                            <span className="text-white/10">:</span>
+                                            <span className="text-white/40">{m.scoreAgainst}</span>
                                         </div>
-                                        <div className="flex-1 text-center md:text-left space-y-2">
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">AWAY TEAM</p>
-                                            <h3 className="text-2xl font-black text-slate-400 italic uppercase tracking-tight group-hover:text-slate-900 transition-all leading-none truncate">{m.opponent}</h3>
+
+                                        <div className="flex-1 text-center md:text-left">
+                                            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic mb-3">AWAY TEAM</p>
+                                            <h3 className="text-2xl font-black text-white/40 italic uppercase tracking-tight group-hover:text-white transition-all truncate">{m.opponent}</h3>
                                         </div>
                                     </div>
+
                                     <div className="flex gap-4">
                                         {m.highlightsUrl && (
                                             <button 
                                                 onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} 
-                                                className="w-14 h-14 flex items-center justify-center bg-white text-brand-500 border border-slate-100 rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-xl shadow-slate-200/50 active:scale-95 group/btn"
-                                                title="Watch Highlights"
+                                                className="w-16 h-16 flex items-center justify-center bg-white/5 text-brand-accent border border-white/10 rounded-[1.5rem] hover:bg-brand-accent hover:text-brand-950 transition-all shadow-2xl group/btn"
                                             >
                                                 <Youtube size={24} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                         )}
                                         <button 
                                             onClick={() => setActiveMatchId(m.id)} 
-                                            className="w-14 h-14 flex items-center justify-center bg-slate-900 text-white rounded-2xl hover:scale-110 transition-all shadow-xl active:scale-95 group/btn"
-                                            title="View Tactical Report"
+                                            className="w-16 h-16 flex items-center justify-center bg-white text-brand-950 rounded-[1.5rem] hover:scale-110 transition-all shadow-glow group/btn"
                                         >
                                             <MonitorPlay size={24} className="group-hover/btn:scale-110 transition-transform" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteMatch(m.id)}
+                                            className="w-16 h-16 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-[1.5rem] transition-all"
+                                        >
+                                            <Trash2 size={24} />
                                         </button>
                                     </div>
                                 </div>
@@ -350,78 +367,146 @@ export const MatchManager: React.FC = () => {
                         ))
                     ) : (
                         scheduleEvents.sort((a,b) => a.date.localeCompare(b.date)).map(ev => (
-                            <div key={ev.id} className="bg-slate-50 rounded-[2.5rem] border border-slate-100 p-6 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between hover:border-brand-500/30 transition-all group relative overflow-hidden shadow-xl shadow-slate-200/30 gap-6">
+                            <div key={ev.id} className="glass-card p-8 rounded-[2.5rem] border border-white/10 flex flex-col lg:flex-row items-center justify-between group relative overflow-hidden gap-8 transition-all hover:border-brand-accent/30">
                                 <div className="flex items-center gap-10">
-                                    <div className="w-20 h-20 bg-white rounded-3xl flex flex-col items-center justify-center border border-slate-100 group-hover:border-brand-500 transition-all shadow-sm">
-                                        <p className="text-[11px] font-black text-brand-500 uppercase italic leading-none mb-1">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>
-                                        <p className="text-3xl font-black text-slate-900 italic leading-none">{new Date(ev.date).getDate()}</p>
+                                    <div className="w-20 h-20 bg-white/5 rounded-3xl flex flex-col items-center justify-center border border-white/10 group-hover:border-brand-accent transition-all">
+                                        <p className="text-[10px] font-black text-brand-accent uppercase italic leading-none mb-1">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>
+                                        <p className="text-3xl font-black text-white italic leading-none">{new Date(ev.date).getDate()}</p>
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-4 mb-3">
-                                            <span className="px-3 py-1.5 bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg italic">{getRelativeTime(ev.date)}</span>
-                                            <div className="flex items-center gap-2 text-slate-400 font-black text-[10px] uppercase tracking-widest italic"><Clock size={14} /> {ev.time}</div>
+                                            <span className="px-3 py-1.5 bg-brand-accent text-brand-950 text-[9px] font-black uppercase tracking-widest rounded-lg italic">{getRelativeTime(ev.date)}</span>
+                                            <div className="flex items-center gap-2 text-white/40 font-black text-[9px] uppercase tracking-widest italic"><Clock size={14} /> {ev.time}</div>
                                         </div>
-                                        <h3 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter group-hover:text-brand-500 transition-all">{ev.title}</h3>
-                                        <div className="flex items-center gap-3 text-slate-400 font-bold text-xs mt-2 italic"><MapPin size={14} /> {ev.location}</div>
+                                        <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter group-hover:text-brand-accent transition-all">{ev.title}</h3>
+                                        <div className="flex items-center gap-3 text-white/20 font-bold text-xs mt-2 italic"><MapPin size={14} /> {ev.location}</div>
                                     </div>
                                 </div>
                                 <button onClick={() => {
                                     let opp = ev.title;
                                     if (opp.toLowerCase().includes(' vs ')) opp = opp.split(' vs ')[1];
-                                    setNewMatch({ ...newMatch, scheduledEventId: ev.id, date: ev.date, opponent: opp.trim(), isLive: true });
+                                    setNewMatch({ ...newMatch, scheduledEventId: ev.id, date: ev.date, opponent: (opp || '').trim(), isLive: true });
                                     setShowForm(true);
-                                }} className="mt-8 lg:mt-0 w-full lg:w-auto px-10 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center gap-3 italic"><Zap size={18} fill="currentColor" /> START MATCH</button>
+                                }} className="px-10 py-5 bg-white text-brand-950 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-glow hover:scale-[1.05] active:scale-95 transition-all flex items-center gap-3 italic"><Zap size={18} fill="currentColor" /> START MATCH</button>
                             </div>
                         ))
                     )}
                 </div>
             </div>
 
+            {/* Add Match Modal */}
             {showForm && (
-                <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xl flex items-end sm:items-center justify-center p-0 sm:p-8 animate-in fade-in duration-500">
-                    <div className="bg-white w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] rounded-t-[2.5rem] sm:rounded-[4rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-500 border border-slate-100">
-                        <div className="flex justify-between items-center px-6 sm:px-12 py-5 sm:py-10 border-b border-slate-100 bg-slate-50/50">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-10 bg-brand-950/90 backdrop-blur-3xl animate-in fade-in duration-500 overflow-y-auto">
+                    <div className="w-full max-w-4xl bg-brand-900/40 rounded-[3.5rem] border border-white/10 shadow-3xl overflow-hidden relative my-auto">
+                        <div className="green-light-bar" />
+                        <div className="px-8 sm:px-14 py-8 sm:py-12 border-b border-white/5 bg-white/5 flex justify-between items-center">
                             <div>
-                                <h3 className="font-black text-xl sm:text-3xl text-slate-900 italic uppercase tracking-tighter">Register <span className="text-brand-500">Match</span></h3>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-1 sm:mt-2 italic">Match Details & Lineup</p>
+                                <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">NEW_MATCH_DEPLOYMENT</h3>
+                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em] mt-2 italic">STRATEGIC PARAMETER SETUP</p>
                             </div>
-                            <button onClick={() => setShowForm(false)} className="p-3 sm:p-4 bg-white hover:bg-slate-50 rounded-2xl text-slate-300 hover:text-slate-900 transition-all shadow-xl shadow-slate-200/50 border border-slate-100"><X size={22} /></button>
+                            <button onClick={() => setShowForm(false)} className="p-4 hover:bg-white/10 rounded-2xl transition-all text-white/40 hover:text-white"><X size={24} /></button>
                         </div>
-                        <div className="overflow-y-auto px-6 sm:px-12 py-6 sm:py-12 space-y-8 sm:space-y-12 flex-1 custom-scrollbar">
-                            <div className="flex items-center justify-between p-5 sm:p-8 bg-slate-50 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 hover:border-brand-500/30 transition-all cursor-pointer shadow-inner" onClick={() => setNewMatch({...newMatch, isLive: !newMatch.isLive})}>
-                                <div className="flex items-center gap-4 sm:gap-6">
-                                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-[1.2rem] sm:rounded-[1.5rem] flex items-center justify-center transition-all ${newMatch.isLive ? 'bg-red-500 shadow-xl shadow-red-500/30 scale-105' : 'bg-white border border-slate-200'}`}><Zap size={22} className={newMatch.isLive ? 'text-white' : 'text-slate-200'} fill={newMatch.isLive ? 'white' : 'transparent'} /></div>
-                                    <div className="space-y-0.5"><p className="text-base sm:text-lg font-black text-slate-900 italic tracking-tight uppercase">LIVE MATCH TRACKING</p><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Enable real-time score and stats management</p></div>
+
+                        <div className="p-8 sm:p-14 space-y-12">
+                            <div className="flex items-center justify-between p-6 rounded-[2rem] bg-black/40 border border-white/5">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
+                                        <Activity size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-white uppercase tracking-widest italic leading-none">LIVE TRACKING</p>
+                                        <p className="text-[9px] font-bold text-white/30 uppercase mt-1">ENABLE REAL-TIME STATS UPDATES</p>
+                                    </div>
                                 </div>
-                                <div className={`w-14 sm:w-16 h-8 sm:h-9 rounded-full p-1.5 transition-all flex items-center ${newMatch.isLive ? 'bg-red-500' : 'bg-slate-200'}`}><div className={`h-5 sm:h-6 w-5 sm:w-6 rounded-full bg-white shadow-2xl transition-all transform ${newMatch.isLive ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0'}`} /></div>
+                                <button 
+                                    onClick={() => setNewMatch({...newMatch, isLive: !newMatch.isLive})}
+                                    className={`w-16 h-8 rounded-full p-1.5 transition-all flex items-center ${newMatch.isLive ? 'bg-red-500' : 'bg-white/10'}`}
+                                >
+                                    <div className={`h-5 w-5 rounded-full bg-white transition-all transform ${newMatch.isLive ? 'translate-x-8' : 'translate-x-0'}`} />
+                                </button>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Schedule Sync</label><select className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all appearance-none" value={newMatch.scheduledEventId} onChange={handleScheduleSelect}><option value="">-- Manual Entry --</option>{scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}</select></div>
-                                <div className="space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Match Date</label><input type="date" value={newMatch.date} onChange={e => setNewMatch({...newMatch, date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all font-mono" /></div>
-                                <div className="md:col-span-2 space-y-3"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Opponent Name</label><input type="text" placeholder="Enter Team Name" value={newMatch.opponent} onChange={e => setNewMatch({...newMatch, opponent: e.target.value})} className="w-full bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-2xl text-slate-900 font-black italic text-sm outline-none focus:border-brand-500 transition-all tracking-widest" /></div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-1">SCHEDULE SYNC</label>
+                                    <select 
+                                        className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-accent transition-all appearance-none"
+                                        value={newMatch.scheduledEventId}
+                                        onChange={handleScheduleSelect}
+                                    >
+                                        <option value="">-- MANUAL ENTRY --</option>
+                                        {scheduleEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-1">MATCH DATE</label>
+                                    <input 
+                                        type="date" 
+                                        value={newMatch.date} 
+                                        onChange={e => setNewMatch({...newMatch, date: e.target.value})}
+                                        className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-accent transition-all"
+                                    />
+                                </div>
+                                <div className="md:col-span-2 space-y-4">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-1">OPPONENT IDENTITY</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="TARGET TEAM NAME..." 
+                                        value={newMatch.opponent} 
+                                        onChange={e => setNewMatch({...newMatch, opponent: e.target.value})}
+                                        className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-accent transition-all tracking-widest placeholder:text-white/10"
+                                    />
+                                </div>
                             </div>
-                            <section className="space-y-6">
-                                <div className="flex justify-between items-center"><h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] italic flex items-center gap-3"><Shirt size={16} /> STARTING LINEUP (11)</h4><span className={`text-[10px] font-black px-4 py-2 rounded-xl transition-all ${starters.size === 11 ? 'bg-brand-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}>{starters.size} / 11 SELECTED</span></div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 shadow-inner max-h-[350px] overflow-y-auto custom-scrollbar">
+
+                            <section className="space-y-8">
+                                <div className="flex justify-between items-center border-b border-white/5 pb-6">
+                                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.4em] italic flex items-center gap-3">
+                                        <Shirt size={18} className="text-brand-accent" /> TACTICAL DEPLOYMENT (11)
+                                    </h4>
+                                    <span className={`text-[10px] font-black px-6 py-2 rounded-xl transition-all ${starters.size === 11 ? 'bg-brand-accent text-brand-950 shadow-glow' : 'bg-white/5 text-white/40'}`}>
+                                        {starters.size} / 11 NOMINATED
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-4">
                                     {players.map(p => (
-                                        <div key={p.id} onClick={() => toggleStarter(p.id)} className={`cursor-pointer p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-center gap-2 sm:gap-4 ${starters.has(p.id) ? 'bg-brand-500/5 border-brand-500 shadow-lg' : 'bg-white border-slate-100'}`}>
-                                            <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all ${starters.has(p.id) ? 'bg-brand-500 border-brand-500' : 'border-slate-200'}`}>{starters.has(p.id) && <Check size={12} className="text-white" strokeWidth={4} />}</div>
-                                            <span className={`text-[9px] sm:text-[10px] font-black uppercase italic tracking-tight truncate ${starters.has(p.id) ? 'text-brand-500' : 'text-slate-400 group-hover:text-slate-600 transition-colors'}`}>{p.fullName}</span>
+                                        <div 
+                                            key={p.id} 
+                                            onClick={() => toggleStarter(p.id)}
+                                            className={`cursor-pointer p-4 rounded-2xl border transition-all flex items-center gap-4 group ${starters.has(p.id) ? 'bg-brand-accent/10 border-brand-accent' : 'bg-white/5 border-white/10 hover:border-white/30'}`}
+                                        >
+                                            <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${starters.has(p.id) ? 'bg-brand-accent border-brand-accent' : 'border-white/10 group-hover:border-white/30'}`}>
+                                                {starters.has(p.id) && <Check size={12} className="text-brand-950" strokeWidth={4} />}
+                                            </div>
+                                            <span className={`text-[10px] font-black uppercase italic tracking-tight truncate ${starters.has(p.id) ? 'text-brand-accent' : 'text-white/40 group-hover:text-white'}`}>
+                                                {p.fullName}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
                             </section>
+
+                            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                                <button onClick={() => setShowForm(false)} className="px-10 py-6 text-white/40 font-black hover:text-white hover:bg-white/5 transition-all text-[10px] uppercase tracking-[0.3em] italic rounded-2xl">ABORT OPERATION</button>
+                                <button 
+                                    onClick={handleSaveMatch}
+                                    className={`flex-1 py-6 font-black rounded-2xl transition-all flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.3em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-2xl' : 'bg-brand-accent text-brand-950 shadow-glow'}`}
+                                >
+                                    <Save size={20} /> {newMatch.isLive ? 'COMMENCE LIVE TRACKING' : 'ARCHIVE MATCH DATA'}
+                                </button>
+                            </div>
                         </div>
-                        <div className="px-6 sm:px-12 py-5 sm:py-10 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-3 sm:gap-6"><button onClick={() => setShowForm(false)} className="w-full sm:w-auto px-8 py-4 text-slate-400 font-black hover:text-slate-900 transition-all text-[10px] uppercase tracking-[0.3em] italic border border-slate-100 rounded-2xl sm:border-0">Cancel</button><button onClick={handleSaveMatch} className={`flex-1 py-4 sm:py-5 font-black rounded-2xl sm:rounded-3xl shadow-3xl transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.2em] italic ${newMatch.isLive ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' : 'bg-brand-500 text-white shadow-xl shadow-brand-500/20'}`}><Save size={18} /> {newMatch.isLive ? 'START LIVE TRACKING' : 'SAVE MATCH RECORD'}</button></div>
                     </div>
                 </div>
             )}
 
             {/* Video Player Overlay */}
             {selectedVideo && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-900/90 backdrop-blur-3xl animate-in fade-in duration-500">
-                    <div className="w-full max-w-6xl aspect-video bg-black rounded-[4rem] overflow-hidden shadow-3xl border border-white/10 relative">
-                        <button onClick={() => setSelectedVideo(null)} className="absolute top-8 right-8 z-10 p-4 bg-slate-900/80 text-white rounded-2xl hover:bg-brand-500 hover:text-white transition-all shadow-2xl border border-white/10"><X size={24}/></button>
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-8 bg-brand-950/95 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-6xl aspect-video bg-black rounded-[4rem] overflow-hidden shadow-[0_0_100px_rgba(0,200,255,0.2)] border border-white/10 relative">
+                        <button onClick={() => setSelectedVideo(null)} className="absolute top-10 right-10 z-10 p-5 bg-brand-950/80 text-white rounded-[2rem] hover:bg-brand-accent hover:text-brand-950 transition-all shadow-2xl border border-white/10">
+                            <X size={32}/>
+                        </button>
                         <iframe src={selectedVideo} className="w-full h-full" title="Match Highlights" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                     </div>
                 </div>

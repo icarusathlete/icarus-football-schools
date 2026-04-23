@@ -46,6 +46,7 @@ export interface PlayerEvaluation {
   developmentAreas: string[];
   coachName: string;
   evaluationDate: string;
+  coachRemarks?: string;
   actionImageUrl?: string;
   coachSignatureUrl?: string;
 }

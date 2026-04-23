@@ -98,50 +98,71 @@ const CentreCard: React.FC<{ stat: CentreStat; onClick: () => void }> = ({ stat,
     <button
       onClick={empty ? undefined : onClick}
       disabled={empty}
-      className={`text-left p-5 rounded-[2rem] border transition-all duration-300 w-full ${
+      className={`text-left p-6 rounded-[2rem] border transition-all duration-300 w-full group relative overflow-hidden ${
         empty
-          ? 'bg-brand-950/20 border-white/[0.04] opacity-40 cursor-default'
-          : 'bg-brand-900 border-white/[0.07] hover:bg-brand-bg hover:border-white/[0.12] hover:shadow-[0_0_20px_rgba(204,255,0,0.05)] active:scale-[0.98]'
+          ? 'bg-brand-bg/20 border-white/[0.04] opacity-40 cursor-default'
+          : 'glass-card border-white/[0.07] hover:border-[#CCFF00]/30 hover:shadow-[0_0_30px_rgba(204,255,0,0.1)] active:scale-[0.98]'
       }`}
     >
+      {/* Corner Accent */}
+      {!empty && <div className="absolute top-0 right-0 w-8 h-8 opacity-20 pointer-events-none">
+        <div className="absolute top-0 right-0 w-full h-px bg-[#CCFF00]" />
+        <div className="absolute top-0 right-0 h-full w-px bg-[#CCFF00]" />
+      </div>}
+
       {/* Header */}
-      <div className="flex items-start justify-between mb-4 gap-2">
+      <div className="flex items-start justify-between mb-5 gap-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${empty ? 'bg-white/15' : stat.attendanceRate >= 50 ? 'bg-[#CCFF00]' : 'bg-red-400'}`} />
-            <p className="text-[8px] font-black uppercase italic tracking-[0.3em] text-white/25">{empty ? 'NO PLAYERS' : 'ACTIVE'}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Radio size={10} className={empty ? 'text-white/20' : 'text-[#CCFF00] animate-pulse'} />
+            <p className="text-[8px] font-black uppercase italic tracking-[0.3em] text-white/30">{empty ? 'DEACTIVATED' : 'LIVE NODE'}</p>
           </div>
-          <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight leading-tight line-clamp-2">{stat.name}</h3>
+          <h3 className="text-[15px] font-black italic uppercase text-white tracking-tight leading-tight line-clamp-2 drop-shadow-sm">{stat.name}</h3>
         </div>
-        <Ring value={stat.attendanceRate} size={52} stroke={4.5} />
+        <Ring value={stat.attendanceRate} size={56} stroke={5} />
       </div>
 
       {/* Big number */}
-      <div className="flex items-baseline gap-1.5 mb-3">
-        <span className="text-5xl font-black italic text-white leading-none">{stat.players}</span>
-        <span className="text-[9px] font-black uppercase italic text-white/25 pb-1">enrolled</span>
+      <div className="flex items-baseline gap-2 mb-4">
+        <span className="text-6xl font-black italic text-white leading-none tracking-tighter">{stat.players}</span>
+        <div className="flex flex-col">
+          <span className="text-[9px] font-black uppercase italic text-[#CCFF00]/60 -mb-1">Fleet</span>
+          <span className="text-[9px] font-black uppercase italic text-white/20">Athletes</span>
+        </div>
       </div>
 
       {/* Attendance bar */}
-      <div className="space-y-1.5 mb-4">
-        <div className="flex justify-between text-[9px] font-black italic text-white/30">
-          <span>TODAY'S TRAINING</span>
-          <span>{stat.presentToday}/{stat.players}</span>
+      <div className="space-y-2 mb-5">
+        <div className="flex justify-between text-[9px] font-black italic text-white/40 uppercase tracking-wider">
+          <span>Daily Payload</span>
+          <span className="text-[#CCFF00]">{stat.presentToday} / {stat.players}</span>
         </div>
-        <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-1000"
-            style={{ width: `${stat.attendanceRate}%`, background: rateColor(stat.attendanceRate) }} />
+        <div className="h-[4px] bg-white/[0.05] rounded-full overflow-hidden p-[1px]">
+          <div className="h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(204,255,0,0.5)]"
+            style={{ width: `${stat.attendanceRate}%`, background: '#CCFF00' }} />
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3.5 border-t border-white/[0.05]">
-        <span className="text-[9px] font-black italic text-white/25">
-          {stat.avgRating > 0 ? <><span className="text-[#CCFF00]/60">⭐</span> {stat.avgRating.toFixed(1)} avg rating</> : 'No evaluations'}
-        </span>
-        {stat.pendingFees > 0
-          ? <span className="text-[9px] font-black italic text-red-400 bg-red-400/10 px-2 py-0.5 rounded-lg border border-red-400/15">{stat.pendingFees} overdue</span>
-          : <span className="text-[9px] font-black italic text-white/15">fees ✓</span>}
+      <div className="flex items-center justify-between pt-4 border-t border-white/[0.05]">
+        <div className="flex items-center gap-2">
+          <Star size={10} className="text-[#CCFF00]/40" />
+          <span className="text-[9px] font-black italic text-white/30 uppercase tracking-tighter">
+            {stat.avgRating > 0 ? <><span className="text-white">{stat.avgRating.toFixed(1)}</span> SCORE</> : 'UNRANKED'}
+          </span>
+        </div>
+        
+        {stat.pendingFees > 0 ? (
+          <div className="flex items-center gap-1.5 text-red-400">
+             <AlertTriangle size={10} />
+             <span className="text-[9px] font-black italic uppercase tracking-tighter">{stat.pendingFees} OVERDUE</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-[#CCFF00]/30">
+             <Shield size={10} />
+             <span className="text-[9px] font-black italic uppercase tracking-tighter">SECURE</span>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -432,7 +453,7 @@ export const AdminDashboard: React.FC = () => {
             itemStyle={{ fontWeight: 900, color: 'white' }} 
           />
           <Area type="monotone" dataKey="present" name="Present" stroke="#CCFF00" strokeWidth={3} fill="url(#g1)" dot={false} />
-          <Area type="monotone" dataKey="absent" name="Absent" stroke="#f87171" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#g2)" dot={false} />
+          <Area type="monotone" dataKey="absent" name="Absent" stroke="#ffffff" strokeWidth={1} strokeDasharray="4 3" fill="url(#g2)" dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     );
@@ -450,18 +471,22 @@ export const AdminDashboard: React.FC = () => {
           <Command size={180} className="text-white" />
         </div>
         <div className="relative z-10">
-          <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-              <h1 className="text-4xl sm:text-5xl font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-sm">
-                ACADEMY <span className="text-[#CCFF00]">HUB</span>
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 text-[#CCFF00] font-bold uppercase text-[9px] tracking-[0.4em] italic mb-3">
+                <span className="w-8 h-px bg-[#CCFF00]/30"></span>
+                Strategic Operations Center
+              </div>
+              <h1 className="text-5xl sm:text-6xl font-black italic text-white uppercase tracking-tighter leading-[0.85] flex flex-col sm:flex-row items-baseline gap-x-4">
+                ACADEMY <span className="text-[#CCFF00] drop-shadow-[0_0_15px_rgba(204,255,0,0.3)]">HUB</span>
               </h1>
-              <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.5em] italic mt-2">
-                ADMINISTRATIVE DASHBOARD · OPERATIONS OVERVIEW
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] italic pt-2">
+                System Node: Dashboard // Operations · Intelligence · Management
               </p>
             </div>
             
             {/* Global Filters */}
-            <div className="flex flex-col sm:flex-row w-full md:w-auto bg-black/30 p-2 rounded-2xl border border-white/10 gap-2 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto glass-card p-2 rounded-2xl border border-white/10 gap-2 shadow-lg backdrop-blur-xl">
               <div className="relative">
                 <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
                 <select
@@ -502,21 +527,27 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* KPI grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-10">
             {[
-              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={14} />, color: '#CCFF00', accent: 'bg-black/20 border-white/10 shadow-[0_0_20px_rgba(204,255,0,0.05)]' },
-              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={14} />, color: globalStats.newThisMonth > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)', accent: globalStats.newThisMonth > 0 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-black/20 border-white/10' },
-              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={14} />, color: globalStats.rate >= 75 ? '#4ade80' : globalStats.rate >= 50 ? '#f59e0b' : '#f87171', accent: 'bg-black/20 border-white/10' },
-              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={14} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#4ade80', accent: globalStats.overdueCount > 0 ? 'bg-red-500/10 border-red-500/20' : 'bg-black/20 border-white/10' },
-              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={14} />, color: alertItems.length > 0 ? '#f59e0b' : '#4ade80', accent: alertItems.length > 0 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-black/20 border-white/10' },
+              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
+              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
+              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
+              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={16} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
+              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={16} />, color: alertItems.length > 0 ? '#f59e0b' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
             ].map((k, i) => (
-              <div key={i} className={`rounded-3xl border p-5 group transition-all duration-500 hover:scale-[1.02] ${k.accent}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[9px] font-black uppercase italic tracking-[0.2em] text-white/60">{k.label}</p>
-                  <span style={{ color: k.color }} className="opacity-80 group-hover:opacity-100 transition-opacity">{k.icon}</span>
+              <div key={i} className={`rounded-[2rem] border p-6 group transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden ${k.accent}`}>
+                {k.showBar && <div className="green-light-bar" />}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[9px] font-black uppercase italic tracking-[0.2em] text-white/40">{k.label}</p>
+                  <span style={{ color: k.color }} className="opacity-60 group-hover:opacity-100 transition-opacity icon-glow-lime">{k.icon}</span>
                 </div>
-                <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color }}>{k.value}</p>
-                <p className="text-[10px] font-black italic text-white/50 mt-2.5">{k.sub}</p>
+                <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color === '#CCFF00' ? '#ffffff' : k.color }}>
+                  {k.color === '#CCFF00' ? <span className="text-white group-hover:text-[#CCFF00] transition-colors">{k.value}</span> : k.value}
+                </p>
+                <p className="text-[10px] font-black italic text-white/30 mt-3">{k.sub}</p>
+                
+                {/* Minimal Sky Blue Accent */}
+                <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-[#00C8FF]/5 rounded-full blur-2xl group-hover:bg-[#00C8FF]/10 transition-all duration-700" />
               </div>
             ))}
           </div>
@@ -577,7 +608,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="overflow-x-auto custom-scrollbar-tactical">
             <table className="w-full min-w-[900px]">
               <thead>
-                <tr className="border-b border-white/[0.04] bg-black/10">
+                <tr className="border-b border-white/[0.06] bg-brand-950/20">
                   {['RANK', 'PLAYER PROFILE', 'COMPOSITE', 'RATING', 'ATTENDANCE', 'SKILLS', 'TREND', 'DEVELOPMENT'].map((h, i) => (
                     <th key={i} className={`px-6 py-4 text-[9px] font-black italic text-white/60 uppercase tracking-[0.2em] ${
                       i === 0 ? 'w-20 text-center' : i === 1 ? 'text-left' : 'text-center'
@@ -739,13 +770,13 @@ export const AdminDashboard: React.FC = () => {
       {selectedBatch === 'all' && activeCentres.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
-            <Zap size={12} className="text-brand-900" />
-            <p className="text-[10px] font-black text-brand-900/60 uppercase italic tracking-[0.35em]">
-              {selectedVenue === 'all' ? 'OPERATIONAL CENTRES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
+            <Radio size={12} className="text-[#CCFF00]" />
+            <p className="text-[10px] font-black text-white/60 uppercase italic tracking-[0.35em]">
+              {selectedVenue === 'all' ? 'OPERATIONAL NODES' : `${selectedVenue.toUpperCase()} OVERVIEW`}
             </p>
             <div className="ml-auto flex items-center gap-2">
-                <span className="text-[9px] font-black text-brand-900 bg-brand-900/5 border border-brand-900/10 px-3 py-1 rounded-full uppercase italic tracking-wider">LIVE STATUS</span>
-                <span className="text-[9px] font-black text-brand-900/40 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">{activeCentres.length} CENTRES</span>
+                <span className="text-[9px] font-black text-[#CCFF00] bg-[#CCFF00]/10 border border-[#CCFF00]/20 px-3 py-1 rounded-full uppercase italic tracking-wider">LIVE STATUS</span>
+                <span className="text-[9px] font-black text-white/40 glass-card px-3 py-1 rounded-lg border border-white/10 ring-1 ring-white/5">{activeCentres.length} NODES</span>
             </div>
           </div>
           <div className={`grid gap-4 ${activeCentres.length === 1 ? 'grid-cols-1 max-w-sm' : activeCentres.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -766,33 +797,35 @@ export const AdminDashboard: React.FC = () => {
             </div>
             <div className="flex gap-3 text-[9px] font-black italic text-white/40">
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[#CCFF00] inline-block rounded" /> Present</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-400 inline-block rounded" /> Absent</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-white inline-block rounded opacity-20" /> Absent</span>
             </div>
           </div>
           <div className="h-[200px] sm:h-[240px]">{renderChart(chartAll)}</div>
         </div>
 
         {/* Top performers */}
-        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl flex flex-col ring-1 ring-white/5">
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl flex flex-col ring-1 ring-white/5 relative overflow-hiddenGroup">
           <div className="flex items-center gap-2 mb-5">
-            <Star size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">TOP RANKED PLAYERS</h3>
+            <Star size={13} className="text-[#CCFF00] icon-glow-lime" />
+            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">ELITE PLATOON</h3>
           </div>
           {topPerformers.length > 0 ? (
             <div className="flex-1 space-y-1">
               {topPerformers.map((p, i) => (
-                <div key={i} className="flex items-center gap-3 py-2.5 border-b border-white/[0.04] last:border-0">
-                  <div className="w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center text-[9px] font-black italic text-brand-950"
-                    style={{ background: i === 0 ? '#CCFF00' : i === 1 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)' }}>
+                <div key={i} className="flex items-center gap-3 py-3 border-b border-white/[0.04] last:border-0 group/item">
+                  <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-black italic shadow-inner"
+                    style={{ 
+                      background: i === 0 ? '#CCFF00' : i === 1 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                      color: i === 0 ? '#0D1B8A' : 'white'
+                    }}>
                     {i + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-black italic text-white truncate">{p.name}</p>
-                    <p className="text-[8px] font-bold italic text-white/25 truncate">{p.venue}</p>
+                    <p className="text-[12px] font-black italic text-white truncate group-hover/item:text-[#CCFF00] transition-colors">{p.name}</p>
+                    <p className="text-[8px] font-bold italic text-white/20 truncate uppercase tracking-tighter">{p.venue}</p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <span className="text-[11px] font-black italic text-[#CCFF00]">{p.rating}</span>
-                    <span className="text-[8px] text-white/20 font-black italic">/10</span>
+                    <span className="text-[12px] font-black italic text-[#CCFF00]">{p.rating.toFixed(1)}</span>
                   </div>
                 </div>
               ))}
@@ -800,7 +833,7 @@ export const AdminDashboard: React.FC = () => {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-2 opacity-25">
               <Shield size={24} className="text-white/20" />
-              <p className="text-[9px] font-black italic text-white/25 uppercase text-center">No player evaluations<br />recorded yet</p>
+              <p className="text-[9px] font-black italic text-white/25 uppercase text-center">Incomplete intel<br />on evaluations</p>
             </div>
           )}
         </div>
@@ -871,15 +904,15 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Inactive Centres (collapsed) ───────────────────────────────────── */}
+      {/* ── Inactive Nodes (collapsed) ───────────────────────────────────── */}
       {emptyCentres.length > 0 && (
-        <div className="bg-slate-100 rounded-[2rem] border border-slate-200 px-5 py-4">
+        <div className="glass-card rounded-[2rem] border border-white/10 px-5 py-4 ring-1 ring-white/5 opacity-40">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-            <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-[0.3em]">
-              {emptyCentres.length} INACTIVE CENTRE{emptyCentres.length > 1 ? 'S' : ''} (NO PLAYERS ENROLLED)
+            <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+            <p className="text-[9px] font-black text-white/40 uppercase italic tracking-[0.3em]">
+              {emptyCentres.length} INACTIVE NODE{emptyCentres.length > 1 ? 'S' : ''} (ZERO ENROLMENT)
             </p>
-            <p className="text-[9px] font-bold italic text-slate-400 ml-auto">{emptyCentres.map(c => c.name).join(' · ')}</p>
+            <p className="text-[9px] font-bold italic text-white/20 ml-auto">{emptyCentres.map(c => c.name).join(' · ')}</p>
           </div>
         </div>
       )}

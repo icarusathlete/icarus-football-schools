@@ -285,9 +285,9 @@ export const FinanceManager: React.FC = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'PAID': return 'bg-green-100 text-green-700 border-green-200';
-            case 'OVERDUE': return 'bg-red-100 text-red-700 border-red-200';
-            default: return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+            case 'PAID': return 'bg-brand-accent/20 text-brand-accent border-brand-accent/30';
+            case 'OVERDUE': return 'bg-red-500/20 text-red-500 border-red-500/30';
+            default: return 'bg-white/10 text-white/60 border-white/20';
         }
     };
 
@@ -317,70 +317,70 @@ export const FinanceManager: React.FC = () => {
             <div className="flex flex-col space-y-8">
                 <>
                     {/* Header Section */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-8 md:p-12 !rounded-[2.5rem] relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><DollarSign size={120} className="text-white" /></div>
-                        <div className="relative z-10 space-y-2">
-                            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-                                FINANCE <span className="text-brand-primary font-black">DECK</span>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 glass-card p-10 md:p-14 rounded-[3.5rem] relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700"><DollarSign size={160} className="text-white" /></div>
+                        <div className="relative z-10 space-y-3">
+                            <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
+                                FINANCE <span className="text-brand-accent font-black">DECK</span>
                             </h2>
-                            <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.4em] italic pt-2">Revenue Tracking // Transaction Records</p>
+                            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.5em] italic pt-2">Revenue Tracking // Transaction Records</p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest italic ml-1">Payment Status</label>
-                                <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-primary" />
+                            <div className="flex flex-col gap-3">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest italic ml-1">Payment Status</label>
+                                <div className="relative group/select">
+                                    <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-accent group-focus-within/select:scale-110 transition-all" />
                                     <select
                                         value={feeStatusFilter}
                                         onChange={e => setFeeStatusFilter(e.target.value)}
-                                        className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-white/20 transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full pl-14 pr-12 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[11px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-inner hover:bg-white/10 transition-all focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent/40"
                                     >
-                                        <option value="All" className="bg-brand-secondary text-white">All Statuses</option>
-                                        <option value="Pending" className="bg-brand-secondary text-white">Pending / Overdue</option>
-                                        <option value="Paid" className="bg-brand-secondary text-white">Fees Paid</option>
+                                        <option value="All" className="bg-[#0a0f2d] text-white">All Statuses</option>
+                                        <option value="Pending" className="bg-[#0a0f2d] text-white">Pending / Overdue</option>
+                                        <option value="Paid" className="bg-[#0a0f2d] text-white">Fees Paid</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest italic ml-1">Training Location</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-primary" />
+                            <div className="flex flex-col gap-3">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest italic ml-1">Training Location</label>
+                                <div className="relative group/select">
+                                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-accent group-focus-within/select:scale-110 transition-all" />
                                     <select
                                         value={selectedVenue}
                                         onChange={e => setSelectedVenue(e.target.value)}
-                                        className="w-full pl-12 pr-10 py-4 bg-white/10 border border-white/20 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-xl hover:bg-white/20 transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full pl-14 pr-12 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[11px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-inner hover:bg-white/10 transition-all focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent/40"
                                     >
-                                        <option value="All" className="bg-brand-secondary text-white">All Locations</option>
+                                        <option value="All" className="bg-[#0a0f2d] text-white">All Locations</option>
                                         {venues.map(v => (
-                                            <option key={v.id} value={v.name} className="bg-brand-secondary text-white">{v.name}</option>
+                                            <option key={v.id} value={v.name} className="bg-[#0a0f2d] text-white">{v.name}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="bg-white/10 backdrop-blur-md px-8 py-5 rounded-[2rem] border border-white/20 flex flex-row items-center justify-between gap-6 w-full sm:w-auto shadow-xl">
-                                <div>
-                                    <p className="text-[9px] font-black text-white/60 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
+                            <div className="glass-card-alt px-10 py-6 rounded-[2.5rem] border border-white/20 flex flex-row items-center justify-between gap-8 w-full sm:w-auto shadow-2xl relative overflow-hidden group/stats">
+                                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/stats:opacity-100 transition-opacity duration-500"></div>
+                                <div className="relative z-10">
+                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-black text-brand-primary italic">₹{totalCollected}</span>
-                                        <span className="text-[10px] font-bold text-white/40">/ ₹{totalDue}</span>
+                                        <span className="text-3xl font-black text-white italic tracking-tighter">₹{totalCollected}</span>
+                                        <span className="text-[11px] font-bold text-white/20">/ ₹{totalDue}</span>
                                     </div>
                                 </div>
-                                <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 flex items-center justify-center text-brand-primary border border-brand-primary/30 shadow-glow-sm">
-                                    <Trophy size={20} />
+                                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-brand-accent border border-white/10 shadow-xl group-hover/stats:scale-110 transition-transform duration-500 relative z-10">
+                                    <Trophy size={24} />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
+                    <div className="relative group/search mx-1">
+                        <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/search:text-brand-accent transition-all w-5 h-5" />
                         <input
                             placeholder="SEARCH_STUDENT_ATHLETES_..."
-                            className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 rounded-[2rem] shadow-sm focus:border-brand-primary outline-none transition-all font-black text-xs text-slate-900 placeholder:text-slate-300 italic tracking-[0.2em]"
+                            className="w-full pl-18 pr-8 py-7 bg-white/5 border border-white/10 rounded-[2.5rem] shadow-inner focus:border-brand-accent/40 focus:bg-white/10 outline-none transition-all font-black text-[13px] text-white italic tracking-[0.2em] placeholder:text-white/10"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -414,153 +414,147 @@ export const FinanceManager: React.FC = () => {
                                 : 'bg-white/20 shadow-none';
 
                             return (
-                                <div key={p.id} className={`glass-card p-6 !rounded-[2.5rem] relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 ${cardBorder}`}>
-
+                                <div key={p.id} className={`glass-card p-10 !rounded-[3rem] relative overflow-hidden group transition-all duration-700 hover:-translate-y-2 hover:scale-[1.02] shadow-2xl ${cardBorder}`}>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-accent/10 transition-colors"></div>
+                                    
                                     {/* ── LED status dot (top-right) ── */}
-                                    <div className="absolute top-4 right-4 z-10">
+                                    <div className="absolute top-6 right-6 z-10 scale-125">
                                         <div className={`relative w-2.5 h-2.5 rounded-full ${dotColor} ${statusVal !== 'PENDING' || isDueSoon || isOverdue ? 'animate-pulse' : ''}`}>
-                                            {/* inner specular highlight — light-bulb feel */}
                                             <div className="absolute top-[2px] left-[2px] w-[4px] h-[4px] rounded-full bg-white/70" />
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-start gap-5 mb-6">
-                                        <div className="relative">
-                                            <img src={p.photoUrl} className="w-16 h-16 rounded-2xl bg-brand-950 object-cover border-2 border-white/10 shadow-xl group-hover:border-brand-primary/30 transition-colors" />
-                                            {statusVal === 'PAID' && <div className="absolute -bottom-1 -right-1 bg-brand-primary text-brand-secondary p-1 rounded-full shadow-glow-sm"><Check size={12} strokeWidth={4} /></div>}
+                                    <div className="flex flex-col items-center text-center mb-8 pt-2">
+                                        <div className="relative mb-6">
+                                            <div className="absolute -inset-2 bg-gradient-to-br from-brand-accent to-green-500 rounded-[2.5rem] opacity-0 blur-md group-hover:opacity-40 transition-opacity duration-700"></div>
+                                            <img src={p.photoUrl} className="w-24 h-24 rounded-[2rem] bg-brand-950 object-cover border-4 border-white/10 shadow-2xl relative z-10 transition-transform duration-700 group-hover:scale-105" />
+                                            {statusVal === 'PAID' && <div className="absolute -bottom-2 -right-2 bg-brand-accent text-brand-950 p-2 rounded-xl shadow-2xl z-20"><Check size={14} strokeWidth={4} /></div>}
                                         </div>
-                                        <div className="min-w-0 flex-1">
-                                            <h3 className="font-black text-white italic truncate text-lg uppercase leading-none mb-1 group-hover:text-brand-primary transition-colors">{p.fullName}</h3>
-                                            <p className="text-[10px] text-white/40 font-black tracking-[0.2em] uppercase truncate mb-3 italic">{p.memberId}</p>
-                                            
-                                            <div className="flex flex-wrap gap-2">
-                                                <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] rounded-lg border border-white/10">
-                                                    <MapPin size={10} className="text-brand-primary" />
-                                                    <span className="text-[9px] font-black text-white/30 uppercase italic tracking-tighter">{p.venue || 'NOT ASSIGNED'}</span>
-                                                </div>
-                                                {statusVal === 'PAID' && status?.datePaid && (
-                                                    <div className="flex items-center gap-1 px-2 py-1 bg-brand-primary/10 rounded-lg border border-brand-primary/20">
-                                                        <Calendar size={10} className="text-brand-primary" />
-                                                        <span className="text-[9px] font-black text-brand-primary/60 uppercase italic tracking-tighter">PAID: {new Date(status.datePaid).toLocaleDateString()}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                        
+                                        <h3 className="font-black text-white italic text-2xl uppercase tracking-tighter leading-none mb-2 group-hover:text-brand-accent transition-colors duration-500">{p.fullName}</h3>
+                                        <p className="text-[10px] text-white/30 font-black tracking-[0.3em] uppercase italic mb-4">{p.memberId}</p>
+                                        
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 shadow-inner">
+                                            <MapPin size={10} className="text-brand-accent" />
+                                            <span className="text-[10px] font-black text-white/40 uppercase italic tracking-widest">{p.venue || 'NOT ASSIGNED'}</span>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-white/5">
+                                    <div className="grid grid-cols-2 gap-6 mb-8 py-6 border-y border-white/5">
                                         <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">FEES DUE</p>
-                                            <p className="font-black text-white italic text-2xl tracking-tighter leading-none">₹24000</p>
+                                            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">FEES DUE</p>
+                                            <p className="font-black text-white italic text-3xl tracking-tighter leading-none group-hover:text-brand-accent transition-colors">₹24K</p>
                                         </div>
                                         <div className="space-y-1 text-right">
-                                            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest italic">NEXT PAYMENT</p>
-                                            <div className="flex items-center justify-end gap-1.5">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${getDaysRemaining(status) > 0 ? 'bg-brand-primary' : 'bg-red-500'} animate-pulse shadow-glow-sm`} />
-                                                <p className="font-black text-white italic text-[10px] uppercase tracking-widest">
-                                                    {getDaysRemaining(status) > 0 ? `${getDaysRemaining(status)} DAYS LEFT` : `${Math.abs(getDaysRemaining(status))} OVERDUE`}
+                                            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">TIME LEFT</p>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${getDaysRemaining(status) > 0 ? 'bg-brand-accent' : 'bg-red-500'} animate-pulse shadow-[0_0_10px_rgba(195,246,41,0.5)]`} />
+                                                <p className="font-black text-white italic text-[11px] uppercase tracking-widest leading-none">
+                                                    {getDaysRemaining(status) > 0 ? `${getDaysRemaining(status)}D` : `${Math.abs(getDaysRemaining(status))}D`}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-3 mt-2">
+                                    <div className="flex gap-4">
                                         <button 
                                             onClick={() => openInvoiceGenerator(p)} 
-                                            className="flex-1 h-12 bg-white/[0.03] flex items-center justify-center gap-3 rounded-2xl shadow-xl active:scale-95 transition-all text-white group/inv border border-white/10 hover:bg-white/10 hover:border-brand-primary/30"
-                                            title="Generate Invoice"
+                                            className="flex-1 h-14 bg-white/5 flex items-center justify-center gap-3 rounded-2xl shadow-xl active:scale-95 transition-all text-white group/inv border border-white/10 hover:bg-white/10 hover:border-brand-accent/40"
                                         >
-                                            <FileText size={18} className="text-brand-primary group-hover/inv:scale-110 transition-transform" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">INVOICE</span>
+                                            <FileText size={18} className="text-brand-accent group-hover/inv:scale-110 transition-transform" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RECEIPT</span>
                                         </button>
                                         {statusVal !== 'PAID' && (
                                             <button 
                                                 onClick={() => setConfirmPaymentId(p.id)}
-                                                className="w-12 h-12 bg-gradient-to-br from-brand-primary to-[#A3D900] text-brand-secondary rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-primary/20 group/btn border border-white/10"
-                                                title="Mark as Paid"
+                                                className="w-14 h-14 bg-brand-accent text-brand-950 rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-brand-accent/20 group/btn"
                                             >
-                                                <Check size={20} strokeWidth={4} className="group-hover/btn:scale-110 transition-transform" />
+                                                <Check size={24} strokeWidth={4} className="group-hover/btn:scale-125 transition-transform" />
                                             </button>
                                         )}
                                     </div>
                                 </div>
                             )
                         })}
-                        {filteredPlayers.length === 0 && <div className="col-span-full text-center text-slate-400 font-black uppercase tracking-widest py-20 italic bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">No student athletes found in records.</div>}
+                        {filteredPlayers.length === 0 && (
+                            <div className="col-span-full text-center py-24 glass-card border-dashed border-white/10 opacity-50">
+                                <Search size={40} className="mx-auto mb-4 text-white/10" />
+                                <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em] italic">NO_RECORDS_DETECTED_IN_THIS_NODE</p>
+                            </div>
+                        )}
                     </div>
                 </>
             </div>
 
 
-            {/* Invoice Generator Modal */}
             {isInvoiceModalOpen && selectedPlayerForInvoice && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in">
-                    {/* On mobile: the whole sheet scrolls (overflow-y-auto + overscroll-y-contain stops scroll bleeding to body).
-                        On desktop (md+): height is fixed at 95dvh and each panel scrolls independently. */}
+                <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
                     <div
-                        className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-3xl w-full max-w-6xl flex flex-col md:flex-row overflow-y-auto overscroll-y-contain md:overflow-hidden border border-slate-200"
-                        style={{maxHeight: '95dvh'}}
+                        className="glass-card !rounded-t-[3rem] sm:!rounded-[3.5rem] shadow-[0_32px_120px_-15px_rgba(0,0,0,0.8)] w-full max-w-7xl flex flex-col md:flex-row overflow-y-auto overscroll-y-contain md:overflow-hidden border border-white/20 relative"
+                        style={{maxHeight: '92dvh'}}
                     >
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent opacity-50"></div>
 
-                         {/* Control Panel: full-width on mobile, sidebar on desktop */}
-                        <div className="w-full md:w-1/3 bg-slate-50 p-6 sm:p-10 border-b md:border-b-0 md:border-r border-slate-100 md:overflow-y-auto flex-shrink-0">
-                            <div className="flex items-center justify-between mb-6 sm:mb-10">
-                                <h3 className="text-xl sm:text-2xl font-black text-slate-900 italic uppercase tracking-tighter">INVOICE <span className="text-brand-primary">GEN</span></h3>
-                                <button onClick={() => setInvoiceModalOpen(false)} className="p-3 hover:bg-slate-200/50 rounded-2xl text-slate-400 hover:text-brand-primary transition-all border border-transparent hover:border-slate-200"><X size={22} /></button>
+                         {/* Control Panel */}
+                        <div className="w-full md:w-1/3 bg-white/5 p-8 sm:p-12 border-b md:border-b-0 md:border-r border-white/10 md:overflow-y-auto flex-shrink-0 relative">
+                            <div className="absolute top-0 left-0 w-full h-full bg-brand-accent/5 blur-[100px] pointer-events-none opacity-20"></div>
+                            <div className="flex items-center justify-between mb-10 relative z-10">
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">INVOICE <span className="text-brand-accent">CORE</span></h3>
+                                <button onClick={() => setInvoiceModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-white transition-all border border-white/10 shadow-lg"><X size={20} /></button>
                             </div>
 
-                            <div className="space-y-5 sm:space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Invoice No</label>
+                            <div className="space-y-6 sm:space-y-8 relative z-10">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Invoice ID</label>
                                     <input
                                         type="text"
                                         value={invoiceForm.invoiceNo}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, invoiceNo: e.target.value })}
-                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl focus:border-brand-accent/40 focus:bg-white/10 outline-none font-black text-[12px] text-white italic uppercase tracking-widest transition-all shadow-inner"
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Invoice Date</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Registration Date</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.date}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, date: e.target.value })}
-                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl focus:border-brand-accent/40 focus:bg-white/10 outline-none font-black text-[12px] text-white italic uppercase tracking-widest transition-all shadow-inner [color-scheme:dark]"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Valid Until</label>
+                                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Valid Until</label>
                                     <input
                                         type="date"
                                         value={invoiceForm.validTill}
                                         onChange={e => setInvoiceForm({ ...invoiceForm, validTill: e.target.value })}
-                                        className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-slate-900 italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                        className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:border-brand-accent/40 focus:bg-white/10 outline-none font-black text-xs text-white italic uppercase tracking-widest transition-all shadow-inner [color-scheme:dark]"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Amount (₹)</label>
+                                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Amount (₹)</label>
                                         <input
                                             type="number"
                                             value={invoiceForm.amount}
                                             onChange={e => setInvoiceForm({ ...invoiceForm, amount: parseInt(e.target.value) })}
-                                            className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:border-brand-accent/40 focus:bg-white/10 outline-none font-black text-xs text-white italic uppercase tracking-widest transition-all shadow-inner"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-1">Payment Mode</label>
+                                        <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic ml-1">Payment Mode</label>
                                         <select
                                             value={invoiceForm.paymentMode}
                                             onChange={e => setInvoiceForm({ ...invoiceForm, paymentMode: e.target.value as any })}
-                                            className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary outline-none font-black text-xs text-brand-primary italic uppercase tracking-widest appearance-none transition-all focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:border-brand-accent/40 focus:bg-white/10 outline-none font-black text-xs text-white italic uppercase tracking-widest appearance-none transition-all"
                                         >
-                                            <option value="Cash">Cash</option>
-                                            <option value="UPI">UPI Payment</option>
-                                            <option value="Bank Transfer">Bank Transfer</option>
-                                            <option value="Card">Credit Card</option>
+                                            <option value="Cash" className="bg-[#0a0f2d]">Cash</option>
+                                            <option value="UPI" className="bg-[#0a0f2d]">UPI Payment</option>
+                                            <option value="Bank Transfer" className="bg-[#0a0f2d]">Bank Transfer</option>
+                                            <option value="Card" className="bg-[#0a0f2d]">Credit Card</option>
                                         </select>
                                     </div>
                                 </div>
@@ -578,13 +572,13 @@ export const FinanceManager: React.FC = () => {
 
                                 <button
                                     onClick={handleDownloadPDF}
-                                    className="w-full py-5 bg-slate-100 border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm italic shadow-md active:scale-95"
+                                    className="w-full py-5 bg-white/5 border border-white/10 text-white/60 font-black rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] italic shadow-xl active:scale-95"
                                 >
-                                    <Download size={20} className="text-brand-primary" />
-                                    DOWNLOAD PDF
+                                    <Download size={18} className="text-brand-accent" />
+                                    ARCHIVE AS PDF
                                 </button>
 
-                                <p className="text-[9px] text-center text-slate-400 font-black uppercase tracking-widest mt-6 italic">This will mark as paid and sync data to the player's dashboard.</p>
+                                <p className="text-[9px] text-center text-white/20 font-black uppercase tracking-widest mt-6 italic">Secure terminal protocol active. This will authorize payment and sync encrypted data to academy nodes.</p>
                             </div>
                         </div>
 
@@ -728,32 +722,33 @@ export const FinanceManager: React.FC = () => {
             {/* Confirmation Modal */}
             {confirmPaymentId && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white p-10 max-w-sm w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-300 !rounded-[3rem] border border-slate-200 text-center shadow-3xl">
-                        <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center text-brand-primary mb-6 shadow-sm border border-brand-primary/20">
-                                <Check size={40} strokeWidth={4} />
+                    <div className="glass-card p-12 max-w-sm w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-500 !rounded-[3.5rem] border border-white/20 text-center shadow-[0_32px_80px_-15px_rgba(0,0,0,0.6)]">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent to-transparent opacity-50"></div>
+                        <div className="flex flex-col items-center relative z-10">
+                            <div className="w-24 h-24 bg-brand-accent/10 rounded-[2rem] flex items-center justify-center text-brand-accent mb-8 shadow-2xl border border-brand-accent/20">
+                                <Check size={48} strokeWidth={4} />
                             </div>
                             
-                            <h3 className="font-black text-slate-900 text-2xl tracking-tighter uppercase italic mb-2 leading-none">Confirm <span className="text-brand-primary">Payment</span></h3>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest italic mb-8">
-                                ARE YOU SURE YOU WANT TO MARK THESE FEES AS PAID? THIS ACTION CANNOT BE UNDONE.
+                            <h3 className="font-black text-white text-3xl tracking-tighter uppercase italic mb-4 leading-none">COMMIT <span className="text-brand-accent">PAYMENT</span></h3>
+                            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.25em] italic mb-10 leading-relaxed">
+                                AUTHORIZE FINANCIAL TRANSACTION? THIS PROTOCOL IS IRREVERSIBLE AND WILL SYNC TO CLOUD.
                             </p>
                             
                             <div className="flex gap-4 w-full">
                                 <button 
                                     onClick={() => setConfirmPaymentId(null)}
-                                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all border border-slate-200 active:scale-95"
+                                    className="flex-1 bg-white/5 hover:bg-white/10 text-white/40 font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all border border-white/10 active:scale-95"
                                 >
-                                    Cancel
+                                    ABORT
                                 </button>
                                 <button 
                                     onClick={() => {
                                         updateStatus(confirmPaymentId, 'PAID');
                                         setConfirmPaymentId(null);
                                     }}
-                                    className="flex-1 glass-card text-white font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all shadow-xl active:scale-105"
+                                    className="flex-1 bg-brand-accent text-brand-950 font-black uppercase tracking-widest text-[10px] italic py-5 rounded-2xl transition-all shadow-[0_15px_30px_rgba(195,246,41,0.2)] active:scale-105 hover:scale-[1.02]"
                                 >
-                                    Confirm
+                                    AUTHORIZE
                                 </button>
                             </div>
                         </div>

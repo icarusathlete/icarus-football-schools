@@ -81,7 +81,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#00054e] font-display selection:bg-brand-500/30">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden font-display selection:bg-brand-500/30">
             
             {/* Tactical Pro Grid Layer */}
             <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 

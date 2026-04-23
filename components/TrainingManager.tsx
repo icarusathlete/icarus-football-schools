@@ -109,17 +109,17 @@ export const TrainingManager: React.FC = () => {
 
     const getDifficultyColor = (diff: string) => {
         switch (diff) {
-            case 'Advanced': return 'text-red-600 bg-red-50 border-red-100';
-            case 'Intermediate': return 'text-yellow-600 bg-yellow-50 border-yellow-100';
-            default: return 'text-green-600 bg-green-50 border-green-100';
+            case 'Advanced': return 'bg-red-500/20 text-red-500 border-red-500/30';
+            case 'Intermediate': return 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30';
+            default: return 'bg-brand-accent/20 text-brand-accent border-brand-accent/30';
         }
     };
 
     const getCategoryIcon = (cat: DrillCategory) => {
         switch (cat) {
-            case 'Physical': return <Zap size={14} className="text-yellow-500" />;
-            case 'Tactical': return <Shield size={14} className="text-blue-500" />;
-            default: return <Target size={14} className="text-green-500" />;
+            case 'Physical': return <Zap size={14} className="text-[#CCFF00]" />;
+            case 'Tactical': return <Shield size={14} className="text-[#00C8FF]" />;
+            default: return <Target size={14} className="text-[#CCFF00]" />;
         }
     };
 
@@ -135,31 +135,35 @@ export const TrainingManager: React.FC = () => {
     return (
         <div className="space-y-10 pb-20 animate-in fade-in duration-700">
             {/* Training Ground Header */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-8 md:p-12 rounded-[2.5rem] border border-brand-100 shadow-xl shadow-brand-500/5 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700 text-brand-500"><Dumbbell size={120} /></div>
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-brand-950 uppercase tracking-tighter leading-none">
-                        TRAINING <span className="text-brand-500 font-black">GROUND</span>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-10 md:p-14 rounded-[3.5rem] relative overflow-hidden group shadow-2xl">
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700 text-white"><Dumbbell size={160} /></div>
+                <div className="relative z-10 space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse shadow-[0_0_10px_#C3F629]" />
+                        <span className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] italic">Active Training Node</span>
+                    </div>
+                    <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
+                        TRAINING <span className="text-brand-accent font-black">GROUND</span>
                     </h2>
-                    <p className="text-brand-400 font-black uppercase text-[10px] tracking-[0.4em] italic">Professional Drill Library // Learning Objectives</p>
+                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.5em] italic pt-2">Professional Drill Library // Learning Objectives</p>
                 </div>
                 <button
                     onClick={() => setIsCreating(true)}
-                    className="relative z-10 bg-brand-500 text-white px-10 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-brand-500/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.2em] italic border border-brand-400"
+                    className="relative z-10 bg-brand-accent text-brand-950 px-12 py-6 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-brand-accent/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.3em] italic border border-white/20"
                 >
-                    <Plus size={20} strokeWidth={3} />
+                    <Plus size={20} strokeWidth={4} />
                     CREATE DRILL
                 </button>
             </div>
 
             {/* Training Toolbar */}
-            <div className="bg-white p-3 rounded-[2.5rem] shadow-xl shadow-brand-500/5 border border-brand-100 flex flex-col md:flex-row gap-4">
+            <div className="glass-card p-4 rounded-[2.5rem] shadow-2xl border border-white/10 flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1 group">
-                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 text-brand-200 group-focus-within:text-brand-500 transition-colors w-5 h-5" />
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors w-5 h-5" />
                     <input
                         type="text"
-                        placeholder="SEARCH DRILLS..."
-                        className="w-full pl-16 pr-8 py-5 bg-brand-50 border border-brand-100 rounded-[1.8rem] outline-none focus:border-brand-500 transition-all text-[11px] font-black text-brand-950 placeholder:text-brand-300 italic tracking-[0.2em] font-mono"
+                        placeholder="SEARCH_DRILL_DATABASE_..."
+                        className="w-full pl-18 pr-10 py-6 bg-white/5 border border-white/10 rounded-[2rem] outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all text-xs font-black text-white placeholder:text-white/10 italic tracking-[0.2em]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -170,8 +174,8 @@ export const TrainingManager: React.FC = () => {
                             key={cat}
                             onClick={() => setFilterCategory(cat as any)}
                             className={`px-8 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all border italic ${filterCategory === cat
-                                    ? 'bg-brand-500 text-white border-brand-500 shadow-lg shadow-brand-500/20'
-                                    : 'bg-brand-50 text-brand-400 border-brand-100 hover:text-brand-600 hover:bg-brand-100'
+                                    ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-lg shadow-brand-accent/20'
+                                    : 'bg-white/5 text-white/40 border-white/10 hover:text-white hover:bg-white/10'
                                 }`}
                         >
                             {cat}
@@ -186,42 +190,42 @@ export const TrainingManager: React.FC = () => {
                     <div
                         key={drill.id}
                         onClick={() => setSelectedDrill(drill)}
-                        className="group bg-white rounded-[2.8rem] border border-brand-100 shadow-xl shadow-brand-500/5 hover:shadow-2xl hover:border-brand-500 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden flex flex-col"
+                        className="group glass-card rounded-[2.8rem] border border-white/10 shadow-2xl hover:border-brand-accent/40 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden flex flex-col"
                     >
-                        <div className="h-48 bg-slate-100 relative overflow-hidden">
+                        <div className="h-48 bg-white/5 relative overflow-hidden">
                             {drill.imageUrl ? (
-                                <img src={drill.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={drill.title} />
+                                <img src={drill.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100" alt={drill.title} />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-slate-50">
-                                    <ClipboardList className="text-slate-200 w-12 h-12" />
+                                <div className="w-full h-full flex items-center justify-center bg-white/2">
+                                    <ClipboardList className="text-white/10 w-12 h-12" />
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#070b42] via-transparent to-transparent" />
                             <div className="absolute top-5 right-5">
-                                <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border shadow-xl italic backdrop-blur-md ${getDifficultyColor(drill.difficulty).includes('red') ? 'bg-red-500 text-white border-red-600' : getDifficultyColor(drill.difficulty).includes('yellow') ? 'bg-yellow-500 text-white border-yellow-600' : 'bg-brand-500 text-white border-brand-600'}`}>
+                                <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border shadow-xl italic backdrop-blur-md ${getDifficultyColor(drill.difficulty)}`}>
                                     {drill.difficulty}
                                 </span>
                             </div>
                             {drill.videoUrl && (
-                                <div className="absolute bottom-5 left-5 bg-white text-brand-500 px-4 py-2 rounded-xl flex items-center gap-3 text-[9px] font-black uppercase tracking-widest shadow-xl border border-slate-100 italic">
-                                    <PlayCircle size={14} className="text-brand-500" /> VIDEO PREVIEW
+                                <div className="absolute bottom-5 left-5 bg-brand-accent text-brand-950 px-4 py-2 rounded-xl flex items-center gap-3 text-[9px] font-black uppercase tracking-widest shadow-xl border border-white/20 italic">
+                                    <PlayCircle size={14} className="text-brand-950" /> VIDEO PREVIEW
                                 </div>
                             )}
                         </div>
                         <div className="p-10 flex-1 flex flex-col">
-                            <div className="flex items-center gap-4 mb-6 text-[9px] font-black text-brand-300 uppercase tracking-[0.2em] italic">
-                                <div className="p-2 bg-brand-50 rounded-lg border border-brand-100">{getCategoryIcon(drill.category)}</div>
+                            <div className="flex items-center gap-4 mb-6 text-[9px] font-black text-white/40 uppercase tracking-[0.2em] italic">
+                                <div className="p-2 bg-white/5 rounded-lg border border-white/10">{getCategoryIcon(drill.category)}</div>
                                 {drill.category}
                             </div>
-                            <h3 className="text-2xl font-black text-brand-950 mb-4 italic tracking-tighter uppercase leading-tight group-hover:text-brand-500 transition-colors">{drill.title}</h3>
-                            <p className="text-[11px] text-brand-400 line-clamp-3 mb-8 flex-1 italic leading-relaxed font-medium">/// {drill.description}</p>
+                            <h3 className="text-2xl font-black text-white mb-4 italic tracking-tighter uppercase leading-tight group-hover:text-brand-accent transition-colors">{drill.title}</h3>
+                            <p className="text-[11px] text-white/40 line-clamp-3 mb-8 flex-1 italic leading-relaxed font-medium">/// {drill.description}</p>
 
-                            <div className="flex items-center justify-between pt-8 border-t border-brand-100 text-[10px] font-black text-brand-300 italic">
-                                <div className="flex items-center gap-3 bg-brand-50 px-4 py-2 rounded-xl border border-brand-100 font-mono text-brand-500">
-                                    <Clock size={14} /> {drill.duration} <span className="text-[8px] opacity-40 text-brand-400">MIN</span>
+                            <div className="flex items-center justify-between pt-8 border-t border-white/10 text-[10px] font-black text-white/40 italic">
+                                <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10 font-mono text-brand-accent">
+                                    <Clock size={14} /> {drill.duration} <span className="text-[8px] opacity-40 text-white/60">MIN</span>
                                 </div>
-                                <div className="flex items-center gap-3 bg-brand-50 px-4 py-2 rounded-xl border border-brand-100 font-mono text-brand-950">
-                                    <Users size={14} className="text-brand-500" /> {drill.minPlayers} <span className="text-[8px] opacity-40 text-brand-400">CAP</span>
+                                <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10 font-mono text-white">
+                                    <Users size={14} className="text-brand-accent" /> {drill.minPlayers} <span className="text-[8px] opacity-40 text-white/60">CAP</span>
                                 </div>
                             </div>
                         </div>
@@ -231,58 +235,58 @@ export const TrainingManager: React.FC = () => {
 
             {/* Drill Detail Modal */}
             {selectedDrill && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-500">
-                    <div className="bg-white w-full max-w-6xl h-[92vh] rounded-[4rem] shadow-[0_0_100px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 duration-700 border border-slate-100">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 shadow-2xl backdrop-blur-2xl animate-in fade-in duration-500">
+                    <div className="glass-card w-full max-w-6xl h-[92vh] rounded-[4rem] shadow-[0_0_100px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 duration-700 border border-white/10">
                         {/* Modal Header */}
-                        <div className="relative h-64 md:h-80 bg-brand-50 flex-shrink-0 border-b border-brand-100">
+                        <div className="relative h-64 md:h-80 flex-shrink-0 border-b border-white/10 overflow-hidden">
                             {selectedDrill.imageUrl && (
-                                <img src={selectedDrill.imageUrl} className="w-full h-full object-cover opacity-10" />
+                                <img src={selectedDrill.imageUrl} className="w-full h-full object-cover opacity-20" />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
-                            <button onClick={() => setSelectedDrill(null)} className="absolute top-10 right-10 p-4 bg-white hover:bg-brand-50 text-brand-200 hover:text-brand-950 rounded-2xl transition-all shadow-xl shadow-brand-500/5 border border-brand-100 z-20">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#070b42] via-[#070b42]/40 to-transparent" />
+                            <button onClick={() => setSelectedDrill(null)} className="absolute top-10 right-10 p-4 glass-card hover:bg-white/10 text-white/40 hover:text-white rounded-2xl transition-all shadow-2xl border border-white/10 z-20">
                                 <X size={24} />
                             </button>
                             <div className="absolute bottom-0 left-0 p-12 w-full text-left">
                                 <div className="flex items-center gap-4 mb-6">
-                                    <span className="px-5 py-2 bg-brand-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl italic shadow-lg">
+                                    <span className="px-5 py-2 bg-brand-accent text-brand-950 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl italic shadow-[0_0_20px_rgba(195,246,41,0.2)]">
                                         {selectedDrill.category}
                                     </span>
-                                    <span className="px-5 py-2 bg-brand-50 text-brand-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl italic border border-brand-100">
+                                    <span className="px-5 py-2 bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl italic border border-white/10">
                                         {selectedDrill.difficulty}
                                     </span>
                                 </div>
-                                <h2 className="text-5xl md:text-7xl font-black text-brand-950 italic tracking-tighter uppercase leading-none">
+                                <h2 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">
                                     {selectedDrill.title}
                                 </h2>
                             </div>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar-light bg-white">
+                        <div className="flex-1 overflow-y-auto custom-scrollbar bg-transparent">
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 p-12">
                                 {/* Side Column: Specs & Media */}
                                 <div className="lg:col-span-4 space-y-10">
-                                    <div className="bg-brand-50 p-10 rounded-[2.5rem] border border-brand-100 shadow-sm">
-                                        <h4 className="text-[11px] font-black text-brand-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-4 italic">
+                                    <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/10">
+                                        <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.3em] mb-8 flex items-center gap-4 italic">
                                             <Target size={16} /> DRILL INFO
                                         </h4>
                                         <div className="space-y-6">
-                                            <div className="flex justify-between items-center py-4 border-b border-brand-100">
-                                                <span className="text-[10px] font-bold text-brand-300 uppercase tracking-widest italic">Duration</span>
-                                                <span className="text-2xl font-black text-brand-950 font-mono italic">{selectedDrill.duration}<span className="text-[10px] ml-1 opacity-20">MIN</span></span>
+                                            <div className="flex justify-between items-center py-4 border-b border-white/5">
+                                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest italic">Duration</span>
+                                                <span className="text-2xl font-black text-white font-mono italic">{selectedDrill.duration}<span className="text-[10px] ml-1 opacity-20">MIN</span></span>
                                             </div>
-                                            <div className="flex justify-between items-center py-4 border-b border-brand-100">
-                                                <span className="text-[10px] font-bold text-brand-300 uppercase tracking-widest italic">Min Players</span>
-                                                <span className="text-2xl font-black text-brand-950 font-mono italic">{selectedDrill.minPlayers}<span className="text-[10px] ml-1 opacity-20">CAP</span></span>
+                                            <div className="flex justify-between items-center py-4 border-b border-white/5">
+                                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest italic">Min Players</span>
+                                                <span className="text-2xl font-black text-white font-mono italic">{selectedDrill.minPlayers}<span className="text-[10px] ml-1 opacity-20">CAP</span></span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {selectedDrill.videoUrl && (
-                                        <div className="rounded-[2.5rem] overflow-hidden shadow-xl border-4 border-slate-100 group relative">
+                                        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/5 group relative">
                                             <iframe
                                                 src={getYouTubeEmbedUrl(selectedDrill.videoUrl) || ''}
-                                                className="w-full aspect-video scale-[1.01]"
+                                                className="w-full aspect-video scale-[1.01] brightness-90 grayscale-[0.2] hover:grayscale-0 hover:brightness-100 transition-all duration-700"
                                                 title="Drill Video"
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                 allowFullScreen
@@ -290,13 +294,13 @@ export const TrainingManager: React.FC = () => {
                                         </div>
                                     )}
 
-                                    <div className="bg-brand-50 p-10 rounded-[2.5rem] border border-brand-100 shadow-sm">
-                                        <h4 className="text-[11px] font-black text-brand-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-4 italic">
+                                    <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/10">
+                                        <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.3em] mb-8 flex items-center gap-4 italic">
                                             <Dumbbell size={16} /> REQUIRED GEAR
                                         </h4>
                                         <div className="flex flex-wrap gap-3">
                                             {selectedDrill.equipment.map((item, idx) => (
-                                                <span key={idx} className="px-5 py-2.5 bg-white text-brand-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-brand-100 italic">
+                                                <span key={idx} className="px-5 py-2.5 bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10 italic">
                                                     {item}
                                                 </span>
                                             ))}
@@ -305,7 +309,7 @@ export const TrainingManager: React.FC = () => {
 
                                     <button
                                         onClick={() => handleDeleteClick(selectedDrill.id)}
-                                        className="w-full py-5 border-2 border-red-500/10 text-red-500 hover:bg-red-50 hover:border-red-500/30 rounded-[1.8rem] font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 transition-all italic shadow-sm"
+                                        className="w-full py-5 border-2 border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 rounded-[1.8rem] font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 transition-all italic shadow-2xl"
                                     >
                                         <Trash2 size={16} /> DELETE DRILL
                                     </button>
@@ -313,32 +317,32 @@ export const TrainingManager: React.FC = () => {
 
                                 {/* Main Column: Drill Details */}
                                 <div className="lg:col-span-8 space-y-12">
-                                    <div className="bg-brand-50 p-12 rounded-[3.5rem] border border-brand-100 shadow-sm relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-[4px] h-full bg-brand-500" />
-                                        <h3 className="text-[11px] font-black text-brand-500 uppercase tracking-[0.3em] mb-8 italic">Drill Description</h3>
-                                        <p className="text-xl text-brand-950 leading-relaxed italic font-medium">/// {selectedDrill.description}</p>
+                                    <div className="bg-white/5 p-12 rounded-[3.5rem] border border-white/10 relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-[4px] h-full bg-brand-accent" />
+                                        <h3 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.3em] mb-8 italic">Drill Description</h3>
+                                        <p className="text-xl text-white/80 leading-relaxed italic font-medium">/// {selectedDrill.description}</p>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                        <div className="bg-brand-50 p-10 rounded-[3rem] border border-brand-100">
-                                            <h4 className="text-[11px] font-black text-brand-500 uppercase tracking-[0.3em] mb-8 italic">Training Steps</h4>
+                                        <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10">
+                                            <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.3em] mb-8 italic">Training Steps</h4>
                                             <ul className="space-y-6">
                                                 {selectedDrill.instructions.map((step, idx) => (
-                                                    <li key={idx} className="flex gap-6 text-[13px] text-brand-950 italic font-medium leading-relaxed group">
-                                                        <span className="flex-shrink-0 w-8 h-8 bg-brand-500 text-white rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg group-hover:scale-110 transition-transform">{idx + 1}</span>
-                                                        <span className="pt-1.5 opacity-80 group-hover:opacity-100 transition-opacity">{step}</span>
+                                                    <li key={idx} className="flex gap-6 text-[13px] text-white/80 italic font-medium leading-relaxed group">
+                                                        <span className="flex-shrink-0 w-8 h-8 bg-brand-accent text-brand-950 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg group-hover:scale-110 transition-transform">{idx + 1}</span>
+                                                        <span className="pt-1.5 opacity-60 group-hover:opacity-100 transition-opacity">{step}</span>
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
 
-                                        <div className="bg-brand-50 p-10 rounded-[3rem] border border-brand-100">
+                                        <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10">
                                             <h4 className="text-[11px] font-black text-red-500 uppercase tracking-[0.3em] mb-8 italic">Coaching Points</h4>
                                             <ul className="space-y-6">
                                                 {selectedDrill.coachingPoints.map((point, idx) => (
-                                                    <li key={idx} className="flex gap-6 text-[13px] text-brand-950 italic font-medium leading-relaxed group">
+                                                    <li key={idx} className="flex gap-6 text-[13px] text-white/80 italic font-medium leading-relaxed group">
                                                         <span className="flex-shrink-0 w-8 h-8 bg-red-500 text-white rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg group-hover:scale-110 transition-transform">!</span>
-                                                        <span className="pt-1.5 opacity-80 group-hover:opacity-100 transition-opacity">{point}</span>
+                                                        <span className="pt-1.5 opacity-60 group-hover:opacity-100 transition-opacity">{point}</span>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -353,32 +357,32 @@ export const TrainingManager: React.FC = () => {
 
             {/* Create Drill Modal */}
             {isCreating && (
-                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/40 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.15)] w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
-                        <div className="px-6 sm:px-10 py-5 sm:py-8 border-b border-brand-100 flex justify-between items-center relative bg-brand-50 shrink-0">
-                            <h3 className="font-black text-xl sm:text-2xl text-brand-950 italic uppercase tracking-tight">Create <span className="text-brand-500">New Drill</span></h3>
-                            <button onClick={() => setIsCreating(false)} className="p-2 sm:p-3 hover:bg-brand-100 rounded-full text-brand-200 transition-colors"><X size={20} /></button>
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 shadow-2xl backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="glass-card rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.4)] w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-white/10 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+                        <div className="px-6 sm:px-10 py-5 sm:py-10 border-b border-white/10 flex justify-between items-center relative bg-white/2 shrink-0">
+                            <h3 className="font-black text-xl sm:text-2xl text-white italic uppercase tracking-tight">Create <span className="text-brand-accent">New Drill</span></h3>
+                            <button onClick={() => setIsCreating(false)} className="p-2 sm:p-3 hover:bg-white/10 rounded-full text-white/20 hover:text-white transition-colors"><X size={20} /></button>
                         </div>
 
-                        <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar-light space-y-6 sm:space-y-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Drill Title</label>
+                        <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar space-y-6 sm:space-y-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Drill Title</label>
                                 <input 
                                     required 
                                     type="text" 
-                                    className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm transition-all placeholder:text-brand-300 uppercase italic text-sm" 
+                                    className="w-full p-6 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-black text-white shadow-2xl transition-all placeholder:text-white/5 uppercase italic text-sm" 
                                     value={newDrill.title} 
                                     onChange={e => setNewDrill({ ...newDrill, title: e.target.value })} 
-                                    placeholder="e.g. 3-ZONE TRANSITION GAME" 
+                                    placeholder="e.g. 3-ZONE TRANSITION GAME..." 
                                 />
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Category</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Category</label>
                                     <div className="relative">
                                         <select 
-                                            className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest" 
+                                            className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-black text-white shadow-2xl appearance-none text-[10px] uppercase italic tracking-[0.2em] [color-scheme:dark]" 
                                             value={newDrill.category} 
                                             onChange={e => setNewDrill({ ...newDrill, category: e.target.value as any })}
                                         >
@@ -388,14 +392,14 @@ export const TrainingManager: React.FC = () => {
                                             <option value="Psychosocial">Psychosocial</option>
                                             <option value="Set Pieces">Set Pieces</option>
                                         </select>
-                                        <Zap className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-500" size={14} />
+                                        <Zap className="absolute right-6 top-1/2 -translate-y-1/2 text-brand-accent" size={14} />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Difficulty</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Difficulty</label>
                                     <div className="relative">
                                         <select 
-                                            className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm appearance-none text-[10px] uppercase italic tracking-widest" 
+                                            className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-black text-white shadow-2xl appearance-none text-[10px] uppercase italic tracking-[0.2em] [color-scheme:dark]" 
                                             value={newDrill.difficulty} 
                                             onChange={e => setNewDrill({ ...newDrill, difficulty: e.target.value as any })}
                                         >
@@ -403,60 +407,60 @@ export const TrainingManager: React.FC = () => {
                                             <option value="Intermediate">Intermediate</option>
                                             <option value="Advanced">Advanced</option>
                                         </select>
-                                        <Shield className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-500" size={14} />
+                                        <Shield className="absolute right-6 top-1/2 -translate-y-1/2 text-brand-accent" size={14} />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Duration (Mins)</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Duration (Mins)</label>
                                     <div className="relative">
                                         <input 
                                             type="number" 
-                                            className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic" 
+                                            className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-black text-white shadow-2xl text-[10px] uppercase tracking-[0.2em] italic" 
                                             value={newDrill.duration} 
                                             onChange={e => setNewDrill({ ...newDrill, duration: parseInt(e.target.value) })} 
                                         />
-                                        <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-500" size={14} />
+                                        <Clock className="absolute right-6 top-1/2 -translate-y-1/2 text-brand-accent" size={14} />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Min Players</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Min Players</label>
                                     <div className="relative">
                                         <input 
                                             type="number" 
-                                            className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-black text-brand-950 shadow-sm text-[10px] uppercase tracking-widest italic" 
+                                            className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-black text-white shadow-2xl text-[10px] uppercase tracking-[0.2em] italic" 
                                             value={newDrill.minPlayers} 
                                             onChange={e => setNewDrill({ ...newDrill, minPlayers: parseInt(e.target.value) })} 
                                         />
-                                        <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-500" size={14} />
+                                        <Users className="absolute right-6 top-1/2 -translate-y-1/2 text-brand-accent" size={14} />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Drill Diagram</label>
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Drill Diagram</label>
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="border-2 border-dashed border-brand-100 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-all group min-h-[160px] relative overflow-hidden bg-brand-50 shadow-sm"
+                                    className="border-2 border-dashed border-white/10 rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:border-brand-accent/40 hover:bg-white/5 transition-all group min-h-[180px] relative overflow-hidden bg-white/2 shadow-2xl"
                                 >
                                     {newDrill.imageUrl ? (
                                         <>
                                             <img src={newDrill.imageUrl} className="absolute inset-0 w-full h-full object-contain p-4 group-hover:opacity-50 transition-opacity" />
                                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <p className="text-brand-950 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 italic bg-white/80 px-4 py-2 rounded-lg border border-brand-100">
+                                                <p className="text-brand-950 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 italic bg-brand-accent px-4 py-2 rounded-lg border border-white/20">
                                                     <UploadCloud size={14} /> Change Asset
                                                 </p>
                                             </div>
                                         </>
                                     ) : (
                                         <>
-                                            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-4 group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-all text-brand-200 border border-brand-100 shadow-sm">
+                                            <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:bg-brand-accent/10 group-hover:text-brand-accent transition-all text-white/20 border border-white/10 shadow-lg">
                                                 <UploadCloud size={24} />
                                             </div>
-                                            <p className="text-[10px] font-black text-brand-400 uppercase tracking-widest group-hover:text-brand-950 transition-colors italic">Upload Drill Diagram</p>
-                                            <p className="text-[8px] text-brand-300 mt-2 uppercase tracking-tight">Supports WebP, PNG, JPG (High Res Recommended)</p>
+                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest group-hover:text-white transition-colors italic">Upload Drill Diagram</p>
+                                            <p className="text-[8px] text-white/20 mt-2 uppercase tracking-tight">Supports WebP, PNG, JPG (High Res Recommended)</p>
                                         </>
                                     )}
                                 </div>
@@ -469,28 +473,28 @@ export const TrainingManager: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
                                     <Video size={14} className="text-red-500" /> Demonstration Video URL
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full p-4 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm text-xs italic tracking-wide placeholder:text-brand-300"
+                                    className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-medium text-white shadow-2xl text-xs italic tracking-wide placeholder:text-white/5"
                                     value={newDrill.videoUrl}
                                     onChange={e => setNewDrill({ ...newDrill, videoUrl: e.target.value })}
                                     placeholder="https://youtu.be/..."
                                 />
                                 {formEmbedPreview && (
-                                    <div className="mt-4 rounded-xl overflow-hidden aspect-video bg-black w-full max-w-sm shadow-2xl border border-brand-100 border-l-4 border-l-red-500">
-                                        <iframe src={formEmbedPreview} className="w-full h-full" title="Video Preview" />
+                                    <div className="mt-6 rounded-3xl overflow-hidden aspect-video bg-black w-full max-w-sm shadow-2xl border border-white/10 border-l-4 border-l-red-500">
+                                        <iframe src={formEmbedPreview} className="w-full h-full brightness-75 grayscale-[0.2]" title="Video Preview" />
                                     </div>
                                 )}
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Drill Description</label>
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Drill Description</label>
                                 <textarea 
-                                    className="w-full p-5 bg-brand-50 border border-brand-100 rounded-2xl outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 font-medium text-brand-950 shadow-sm transition-all h-32 placeholder:text-brand-300 text-xs leading-relaxed" 
+                                    className="w-full p-6 bg-white/5 border border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-brand-accent/10 focus:border-brand-accent/40 font-medium text-white shadow-2xl transition-all h-32 placeholder:text-white/5 text-xs leading-relaxed" 
                                     value={newDrill.description} 
                                     onChange={e => setNewDrill({ ...newDrill, description: e.target.value })} 
                                     placeholder="Overview of the drill and performance targets..." 
@@ -498,23 +502,23 @@ export const TrainingManager: React.FC = () => {
                             </div>
 
                             {/* Dynamic Lists */}
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Equipment List</label>
+                            <div className="space-y-8">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Equipment List</label>
                                     <div className="flex gap-4">
                                         <input 
                                             type="text" 
-                                            className="flex-1 p-4 bg-brand-50 border border-brand-100 rounded-2xl text-brand-950 text-xs italic font-medium outline-none focus:border-brand-500 transition-all" 
+                                            className="flex-1 p-5 bg-white/5 border border-white/10 rounded-2xl text-white text-xs italic font-medium outline-none focus:border-brand-accent/40 transition-all placeholder:text-white/5" 
                                             value={tempEquip} 
                                             onChange={e => setTempEquip(e.target.value)} 
                                             placeholder="Add item (e.g. Cones, Bibs)..." 
                                             onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addItem('equipment', tempEquip, setTempEquip))} 
                                         />
-                                        <button type="button" onClick={() => addItem('equipment', tempEquip, setTempEquip)} className="bg-brand-500 text-white px-6 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-xl">+</button>
+                                        <button type="button" onClick={() => addItem('equipment', tempEquip, setTempEquip)} className="bg-brand-accent text-brand-950 px-8 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-brand-accent/20">+</button>
                                     </div>
                                     <div className="flex flex-wrap gap-2 pt-2">
                                         {newDrill.equipment.map((item, i) => (
-                                            <span key={i} className="bg-brand-50 text-brand-400 border border-brand-100 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 italic">
+                                            <span key={i} className="bg-white/5 text-white/60 border border-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 italic">
                                                 {item} 
                                                 <button type="button" onClick={() => removeItem('equipment', i)} className="hover:text-red-500 transition-colors"><X size={12} /></button>
                                             </span>
@@ -522,49 +526,49 @@ export const TrainingManager: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Drill Steps</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Drill Steps</label>
                                     <div className="flex gap-4">
                                         <input 
                                             type="text" 
-                                            className="flex-1 p-4 bg-brand-50 border border-brand-100 rounded-2xl text-brand-950 text-xs italic font-medium outline-none focus:border-brand-500 transition-all" 
+                                            className="flex-1 p-5 bg-white/5 border border-white/10 rounded-2xl text-white text-xs italic font-medium outline-none focus:border-brand-accent/40 transition-all placeholder:text-white/5" 
                                             value={tempInstr} 
                                             onChange={e => setTempInstr(e.target.value)} 
                                             placeholder="Add drill step..." 
                                             onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addItem('instructions', tempInstr, setTempInstr))} 
                                         />
-                                        <button type="button" onClick={() => addItem('instructions', tempInstr, setTempInstr)} className="bg-brand-500 text-white px-6 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-xl">+</button>
+                                        <button type="button" onClick={() => addItem('instructions', tempInstr, setTempInstr)} className="bg-brand-accent text-brand-950 px-8 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-brand-accent/20">+</button>
                                     </div>
-                                    <ul className="space-y-2 pt-2">
+                                    <ul className="space-y-3 pt-2">
                                         {newDrill.instructions.map((item, i) => (
-                                            <li key={i} className="text-[11px] text-brand-950 bg-brand-50 p-3 rounded-xl border border-brand-100 flex items-start gap-4 font-medium italic">
-                                                <span className="text-brand-500 font-black text-[10px] bg-white w-6 h-6 rounded-full flex items-center justify-center border border-brand-100 shrink-0">{i + 1}</span> 
+                                            <li key={i} className="text-[11px] text-white/80 bg-white/2 p-4 rounded-xl border border-white/10 flex items-start gap-4 font-medium italic">
+                                                <span className="text-brand-950 font-black text-[10px] bg-brand-accent w-6 h-6 rounded-lg flex items-center justify-center shrink-0">{i + 1}</span> 
                                                 {item} 
-                                                <button type="button" onClick={() => removeItem('instructions', i)} className="text-brand-200 hover:text-red-500 ml-auto transition-colors p-1"><X size={14} /></button>
+                                                <button type="button" onClick={() => removeItem('instructions', i)} className="text-white/20 hover:text-red-500 ml-auto transition-colors p-1"><X size={14} /></button>
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em] ml-1">Coaching Points</label>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Coaching Points</label>
                                     <div className="flex gap-4">
                                         <input 
                                             type="text" 
-                                            className="flex-1 p-4 bg-brand-50 border border-brand-100 rounded-2xl text-brand-950 text-xs italic font-medium outline-none focus:border-brand-500 transition-all" 
+                                            className="flex-1 p-5 bg-white/5 border border-white/10 rounded-2xl text-white text-xs italic font-medium outline-none focus:border-brand-accent/40 transition-all placeholder:text-white/5" 
                                             value={tempPoint} 
                                             onChange={e => setTempPoint(e.target.value)} 
                                             placeholder="Add coaching point..." 
                                             onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addItem('coachingPoints', tempPoint, setTempPoint))} 
                                         />
-                                        <button type="button" onClick={() => addItem('coachingPoints', tempPoint, setTempPoint)} className="bg-brand-500 text-white px-6 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-xl">+</button>
+                                        <button type="button" onClick={() => addItem('coachingPoints', tempPoint, setTempPoint)} className="bg-brand-accent text-brand-950 px-8 rounded-2xl font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-brand-accent/20">+</button>
                                     </div>
-                                    <ul className="space-y-2 pt-2">
+                                    <ul className="space-y-3 pt-2">
                                         {newDrill.coachingPoints.map((item, i) => (
-                                            <li key={i} className="text-[11px] text-brand-950 bg-brand-50 p-3 rounded-xl border border-brand-100 flex items-start gap-4 font-medium italic">
+                                            <li key={i} className="text-[11px] text-white/80 bg-white/2 p-4 rounded-xl border border-white/10 flex items-start gap-4 font-medium italic">
                                                 <span className="text-red-500 font-black text-sm shrink-0 mt-0.5">•</span> 
                                                 {item} 
-                                                <button type="button" onClick={() => removeItem('coachingPoints', i)} className="text-brand-200 hover:text-red-500 ml-auto transition-colors p-1"><X size={14} /></button>
+                                                <button type="button" onClick={() => removeItem('coachingPoints', i)} className="text-white/20 hover:text-red-500 ml-auto transition-colors p-1"><X size={14} /></button>
                                             </li>
                                         ))}
                                     </ul>
@@ -572,10 +576,10 @@ export const TrainingManager: React.FC = () => {
                             </div>
                         </form>
 
-                        <div className="px-6 sm:px-10 py-5 sm:py-8 border-t border-brand-100 bg-brand-50 flex gap-4 sm:gap-6 shrink-0">
-                            <button type="button" onClick={() => setIsCreating(false)} className="flex-1 py-4 text-brand-400 font-black hover:text-brand-950 rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Cancel</button>
-                            <button type="submit" onClick={(e) => { e.preventDefault(); handleCreate(e as any); }} className="flex-[2] py-4 bg-brand-500 text-white font-black rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic flex items-center justify-center gap-3">
-                                <Save size={18} strokeWidth={3} /> Save Drill
+                        <div className="px-6 sm:px-10 py-5 sm:py-10 border-t border-white/10 bg-white/2 flex gap-4 sm:gap-6 shrink-0">
+                            <button type="button" onClick={() => setIsCreating(false)} className="flex-1 py-5 text-white/20 font-black hover:text-white rounded-2xl transition-all text-[10px] uppercase tracking-widest italic">Cancel</button>
+                            <button type="submit" onClick={(e) => { e.preventDefault(); handleCreate(e as any); }} className="flex-[2] py-5 bg-brand-accent text-brand-950 font-black rounded-2xl shadow-2xl shadow-brand-accent/20 hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 border border-white/20">
+                                <Save size={18} strokeWidth={4} /> Save Drill
                             </button>
                         </div>
                     </div>
