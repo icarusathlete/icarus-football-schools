@@ -35,7 +35,8 @@ export const MatchManager: React.FC = () => {
     
     // Console Tabs
     // Console State
-    const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical'); // Kept for compatibility if needed elsewhere, but UI will focus on unified view
+    const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical');
+    const [selectedMatchDetails, setSelectedMatchDetails] = useState<Match | null>(null);
 
     // Time helper
     const getRelativeTime = (dateStr: string) => {
@@ -547,60 +548,64 @@ export const MatchManager: React.FC = () => {
                 {/* List Container */}
                 <div className="grid grid-cols-1 gap-6">
                     {activeTab === 'results' ? (
-                        matches.map(m => (
-                            <div key={m.id} className="glass-card p-10 rounded-[3rem] border border-white/10 hover:border-brand-accent/40 transition-all duration-500 group relative overflow-hidden">
-                                {m.isLive && <div className="green-light-bar" />}
-                                <div className="flex flex-col lg:flex-row items-center gap-12">
-                                    <div className="flex flex-col items-center lg:items-start min-w-[140px] border-r border-white/5 lg:pr-12">
-                                        <p className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] mb-2 italic">#{m.date.split('-')[0]}</p>
-                                        <div className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none mb-4">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                                        <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-[0.3em] italic border ${m.result === 'W' ? 'bg-brand-accent text-brand-950 border-brand-accent' : m.result === 'L' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/10 text-white/40 border-white/10'}`}>{m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'DRAW'}</div>
+                        matches.length === 0 ? (
+                            <div className="glass-card p-20 rounded-[3rem] border border-white/5 text-center flex flex-col items-center gap-6">
+                                <Trophy size={60} className="text-white/5" />
+                                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] italic">No strategic records found</p>
+                            </div>
+                        ) : (
+                            matches.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(m => (
+                                <div 
+                                    key={m.id} 
+                                    onClick={() => setSelectedMatchDetails(m)}
+                                    className="glass-card p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] border border-white/5 hover:border-brand-accent/30 transition-all duration-300 group cursor-pointer flex flex-col lg:flex-row items-center justify-between gap-6"
+                                >
+                                    <div className="flex items-center gap-6 lg:gap-10 w-full lg:w-auto">
+                                        <div className="flex flex-col items-center min-w-[70px] lg:min-w-[90px] border-r border-white/5 pr-6">
+                                            <p className="text-[7px] font-black text-brand-accent uppercase tracking-widest italic mb-1">{m.date.split('-')[0]}</p>
+                                            <div className="text-lg lg:text-xl font-black text-white italic uppercase tracking-tighter leading-none">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                        </div>
+                                        
+                                        <div className="flex-1 flex items-center gap-4 lg:gap-8">
+                                            <div className="text-right">
+                                                <h4 className="text-[9px] font-black text-white/60 uppercase tracking-tight truncate max-w-[100px] lg:max-w-none">{settings.name}</h4>
+                                            </div>
+                                            <div className={`px-4 py-2 rounded-xl text-[10px] font-mono font-black italic shadow-2xl flex items-center gap-3 ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border border-brand-accent/20' : m.result === 'L' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-white/5 text-white/40 border border-white/10'}`}>
+                                                <span>{m.scoreFor}</span>
+                                                <span className="opacity-20">:</span>
+                                                <span>{m.scoreAgainst}</span>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-[9px] font-black text-white/30 uppercase tracking-tight truncate max-w-[100px] lg:max-w-none group-hover:text-white/60 transition-colors">{m.opponent}</h4>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div className="flex-1 flex flex-col md:flex-row items-center justify-between w-full gap-8">
-                                        <div className="flex-1 text-center md:text-right">
-                                            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic mb-3">HOME TEAM</p>
-                                            <h3 className="text-2xl font-black text-white italic uppercase tracking-tight truncate">{settings.name}</h3>
-                                        </div>
-
-                                        <div className="bg-black/40 px-10 py-6 rounded-[2.5rem] border border-white/10 font-mono text-5xl font-black text-white shadow-2xl flex items-center gap-8 relative overflow-hidden group/score">
-                                            <div className="absolute inset-0 bg-brand-accent/5 group-hover/score:bg-brand-accent/10 transition-colors" />
-                                            <span className={m.result === 'W' ? 'text-brand-accent italic' : 'text-white'}>{m.scoreFor}</span>
-                                            <span className="text-white/10">:</span>
-                                            <span className="text-white/40">{m.scoreAgainst}</span>
-                                        </div>
-
-                                        <div className="flex-1 text-center md:text-left">
-                                            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic mb-3">AWAY TEAM</p>
-                                            <h3 className="text-2xl font-black text-white/40 italic uppercase tracking-tight group-hover:text-white transition-all truncate">{m.opponent}</h3>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
+                                    <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
                                         {m.highlightsUrl && (
                                             <button 
-                                                onClick={() => setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl))} 
-                                                className="w-16 h-16 flex items-center justify-center bg-white/5 text-brand-accent border border-white/10 rounded-[1.5rem] hover:bg-brand-accent hover:text-brand-950 transition-all shadow-2xl group/btn"
+                                                onClick={(e) => { e.stopPropagation(); setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl)); }} 
+                                                className="h-10 px-4 flex items-center justify-center bg-white/5 text-brand-accent border border-white/10 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn"
                                             >
-                                                <Youtube size={24} className="group-hover/btn:scale-110 transition-transform" />
+                                                <Youtube size={16} />
                                             </button>
                                         )}
                                         <button 
-                                            onClick={() => setActiveMatchId(m.id)} 
-                                            className="w-16 h-16 flex items-center justify-center bg-white text-brand-950 rounded-[1.5rem] hover:scale-110 transition-all shadow-glow group/btn"
+                                            onClick={(e) => { e.stopPropagation(); setActiveMatchId(m.id); }} 
+                                            className="h-10 px-4 flex items-center justify-center bg-white/5 text-white/40 border border-white/5 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn text-[8px] font-black uppercase tracking-widest italic"
                                         >
-                                            <MonitorPlay size={24} className="group-hover/btn:scale-110 transition-transform" />
+                                            <MonitorPlay size={16} className="mr-2" /> RE-OPEN
                                         </button>
                                         <button 
-                                            onClick={() => handleDeleteMatch(m.id)}
-                                            className="w-16 h-16 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-[1.5rem] transition-all"
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteMatch(m.id); }}
+                                            className="h-10 px-4 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
                                         >
-                                            <Trash2 size={24} />
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            ))
+                        )
                     ) : (
                         scheduleEvents.sort((a,b) => a.date.localeCompare(b.date)).map(ev => (
                             <div key={ev.id} className="glass-card p-8 rounded-[2.5rem] border border-white/10 flex flex-col lg:flex-row items-center justify-between group relative overflow-hidden gap-8 transition-all hover:border-brand-accent/30">
@@ -867,6 +872,116 @@ export const MatchManager: React.FC = () => {
                                 className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all italic ${selectedSubOut && selectedSubIn ? 'bg-brand-primary text-brand-950 shadow-glow' : 'bg-white/5 text-white/20 border border-white/5'}`}
                             >
                                 EXECUTE SUBSTITUTION
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Match Highlights Detail Modal */}
+            {selectedMatchDetails && (
+                <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 lg:p-10 bg-brand-950/95 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-2xl bg-brand-900/60 rounded-[3rem] border border-white/10 shadow-3xl overflow-hidden relative flex flex-col max-h-[90vh]">
+                        <div className="green-light-bar" />
+                        <div className="p-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-brand-accent/20 rounded-2xl flex items-center justify-center text-brand-accent">
+                                    <Activity size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">TACTICAL BREAKDOWN</h3>
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mt-1 italic">
+                                        {new Date(selectedMatchDetails.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedMatchDetails(null)} className="p-3 hover:bg-white/10 rounded-xl transition-all text-white/40 hover:text-white"><X size={20} /></button>
+                        </div>
+
+                        <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-10">
+                            {/* Score Overview */}
+                            <div className="flex items-center justify-center gap-12 py-6 border-b border-white/5">
+                                <div className="text-center">
+                                    <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2 italic">HOME</p>
+                                    <h4 className="text-lg font-black text-white italic uppercase tracking-tight">{settings.name}</h4>
+                                </div>
+                                <div className="text-5xl font-black text-brand-accent italic flex items-center gap-4">
+                                    <span>{selectedMatchDetails.scoreFor}</span>
+                                    <span className="text-white/10 text-3xl">:</span>
+                                    <span className="text-white/40">{selectedMatchDetails.scoreAgainst}</span>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2 italic">AWAY</p>
+                                    <h4 className="text-lg font-black text-white/40 italic uppercase tracking-tight">{selectedMatchDetails.opponent}</h4>
+                                </div>
+                            </div>
+
+                            {/* Timeline Feed */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <Zap size={14} className="text-brand-accent" />
+                                    <p className="text-[10px] font-black text-white uppercase tracking-[0.3rem] italic">MATCH HIGHLIGHTS</p>
+                                </div>
+                                <div className="space-y-3">
+                                    {selectedMatchDetails.events && selectedMatchDetails.events.length > 0 ? (
+                                        selectedMatchDetails.events.sort((a,b) => a.minute - b.minute).map(event => (
+                                            <div key={event.id} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black italic shrink-0 ${
+                                                    event.type === 'goal' ? 'bg-brand-accent text-brand-950 shadow-glow' : 
+                                                    event.type === 'yellow_card' ? 'bg-amber-500 text-white' : 
+                                                    event.type === 'red_card' ? 'bg-red-500 text-white' : 
+                                                    'bg-brand-primary text-brand-950'
+                                                }`}>{event.minute}'</div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-[10px] font-black text-white uppercase italic tracking-tight">
+                                                            {players.find(p => p.id === event.playerId)?.fullName}
+                                                            <span className={`ml-2 ${
+                                                                event.type === 'goal' ? 'text-brand-accent' : 
+                                                                event.type === 'yellow_card' ? 'text-amber-500' : 
+                                                                event.type === 'red_card' ? 'text-red-500' : 
+                                                                'text-brand-primary'
+                                                            }`}>
+                                                                {event.type.split('_').join(' ')}
+                                                            </span>
+                                                        </p>
+                                                        {event.type === 'goal' && <Award size={14} className="text-brand-accent" />}
+                                                    </div>
+                                                    {event.type === 'substitution' && (
+                                                        <div className="flex items-center gap-2 mt-1 text-[8px] font-bold text-white/30 uppercase italic">
+                                                            <span className="text-red-400/60">OUT: {players.find(p => p.id === event.subOutId)?.fullName}</span>
+                                                            <ArrowRight size={8} />
+                                                            <span className="text-emerald-400/60">IN: {players.find(p => p.id === event.subInId)?.fullName}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-[9px] font-bold text-white/10 uppercase tracking-widest italic text-center py-10 border border-white/5 rounded-2xl">No events archived for this match</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* MOTM if available */}
+                            {selectedMatchDetails.playerOfTheMatchId && (
+                                <div className="bg-brand-accent/5 p-6 rounded-[2rem] border border-brand-accent/20 flex flex-col items-center gap-4">
+                                    <Trophy size={24} className="text-brand-accent" />
+                                    <div className="text-center">
+                                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1 italic">MAN OF THE MATCH</p>
+                                        <h4 className="text-xl font-black text-brand-accent italic uppercase tracking-tighter">
+                                            {players.find(p => p.id === selectedMatchDetails.playerOfTheMatchId)?.fullName}
+                                        </h4>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-8 border-t border-white/5 bg-black/20">
+                            <button 
+                                onClick={() => setSelectedMatchDetails(null)}
+                                className="w-full py-5 bg-white/5 text-white/60 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] border border-white/10 hover:bg-white/10 transition-all italic"
+                            >
+                                CLOSE BREAKDOWN
                             </button>
                         </div>
                     </div>
