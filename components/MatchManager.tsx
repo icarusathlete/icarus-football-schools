@@ -34,7 +34,8 @@ export const MatchManager: React.FC = () => {
     const [selectedSubIn, setSelectedSubIn] = useState('');
     
     // Console Tabs
-    const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical');
+    // Console State
+    const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical'); // Kept for compatibility if needed elsewhere, but UI will focus on unified view
 
     // Time helper
     const getRelativeTime = (dateStr: string) => {
@@ -360,252 +361,164 @@ export const MatchManager: React.FC = () => {
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                             LIVE CONSOLE
                         </div>
-                        <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mx-2">
-                            <button onClick={() => setConsoleTab('tactical')} className={`px-4 lg:px-6 py-2 rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest transition-all italic ${consoleTab === 'tactical' ? 'bg-brand-accent text-brand-950 shadow-glow' : 'text-white/40'}`}>TACTICAL</button>
-                            <button onClick={() => setConsoleTab('performance')} className={`px-4 lg:px-6 py-2 rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest transition-all italic ${consoleTab === 'performance' ? 'bg-brand-accent text-brand-950 shadow-glow' : 'text-white/40'}`}>PERF</button>
+                        <div className="flex items-center gap-4">
+                            {settings.logoUrl ? (
+                                <img src={settings.logoUrl} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 object-contain rounded-lg" />
+                            ) : (
+                                <div className="w-8 h-8 lg:w-10 lg:h-10 bg-brand-accent/20 rounded-lg flex items-center justify-center">
+                                    <Shirt size={16} className="text-brand-accent" />
+                                </div>
+                            )}
+                            <h2 className="text-[10px] lg:text-xs font-black text-white uppercase tracking-widest hidden sm:block">{settings.name}</h2>
                         </div>
                         <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40"><X size={20}/></button>
                     </div>
 
                     <div className="p-6 lg:p-14 h-[calc(100vh-64px)] lg:h-auto overflow-y-auto custom-scrollbar">
-                        {consoleTab === 'tactical' ? (
-                            <div className="flex flex-col gap-8 lg:gap-20">
-                                {/* Score & Timer Row */}
-                                <div className="flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-24 border-b border-white/5 pb-8 lg:pb-12">
-                                    {/* Home Team (Mobile Compact) */}
-                                    <div className="flex md:flex-col items-center gap-4 lg:gap-5 group w-full md:w-auto px-4 md:px-0">
-                                        <div className="w-12 h-12 lg:w-24 lg:h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-brand-accent/50 transition-all shadow-2xl order-1 md:order-1">
-                                            <Shirt size={24} className="text-brand-accent lg:hidden" />
-                                            <Shirt size={48} className="text-brand-accent hidden lg:block" />
-                                        </div>
-                                        <h4 className="text-[10px] lg:text-sm font-black text-white uppercase italic tracking-widest order-2 md:order-2">{settings.name}</h4>
+                        <div className="flex flex-col gap-10 lg:gap-14 max-w-4xl mx-auto">
+                            {/* Score & Timer Row */}
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-20 border-b border-white/5 pb-8 lg:pb-12">
+                                {/* Home Team */}
+                                <div className="flex md:flex-col items-center gap-4 group w-full md:w-auto px-4 md:px-0">
+                                    <div className="w-12 h-12 lg:w-20 lg:h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-brand-accent/50 transition-all shadow-2xl order-1 md:order-1">
+                                        <Shirt size={24} className="text-brand-accent lg:hidden" />
+                                        <Shirt size={40} className="text-brand-accent hidden lg:block" />
+                                    </div>
+                                    <h4 className="text-[10px] lg:text-xs font-black text-white uppercase italic tracking-widest order-2 md:order-2">{settings.name}</h4>
+                                </div>
+
+                                {/* Score/Time Unit */}
+                                <div className="flex items-center gap-6 lg:gap-10 w-full justify-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="text-6xl lg:text-8xl font-black text-white italic leading-none tracking-tighter">{activeMatch.scoreFor || 0}</div>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={20} /></button>
                                     </div>
 
-                                    {/* Central Score/Time Unit */}
-                                    <div className="flex items-center gap-6 lg:gap-10 w-full justify-center">
-                                        {/* Score Home */}
-                                        <div className="flex flex-col items-center gap-2 lg:gap-4">
-                                            <button onClick={() => setShowGoalModal(true)} className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-brand-accent/10 text-brand-accent flex items-center justify-center hover:bg-brand-accent hover:text-brand-950 transition-all border border-brand-accent/20 shadow-glow"><PlusCircle size={20} /></button>
-                                            <div className="text-5xl lg:text-9xl font-black text-white italic leading-none tracking-tighter">{activeMatch.scoreFor || 0}</div>
-                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} className="text-white/20 hover:text-white transition-colors"><ChevronDown size={24} /></button>
-                                        </div>
-
-                                        {/* Timer Unit */}
-                                        <div className="flex flex-col items-center gap-4 lg:gap-6">
-                                            <div className="text-4xl lg:text-6xl font-black text-white/10 italic leading-none hidden md:block">:</div>
-                                            <div className="bg-black/60 px-4 lg:px-8 py-3 lg:py-5 rounded-2xl lg:rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center gap-2 lg:gap-3 min-w-[120px] lg:min-w-[160px]">
-                                                <div className="text-2xl lg:text-4xl font-mono font-black text-brand-accent tabular-nums tracking-tighter">{formatMatchTime(matchTime)}</div>
-                                                <button 
-                                                    onClick={toggleTimer}
-                                                    className={`w-full py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[8px] lg:text-[10px] font-black uppercase tracking-widest italic transition-all ${isTimerRunning ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-brand-accent text-brand-950 shadow-glow'}`}
-                                                >
-                                                    {isTimerRunning ? 'PAUSE' : matchTime === 0 ? 'START' : 'RESUME'}
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Score Away */}
-                                        <div className="flex flex-col items-center gap-2 lg:gap-4">
-                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: (activeMatch.scoreAgainst || 0) + 1 })} className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-white/5 text-white/40 flex items-center justify-center hover:bg-white hover:text-brand-950 transition-all border border-white/10 shadow-xl"><PlusCircle size={20} /></button>
-                                            <div className="text-5xl lg:text-9xl font-black text-white/40 italic leading-none tracking-tighter">{activeMatch.scoreAgainst || 0}</div>
-                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={24} /></button>
-                                        </div>
+                                    <div className="bg-black/40 px-6 lg:px-8 py-4 lg:py-6 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col items-center gap-3 min-w-[140px] lg:min-w-[180px]">
+                                        <div className="text-3xl lg:text-4xl font-mono font-black text-brand-accent tabular-nums tracking-tighter">{formatMatchTime(matchTime)}</div>
+                                        <button onClick={toggleTimer} className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest italic transition-all ${isTimerRunning ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-brand-accent text-brand-950 shadow-glow'}`}>
+                                            {isTimerRunning ? 'PAUSE' : matchTime === 0 ? 'START' : 'RESUME'}
+                                        </button>
                                     </div>
 
-                                    {/* Away Team (Mobile Compact) */}
-                                    <div className="flex md:flex-col items-center gap-4 lg:gap-5 group w-full md:w-auto px-4 md:px-0 justify-end md:justify-center">
-                                        <h4 className="text-[10px] lg:text-sm font-black text-white/40 uppercase italic tracking-widest order-1 md:order-2">{activeMatch.opponent}</h4>
-                                        <div className="w-12 h-12 lg:w-24 lg:h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-all shadow-2xl order-2 md:order-1">
-                                            <Shield size={24} className="text-white/10 lg:hidden" />
-                                            <Shield size={48} className="text-white/10 hidden lg:block" />
-                                        </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="text-6xl lg:text-8xl font-black text-white/40 italic leading-none tracking-tighter">{activeMatch.scoreAgainst || 0}</div>
+                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={20} /></button>
                                     </div>
                                 </div>
 
-                                {/* Quick Actions Bar */}
-                                <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-8 px-4">
-                                    <button onClick={() => setShowGoalModal(true)} className="flex items-center gap-3 bg-brand-accent/10 hover:bg-brand-accent hover:text-brand-950 text-brand-accent px-6 py-3 rounded-2xl border border-brand-accent/20 transition-all shadow-glow group">
-                                        <PlusCircle size={18} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Log Goal</span>
-                                    </button>
-                                    <button onClick={() => setShowCardModal({type: 'yellow_card'})} className="flex items-center gap-3 bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-500 px-6 py-3 rounded-2xl border border-amber-500/20 transition-all group">
-                                        <div className="w-3 h-4 bg-amber-500 rounded-sm group-hover:bg-white transition-colors" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Yellow</span>
-                                    </button>
-                                    <button onClick={() => setShowCardModal({type: 'red_card'})} className="flex items-center gap-3 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-6 py-3 rounded-2xl border border-red-500/20 transition-all group">
-                                        <div className="w-3 h-4 bg-red-500 rounded-sm group-hover:bg-white transition-colors" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Red</span>
-                                    </button>
-                                    <button onClick={() => setShowSubModal(true)} className="flex items-center gap-3 bg-brand-primary/10 hover:bg-brand-primary hover:text-brand-950 text-brand-primary px-6 py-3 rounded-2xl border border-brand-primary/20 transition-all group">
-                                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Sub</span>
-                                    </button>
+                                {/* Away Team */}
+                                <div className="flex md:flex-col items-center gap-4 group w-full md:w-auto px-4 md:px-0 justify-end md:justify-center">
+                                    <h4 className="text-[10px] lg:text-xs font-black text-white/40 uppercase italic tracking-widest order-1 md:order-2">{activeMatch.opponent}</h4>
+                                    <div className="w-12 h-12 lg:w-20 lg:h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-all shadow-2xl order-2 md:order-1">
+                                        <Shield size={24} className="text-white/10 lg:hidden" />
+                                        <Shield size={40} className="text-white/10 hidden lg:block" />
+                                    </div>
                                 </div>
+                            </div>
 
-                                {/* Metrics & Feed Grid */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                                    <div className="lg:col-span-1 space-y-4 lg:space-y-6">
-                                        <div className="glass-card p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-white/10 bg-black/20 relative overflow-hidden group/pos">
-                                            <div className="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover/pos:opacity-100 transition-opacity" />
-                                            <div className="relative z-10">
-                                                <div className="flex justify-between items-center mb-4 lg:mb-6">
-                                                    <p className="text-[8px] lg:text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] italic">Possession</p>
-                                                    <span className="text-xl lg:text-2xl font-black text-white italic tabular-nums">{activeMatch.possession || 50}%</span>
-                                                </div>
-                                                <div className="relative h-4 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                                    <input 
-                                                        type="range" 
-                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                                                        min="0" max="100" 
-                                                        value={activeMatch.possession || 50} 
-                                                        onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} 
-                                                    />
-                                                    <div 
-                                                        className="absolute top-0 left-0 h-full bg-brand-accent transition-all duration-300 shadow-[0_0_20px_rgba(200,255,0,0.5)]"
-                                                        style={{ width: `${activeMatch.possession || 50}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
+                            {/* Unified Action Row */}
+                            <div className="flex flex-row flex-wrap lg:flex-nowrap items-center justify-center gap-3 lg:gap-4 px-2">
+                                <button onClick={() => setShowGoalModal(true)} className="flex-1 flex items-center justify-center gap-2 bg-brand-accent/10 hover:bg-brand-accent hover:text-brand-950 text-brand-accent py-4 rounded-2xl border border-brand-accent/20 transition-all shadow-glow group min-w-[120px]">
+                                    <PlusCircle size={16} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest italic">GOAL</span>
+                                </button>
+                                <button onClick={() => setShowCardModal({type: 'yellow_card'})} className="flex-1 flex items-center justify-center gap-2 bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-500 py-4 rounded-2xl border border-amber-500/20 transition-all group min-w-[120px]">
+                                    <div className="w-2.5 h-3.5 bg-amber-500 rounded-sm group-hover:bg-white" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest italic">YELLOW</span>
+                                </button>
+                                <button onClick={() => setShowCardModal({type: 'red_card'})} className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 py-4 rounded-2xl border border-red-500/20 transition-all group min-w-[120px]">
+                                    <div className="w-2.5 h-3.5 bg-red-500 rounded-sm group-hover:bg-white" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest italic">RED</span>
+                                </button>
+                                <button onClick={() => setShowSubModal(true)} className="flex-1 flex items-center justify-center gap-2 bg-brand-primary/10 hover:bg-brand-primary hover:text-brand-950 text-brand-primary py-4 rounded-2xl border border-brand-primary/20 transition-all group min-w-[120px]">
+                                    <RefreshCw size={16} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest italic">SUB</span>
+                                </button>
+                            </div>
 
-                                        <div className="glass-card p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-white/10 bg-black/20">
-                                            <p className="text-[8px] lg:text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-4 lg:mb-6 italic">Shots on Target</p>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-4xl lg:text-5xl font-black text-white italic tabular-nums">{activeMatch.shotsOnTarget || 0}</span>
-                                                <div className="flex gap-2 lg:gap-3">
-                                                    <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: Math.max(0, (activeMatch.shotsOnTarget || 0) - 1)})} className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/5 border border-white/10 text-white/20 hover:text-red-500 transition-all flex items-center justify-center"><X size={16}/></button>
-                                                    <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: (activeMatch.shotsOnTarget || 0) + 1})} className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-brand-accent/20 text-brand-accent hover:bg-brand-accent hover:text-brand-950 transition-all shadow-glow flex items-center justify-center"><TrendingUp size={16}/></button>
-                                                </div>
-                                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                {/* MOTM & Feed Column */}
+                                <div className="space-y-8">
+                                    {/* MOTM Nomination */}
+                                    <div className="glass-card p-6 lg:p-8 rounded-[2rem] border border-white/5 bg-black/40">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <Trophy size={18} className="text-brand-accent" />
+                                            <p className="text-[10px] font-black text-white uppercase tracking-[0.2rem] italic">MAN OF THE MATCH</p>
                                         </div>
+                                        <select 
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white text-xs font-bold appearance-none cursor-pointer focus:border-brand-accent/50 outline-none"
+                                            value={activeMatch.playerOfTheMatchId || ''}
+                                            onChange={(e) => updatePlayerPerformance(e.target.value, { isMOTM: true })}
+                                        >
+                                            <option value="">-- NOMINATE PLAYER --</option>
+                                            {players.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                                        </select>
+                                        {activeMatch.playerOfTheMatchId && (
+                                            <p className="mt-4 text-[9px] font-black text-brand-accent uppercase tracking-widest italic text-center">
+                                                ★ {players.find(p => p.id === activeMatch.playerOfTheMatchId)?.fullName} NOMINATED
+                                            </p>
+                                        )}
                                     </div>
 
-                                    {/* Match Feed */}
-                                    <div className="lg:col-span-2 bg-black/40 rounded-[2rem] lg:rounded-[3rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl">
-                                        <div className="px-6 lg:px-8 py-4 lg:py-5 bg-white/5 border-b border-white/10 text-[9px] lg:text-[10px] font-black text-white/40 uppercase tracking-[0.2em] lg:tracking-[0.3em] italic flex items-center gap-3">
-                                            <Activity size={14} className="text-brand-accent" /> MATCH TIMELINE
+                                    {/* Timeline */}
+                                    <div className="bg-black/40 rounded-[2rem] border border-white/5 overflow-hidden flex flex-col shadow-2xl">
+                                        <div className="px-6 py-4 bg-white/5 border-b border-white/5 text-[9px] font-black text-white/40 uppercase tracking-[0.3em] italic flex items-center gap-3">
+                                            <Activity size={14} className="text-brand-accent" /> TIMELINE
                                         </div>
-                                        <div className="p-4 lg:p-6 max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar space-y-3 lg:space-y-4">
+                                        <div className="p-4 max-h-[300px] overflow-y-auto custom-scrollbar space-y-3">
                                             {activeMatch.events && activeMatch.events.length > 0 ? (
                                                 activeMatch.events.sort((a,b) => b.minute - a.minute).map(event => (
-                                                    <div key={event.id} className="flex items-center justify-between bg-white/5 p-4 lg:p-5 rounded-2xl lg:rounded-[2rem] border border-white/5 hover:border-white/10 transition-all animate-in slide-in-from-right-8 duration-700">
-                                                        <div className="flex items-center gap-4 lg:gap-6">
-                                                            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center text-base lg:text-lg font-black italic shadow-glow ${
-                                                                event.type === 'goal' ? 'bg-brand-accent text-brand-950' : 
+                                                    <div key={event.id} className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-all">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-black italic ${
+                                                                event.type === 'goal' ? 'bg-brand-accent text-brand-950 shadow-glow' : 
                                                                 event.type === 'yellow_card' ? 'bg-amber-500 text-white' : 
                                                                 event.type === 'red_card' ? 'bg-red-500 text-white' : 
                                                                 'bg-brand-primary text-brand-950'
                                                             }`}>{event.minute}'</div>
                                                             <div>
-                                                                <div className="text-xs lg:text-sm font-black text-white uppercase italic tracking-tight">
+                                                                <div className="text-[10px] font-black text-white uppercase italic tracking-tight">
                                                                     {players.find(p => p.id === event.playerId)?.fullName}
-                                                                    <span className={`ml-2 lg:ml-3 ${
+                                                                    <span className={`ml-2 ${
                                                                         event.type === 'goal' ? 'text-brand-accent' : 
                                                                         event.type === 'yellow_card' ? 'text-amber-500' : 
                                                                         event.type === 'red_card' ? 'text-red-500' : 
                                                                         'text-brand-primary'
                                                                     }`}>
-                                                                        {event.type === 'goal' ? 'GOAL' : 
-                                                                         event.type === 'yellow_card' ? 'YELLOW CARD' : 
-                                                                         event.type === 'red_card' ? 'RED CARD' : 
-                                                                         'SUBSTITUTED'}
+                                                                        {event.type.split('_').join(' ')}
                                                                     </span>
                                                                 </div>
-                                                                {event.type === 'goal' && event.assistantId && (
-                                                                    <div className="text-[8px] lg:text-[10px] font-bold text-white/30 uppercase italic tracking-widest mt-1">
-                                                                        ASST: {players.find(p => p.id === event.assistantId)?.fullName}
-                                                                    </div>
-                                                                )}
-                                                                {event.type === 'substitution' && (
-                                                                    <div className="text-[8px] lg:text-[10px] font-bold text-white/30 uppercase italic tracking-widest mt-1 flex items-center gap-2">
-                                                                        <span className="text-red-400">OUT: {players.find(p => p.id === event.subOutId)?.fullName}</span>
-                                                                        <ArrowRight size={10} />
-                                                                        <span className="text-emerald-400">IN: {players.find(p => p.id === event.subInId)?.fullName}</span>
-                                                                    </div>
-                                                                )}
                                                             </div>
                                                         </div>
-                                                        {event.type === 'goal' && <Award size={18} className="text-brand-accent animate-pulse" />}
-                                                        {event.type === 'substitution' && <RefreshCw size={18} className="text-brand-primary" />}
-                                                        {(event.type === 'yellow_card' || event.type === 'red_card') && <AlertCircle size={18} className={event.type === 'yellow_card' ? 'text-amber-500' : 'text-red-500'} />}
+                                                        <div className="opacity-20">
+                                                            {event.type === 'goal' && <Award size={14} />}
+                                                            {event.type === 'substitution' && <RefreshCw size={14} />}
+                                                        </div>
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="text-center py-10 lg:py-16 flex flex-col items-center gap-4">
-                                                    <Activity size={40} className="text-white/5" />
-                                                    <p className="text-[9px] lg:text-[11px] font-bold text-white/10 uppercase tracking-[0.3em] lg:tracking-[0.4em] italic text-center">No tactical events recorded</p>
-                                                </div>
+                                                <p className="text-[9px] font-bold text-white/10 uppercase tracking-widest italic text-center py-10">No events recorded</p>
                                             )}
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-6 lg:py-8 bg-brand-accent text-brand-950 rounded-2xl lg:rounded-[2rem] font-black uppercase tracking-[0.3em] lg:tracking-[0.4em] text-[10px] lg:text-sm shadow-glow hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3 lg:gap-5 italic border border-brand-accent/20"><Check size={20} /> FINALIZE MATCH DATA</button>
-                            </div>
-                        ) : (
-                            <div className="space-y-10 animate-in fade-in duration-500">
-                                <div className="flex justify-between items-center border-b border-white/5 pb-6">
-                                    <div>
-                                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">SQUAD PERFORMANCE</h3>
-                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-2 italic">INDIVIDUAL CONTRIBUTION MONITORING</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-[10px] font-black text-brand-accent uppercase italic border border-brand-accent/30 px-4 py-2 rounded-xl bg-brand-accent/5">
-                                            {activeMatch.playerStats.length} NODES TRACKED
+
+                                {/* Right Side - Summary or Quick Stats if needed, for now just keeping it balanced */}
+                                <div className="space-y-6">
+                                    <div className="glass-card p-10 rounded-[3rem] border border-brand-accent/10 bg-brand-accent/5 flex flex-col items-center justify-center gap-6 min-h-[300px]">
+                                        <div className="w-20 h-20 bg-brand-accent/10 rounded-full flex items-center justify-center">
+                                            <Check size={40} className="text-brand-accent" />
                                         </div>
+                                        <div className="text-center">
+                                            <h4 className="text-xl font-black text-white italic uppercase tracking-tighter mb-2">READY TO ARCHIVE?</h4>
+                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest italic">All tactical data will be synced across the academy network.</p>
+                                        </div>
+                                        <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-6 bg-brand-accent text-brand-950 rounded-2xl font-black uppercase tracking-[0.4em] text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all italic border border-brand-accent/20">FINALIZE MATCH DATA</button>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 max-h-[450px] lg:max-h-[500px] overflow-y-auto pr-2 lg:pr-4 custom-scrollbar">
-                                    {activeMatch.playerStats.map(ps => {
-                                        const player = players.find(p => p.id === ps.playerId);
-                                        if (!player) return null;
-                                        const isMOTM = activeMatch.playerOfTheMatchId === ps.playerId;
-
-                                        return (
-                                            <div key={ps.playerId} className={`glass-card p-4 lg:p-6 rounded-2xl lg:rounded-[2.5rem] border transition-all duration-500 flex flex-col lg:flex-row lg:items-center justify-between group gap-4 ${isMOTM ? 'bg-brand-accent/10 border-brand-accent shadow-glow' : 'border-white/10 bg-black/20'}`}>
-                                                <div className="flex items-center gap-4 lg:gap-6">
-                                                    <div className={`w-10 h-10 lg:w-14 lg:h-14 rounded-full flex items-center justify-center border transition-all ${isMOTM ? 'bg-brand-accent border-brand-accent' : 'bg-white/5 border-white/10'}`}>
-                                                        <Shirt size={20} className={isMOTM ? 'text-brand-950' : 'text-white/20'} />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h4 className={`text-xs lg:text-sm font-black uppercase italic tracking-tight ${isMOTM ? 'text-brand-accent' : 'text-white'}`}>{player.fullName}</h4>
-                                                        <div className="flex items-center gap-3 mt-1">
-                                                            <span className="text-[8px] lg:text-[9px] font-bold text-white/20 uppercase italic">{ps.goals}G</span>
-                                                            <span className="w-1 h-1 bg-white/10 rounded-full" />
-                                                            <span className="text-[8px] lg:text-[9px] font-bold text-white/20 uppercase italic">{ps.assists}A</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center justify-between lg:justify-end gap-4 lg:gap-8 border-t lg:border-t-0 border-white/5 pt-3 lg:pt-0">
-                                                    <div className="flex flex-col items-center lg:items-center gap-1 lg:gap-2 flex-1 lg:flex-none">
-                                                        <p className="text-[7px] lg:text-[8px] font-black text-white/30 uppercase italic tracking-widest">Rating</p>
-                                                        <div className="flex items-center gap-2 lg:gap-3 w-full lg:w-auto">
-                                                            <input 
-                                                                type="range" min="1" max="10" step="0.5" 
-                                                                value={ps.rating || 6} 
-                                                                onChange={(e) => updatePlayerPerformance(ps.playerId, { rating: parseFloat(e.target.value) })}
-                                                                className="flex-1 lg:w-20 accent-brand-accent"
-                                                            />
-                                                            <span className="text-xs lg:text-sm font-black text-white italic w-6 lg:w-8 text-center">{ps.rating || 6}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <button 
-                                                        onClick={() => updatePlayerPerformance(ps.playerId, { isMOTM: !isMOTM })}
-                                                        className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center transition-all ${isMOTM ? 'bg-brand-accent text-brand-950 shadow-glow' : 'bg-white/5 text-white/20 border border-white/10'}`}
-                                                    >
-                                                        <Trophy size={16} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                                <button onClick={() => setConsoleTab('tactical')} className="w-full py-4 lg:py-6 bg-white/5 text-white/60 rounded-xl lg:rounded-[2rem] font-black uppercase tracking-[0.2em] lg:tracking-[0.4em] text-[10px] hover:bg-white/10 transition-all border border-white/10 italic">RETURN TO CONSOLE</button>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             )}
