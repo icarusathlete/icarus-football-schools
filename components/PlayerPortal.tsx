@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
 import { GeminiService } from '../services/geminiService';
 import { Player, AttendanceRecord, Match, AttendanceStatus, FeeRecord, ScheduleEvent, AcademySettings, EventType, Drill, User } from '../types';
-import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2, Users, Command, Receipt } from 'lucide-react';
+import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2, Users, Command, Receipt, Medal, Crown } from 'lucide-react';
 import { auth } from '../firebase';
 import { EvaluationCard } from './EvaluationCard';
 import html2canvas from 'html2canvas';
@@ -94,7 +94,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                 // Calculate Rank
                 const allMs = StorageService.getMatches();
                 const allPs = StorageService.getPlayers();
-                const currentMonth = new Date().toISOString().slice(0, 7);
                 const mvpData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
                 
                 const rankings = allPs.map(player => {
