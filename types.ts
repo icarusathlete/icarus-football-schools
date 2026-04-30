@@ -110,6 +110,14 @@ export interface MatchStats {
   isStarter?: boolean; // New field to track Starting XI
 }
 
+export interface MatchEvent {
+  id: string;
+  type: 'goal' | 'yellow_card' | 'red_card' | 'substitution';
+  minute: number;
+  playerId: string;
+  assistantId?: string; // For goals
+}
+
 export interface Match {
   id: string;
   date: string;
@@ -125,6 +133,11 @@ export interface Match {
   playerOfTheMatchId?: string;
   possession?: number;
   shotsOnTarget?: number;
+  events?: MatchEvent[];
+  timerState?: {
+    currentTime: number; // in seconds
+    isRunning: boolean;
+  };
 }
 
 export interface AcademySettings {

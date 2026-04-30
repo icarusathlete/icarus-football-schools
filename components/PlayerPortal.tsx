@@ -57,6 +57,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
     const [motmToday, setMotmToday] = useState<{playerId: string, timestamp: number} | null>(null);
     const [checkedInToday, setCheckedInToday] = useState(false);
     const [isCheckingIn, setIsCheckingIn] = useState(false);
+    const [academyRank, setAcademyRank] = useState<{ rank: number, total: number, pts: number } | null>(null);
     const invoiceHiddenRef = useRef<HTMLDivElement>(null);
     const idCardRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +90,34 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                 loadSchedule();
                 loadDrills();
                 loadCoaches();
+
+                // Calculate Rank
+                const allMs = StorageService.getMatches();
+                const allPs = StorageService.getPlayers();
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                const mvpData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
+                
+                const rankings = allPs.map(player => {
+                    const tCount = Object.entries(mvpData).filter(([key, val]) => {
+                        const entryId = typeof val === 'object' ? (val as any).playerId : val;
+                        return entryId === player.id && key.startsWith(currentMonth);
+                    }).length;
+                    const mCount = allMs.filter(m => m.date.startsWith(currentMonth) && m.playerOfTheMatchId === player.id).length;
+                    const rPts = allMs.filter(m => m.date.startsWith(currentMonth))
+                        .reduce((acc, m) => {
+                            const s = m.playerStats?.find(ps => ps.playerId === player.id);
+                            return acc + ((s?.rating || 0) / 2);
+                        }, 0);
+                    const total = parseFloat((tCount * 1 + mCount * 5 + rPts).toFixed(1));
+                    return { id: player.id, pts: total };
+                }).sort((a, b) => b.pts - a.pts);
+
+                const myIdx = rankings.findIndex(r => r.id === p.id);
+                if (myIdx !== -1 && rankings[myIdx].pts > 0) {
+                    setAcademyRank({ rank: myIdx + 1, total: rankings.length, pts: rankings[myIdx].pts });
+                } else {
+                    setAcademyRank(null);
+                }
             }
         };
 
@@ -438,6 +467,33 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                     <div className="relative z-10 px-8 py-3 bg-brand-accent text-brand-950 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl animate-pulse">ELITE UNIT</div>
                                 )}
                             </div>
+
+                            {/* Academy Ranking Card */}
+                            <div className="glass-card rounded-[2.5rem] p-10 border border-white/5 relative overflow-hidden group flex flex-col sm:flex-row items-center justify-between gap-8 bg-brand-900/40">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Medal size={140} className="text-white" /></div>
+                                <div className="relative z-10 flex items-center gap-8">
+                                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center border-2 transition-all duration-500 ${academyRank ? 'bg-amber-400 border-amber-400 text-brand-950 shadow-glow' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Crown size={36} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">
+                                            {academyRank ? (
+                                                <>ACADEMY <span className="text-amber-400">RANK #{academyRank.rank}</span></>
+                                            ) : (
+                                                <>RANKING <span className="text-white/20">AWAITING</span></>
+                                            )}
+                                        </h3>
+                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mt-1 italic">
+                                            {academyRank ? `${academyRank.pts} Tactical Points Accumulated` : 'Deploy to matches to establish rank'}
+                                        </p>
+                                    </div>
+                                </div>
+                                {academyRank && (
+                                    <div className="relative z-10 px-8 py-3 bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10">
+                                        TOP {Math.round((academyRank.rank / academyRank.total) * 100)}%
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Large Modules Row */}
@@ -535,8 +591,20 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
                                         {myMatchStats.slice(0,3).map(m => (
                                             <div key={m.id} className="p-8 bg-white/5 rounded-3xl border border-white/10 group/item hover:bg-white/10 transition-all">
                                                 <div className="flex justify-between items-center mb-5">
-                                                    <span className="text-[11px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
-                                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black italic uppercase tracking-widest border ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[11px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                                                        {m.playerOfTheMatchId === player.id && (
+                                                            <div className="flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[8px] font-black px-2 py-0.5 rounded-lg">
+                                                                <Trophy size={10} className="fill-amber-500" /> MOTM
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        {m.myStats?.rating && (
+                                                            <span className="text-[10px] font-black text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-3 py-1 rounded-lg italic">RTG: {m.myStats.rating}</span>
+                                                        )}
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black italic uppercase tracking-widest border ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <div className="font-black text-2xl text-white italic uppercase tracking-tighter">vs {m.opponent}</div>

@@ -310,7 +310,7 @@ export const AdminDashboard: React.FC = () => {
       const ratingPart = (overallRating / 10) * 40;
       const attPart = (attRate / 100) * 35;
       
-      const m = metrics || {};
+      const m: any = metrics || {};
       const avgMetric = (
         (m.passing || 0) + 
         (m.juggling || 0) + 
@@ -329,7 +329,7 @@ export const AdminDashboard: React.FC = () => {
       const rec30 = attendance.filter(r => r.playerId === p.id && r.date >= ago30);
       const present30 = rec30.filter(r => String(r.status).toUpperCase() === AttendanceStatus.PRESENT).length;
       const attRate = rec30.length > 0 ? Math.round((present30 / rec30.length) * 100) : 0;
-      const m = p.evaluation?.metrics || {};
+      const m: any = p.evaluation?.metrics || {};
       const scoutScore = Math.round((
         ((m.passing || 0) + (m.juggling || 0) + (m.shooting || 0) + (m.beepTest || 0) + (m.weakFoot || 0) + (m.longPass || 0)) / 6
       ) * 10) / 10;

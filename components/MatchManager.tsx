@@ -18,6 +18,18 @@ export const MatchManager: React.FC = () => {
     const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
     const [settings, setSettings] = useState(StorageService.getSettings());
     const [activeTab, setActiveTab] = useState<'results' | 'fixtures'>('results');
+    
+    // Live Match Timer State
+    const [matchTime, setMatchTime] = useState(0);
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+    
+    // Goal Entry Modal State
+    const [showGoalModal, setShowGoalModal] = useState(false);
+    const [goalScorerId, setGoalScorerId] = useState<string>('');
+    const [goalAssistantId, setGoalAssistantId] = useState<string>('');
+    
+    // Console Tabs
+    const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical');
 
     // Time helper
     const getRelativeTime = (dateStr: string) => {
@@ -75,6 +87,108 @@ export const MatchManager: React.FC = () => {
             window.removeEventListener('academy_data_update', loadData);
         };
     }, [playerStats, players]);
+
+    // Match Timer Effect
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isTimerRunning) {
+            interval = setInterval(() => {
+                setMatchTime(prev => prev + 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isTimerRunning]);
+
+    // Sync timer state with active match if it changes externally
+    useEffect(() => {
+        const match = matches.find(m => m.id === activeMatchId);
+        if (match && match.isLive) {
+            if (match.timerState) {
+                setMatchTime(match.timerState.currentTime || 0);
+                setIsTimerRunning(match.timerState.isRunning || false);
+            }
+        } else {
+            setMatchTime(0);
+            setIsTimerRunning(false);
+        }
+    }, [activeMatchId]);
+
+    const formatMatchTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const toggleTimer = async () => {
+        const match = matches.find(m => m.id === activeMatchId);
+        if (!match) return;
+
+        const newRunning = !isTimerRunning;
+        setIsTimerRunning(newRunning);
+        
+        const updatedMatch = {
+            ...match,
+            timerState: {
+                currentTime: matchTime,
+                isRunning: newRunning
+            }
+        };
+        await StorageService.updateMatch(updatedMatch);
+    };
+
+    const handleRecordGoal = async () => {
+        const match = matches.find(m => m.id === activeMatchId);
+        if (!match || !goalScorerId) return;
+
+        const currentMinute = Math.floor(matchTime / 60) + 1;
+        const newEvent = {
+            id: Math.random().toString(36).substr(2, 9),
+            type: 'goal' as const,
+            minute: currentMinute,
+            playerId: goalScorerId,
+            assistantId: goalAssistantId || undefined
+        };
+
+        const updatedMatch = {
+            ...match,
+            scoreFor: (match.scoreFor || 0) + 1,
+            events: [...(match.events || []), newEvent],
+            // Also update player stats directly for consistency
+            playerStats: match.playerStats.map(ps => {
+                if (ps.playerId === goalScorerId) return { ...ps, goals: (ps.goals || 0) + 1 };
+                if (goalAssistantId && ps.playerId === goalAssistantId) return { ...ps, assists: (ps.assists || 0) + 1 };
+                return ps;
+            })
+        };
+
+        await StorageService.updateMatch(updatedMatch);
+        setShowGoalModal(false);
+        setGoalScorerId('');
+        setGoalAssistantId('');
+        loadData();
+    };
+
+    const updatePlayerPerformance = async (playerId: string, updates: { rating?: number, isMOTM?: boolean }) => {
+        const match = matches.find(m => m.id === activeMatchId);
+        if (!match) return;
+
+        const updatedMatch = {
+            ...match,
+            playerOfTheMatchId: updates.isMOTM ? playerId : (match.playerOfTheMatchId === playerId ? '' : match.playerOfTheMatchId),
+            playerStats: match.playerStats.map(ps => {
+                if (ps.playerId === playerId) {
+                    return {
+                        ...ps,
+                        rating: updates.rating !== undefined ? updates.rating : ps.rating
+                    };
+                }
+                return ps;
+            })
+        };
+
+        await StorageService.updateMatch(updatedMatch);
+        loadData();
+    };
 
     const handleScheduleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const eventId = e.target.value;
@@ -220,69 +334,205 @@ export const MatchManager: React.FC = () => {
             {activeMatch && (
                 <div className="glass-card rounded-[3.5rem] border border-brand-accent/30 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-12 duration-1000 relative">
                     <div className="green-light-bar" />
-                    <div className="bg-white/5 px-8 py-4 flex justify-between items-center border-b border-white/10">
+                    <div className="bg-white/5 px-8 py-4 flex flex-col sm:flex-row justify-between items-center border-b border-white/10 gap-4">
                         <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-red-500 italic">
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                             LIVE MATCH CONSOLE
+                        </div>
+                        <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">
+                            <button onClick={() => setConsoleTab('tactical')} className={`px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all italic ${consoleTab === 'tactical' ? 'bg-brand-accent text-brand-950 shadow-glow' : 'text-white/40 hover:text-white/60'}`}>TACTICAL</button>
+                            <button onClick={() => setConsoleTab('performance')} className={`px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all italic ${consoleTab === 'performance' ? 'bg-brand-accent text-brand-950 shadow-glow' : 'text-white/40 hover:text-white/60'}`}>PERFORMANCE</button>
                         </div>
                         <button onClick={() => setActiveMatchId(null)} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40"><X size={20}/></button>
                     </div>
 
                     <div className="p-8 lg:p-14">
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
-                            <div className="flex flex-col sm:flex-row items-center gap-10 lg:gap-20">
-                                <div className="text-center group">
-                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-5 border border-white/10 group-hover:border-brand-accent/50 transition-all shadow-2xl">
-                                        <Shirt size={48} className="text-brand-accent" />
+                        {consoleTab === 'tactical' ? (
+                            <div className="flex flex-col gap-12 lg:gap-20">
+                                {/* Score & Timer Row */}
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-24 border-b border-white/5 pb-12">
+                                    <div className="flex flex-col items-center gap-5 group">
+                                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-brand-accent/50 transition-all shadow-2xl">
+                                            <Shirt size={48} className="text-brand-accent" />
+                                        </div>
+                                        <h4 className="text-sm font-black text-white uppercase italic tracking-widest">{settings.name}</h4>
                                     </div>
-                                    <h4 className="text-sm font-black text-white uppercase italic tracking-widest">{settings.name}</h4>
-                                </div>
 
-                                <div className="flex items-center gap-10">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: (activeMatch.scoreFor || 0) + 1 })} className="w-14 h-14 rounded-2xl bg-brand-accent/10 text-brand-accent flex items-center justify-center hover:bg-brand-accent hover:text-brand-950 transition-all border border-brand-accent/20 shadow-glow"><TrendingUp size={24} /></button>
-                                        <div className="text-7xl sm:text-9xl font-black text-white italic leading-none tracking-tighter">{activeMatch.scoreFor || 0}</div>
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} className="text-white/20 hover:text-white transition-colors"><ChevronDown size={28} /></button>
-                                    </div>
-                                    <div className="text-6xl font-black text-white/10 italic">:</div>
-                                    <div className="flex flex-col items-center gap-4">
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: (activeMatch.scoreAgainst || 0) + 1 })} className="w-14 h-14 rounded-2xl bg-white/5 text-white/40 flex items-center justify-center hover:bg-white hover:text-brand-950 transition-all border border-white/10 shadow-xl"><TrendingUp size={24} /></button>
-                                        <div className="text-7xl sm:text-9xl font-black text-white/40 italic leading-none tracking-tighter">{activeMatch.scoreAgainst || 0}</div>
-                                        <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={28} /></button>
-                                    </div>
-                                </div>
-
-                                <div className="text-center group">
-                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-5 border border-white/10 group-hover:border-white/30 transition-all shadow-2xl">
-                                        <Shield size={48} className="text-white/10" />
-                                    </div>
-                                    <h4 className="text-sm font-black text-white/40 uppercase italic tracking-widest">{activeMatch.opponent}</h4>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 w-full lg:w-auto space-y-6">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="bg-black/30 p-6 rounded-3xl border border-white/10">
-                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-4 italic">Possession</p>
-                                        <div className="flex items-center gap-4">
-                                            <input type="range" className="flex-1 accent-brand-accent" min="0" max="100" value={activeMatch.possession || 50} onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} />
-                                            <span className="text-2xl font-black text-white italic">{activeMatch.possession || 50}%</span>
+                                    <div className="flex items-center gap-10">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <button onClick={() => setShowGoalModal(true)} className="w-14 h-14 rounded-2xl bg-brand-accent/10 text-brand-accent flex items-center justify-center hover:bg-brand-accent hover:text-brand-950 transition-all border border-brand-accent/20 shadow-glow"><PlusCircle size={24} /></button>
+                                            <div className="text-7xl sm:text-9xl font-black text-white italic leading-none tracking-tighter">{activeMatch.scoreFor || 0}</div>
+                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} className="text-white/20 hover:text-white transition-colors"><ChevronDown size={28} /></button>
+                                        </div>
+                                        <div className="flex flex-col items-center gap-6">
+                                            <div className="text-6xl font-black text-white/10 italic leading-none">:</div>
+                                            <div className="bg-black/60 px-8 py-5 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center gap-3 min-w-[160px]">
+                                                <div className="text-4xl font-mono font-black text-brand-accent tabular-nums tracking-tighter">{formatMatchTime(matchTime)}</div>
+                                                <button 
+                                                    onClick={toggleTimer}
+                                                    className={`w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-all ${isTimerRunning ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-brand-accent text-brand-950 shadow-glow'}`}
+                                                >
+                                                    {isTimerRunning ? 'PAUSE CLOCK' : matchTime === 0 ? 'START MATCH' : 'RESUME CLOCK'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-center gap-4">
+                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: (activeMatch.scoreAgainst || 0) + 1 })} className="w-14 h-14 rounded-2xl bg-white/5 text-white/40 flex items-center justify-center hover:bg-white hover:text-brand-950 transition-all border border-white/10 shadow-xl"><PlusCircle size={24} /></button>
+                                            <div className="text-7xl sm:text-9xl font-black text-white/40 italic leading-none tracking-tighter">{activeMatch.scoreAgainst || 0}</div>
+                                            <button onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} className="text-white/10 hover:text-white transition-colors"><ChevronDown size={28} /></button>
                                         </div>
                                     </div>
-                                    <div className="bg-black/30 p-6 rounded-3xl border border-white/10">
-                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-4 italic">Shots on Target</p>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-3xl font-black text-white italic">{activeMatch.shotsOnTarget || 0}</span>
-                                            <div className="flex gap-2">
-                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: Math.max(0, (activeMatch.shotsOnTarget || 0) - 1)})} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/20 hover:text-red-500 transition-all"><X size={14}/></button>
-                                                <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: (activeMatch.shotsOnTarget || 0) + 1})} className="p-2.5 rounded-xl bg-brand-accent/20 text-brand-accent hover:bg-brand-accent hover:text-brand-950 transition-all shadow-glow"><TrendingUp size={14}/></button>
+
+                                    <div className="flex flex-col items-center gap-5 group">
+                                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-all shadow-2xl">
+                                            <Shield size={48} className="text-white/10" />
+                                        </div>
+                                        <h4 className="text-sm font-black text-white/40 uppercase italic tracking-widest">{activeMatch.opponent}</h4>
+                                    </div>
+                                </div>
+
+                                {/* Metrics & Feed Grid */}
+                                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                                    <div className="xl:col-span-1 space-y-6">
+                                        <div className="glass-card p-8 rounded-[2.5rem] border border-white/10 bg-black/20">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] italic">Possession</p>
+                                                <span className="text-2xl font-black text-white italic tabular-nums">{activeMatch.possession || 50}%</span>
+                                            </div>
+                                            <div className="relative h-4 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                <input 
+                                                    type="range" 
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                                    min="0" max="100" 
+                                                    value={activeMatch.possession || 50} 
+                                                    onChange={(e) => updateLiveMatch({ ...activeMatch, possession: parseInt(e.target.value) })} 
+                                                />
+                                                <div 
+                                                    className="absolute top-0 left-0 h-full bg-brand-accent transition-all duration-300"
+                                                    style={{ width: `${activeMatch.possession || 50}%` }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between mt-3 text-[8px] font-black text-white/20 uppercase italic tracking-widest">
+                                                <span>{settings.name}</span>
+                                                <span>{activeMatch.opponent}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="glass-card p-8 rounded-[2.5rem] border border-white/10 bg-black/20">
+                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2rem] mb-6 italic">Shots on Target</p>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-5xl font-black text-white italic tabular-nums">{activeMatch.shotsOnTarget || 0}</span>
+                                                <div className="flex gap-3">
+                                                    <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: Math.max(0, (activeMatch.shotsOnTarget || 0) - 1)})} className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-white/20 hover:text-red-500 transition-all flex items-center justify-center"><X size={18}/></button>
+                                                    <button onClick={() => updateLiveMatch({...activeMatch, shotsOnTarget: (activeMatch.shotsOnTarget || 0) + 1})} className="w-12 h-12 rounded-xl bg-brand-accent/20 text-brand-accent hover:bg-brand-accent hover:text-brand-950 transition-all shadow-glow flex items-center justify-center"><TrendingUp size={18}/></button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Match Feed */}
+                                    <div className="xl:col-span-2 bg-black/40 rounded-[3rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl">
+                                        <div className="px-8 py-5 bg-white/5 border-b border-white/10 text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic flex items-center gap-3">
+                                            <Activity size={16} className="text-brand-accent" /> MATCH TIMELINE
+                                        </div>
+                                        <div className="p-6 max-h-[300px] overflow-y-auto custom-scrollbar space-y-4">
+                                            {activeMatch.events && activeMatch.events.length > 0 ? (
+                                                activeMatch.events.sort((a,b) => b.minute - a.minute).map(event => (
+                                                    <div key={event.id} className="flex items-center justify-between bg-white/5 p-5 rounded-[2rem] border border-white/5 hover:border-white/10 transition-all animate-in slide-in-from-right-8 duration-700">
+                                                        <div className="flex items-center gap-6">
+                                                            <div className="w-12 h-12 rounded-2xl bg-brand-accent text-brand-950 flex items-center justify-center text-lg font-black italic shadow-glow">{event.minute}'</div>
+                                                            <div>
+                                                                <div className="text-sm font-black text-white uppercase italic tracking-tight">
+                                                                    {players.find(p => p.id === event.playerId)?.fullName}
+                                                                    <span className="text-brand-accent ml-3">GOAL SCORDED</span>
+                                                                </div>
+                                                                {event.assistantId && (
+                                                                    <div className="text-[10px] font-bold text-white/30 uppercase italic tracking-widest mt-1">
+                                                                        STRATEGIC ASSIST: {players.find(p => p.id === event.assistantId)?.fullName}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <Award size={20} className="text-brand-accent animate-pulse" />
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-16 flex flex-col items-center gap-4">
+                                                    <Activity size={48} className="text-white/5" />
+                                                    <p className="text-[11px] font-bold text-white/10 uppercase tracking-[0.4em] italic">No tactical events recorded in this session</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-6 bg-brand-accent text-brand-950 rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic"><Check size={20} /> SAVE & FINALIZE MATCH</button>
+                                
+                                <button onClick={() => finalizeMatch(activeMatch)} className="w-full py-8 bg-brand-accent text-brand-950 rounded-[2rem] font-black uppercase tracking-[0.4em] text-sm shadow-[0_20px_50px_rgba(200,255,0,0.3)] hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-5 italic border border-brand-accent/20"><Check size={24} /> ARCHIVE & FINALIZE MATCH DATA</button>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="space-y-10 animate-in fade-in duration-500">
+                                <div className="flex justify-between items-center border-b border-white/5 pb-6">
+                                    <div>
+                                        <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">SQUAD PERFORMANCE</h3>
+                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-2 italic">INDIVIDUAL CONTRIBUTION MONITORING</p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-[10px] font-black text-brand-accent uppercase italic border border-brand-accent/30 px-4 py-2 rounded-xl bg-brand-accent/5">
+                                            {activeMatch.playerStats.length} NODES TRACKED
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
+                                    {activeMatch.playerStats.map(ps => {
+                                        const player = players.find(p => p.id === ps.playerId);
+                                        if (!player) return null;
+                                        const isMOTM = activeMatch.playerOfTheMatchId === ps.playerId;
+
+                                        return (
+                                            <div key={ps.playerId} className={`glass-card p-6 rounded-[2.5rem] border transition-all duration-500 flex items-center justify-between group ${isMOTM ? 'bg-brand-accent/10 border-brand-accent shadow-glow' : 'border-white/10 bg-black/20 hover:border-white/30'}`}>
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`w-14 h-14 rounded-full flex items-center justify-center border transition-all ${isMOTM ? 'bg-brand-accent border-brand-accent' : 'bg-white/5 border-white/10 group-hover:border-white/30'}`}>
+                                                        <Shirt size={28} className={isMOTM ? 'text-brand-950' : 'text-white/20'} />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className={`text-sm font-black uppercase italic tracking-tight ${isMOTM ? 'text-brand-accent' : 'text-white'}`}>{player.fullName}</h4>
+                                                        <div className="flex items-center gap-3 mt-1">
+                                                            <span className="text-[9px] font-bold text-white/20 uppercase italic">{ps.goals} Goals</span>
+                                                            <span className="w-1 h-1 bg-white/10 rounded-full" />
+                                                            <span className="text-[9px] font-bold text-white/20 uppercase italic">{ps.assists} Assists</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-8">
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <p className="text-[8px] font-black text-white/30 uppercase italic tracking-widest">Rating</p>
+                                                        <div className="flex items-center gap-3">
+                                                            <input 
+                                                                type="range" min="1" max="10" step="0.5" 
+                                                                value={ps.rating || 6} 
+                                                                onChange={(e) => updatePlayerPerformance(ps.playerId, { rating: parseFloat(e.target.value) })}
+                                                                className="w-20 accent-brand-accent"
+                                                            />
+                                                            <span className="text-sm font-black text-white italic w-8 text-center">{ps.rating || 6}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button 
+                                                        onClick={() => updatePlayerPerformance(ps.playerId, { isMOTM: !isMOTM })}
+                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isMOTM ? 'bg-brand-accent text-brand-950 shadow-glow' : 'bg-white/5 text-white/20 hover:text-brand-accent hover:bg-brand-accent/10 border border-white/10'}`}
+                                                        title="Nominate Player of the Match"
+                                                    >
+                                                        <Trophy size={20} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <button onClick={() => setConsoleTab('tactical')} className="w-full py-6 bg-white/5 text-white/60 rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs hover:bg-white/10 transition-all border border-white/10 italic">RETURN TO TACTICAL CONSOLE</button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -495,6 +745,56 @@ export const MatchManager: React.FC = () => {
                                     <Save size={20} /> {newMatch.isLive ? 'COMMENCE LIVE TRACKING' : 'ARCHIVE MATCH DATA'}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Goal Entry Modal */}
+            {showGoalModal && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-brand-950/90 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-2xl bg-brand-900/40 rounded-[3rem] border border-white/10 shadow-3xl overflow-hidden relative">
+                        <div className="green-light-bar" />
+                        <div className="px-10 py-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">RECORD_GOAL_EVENT</h3>
+                                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-2 italic">MATCH_TIME: {formatMatchTime(matchTime)}</p>
+                            </div>
+                            <button onClick={() => setShowGoalModal(false)} className="p-4 hover:bg-white/10 rounded-2xl transition-all text-white/40"><X size={24} /></button>
+                        </div>
+
+                        <div className="p-10 space-y-10">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-1">SELECT_SCORER</label>
+                                <select 
+                                    className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-accent transition-all appearance-none"
+                                    value={goalScorerId}
+                                    onChange={e => setGoalScorerId(e.target.value)}
+                                >
+                                    <option value="">-- SELECT PLAYER --</option>
+                                    {players.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-1">SELECT_ASSISTANT (OPTIONAL)</label>
+                                <select 
+                                    className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-sm outline-none focus:border-brand-accent transition-all appearance-none"
+                                    value={goalAssistantId}
+                                    onChange={e => setGoalAssistantId(e.target.value)}
+                                >
+                                    <option value="">-- NO ASSIST --</option>
+                                    {players.filter(p => p.id !== goalScorerId).map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                                </select>
+                            </div>
+
+                            <button 
+                                onClick={handleRecordGoal}
+                                disabled={!goalScorerId}
+                                className="w-full py-6 bg-brand-accent text-brand-950 rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-glow hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic disabled:opacity-30 disabled:hover:scale-100"
+                            >
+                                <Award size={20} /> CONFIRM GOAL DATA
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -231,7 +231,7 @@ export const PlayerManager: React.FC = () => {
       {/* Functional Header */}
       {/* ── Hero Section ───────────────────────────────────────────────────── */}
       {/* ── Hero Section ───────────────────────────────────────────────────── */}
-      <div className="glass-card p-8 md:p-12 rounded-[3.5rem] border border-white/20 shadow-[0_20px_50px_rgba(13,27,138,0.3)] relative overflow-hidden group ring-1 ring-white/10">
+      <div className="glass-card p-4 sm:p-10 md:p-12 rounded-[1.5rem] sm:rounded-[3.5rem] border border-white/20 shadow-[0_20px_50px_rgba(13,27,138,0.3)] relative overflow-hidden group ring-1 ring-white/10">
         <div className="green-light-bar" />
         <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
           <Users size={320} className="text-white -mr-16 -mt-16" />
@@ -240,7 +240,7 @@ export const PlayerManager: React.FC = () => {
         <div className="relative z-10">
           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-10 mb-12">
             <div className="space-y-4">
-              <h1 className="text-5xl sm:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
+              <h1 className="text-2xl sm:text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
                 SQUAD <span className="premium-gradient-text">MANAGEMENT</span>
               </h1>
               <div className="flex items-center gap-4">
@@ -251,16 +251,16 @@ export const PlayerManager: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex gap-1.5 bg-black/30 p-2 rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-inner">
+            <div className="flex w-full xl:w-auto gap-1 sm:gap-1.5 bg-black/30 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-inner">
                 <button 
                     onClick={() => setActiveTab('players')}
-                    className={`px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center gap-3 ${activeTab === 'players' ? 'bg-brand-accent text-brand-950 shadow-[0_15px_40px_rgba(195,246,41,0.3)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+                    className={`flex-1 xl:flex-none px-3 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center justify-center gap-2 sm:gap-3 ${activeTab === 'players' ? 'bg-brand-accent text-brand-950 shadow-[0_15px_40px_rgba(195,246,41,0.3)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
                 >
                     <Users size={14} /> PLAYERS
                 </button>
                 <button 
                     onClick={() => setActiveTab('coaches')}
-                    className={`px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center gap-3 ${activeTab === 'coaches' ? 'bg-white/10 text-white shadow-[0_15px_40px_rgba(255,255,255,0.1)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+                    className={`flex-1 xl:flex-none px-3 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center justify-center gap-2 sm:gap-3 ${activeTab === 'coaches' ? 'bg-white/10 text-white shadow-[0_15px_40px_rgba(255,255,255,0.1)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
                 >
                     <Shield size={14} /> COMMAND STAFF
                 </button>
@@ -275,19 +275,19 @@ export const PlayerManager: React.FC = () => {
               { label: 'Command staff', value: stats.activeCoaches, sub: 'Active Personnel', icon: <Shield size={18} />, color: '#60a5fa' },
               { label: 'OPERATIONAL SECTORS', value: stats.venuesCount, sub: 'Active Venues', icon: <MapPin size={18} />, color: '#f59e0b' }
             ].map((k, i) => (
-              <div key={i} className="glass-card-alt p-8 rounded-[2.5rem] group/kpi hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
+              <div key={i} className="glass-card-alt p-4 sm:p-6 md:p-8 rounded-[1rem] sm:rounded-[2.5rem] group/kpi hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
                 <div className="green-light-bar" />
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/kpi:scale-110 transition-transform duration-700">
                     <div style={{ color: k.color }}>{k.icon}</div>
                 </div>
                 <div className="relative z-10">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-4">{k.label}</p>
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-3 sm:mb-4">{k.label}</p>
                     <div className="flex items-baseline gap-2">
-                        <p className="text-5xl font-black italic leading-none tracking-tighter text-white group-hover/kpi:text-brand-accent transition-colors duration-500">{k.value}</p>
+                        <p className="text-2xl sm:text-4xl md:text-5xl font-black italic leading-none tracking-tighter text-white group-hover/kpi:text-brand-accent transition-colors duration-500">{k.value}</p>
                     </div>
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex items-center gap-2 mt-3 sm:mt-4">
                         <span className="w-6 h-[1px] bg-white/10"></span>
-                        <p className="text-[10px] font-black italic text-white/20 uppercase tracking-widest">{k.sub}</p>
+                        <p className="text-[8px] sm:text-[10px] font-black italic text-white/20 uppercase tracking-widest">{k.sub}</p>
                     </div>
                 </div>
               </div>
@@ -297,153 +297,129 @@ export const PlayerManager: React.FC = () => {
       </div>
 
       {/* ── Strategic Filters ────────────────────────────────────────────────── */}
-      <div className="glass-card-alt p-6 rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-4 items-center mx-1">
-          <div className="green-light-bar" />
-          <div className="absolute top-0 left-0 w-64 h-64 bg-brand-accent/5 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-          
-          <div className="relative flex-1 w-full group/input">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-brand-accent group-hover/input:text-white/40 transition-all w-4 h-4" />
-              <input 
-                type="text" 
-                placeholder={`ENTER ASSET IDENTIFIER OR NAME...`} 
-                className="w-full pl-14 pr-6 py-6 bg-white/5 border border-white/10 rounded-2xl text-[12px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all placeholder:text-white/15 uppercase tracking-[0.15em] shadow-inner"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      <div className="glass-card-alt p-3 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-3 sm:gap-4 items-center mx-0 sm:mx-1">
+        <div className="green-light-bar" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-brand-accent/5 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        
+        <div className="relative flex-1 w-full group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-brand-accent transition-colors" size={16} />
+          <input 
+            type="text" 
+            placeholder="Search roster..." 
+            className="w-full bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 pl-14 text-[11px] sm:text-[13px] font-black italic text-white placeholder:text-white/20 outline-none focus:border-brand-accent/40 focus:ring-1 focus:ring-brand-accent/20 transition-all uppercase tracking-widest"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full md:w-auto">
+          <div className="relative flex-1 sm:flex-none sm:w-48 group">
+            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-brand-accent transition-colors" size={14} />
+            <select 
+              className="w-full bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 pl-12 text-[10px] sm:text-[12px] font-black italic text-white appearance-none outline-none focus:border-brand-accent/40 transition-all uppercase tracking-widest cursor-pointer"
+              value={filterVenue}
+              onChange={(e) => setFilterVenue(e.target.value)}
+            >
+              <option value="ALL">All Sectors</option>
+              {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
+            </select>
+            <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-              {[
-                { label: 'Sectors', icon: MapPin, val: filterVenue, set: setFilterVenue, opts: venues, color: 'text-brand-accent' },
-                { label: 'Divisions', icon: Layers, val: filterBatch, set: setFilterBatch, opts: batches, color: 'text-brand-primary' }
-              ].map((f, i) => (
-                  <div key={i} className="relative group/select min-w-[180px]">
-                      <f.icon size={12} className={`absolute left-5 top-1/2 -translate-y-1/2 text-white/25 group-hover/select:${f.color} transition-colors duration-500 z-10`} />
-                      <select 
-                        className="w-full pl-11 pr-10 py-6 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all appearance-none uppercase tracking-[0.1em] cursor-pointer shadow-inner"
-                        value={f.val}
-                        onChange={(e) => f.set(e.target.value)}
-                      >
-                          <option value="ALL" className="bg-[#0a0f2d] text-white">ALL {f.label.toUpperCase()}</option>
-                          {f.opts.map(v => <option key={v.id} value={v.name} className="bg-[#0a0f2d] text-white">{v.name}</option>)}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none group-hover/select:text-brand-accent transition-colors" />
-                  </div>
-              ))}
+          <div className="relative flex-1 sm:flex-none sm:w-48 group">
+            <Layers className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-hover:text-brand-accent transition-colors" size={14} />
+            <select 
+              className="w-full bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 pl-12 text-[10px] sm:text-[12px] font-black italic text-white appearance-none outline-none focus:border-brand-accent/40 transition-all uppercase tracking-widest cursor-pointer"
+              value={filterBatch}
+              onChange={(e) => setFilterBatch(e.target.value)}
+            >
+              <option value="ALL">All Batches</option>
+              {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+            </select>
+            <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
           </div>
+        </div>
       </div>
-      {/* ── Player Roster ──────────────────────────────────────────────────── */}
+
       {activeTab === 'players' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredPlayers.length > 0 ? filteredPlayers.map((player) => {
-            const rating = player.evaluation?.overallRating || 0;
-            const metrics = player.evaluation?.metrics || { passing: 0, shooting: 0, beepTest: 0 };
-            
-            return (
-              <div key={player.id} className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-700 shadow-2xl relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8">
+          {filteredPlayers.length > 0 ? (
+            filteredPlayers.map(player => (
+              <div key={player.id} className="glass-card p-4 sm:p-6 rounded-[1.25rem] sm:rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-500 group relative overflow-hidden hover:shadow-2xl hover:shadow-brand-accent/5">
                 <div className="green-light-bar" />
                 
-                {/* Card Top HUD */}
-                <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-brand-accent uppercase tracking-widest italic">{player.position}</span>
-                    <div className="w-1 h-1 rounded-full bg-white/20" />
-                    <span className="text-[9px] font-mono text-white/40">{player.memberId}</span>
-                  </div>
-                  {rating > 0 && (
-                    <div className="px-3 py-1 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center gap-2">
-                      <span className="text-[10px] font-black text-brand-accent">RTG</span>
-                      <span className="text-sm font-black text-white italic">{rating}</span>
+                <div className="flex items-center gap-4 sm:gap-6 mb-6">
+                  <div className="relative group/photo">
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-[1.5rem] overflow-hidden border border-white/10 group-hover/photo:border-brand-accent/40 transition-colors shadow-2xl">
+                      {player.photoUrl ? (
+                        <img src={player.photoUrl} alt="" className="w-full h-full object-cover group-hover/photo:scale-110 transition-transform duration-700" />
+                      ) : (
+                        <div className="w-full h-full bg-white/5 flex items-center justify-center font-black italic text-xl sm:text-2xl text-white/20">
+                          {initials(player.fullName)}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <div className="p-8 relative z-10">
-                  {/* Digital Avatar Area */}
-                  <div className="flex justify-center mb-8">
-                    <div className="relative group/avatar">
-                      <div className="absolute -inset-4 bg-brand-accent/10 rounded-full blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
-                      <div className="w-32 h-32 rounded-[2.5rem] border-2 border-white/10 group-hover/avatar:border-brand-accent/40 overflow-hidden relative z-10 transition-all duration-500 shadow-2xl group-hover/avatar:rotate-2 group-hover/avatar:scale-105">
-                        {player.photoUrl ? (
-                          <img src={player.photoUrl} alt={player.fullName} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-3xl font-black italic bg-gradient-to-br from-brand-accent/20 to-brand-900 text-white">
-                            {initials(player.fullName)}
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 to-transparent opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-brand-950 border border-white/10 flex items-center justify-center text-brand-accent shadow-xl z-20 group-hover/avatar:scale-110 transition-transform">
-                        <Activity size={16} />
-                      </div>
+                    <div className="absolute -top-2 -right-2 px-2 sm:px-3 py-1 bg-brand-accent text-brand-950 text-[8px] sm:text-[10px] font-black italic rounded-lg shadow-lg">
+                      {player.position}
                     </div>
                   </div>
 
-                  {/* Player Identity */}
-                  <div className="text-center mb-8">
-                    <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-tight group-hover:text-brand-accent transition-colors duration-500">
-                      {player.fullName || 'UNKNOWN'}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
+                        <span className="text-[8px] sm:text-[9px] font-black text-brand-accent uppercase tracking-widest italic">{player.memberId}</span>
+                    </div>
+                    <h3 className="text-sm sm:text-lg md:text-xl font-black text-white italic uppercase tracking-tight leading-tight truncate group-hover:text-brand-accent transition-colors">
+                      {player.fullName}
                     </h3>
-                    <div className="flex items-center justify-center gap-4 mt-3">
-                      <div className="flex items-center gap-2">
-                        <MapPin size={10} className="text-white/40" />
-                        <span className="text-[10px] font-black text-white/40 uppercase italic tracking-widest">{player.venue}</span>
-                      </div>
-                      <div className="w-1 h-1 rounded-full bg-white/10" />
-                      <div className="flex items-center gap-2">
-                        <Layers size={10} className="text-white/40" />
-                        <span className="text-[10px] font-black text-white/40 uppercase italic tracking-widest">{player.batch}</span>
-                      </div>
+                    <div className="flex items-center gap-3 mt-2 sm:mt-3 opacity-60">
+                        <div className="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-bold text-white uppercase italic tracking-widest">
+                            <MapPin size={10} className="text-brand-accent" />
+                            {player.venue}
+                        </div>
                     </div>
-                  </div>
-
-                  {/* Tactical Metrics Grid */}
-                  <div className="space-y-4 pt-6 border-t border-white/5">
-                    {[
-                      { label: 'Passing', val: metrics.passing || 0, color: 'from-blue-500 to-cyan-400' },
-                      { label: 'Shooting', val: metrics.shooting || 0, color: 'from-emerald-500 to-[#CCFF00]' },
-                      { label: 'Fitness', val: metrics.beepTest || 0, color: 'from-orange-500 to-amber-400' }
-                    ].map((m, idx) => (
-                      <div key={idx}>
-                        <div className="flex justify-between items-center mb-1.5 px-1">
-                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] italic">{m.label}</span>
-                          <span className="text-[10px] font-mono font-bold text-white/60">{m.val}%</span>
-                        </div>
-                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03]">
-                          <div 
-                            className={`h-full bg-gradient-to-r ${m.color} transition-all duration-1000 ease-out`}
-                            style={{ width: `${m.val || 10}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
 
-                {/* Card Actions */}
-                <div className="px-6 py-6 bg-white/[0.02] border-t border-white/5 flex gap-3">
+                <div className="grid grid-cols-1 gap-2 sm:gap-3 mb-6">
+                    <div className="flex items-center justify-between p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/5 group-hover:bg-white/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Layers size={12} className="text-white/20" />
+                            <span className="text-[9px] sm:text-[11px] font-black text-white/40 uppercase italic tracking-widest">Sector</span>
+                        </div>
+                        <span className="text-[10px] sm:text-[12px] font-black text-white italic uppercase">{player.batch}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/5 group-hover:bg-white/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Phone size={12} className="text-white/20" />
+                            <span className="text-[9px] sm:text-[11px] font-black text-white/40 uppercase italic tracking-widest">Guardian</span>
+                        </div>
+                        <span className="text-[10px] sm:text-[12px] font-black text-white italic uppercase">{player.contactNumber}</span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-3 pt-2">
                   <button 
                     onClick={() => setViewingPerformance(player)}
-                    className="flex-1 h-12 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-widest italic hover:bg-brand-accent/10 hover:text-brand-accent hover:border-brand-accent/30 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 sm:py-4 bg-brand-accent/10 border border-brand-accent/20 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-brand-accent uppercase italic tracking-[0.15em] hover:bg-brand-accent hover:text-brand-950 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-brand-accent/20"
                   >
-                    <Target size={14} /> METRICS
+                    <Activity size={12} /> <span className="hidden sm:inline">Tactical</span> Performance
                   </button>
                   <button 
                     onClick={() => openEditModal(player, 'player')}
-                    className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                    className="p-3 sm:p-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white/40 hover:bg-brand-accent hover:text-brand-950 hover:border-brand-accent transition-all duration-300 shadow-xl"
                   >
-                    <Edit2 size={16} />
+                    <Edit2 size={14} />
                   </button>
                   <button 
                     onClick={() => handleSecureDelete(player, 'player')}
-                    className="w-12 h-12 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500/30 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center"
+                    className="p-3 sm:p-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all duration-300 shadow-xl"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
-            );
-          }) : (
+            ))
+          ) : (
             <div className="col-span-full py-40 text-center">
               <div className="flex flex-col items-center gap-4 opacity-10">
                 <Users size={64} className="text-white" />
@@ -458,11 +434,11 @@ export const PlayerManager: React.FC = () => {
       {activeTab === 'coaches' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredCoaches.length > 0 ? filteredCoaches.map((coach) => (
-            <div key={coach.id} className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-700 shadow-2xl relative flex flex-col h-full">
+            <div key={coach.id} className="glass-card rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/10 overflow-hidden group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-700 shadow-2xl relative flex flex-col h-full">
               <div className="green-light-bar" />
               
               {/* Card Top HUD */}
-              <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+              <div className="px-6 sm:px-8 py-4 sm:py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_#C3F629]" />
                   <span className="text-[10px] font-black text-brand-accent uppercase tracking-widest italic">{coach.role || 'STAFF'}</span>
@@ -470,11 +446,11 @@ export const PlayerManager: React.FC = () => {
                 <span className="text-[9px] font-mono text-white/40">{coach.employeeNumber || 'STAFF'}</span>
               </div>
 
-              <div className="p-8 relative z-10 flex-1 flex flex-col">
+              <div className="p-6 sm:p-8 relative z-10 flex-1 flex flex-col">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative mb-8 group/avatar">
                     <div className="absolute -inset-4 bg-brand-primary/10 rounded-full blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
-                    <div className="w-28 h-28 rounded-[2.2rem] border-2 border-white/10 group-hover/avatar:border-brand-primary/40 overflow-hidden relative z-10 transition-all duration-500 shadow-2xl group-hover/avatar:-rotate-2 group-hover/avatar:scale-105">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl sm:rounded-[2.2rem] border-2 border-white/10 group-hover/avatar:border-brand-primary/40 overflow-hidden relative z-10 transition-all duration-500 shadow-2xl group-hover/avatar:-rotate-2 group-hover/avatar:scale-105">
                       {coach.photoUrl ? (
                         <img src={coach.photoUrl} alt={coach.fullName} className="w-full h-full object-cover" />
                       ) : (
@@ -488,7 +464,7 @@ export const PlayerManager: React.FC = () => {
                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-none mb-6 group-hover:text-brand-primary transition-colors duration-500">
+                  <h3 className="text-lg sm:text-xl font-black text-white uppercase italic tracking-tighter leading-none mb-6 group-hover:text-brand-primary transition-colors duration-500">
                     {coach.fullName || coach.username}
                   </h3>
                 </div>
@@ -558,19 +534,19 @@ export const PlayerManager: React.FC = () => {
       {editingPlayer && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
               <div className="absolute inset-0 bg-[#050714]/80 backdrop-blur-2xl animate-in fade-in duration-500" onClick={() => setEditingPlayer(null)}></div>
-              <div className="w-full max-w-2xl glass-card rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
+              <div className="w-full max-w-[95vw] sm:max-w-2xl glass-card rounded-[1.5rem] sm:rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
                   <div className="green-light-bar" />
                   <div className="p-8 md:p-10 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                       <div>
-                        <h3 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter">DATA <span className="premium-gradient-text">RECALIBRATION</span></h3>
-                        <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.4em] mt-2 italic flex items-center gap-2"><Zap size={10} className="text-brand-accent" /> PLAYER PROFILE MODIFICATION UNIT</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter">DATA <span className="premium-gradient-text">RECALIBRATION</span></h3>
+                        <p className="text-[8px] sm:text-[9px] font-black text-white/50 uppercase tracking-[0.4em] mt-2 italic flex items-center gap-2"><Zap size={10} className="text-brand-accent" /> PLAYER PROFILE MODIFICATION UNIT</p>
                       </div>
                       <button onClick={() => setEditingPlayer(null)} className="w-14 h-14 bg-white/10 rounded-2xl text-white/60 hover:text-brand-accent hover:bg-brand-accent/10 flex items-center justify-center border border-white/10 hover:border-brand-accent/20 transition-all duration-300 group">
                           <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
                       </button>
                   </div>
                   
-                  <form onSubmit={savePlayerChanges} className="p-8 md:p-12 space-y-10 overflow-y-auto custom-scrollbar text-left flex-1">
+                  <form onSubmit={savePlayerChanges} className="p-6 sm:p-8 md:p-12 space-y-8 md:space-y-10 overflow-y-auto custom-scrollbar text-left flex-1">
                       <div className="flex justify-center">
                           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                               <div className="absolute -inset-2 bg-gradient-to-br from-brand-accent to-brand-primary rounded-[3rem] opacity-20 group-hover:opacity-40 transition-opacity blur-xl"></div>
@@ -587,16 +563,16 @@ export const PlayerManager: React.FC = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
                           {[
-                            { label: 'UNIT IDENTIFICATION (UID)', val: editingPlayer.memberId, key: 'memberId', type: 'text' },
-                            { label: 'ASSET DESIGNATION', val: editingPlayer.fullName, key: 'fullName', type: 'text' },
-                            { label: 'OPERATIONAL SECTOR', val: editingPlayer.venue, key: 'venue', type: 'select', opts: venues },
-                            { label: 'TACTICAL DIVISION', val: editingPlayer.batch, key: 'batch', type: 'select', opts: batches },
-                            { label: 'COMBAT POSITION', val: editingPlayer.position, key: 'position', type: 'select', opts: ['Forward','Midfielder','Defender','Goalkeeper'] },
-                            { label: 'COMMS FREQUENCY', val: editingPlayer.contactNumber, key: 'contactNumber', type: 'text' },
-                            { label: 'DIGITAL ADDRESS', val: editingPlayer.email || '', key: 'email', type: 'email' },
-                            { label: 'GENESIS DATE (DOB)', val: editingPlayer.dateOfBirth, key: 'dateOfBirth', type: 'date' },
-                            { label: 'PRIME GUARDIAN', val: editingPlayer.parentName, key: 'parentName', type: 'text' }
-                          ].map((field, idx) => (
+                            { label: 'UNIT IDENTIFICATION (UID)', val: editingPlayer.memberId, key: 'memberId', type: 'text', readOnly: true },
+                            { label: 'ASSET DESIGNATION', val: editingPlayer.fullName, key: 'fullName', type: 'text', readOnly: false },
+                            { label: 'OPERATIONAL SECTOR', val: editingPlayer.venue, key: 'venue', type: 'select', opts: venues, readOnly: false },
+                            { label: 'TACTICAL DIVISION', val: editingPlayer.batch, key: 'batch', type: 'select', opts: batches, readOnly: false },
+                            { label: 'COMBAT POSITION', val: editingPlayer.position, key: 'position', type: 'select', opts: ['Forward','Midfielder','Defender','Goalkeeper'], readOnly: false },
+                            { label: 'COMMS FREQUENCY', val: editingPlayer.contactNumber, key: 'contactNumber', type: 'text', readOnly: false },
+                            { label: 'DIGITAL ADDRESS', val: editingPlayer.email || '', key: 'email', type: 'email', readOnly: false },
+                            { label: 'GENESIS DATE (DOB)', val: editingPlayer.dateOfBirth, key: 'dateOfBirth', type: 'date', readOnly: false },
+                            { label: 'PRIME GUARDIAN', val: editingPlayer.parentName, key: 'parentName', type: 'text', readOnly: false }
+                          ].map((field: any, idx) => (
                             <div key={idx} className="space-y-3">
                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic ml-1">{field.label}</label>
                                 {field.type === 'select' ? (
@@ -637,7 +613,7 @@ export const PlayerManager: React.FC = () => {
                       </div>
                   </form>
                   
-                  <div className="p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
+                  <div className="p-6 sm:p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
                       <button onClick={savePlayerChanges} className="w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic">SYNC OPERATIONAL DATA</button>
                   </div>
               </div>
@@ -647,7 +623,7 @@ export const PlayerManager: React.FC = () => {
       {editingCoach && (
            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
                <div className="absolute inset-0 bg-[#050714]/80 backdrop-blur-2xl animate-in fade-in duration-500" onClick={() => setEditingCoach(null)}></div>
-               <div className="w-full max-w-2xl glass-card rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
+               <div className="w-full max-w-[95vw] sm:max-w-2xl glass-card rounded-[1.5rem] sm:rounded-[3rem] border border-white/20 shadow-[0_40px_100px_rgba(13,27,138,0.5)] overflow-hidden flex flex-col max-h-[90vh] relative z-10 animate-in zoom-in slide-in-from-bottom-5 duration-500">
                   <div className="green-light-bar" />
                   <div className="p-8 md:p-10 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
                       <div className="flex items-center gap-5">
@@ -664,7 +640,7 @@ export const PlayerManager: React.FC = () => {
                       </button>
                   </div>
 
-                  <form onSubmit={saveCoachChanges} className="p-8 md:p-12 space-y-12 overflow-y-auto custom-scrollbar text-left flex-1">
+                  <form onSubmit={saveCoachChanges} className="p-6 sm:p-8 md:p-12 space-y-8 md:space-y-12 overflow-y-auto custom-scrollbar text-left flex-1">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-3">
                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic ml-1">LOGIN IDENTIFIER</label>
@@ -707,7 +683,7 @@ export const PlayerManager: React.FC = () => {
                       </div>
                   </form>
 
-                  <div className="p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
+                  <div className="p-6 sm:p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
                     <button onClick={saveCoachChanges} className="w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic">SYNC COMMANDER CREDENTIALS</button>
                   </div>
                </div>
