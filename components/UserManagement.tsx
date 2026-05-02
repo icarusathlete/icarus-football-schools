@@ -3,6 +3,7 @@ import { StorageService } from '../services/storageService';
 import { User, Player, Venue, Batch } from '../types';
 import { Shield, Trash2, Users, Check, MapPin, Layers, Edit2, X, Clock, CheckCircle, XCircle, Bell, Database } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { PageHeader } from './ui/PageHeader';
 import { db } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -375,16 +376,10 @@ export const UserManagement: React.FC = () => {
 
     return (
         <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
-            {/* Header */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-xl relative overflow-hidden group ring-1 ring-white/5">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12"><Users size={120} className="text-white" /></div>
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none flex items-center gap-4">
-                        USER <span className="text-[#CCFF00] font-black">MANAGEMENT</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-2">Personnel Authorization // Access Protocol Control</p>
-                </div>
-            </div>
+            <PageHeader 
+                title="USER MANAGEMENT" 
+                subtitle="Personnel Authorization // Access Protocol Control" 
+            />
 
             {/* ── PENDING APPROVALS ─────────────────────────────────────── */}
             {pendingUsers.length > 0 && (

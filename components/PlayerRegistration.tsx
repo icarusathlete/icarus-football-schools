@@ -24,7 +24,7 @@ const SectionHeader: React.FC<{
 }> = ({ icon, title, accent, subtitle, iconGlow = 'shadow-[#CCFF00]/20', accentClass = 'text-[#CCFF00]' }) => (
   <div className="flex items-center gap-3 sm:gap-5 mb-6 sm:mb-10 pb-6 sm:pb-8 border-b border-white/10 relative">
     <div className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 text-white shadow-xl ${iconGlow} relative z-10 border border-white/10 flex items-center justify-center`}>
-      {React.cloneElement(icon as React.ReactElement, { 
+      {React.cloneElement(icon as React.ReactElement<any>, { 
         size: typeof window !== 'undefined' && window.innerWidth < 640 ? 16 : 18, 
         className: (icon as any).props?.className || '' 
       })}

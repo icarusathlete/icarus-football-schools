@@ -49,6 +49,7 @@ export interface PlayerEvaluation {
   coachRemarks?: string;
   actionImageUrl?: string;
   coachSignatureUrl?: string;
+  aiReport?: string; // Cache the generated report
 }
 
 export interface Venue {
@@ -78,7 +79,12 @@ export interface Player {
   notes?: string;
   evaluation?: PlayerEvaluation;
   evaluationHistory?: PlayerEvaluation[]; // Store past reports
+  program?: string; // New field for training program
   attachments?: { url: string; type: 'image' | 'video'; note: string; date: string }[];
+  // Kit & Equipment Fields
+  jerseyNumber?: string; // Must be unique across all players in the kit registry
+  kitSize?: string;
+  kitIssued?: boolean;
 }
 
 export enum AttendanceStatus {
@@ -249,4 +255,14 @@ export interface SupportTicket {
   createdAt: string;
   updatedAt: string;
   messages: SupportTicketMessage[];
+}
+// --- INVENTORY TYPES ---
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  lastCheckedDate: string;
+  notes?: string;
 }

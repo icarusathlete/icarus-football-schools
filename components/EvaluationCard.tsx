@@ -5,6 +5,7 @@ import { Trophy, Star, Shield, Download, Loader2, Timer, Zap, Calendar, Gauge, A
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { GeminiService } from '../services/geminiService';
+import { StorageService } from '../services/storageService';
 
 interface EvaluationCardProps {
   player: Player;
@@ -15,45 +16,121 @@ interface EvaluationCardProps {
   isCoach?: boolean;
 }
 
-// Custom Circular Gauge Component
-const CircularGauge = ({ value, label, icon: Icon, color = '#2ae500' }: { value: number, label: string, icon: any, color?: string }) => {
-    const radius = 32;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (value / 100) * circumference;
+// --- ELITE RADAR CHART COMPONENT ---
+const RadarChart = ({ data, color = '#CCFF00' }: { data: { label: string, value: number }[], color?: string }) => {
+    const size = 200;
+    const center = size / 2;
+    const radius = 80;
+    const levels = 4;
+    const points = data.length;
+    const angleStep = (Math.PI * 2) / points;
+
+    // Generate background polygons (the grid)
+    const bgPolygons = Array.from({ length: levels }).map((_, i) => {
+        const r = (radius / levels) * (i + 1);
+        const polyPoints = data.map((_, j) => {
+            const angle = angleStep * j - Math.PI / 2;
+            const x = center + r * Math.cos(angle);
+            const y = center + r * Math.sin(angle);
+            return `${x},${y}`;
+        }).join(' ');
+        return polyPoints;
+    });
+
+    // Generate the data polygon
+    const dataPoints = data.map((d, i) => {
+        const angle = angleStep * i - Math.PI / 2;
+        const r = (radius * (Math.min(100, d.value) / 100));
+        const x = center + r * Math.cos(angle);
+        const y = center + r * Math.sin(angle);
+        return `${x},${y}`;
+    }).join(' ');
 
     return (
-        <div className="flex flex-col items-center group cursor-help">
-            <div className="relative w-20 h-20 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90">
-                    <circle
-                        cx="40"
-                        cy="40"
-                        r={radius}
+        <div className="flex flex-col items-center justify-center relative group">
+            <svg width={size} height={size} className="overflow-visible filter drop-shadow-[0_0_15px_rgba(204,255,0,0.1)]">
+                {/* Background Grid */}
+                {bgPolygons.map((p, i) => (
+                    <polygon
+                        key={i}
+                        points={p}
+                        fill="none"
                         stroke="rgba(255,255,255,0.05)"
-                        strokeWidth="6"
-                        fill="transparent"
+                        strokeWidth="1"
                     />
-                    <circle
-                        cx="40"
-                        cy="40"
-                        r={radius}
-                        stroke={color}
-                        strokeWidth="6"
-                        fill="transparent"
-                        strokeDasharray={circumference}
-                        style={{ 
-                            strokeDashoffset: offset, 
-                            transition: 'stroke-dashoffset 1.5s ease-out',
-                            filter: `drop-shadow(0 0 6px ${color})`
-                        }}
-                        strokeLinecap="round"
-                    />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-white leading-none leading-none">{value}</span>
+                ))}
+                {/* Axis lines */}
+                {data.map((_, i) => {
+                    const angle = angleStep * i - Math.PI / 2;
+                    const x = center + radius * Math.cos(angle);
+                    const y = center + radius * Math.sin(angle);
+                    return (
+                        <line
+                            key={i}
+                            x1={center}
+                            y1={center}
+                            x2={x}
+                            y2={y}
+                            stroke="rgba(255,255,255,0.05)"
+                            strokeWidth="1"
+                        />
+                    );
+                })}
+                {/* Data Polygon */}
+                <polygon
+                    points={dataPoints}
+                    fill={`${color}15`}
+                    stroke={color}
+                    strokeWidth="2"
+                    className="transition-all duration-1000 ease-out"
+                    style={{ 
+                        filter: `drop-shadow(0 0 8px ${color}40)`
+                    }}
+                />
+                {/* Labels */}
+                {data.map((d, i) => {
+                    const angle = angleStep * i - Math.PI / 2;
+                    const x = center + (radius + 25) * Math.cos(angle);
+                    const y = center + (radius + 15) * Math.sin(angle);
+                    return (
+                        <text
+                            key={i}
+                            x={x}
+                            y={y}
+                            textAnchor="middle"
+                            className="text-[8px] font-black uppercase tracking-widest fill-white/40 italic"
+                            style={{ fontSize: '7px' }}
+                        >
+                            {d.label}
+                        </text>
+                    );
+                })}
+                {/* Data Points */}
+                {data.map((d, i) => {
+                    const angle = angleStep * i - Math.PI / 2;
+                    const r = (radius * (Math.min(100, d.value) / 100));
+                    const x = center + r * Math.cos(angle);
+                    const y = center + r * Math.sin(angle);
+                    return (
+                        <circle
+                            key={i}
+                            cx={x}
+                            cy={y}
+                            r="3"
+                            fill={color}
+                            className="transition-all duration-1000"
+                        />
+                    );
+                })}
+            </svg>
+            
+            {/* Value HUD */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="text-[10px] font-black text-brand-500">KINETIC_PROFILE</div>
+                    <div className="text-[8px] text-white/30 font-mono tracking-tighter">DATA_SYNC_ACTIVE</div>
                 </div>
             </div>
-            <span className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-[0.2em]">{label}</span>
         </div>
     );
 };
@@ -82,13 +159,17 @@ const PhysicalBar = ({ value, label, max = 100, unit = '', inverse = false }: { 
 export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings, attendance = [], matches = [], onClose, isCoach }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiReport, setAiReport] = useState<string | null>(null);
+  const [aiReport, setAiReport] = useState<string | null>(player?.evaluation?.aiReport || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const evalData = player?.evaluation;
   
   useEffect(() => {
-    if (evalData && !aiReport && player?.id) {
+    // Only auto-generate if we have evaluation data but no stored report yet
+    if (evalData && !evalData.aiReport && !aiReport && player?.id) {
       handleGenerateAIReport();
+    } else if (evalData?.aiReport && evalData.aiReport !== aiReport) {
+      // Sync state if player object changes (e.g. from cache sync)
+      setAiReport(evalData.aiReport);
     }
   }, [player?.id, evalData]);
 
@@ -97,6 +178,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     try {
       const report = await GeminiService.generateReportCard(player, attendance, matches);
       setAiReport(report);
+      
+      // PERSIST: Save the generated report back to the player object
+      if (player.evaluation) {
+        const updatedPlayer: Player = {
+          ...player,
+          evaluation: {
+            ...player.evaluation,
+            aiReport: report
+          }
+        };
+        await StorageService.updatePlayer(updatedPlayer);
+      }
     } catch (error) {
       console.error("AI Generation failed:", error);
     } finally {
@@ -129,16 +222,25 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     if (!element) return;
     setIsGenerating(true);
 
-    const originalStyle = element.style.width;
+    // Preparation for PDF capture: Simplify styles that html2canvas struggles with
+    const originalStyle = element.style.cssText;
     element.style.width = '1200px';
+    element.classList.add('pdf-export-mode');
 
     try {
-        const canvas = await html2canvas(cardRef.current, {
+        const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
             backgroundColor: '#040054',
             logging: false,
-            allowTaint: true
+            allowTaint: true,
+            onclone: (clonedDoc) => {
+                // Ensure cloned elements have simplified backgrounds if needed
+                const clonedElement = clonedDoc.querySelector('[ref="cardRef"]') as HTMLElement;
+                if (clonedElement) {
+                    clonedElement.style.borderRadius = '0'; // Sharper corners for PDF
+                }
+            }
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -157,7 +259,10 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         console.error("PDF Generation failed:", error);
         alert("Export failed. Large images might be causing an issue.");
     } finally {
-        if (element) element.style.width = originalStyle;
+        if (element) {
+            element.style.cssText = originalStyle;
+            element.classList.remove('pdf-export-mode');
+        }
         setIsGenerating(false);
     }
   };
@@ -198,12 +303,54 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(204,255,0,0.08),transparent_60%)]" />
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
             
+            {/* Scanline Overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
+            
+            {/* Moving Scanning Line */}
+            <div className="absolute inset-x-0 h-[2px] bg-brand-500/10 shadow-[0_0_20px_rgba(0,200,255,0.5)] z-[51] pointer-events-none animate-scan-slow" />
+            
+            {/* 1. Tactical Pitch Background Pattern */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.07]">
+                {/* Grid */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+                
+                {/* Pitch Lines */}
+                <div className="absolute inset-12 border border-white/5 rounded-sm">
+                    {/* Halfway line */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/5" />
+                    {/* Center circle */}
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/5 rounded-full" />
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/5 rounded-full" />
+                    
+                    {/* Penalty boxes */}
+                    <div className="absolute left-0 top-1/4 bottom-1/4 w-40 border-y border-r border-white/5" />
+                    <div className="absolute right-0 top-1/4 bottom-1/4 w-40 border-y border-l border-white/5" />
+                    
+                    {/* Goal boxes */}
+                    <div className="absolute left-0 top-[37.5%] bottom-[37.5%] w-16 border-y border-r border-white/5" />
+                    <div className="absolute right-0 top-[37.5%] bottom-[37.5%] w-16 border-y border-l border-white/5" />
+                </div>
+            </div>
+
+            {/* 2. Confidential Watermark */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] select-none overflow-hidden">
+                <div className="text-[12vw] font-black uppercase tracking-[0.2em] -rotate-12 whitespace-nowrap">
+                    CONFIDENTIAL: SCOUT DOSSIER
+                </div>
+            </div>
+            
             {/* Watermark HUD */}
             <div className="absolute top-10 right-16 flex items-center gap-4 opacity-20 group">
                 <div className="h-0.5 w-12 bg-white/20" />
                 <div className="text-[9px] font-mono tracking-[0.6em] uppercase">SYSTEM_ENCODE_BETA_v5.0</div>
                 <div className="h-0.5 w-4 bg-brand-500" />
             </div>
+
+            {/* Corner Reticles */}
+            <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-brand-500/30 rounded-tl-2xl pointer-events-none" />
+            <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-brand-500/30 rounded-tr-2xl pointer-events-none" />
+            <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-brand-500/30 rounded-bl-2xl pointer-events-none" />
+            <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-brand-500/30 rounded-br-2xl pointer-events-none" />
 
             {/* HEADER: Identity & Core Bio */}
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-end mb-16 gap-10">
@@ -261,16 +408,36 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                 
                 {/* 1. LEFT: TECHNICAL DATA HUD (3 Cols) */}
                 <div className="col-span-12 lg:col-span-3 space-y-12">
-                    <div className="relative">
-                        <div className="flex items-center gap-3 mb-10">
+                    <div className="relative glass-card-alt p-8 rounded-[2.5rem] border-white/5 overflow-hidden group">
+                        {/* Radar Pulse Background */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(204,255,0,0.05),transparent_70%)] animate-pulse" />
+                        
+                        <div className="flex items-center gap-3 mb-10 relative z-10">
                             <Shield size={16} className="text-brand-500" />
                             <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">TECHNICAL_INDEX</h3>
                         </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-1 gap-10">
-                            <CircularGauge value={evalData?.metrics?.passing || 0} label="Passing" icon={Zap} color="#CCFF00" />
-                            <CircularGauge value={evalData?.metrics?.shooting || 0} label="Shooting" icon={Target} color="#CCFF00" />
-                            <CircularGauge value={evalData?.metrics?.juggling || 0} label="Control" icon={Footprints} color="#CCFF00" />
-                            <CircularGauge value={evalData?.metrics?.weakFoot || 0} label="Weak Foot" icon={Activity} color="#CCFF00" />
+                        
+                        <div className="flex justify-center mb-8">
+                            <RadarChart 
+                                data={[
+                                    { label: 'PASS', value: evalData?.metrics?.passing || 0 },
+                                    { label: 'SHOT', value: evalData?.metrics?.shooting || 0 },
+                                    { label: 'CTRL', value: evalData?.metrics?.juggling || 0 },
+                                    { label: 'WF', value: evalData?.metrics?.weakFoot || 0 },
+                                    { label: 'STAM', value: evalData?.metrics?.beepTest || 0 }
+                                ]} 
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                            <div className="flex flex-col items-center">
+                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">ACCURACY</span>
+                                <span className="text-lg font-black text-brand-500 italic">{evalData?.metrics?.passing}%</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">POWER</span>
+                                <span className="text-lg font-black text-brand-500 italic">{evalData?.metrics?.shooting}%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,11 +452,20 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                             {/* Decorative Frame */}
                             <div className="absolute inset-0 border-x border-white/5 rounded-3xl md:rounded-[4rem] -z-10" />
                             
+                            {/* Hero HUD Overlay */}
+                            <div className="absolute top-10 left-10 z-20 pointer-events-none">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">REC // 00:42:15</span>
+                                </div>
+                                <div className="text-[7px] font-mono text-white/20 uppercase">COORD: 34.0522° N, 118.2437° W</div>
+                            </div>
+
                             <img 
                                 src={evalData.actionImageUrl} 
-                                className="relative z-10 w-full md:w-[110%] h-auto md:h-[110%] object-contain object-bottom drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)] transition-all duration-1000 group-hover/hero:scale-[1.05]"
+                                className="relative z-10 w-full md:w-[110%] h-auto md:h-[110%] object-contain object-bottom drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)] transition-all duration-1000 group-hover/hero:scale-[1.05] group-hover/hero:-translate-y-4"
                                 style={{ 
-                                    maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+                                    maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
                                 }}
                             />
                             
@@ -367,7 +543,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                         <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">VALIDATION_STAMP</span>
-                                <span className="text-[9px] font-bold text-brand-500/60 uppercase tracking-widest">{new Date(evalData.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}</span>
+                                <span className="text-[9px] font-bold text-brand-500/60 uppercase tracking-widest">{new Date(evalData.evaluationDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}</span>
                             </div>
                             <div className="h-8 w-[1px] bg-white/10 mx-4" />
                             <div className="flex-1 text-right">
@@ -380,18 +556,22 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                     {/* AI Verdict (Strategic Analytics) */}
                     <div className="bg-white/[0.03] p-8 md:p-12 rounded-3xl md:rounded-[3rem] border border-white/10 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Brain size={120} /></div>
+                        
+                        {/* Scanning Effect Overlay */}
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(transparent_50%,rgba(0,200,255,0.5)_50%)] bg-[size:100%_4px] animate-[pulse_4s_infinite]" />
+
                         <div className="flex items-center gap-4 mb-6 md:mb-8">
                             <Zap size={20} className="text-cyan-400" />
                             <h4 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] text-cyan-400/60 italic">AI_KINETIC_ANALYTICS</h4>
                         </div>
-                        <div className="min-h-[140px]">
+                        <div className="min-h-[140px] relative z-10">
                             {isLoadingAI ? (
                                 <div className="flex flex-col items-center justify-center py-12 gap-4">
                                     <Loader2 className="animate-spin text-cyan-400" size={32} />
                                     <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/10">SYNCING_MATRIX...</span>
                                 </div>
                             ) : (
-                                <p className="text-base md:text-lg font-medium italic text-white/70 leading-relaxed">
+                                <p className="text-base md:text-lg font-medium italic text-cyan-50/70 leading-relaxed" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                                     {aiReport || 'Performance stream awaiting synchronization.'}
                                 </p>
                             )}
@@ -435,15 +615,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
             </div>
 
             {/* Footer Metadata Wrapper */}
-            <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40">
+            <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40 relative z-10">
                 <div className="flex items-center gap-8">
                     <img src="/logo-full.png" className="h-6 grayscale brightness-200" alt="Icarus" />
                     <div className="h-4 w-[1px] bg-white/20" />
-                    <div className="text-[9px] font-black uppercase tracking-[0.6em]">ELITE_ACADEMY_SYSTEM_PROTOCOL</div>
+                    <div className="flex flex-col">
+                        <div className="text-[9px] font-black uppercase tracking-[0.6em] text-brand-500">ELITE_ACADEMY_SYSTEM_PROTOCOL</div>
+                        <div className="text-[7px] font-mono tracking-[0.2em] mt-1 text-white/50 animate-pulse">UPSTREAM_DATA_SYNC: 100% // ENCRYPTION_AES_256</div>
+                    </div>
                 </div>
                 <div className="flex gap-10">
                     <div className="text-[9px] font-black uppercase tracking-[0.6em]">EST. 2024</div>
-                    <div className="text-[9px] font-black uppercase tracking-[0.6em]">REPORT_ID_{Math.floor(Math.random() * 900000 + 100000)}</div>
+                    <div className="text-[9px] font-black uppercase tracking-[0.6em] font-mono">REPORT_ID_{Math.floor(Math.random() * 900000 + 100000)}</div>
                 </div>
             </div>
 

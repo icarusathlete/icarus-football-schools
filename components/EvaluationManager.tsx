@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StorageService } from '../services/storageService';
 import { Player, PlayerEvaluation } from '../types';
-import { Search, Save, X, Trash2, Shield, Activity, Target, Zap, Ruler, Weight, Timer, Plus, Minus, ChevronRight, Play, Square, RefreshCcw, SaveAll, Loader2, Camera, Award, Eye } from 'lucide-react';
+import { Search, Save, X, Trash2, Shield, Activity, Target, Zap, Ruler, Weight, Timer, Plus, Minus, ChevronRight, Play, Square, RefreshCcw, SaveAll, Loader2, Camera, Award, Eye, Brain } from 'lucide-react';
 import { EvaluationCard } from './EvaluationCard';
+import { PageHeader } from './ui/PageHeader';
+import { GeminiService } from '../services/geminiService';
 
 // --- SUB-COMPONENTS FOR REAL-TIME TOOLS ---
 
@@ -237,9 +239,41 @@ const calculateOverallRating = (evaluation: PlayerEvaluation): number => {
     return Math.round(finalRating || 0);
 };
 
+// --- COACH PHRASE LIBRARY ---
+const COACH_PHRASES = [
+    { category: 'ELITE', phrases: [
+        "Displays exceptional tactical maturity and ball mastery.",
+        "A standout performer with professional-grade physical output.",
+        "Demonstrates elite decision-making under high-intensity pressure.",
+        "Highly influential player with excellent technical range."
+    ]},
+    { category: 'DEVELOPING', phrases: [
+        "Solid technical foundation with consistent work rate.",
+        "Shows great potential; focus on sharpening weak-foot precision.",
+        "Developing well; needs to improve positional awareness in transition.",
+        "A reliable asset to the team with steady physical growth."
+    ]},
+    { category: 'TACTICAL', phrases: [
+        "Excellent spatial awareness and vision on the ball.",
+        "Highly disciplined in defensive transitions and recovery.",
+        "Creative spark in the final third with precise delivery.",
+        "Reads the game effectively, anticipating opponent movements."
+    ]},
+    { category: 'PHYSICAL', phrases: [
+        "Exceptional explosiveness and recovery speed.",
+        "Shows dominant aerial presence and physical strength.",
+        "Agile and quick in 1v1 situations; high stamina levels.",
+        "Improving physical profile; focus on core stability."
+    ]}
+];
+
 // --- MAIN COMPONENT ---
 
-export const EvaluationManager: React.FC = () => {
+interface EvaluationManagerProps {
+  onBreadcrumbChange?: (segments: string[]) => void;
+}
+
+export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcrumbChange }) => {
   const [players, setPlayers] = useState<Player[]>(StorageService.getPlayers());
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -251,6 +285,7 @@ export const EvaluationManager: React.FC = () => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   const STEPS = [
     { title: 'PHYSIQUE', icon: <Ruler size={14} /> },
@@ -321,14 +356,30 @@ export const EvaluationManager: React.FC = () => {
 
   const handleSelectPlayer = (player: Player) => {
     setSelectedPlayerId(player.id);
+    onBreadcrumbChange?.([player.fullName.toUpperCase()]);
     
     // Check for existing draft
     const draft = StorageService.getDraft(player.id);
     
     if (draft) {
-        setForm(draft);
+        setForm({
+            ...defaultEval,
+            ...draft,
+            metrics: { ...defaultEval.metrics, ...(draft.metrics || {}) },
+            timeTrials: { ...defaultEval.timeTrials, ...(draft.timeTrials || {}) },
+            developmentAreas: draft.developmentAreas || defaultEval.developmentAreas
+        });
+    } else if (player.evaluation) {
+        setForm({
+            ...defaultEval,
+            ...player.evaluation,
+            metrics: { ...defaultEval.metrics, ...(player.evaluation.metrics || {}) },
+            timeTrials: { ...defaultEval.timeTrials, ...(player.evaluation.timeTrials || {}) },
+            developmentAreas: player.evaluation.developmentAreas || defaultEval.developmentAreas,
+            coachName: player.evaluation.coachName || 'Coach Admin'
+        });
     } else {
-        setForm(player.evaluation || { ...defaultEval, coachName: 'Coach Admin' });
+        setForm({ ...defaultEval, coachName: 'Coach Admin' });
     }
     
     setIsEditing(true);
@@ -338,6 +389,7 @@ export const EvaluationManager: React.FC = () => {
     if (!selectedPlayerId) return;
     StorageService.saveEvaluation(selectedPlayerId, form);
     setIsEditing(false);
+    onBreadcrumbChange?.([]);
   };
 
   const handleDeleteEvaluation = async (playerId: string) => {
@@ -423,6 +475,39 @@ export const EvaluationManager: React.FC = () => {
     }
   };
 
+  const handleMagicScribe = async () => {
+    if (!selectedPlayerId) return;
+    setIsAiGenerating(true);
+    
+    // We pass the player data including current form metrics
+    const player = players.find(p => p.id === selectedPlayerId);
+    if (!player) return;
+
+    const playerWithCurrentMetrics = {
+        ...player,
+        evaluation: form
+    };
+
+    try {
+        const suggestion = await GeminiService.generateCoachVerdictSuggestion(playerWithCurrentMetrics);
+        setForm(prev => ({ 
+            ...prev, 
+            coachRemarks: prev.coachRemarks ? `${prev.coachRemarks} ${suggestion}` : suggestion 
+        }));
+    } catch (err) {
+        console.error("Magic Scribe failed", err);
+    } finally {
+        setIsAiGenerating(false);
+    }
+  };
+
+  const addPhrase = (phrase: string) => {
+    setForm(prev => ({
+        ...prev,
+        coachRemarks: prev.coachRemarks ? `${prev.coachRemarks} ${phrase}` : phrase
+    }));
+  };
+
   const getScoreColor = (score: number) => {
       if (score >= 80) return 'text-green-600';
       if (score >= 60) return 'text-yellow-600';
@@ -440,34 +525,30 @@ export const EvaluationManager: React.FC = () => {
     <>
     <div className="space-y-10 pb-20">
       {!isEditing && (
-        <>
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 glass-card p-10 md:p-14 rounded-[3rem] border border-white/20 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12 opacity-[0.05] pointer-events-none group-hover:scale-110 group-hover:opacity-[0.1] transition-all duration-1000">
-                    <Shield size={180} className="text-white" />
-                </div>
-                
-                <div className="relative z-10 space-y-4">
-                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-brand-accent/20 border border-brand-accent/30 mb-2">
-                        <Activity size={12} className="text-brand-950" />
-                        <span className="text-[10px] font-black text-brand-950 uppercase tracking-[0.2em] italic">PERFORMANCE SENSORS ACTIVE</span>
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">PLAYER <span className="premium-gradient-text">EVALUATIONS</span></h2>
-                    <p className="text-white/60 font-black uppercase text-[10px] tracking-[0.4em] italic flex items-center gap-3">
-                        <Zap size={14} className="text-brand-accent" /> Academy Performance Hub // Technical Assessment
-                    </p>
-                </div>
+        <div className="space-y-8">
+          <PageHeader 
+            title="PLAYER EVALUATIONS"
+            subtitle="Academy Performance Hub // Technical Assessment"
+          />
 
-                <div className="relative w-full md:w-[28rem] z-10">
-                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                    <input 
-                        type="text" 
-                        placeholder="SCAN SQUAD DATA..." 
-                        className="w-full pl-16 pr-8 py-6 bg-white/10 border border-white/10 rounded-[2rem] outline-none focus:bg-white/20 focus:border-white/20 transition-all text-xs font-black uppercase tracking-[0.3em] text-white placeholder:text-white/20 shadow-2xl italic"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                    />
-                </div>
+          <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+            <div className="relative w-full md:w-96 group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500/40 group-focus-within:text-brand-accent transition-colors" />
+              <input 
+                type="text" 
+                placeholder="SCAN SQUAD DATA..." 
+                className="w-full pl-14 pr-6 py-4 bg-brand-500/5 border border-brand-500/10 rounded-2xl outline-none focus:bg-brand-500/10 focus:border-brand-accent/30 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white placeholder:text-white/20 shadow-2xl italic"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
+            
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-500/5 border border-brand-500/10">
+              <Activity size={12} className="text-brand-accent" />
+              <span className="text-[9px] font-black text-brand-500/60 uppercase tracking-widest italic">PERFORMANCE SENSORS ACTIVE</span>
+            </div>
+          </div>
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredPlayers.map(p => {
@@ -554,7 +635,7 @@ export const EvaluationManager: React.FC = () => {
                     </div>
                 )}
             </div>
-        </>
+        </div>
       )}
 
       {isEditing && (
@@ -838,6 +919,37 @@ export const EvaluationManager: React.FC = () => {
                                 
                                 <div className="relative z-10">
                                     <div className="absolute -inset-1 bg-gradient-to-r from-brand-accent/20 to-transparent blur-xl opacity-20 pointer-events-none" />
+                                    
+                                    {/* PHRASE PICKER HUD */}
+                                    <div className="mb-6 space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] italic">PRO_PHRASE_DOCK</span>
+                                            <button 
+                                                onClick={handleMagicScribe}
+                                                disabled={isAiGenerating}
+                                                className="flex items-center gap-2 px-4 py-2 bg-brand-accent/10 border border-brand-accent/20 rounded-xl text-brand-accent text-[9px] font-black uppercase tracking-widest hover:bg-brand-accent/20 transition-all disabled:opacity-50"
+                                            >
+                                                {isAiGenerating ? <Loader2 size={12} className="animate-spin" /> : <Brain size={12} />}
+                                                MAGIC_SCRIBE_AI
+                                            </button>
+                                        </div>
+                                        <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar-hide">
+                                            {COACH_PHRASES.map((group) => (
+                                                <div key={group.category} className="flex gap-2 shrink-0">
+                                                    {group.phrases.map((phrase, i) => (
+                                                        <button
+                                                            key={`${group.category}-${i}`}
+                                                            onClick={() => addPhrase(phrase)}
+                                                            className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white/60 text-[9px] font-bold italic hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+                                                        >
+                                                            {phrase.split(' ').slice(0, 3).join(' ')}...
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <textarea 
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-6 md:p-8 text-[11px] md:text-sm font-medium text-white focus:border-brand-accent/50 outline-none transition-all placeholder:text-white/10 italic leading-relaxed resize-none shadow-2xl min-h-[200px] md:min-h-[300px]"
                                         placeholder="INPUT PROFESSIONAL VERDICT & PLAYER PROJECTION..."

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { PlayerPerformanceModal } from './PlayerPerformanceModal';
+import { PageHeader } from './ui/PageHeader';
 
 // ─── Design Helpers (Elite Standard) ──────────────────────────────────────────
 
@@ -229,75 +230,29 @@ export const PlayerManager: React.FC = () => {
   return (
     <div className="space-y-6 pb-32 animate-in fade-in duration-700 font-display">
       {/* Functional Header */}
-      {/* ── Hero Section ───────────────────────────────────────────────────── */}
-      {/* ── Hero Section ───────────────────────────────────────────────────── */}
-      <div className="glass-card p-4 sm:p-10 md:p-12 rounded-[1.5rem] sm:rounded-[3.5rem] border border-white/20 shadow-[0_20px_50px_rgba(13,27,138,0.3)] relative overflow-hidden group ring-1 ring-white/10">
-        <div className="green-light-bar" />
-        <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none group-hover:opacity-[0.1] transition-opacity duration-700">
-          <Users size={320} className="text-white -mr-16 -mt-16" />
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-10 mb-12">
-            <div className="space-y-4">
-              <h1 className="text-2xl sm:text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
-                SQUAD <span className="premium-gradient-text">MANAGEMENT</span>
-              </h1>
-              <div className="flex items-center gap-4">
-                  <span className="w-12 h-[1px] bg-brand-accent/40"></span>
-                  <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.5em] italic">
-                      ACADEMY ROSTER · PERSONNEL COORDINATION
-                  </p>
-              </div>
-            </div>
-
-            <div className="flex w-full xl:w-auto gap-1 sm:gap-1.5 bg-black/30 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-white/10 backdrop-blur-2xl shadow-inner">
-                <button 
-                    onClick={() => setActiveTab('players')}
-                    className={`flex-1 xl:flex-none px-3 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center justify-center gap-2 sm:gap-3 ${activeTab === 'players' ? 'bg-brand-accent text-brand-950 shadow-[0_15px_40px_rgba(195,246,41,0.3)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
-                >
-                    <Users size={14} /> PLAYERS
-                </button>
-                <button 
-                    onClick={() => setActiveTab('coaches')}
-                    className={`flex-1 xl:flex-none px-3 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center justify-center gap-2 sm:gap-3 ${activeTab === 'coaches' ? 'bg-white/10 text-white shadow-[0_15px_40px_rgba(255,255,255,0.1)] scale-[1.02]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
-                >
-                    <Shield size={14} /> COMMAND STAFF
-                </button>
-            </div>
-          </div>
-
-          {/* KPI Grid Integration */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { label: 'Total Roster', value: stats.totalPlayers, sub: 'Active Assets', icon: <Users size={18} />, color: '#C3F629' },
-              { label: 'New Joiners', value: stats.newThisMonth, sub: 'This Month', icon: <Zap size={18} />, color: stats.newThisMonth > 0 ? '#C3F629' : 'rgba(255,255,255,0.4)' },
-              { label: 'Command staff', value: stats.activeCoaches, sub: 'Active Personnel', icon: <Shield size={18} />, color: '#60a5fa' },
-              { label: 'OPERATIONAL SECTORS', value: stats.venuesCount, sub: 'Active Venues', icon: <MapPin size={18} />, color: '#f59e0b' }
-            ].map((k, i) => (
-              <div key={i} className="glass-card-alt p-4 sm:p-6 md:p-8 rounded-[1rem] sm:rounded-[2.5rem] group/kpi hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
-                <div className="green-light-bar" />
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/kpi:scale-110 transition-transform duration-700">
-                    <div style={{ color: k.color }}>{k.icon}</div>
-                </div>
-                <div className="relative z-10">
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-3 sm:mb-4">{k.label}</p>
-                    <div className="flex items-baseline gap-2">
-                        <p className="text-2xl sm:text-4xl md:text-5xl font-black italic leading-none tracking-tighter text-white group-hover/kpi:text-brand-accent transition-colors duration-500">{k.value}</p>
-                    </div>
-                    <div className="flex items-center gap-2 mt-3 sm:mt-4">
-                        <span className="w-6 h-[1px] bg-white/10"></span>
-                        <p className="text-[8px] sm:text-[10px] font-black italic text-white/20 uppercase tracking-widest">{k.sub}</p>
-                    </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PageHeader 
+        title="SQUAD MANAGEMENT" 
+        subtitle="ACADEMY ROSTER · PERSONNEL COORDINATION"
+        extra={
+          <>
+            <button 
+                onClick={() => setActiveTab('players')}
+                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center gap-2 ${activeTab === 'players' ? 'bg-brand-accent text-brand-950 shadow-[0_10px_25px_rgba(195,246,41,0.2)]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+            >
+                <Users size={12} /> PLAYERS
+            </button>
+            <button 
+                onClick={() => setActiveTab('coaches')}
+                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 italic flex items-center gap-2 ${activeTab === 'coaches' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}`}
+            >
+                <Shield size={12} /> COMMAND STAFF
+            </button>
+          </>
+        }
+      />
 
       {/* ── Strategic Filters ────────────────────────────────────────────────── */}
-      <div className="glass-card-alt p-3 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-3 sm:gap-4 items-center mx-0 sm:mx-1">
+      <div className="glass-card-alt p-3 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/20 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-3 sm:gap-4 items-center mx-0 sm:mx-1">
         <div className="green-light-bar" />
         <div className="absolute top-0 left-0 w-64 h-64 bg-brand-accent/5 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         
@@ -323,7 +278,9 @@ export const PlayerManager: React.FC = () => {
               <option value="ALL">All Sectors</option>
               {venues.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
             </select>
-            <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
+                <ChevronRight className="rotate-90" size={14} />
+            </div>
           </div>
 
           <div className="relative flex-1 sm:flex-none sm:w-48 group">
@@ -336,9 +293,38 @@ export const PlayerManager: React.FC = () => {
               <option value="ALL">All Batches</option>
               {batches.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
             </select>
-            <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
+                <ChevronRight className="rotate-90" size={14} />
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* KPI Grid Integration (Moved below filters) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mx-1">
+        {[
+          { label: 'Total Roster', value: stats.totalPlayers, sub: 'Active Assets', icon: <Users size={18} />, color: '#C3F629' },
+          { label: 'New Joiners', value: stats.newThisMonth, sub: 'This Month', icon: <Zap size={18} />, color: stats.newThisMonth > 0 ? '#C3F629' : 'rgba(255,255,255,0.4)' },
+          { label: 'Command staff', value: stats.activeCoaches, sub: 'Active Personnel', icon: <Shield size={18} />, color: '#60a5fa' },
+          { label: 'OPERATIONAL SECTORS', value: stats.venuesCount, sub: 'Active Venues', icon: <MapPin size={18} />, color: '#f59e0b' }
+        ].map((k, i) => (
+          <div key={i} className="glass-card-alt p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] group/kpi hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden border border-white/5">
+            <div className="green-light-bar" />
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/kpi:scale-110 transition-transform duration-700">
+                <div style={{ color: k.color }}>{k.icon}</div>
+            </div>
+            <div className="relative z-10">
+                <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-2">{k.label}</p>
+                <div className="flex items-baseline gap-2">
+                    <p className="text-xl sm:text-3xl font-black italic leading-none tracking-tighter text-white group-hover:text-brand-accent transition-colors duration-500">{k.value}</p>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                    <span className="w-4 h-[1px] bg-white/10"></span>
+                    <p className="text-[8px] font-black italic text-white/20 uppercase tracking-widest">{k.sub}</p>
+                </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {activeTab === 'players' && (
@@ -349,7 +335,7 @@ export const PlayerManager: React.FC = () => {
                 <div className="green-light-bar" />
                 
                 <div className="flex items-center gap-4 sm:gap-6 mb-6">
-                  <div className="relative group/photo">
+                  <div className="relative group/photo shrink-0">
                     <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-[1.5rem] overflow-hidden border border-white/10 group-hover/photo:border-brand-accent/40 transition-colors shadow-2xl">
                       {player.photoUrl ? (
                         <img src={player.photoUrl} alt="" className="w-full h-full object-cover group-hover/photo:scale-110 transition-transform duration-700" />
@@ -358,9 +344,6 @@ export const PlayerManager: React.FC = () => {
                           {initials(player.fullName)}
                         </div>
                       )}
-                    </div>
-                    <div className="absolute -top-2 -right-2 px-2 sm:px-3 py-1 bg-brand-accent text-brand-950 text-[8px] sm:text-[10px] font-black italic rounded-lg shadow-lg">
-                      {player.position}
                     </div>
                   </div>
 
@@ -371,9 +354,12 @@ export const PlayerManager: React.FC = () => {
                     <h3 className="text-sm sm:text-lg md:text-xl font-black text-white italic uppercase tracking-tight leading-tight truncate group-hover:text-brand-accent transition-colors">
                       {player.fullName}
                     </h3>
-                    <div className="flex items-center gap-3 mt-2 sm:mt-3 opacity-60">
-                        <div className="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-bold text-white uppercase italic tracking-widest">
-                            <MapPin size={10} className="text-brand-accent" />
+                    <div className="flex flex-wrap items-center gap-3 mt-2 sm:mt-3">
+                        <div className="px-2.5 py-1 bg-brand-accent/10 border border-brand-accent/20 rounded-lg">
+                            <span className="text-[8px] sm:text-[9px] font-black text-brand-accent uppercase italic tracking-widest">{player.position}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-bold text-white/40 uppercase italic tracking-widest">
+                            <MapPin size={10} className="text-brand-accent/40" />
                             {player.venue}
                         </div>
                     </div>

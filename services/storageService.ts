@@ -1,4 +1,4 @@
-import { Player, AttendanceRecord, AttendanceStatus, User, Match, ScheduleEvent, Announcement, FeeRecord, AcademySettings, PlayerEvaluation, Venue, Batch, Drill, BroadcastMessage, SupportTicket } from '../types';
+import { Player, AttendanceRecord, AttendanceStatus, User, Match, ScheduleEvent, Announcement, FeeRecord, AcademySettings, PlayerEvaluation, Venue, Batch, Drill, BroadcastMessage, SupportTicket, InventoryItem } from '../types';
 import { db, auth } from '../firebase';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 
@@ -71,6 +71,7 @@ const SESSION_MOTM_KEY = 'icarus_session_motm';
 const FINALIZED_ROLLCALLS_KEY = 'icarus_finalized_rollcalls';
 const MESSAGES_KEY = 'icarus_messages';
 const TICKETS_KEY = 'icarus_tickets';
+const INVENTORY_KEY = 'icarus_inventory';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -115,6 +116,69 @@ export const StorageService = {
     // Basic local init if needed, but we rely on Firebase sync now
   },
 
+  // --- INTERNAL UTILITIES ---
+  _getFromCache: <T>(key: string): T | null => {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error(`Failed to parse cache for ${key}`, e);
+      return null;
+    }
+  },
+
+  _saveToCache: (key: string, data: any) => {
+    localStorage.setItem(key, JSON.stringify(data));
+    notifyDataChange();
+  },
+
+  _write: async (collectionName: string, docId: string, data: any, storageKey?: string) => {
+    try {
+      const sanitized = sanitizeObject(data);
+      await setDoc(doc(db, collectionName, docId), sanitized);
+      
+      if (storageKey) {
+          const currentData = StorageService._getFromCache<any>(storageKey);
+          if (Array.isArray(currentData)) {
+              const index = currentData.findIndex((item: any) => item.id === docId);
+              const newItem = { ...sanitized, id: docId };
+              if (index !== -1) {
+                  currentData[index] = newItem;
+              } else {
+                  currentData.push(newItem);
+              }
+              StorageService._saveToCache(storageKey, currentData);
+          } else if (currentData && typeof currentData === 'object') {
+              currentData[docId] = sanitized;
+              StorageService._saveToCache(storageKey, currentData);
+          }
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `${collectionName}/${docId}`);
+      throw error;
+    }
+  },
+
+  _delete: async (collectionName: string, docId: string, storageKey?: string) => {
+    try {
+      await deleteDoc(doc(db, collectionName, docId));
+      
+      if (storageKey) {
+          const currentData = StorageService._getFromCache<any>(storageKey);
+          if (Array.isArray(currentData)) {
+              const filtered = currentData.filter((item: any) => item.id !== docId);
+              StorageService._saveToCache(storageKey, filtered);
+          } else if (currentData && typeof currentData === 'object') {
+              delete currentData[docId];
+              StorageService._saveToCache(storageKey, currentData);
+          }
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `${collectionName}/${docId}`);
+      throw error;
+    }
+  },
+
   startFirebaseSync: (user: User) => {
     currentSessionUser = user;
     // Clear previous listeners
@@ -128,12 +192,11 @@ export const StorageService = {
             snapshot.docs.forEach(doc => {
                 data[doc.id] = doc.data();
             });
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            StorageService._saveToCache(storageKey, data);
         } else {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            StorageService._saveToCache(storageKey, data);
         }
-        notifyDataChange();
       }, (error) => {
         handleFirestoreError(error, OperationType.GET, collectionName);
       });
@@ -147,12 +210,11 @@ export const StorageService = {
             snapshot.docs.forEach(doc => {
                 data[doc.id] = doc.data();
             });
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            StorageService._saveToCache(storageKey, data);
         } else {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            StorageService._saveToCache(storageKey, data);
         }
-        notifyDataChange();
       }, (error) => {
         handleFirestoreError(error, OperationType.GET, storageKey);
       });
@@ -171,6 +233,7 @@ export const StorageService = {
     syncCollection('finalized_rollcalls', FINALIZED_ROLLCALLS_KEY, true);
     syncCollection('messages', MESSAGES_KEY);
     syncCollection('tickets', TICKETS_KEY);
+    syncCollection('inventory', INVENTORY_KEY);
 
     if (user.role === 'admin' || user.role === 'coach') {
         syncCollection('users', USERS_KEY);
@@ -182,8 +245,7 @@ export const StorageService = {
 
             const updateStoredUsers = () => {
                 const combined = myData ? [myData, ...coachesData.filter(c => c.id !== user.id)] : coachesData;
-                localStorage.setItem(USERS_KEY, JSON.stringify(combined));
-                notifyDataChange();
+                StorageService._saveToCache(USERS_KEY, combined);
             };
 
             const unsubCoaches = onSnapshot(query(collection(db, 'users'), where('role', '==', 'coach')), (snap) => {
@@ -204,16 +266,15 @@ export const StorageService = {
                 const feesQuery = query(collection(db, 'fees'), where('playerId', '==', user.linkedPlayerId));
                 syncQuery(feesQuery, FEES_KEY);
             } else {
-                localStorage.setItem(FEES_KEY, JSON.stringify([]));
+                StorageService._saveToCache(FEES_KEY, []);
             }
         });
     }
 
     const unsubSettings = onSnapshot(doc(db, 'settings', 'academy'), (docSnap) => {
       if (docSnap.exists()) {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(docSnap.data()));
+        StorageService._saveToCache(SETTINGS_KEY, { academy: docSnap.data() });
         window.dispatchEvent(new Event('settingsChanged'));
-        notifyDataChange();
       }
     }, (error) => {
       handleFirestoreError(error, OperationType.GET, 'settings/academy');
@@ -232,13 +293,7 @@ export const StorageService = {
   },
 
   getPlayers: (): Player[] => {
-    try {
-      const data = localStorage.getItem(PLAYERS_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch (e) {
-      console.error("Failed to parse players", e);
-      return [];
-    }
+    return StorageService._getFromCache<Player[]>(PLAYERS_KEY) || [];
   },
 
   addPlayer: async (player: Omit<Player, 'id' | 'memberId' | 'registeredAt'>): Promise<Player> => {
@@ -254,17 +309,10 @@ export const StorageService = {
     });
     
     try {
-        await setDoc(doc(db, 'players', newId), newPlayer);
-        
-        // Update local storage to ensure immediate availability
-        const currentPlayers = StorageService.getPlayers();
-        currentPlayers.push(newPlayer);
-        localStorage.setItem(PLAYERS_KEY, JSON.stringify(currentPlayers));
-        
+        await StorageService._write('players', newId, newPlayer, PLAYERS_KEY);
         console.log("Player successfully added to Firestore:", newId);
         return newPlayer;
     } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `players/${newId}`);
         throw error;
     }
   },
@@ -300,33 +348,11 @@ export const StorageService = {
   },
 
   deletePlayer: async (playerId: string) => {
-    try {
-      await deleteDoc(doc(db, 'players', playerId));
-      
-      // Update local storage
-      const currentPlayers = StorageService.getPlayers();
-      const filtered = currentPlayers.filter(p => p.id !== playerId);
-      localStorage.setItem(PLAYERS_KEY, JSON.stringify(filtered));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `players/${playerId}`);
-    }
+    await StorageService._delete('players', playerId, PLAYERS_KEY);
   },
 
   updatePlayer: async (player: Player) => {
-    try {
-      const sanitized = sanitizeObject(player);
-      await setDoc(doc(db, 'players', player.id), sanitized);
-      
-      // Update local storage
-      const currentPlayers = StorageService.getPlayers();
-      const index = currentPlayers.findIndex(p => p.id === player.id);
-      if (index !== -1) {
-          currentPlayers[index] = sanitized as Player;
-          localStorage.setItem(PLAYERS_KEY, JSON.stringify(currentPlayers));
-      }
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `players/${player.id}`);
-    }
+    await StorageService._write('players', player.id, player, PLAYERS_KEY);
   },
 
   saveEvaluation: async (playerId: string, evaluation: PlayerEvaluation) => {
@@ -343,12 +369,8 @@ export const StorageService = {
           }
       }
       player.evaluation = evaluation;
-      try {
-        await setDoc(doc(db, 'players', playerId), player);
-        StorageService.clearDraft(playerId);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `players/${playerId}`);
-      }
+      await StorageService._write('players', playerId, player, PLAYERS_KEY);
+      StorageService.clearDraft(playerId);
     }
   },
 
@@ -378,18 +400,13 @@ export const StorageService = {
   },
 
   getDrafts: (): Record<string, PlayerEvaluation> => {
-      try {
-        const data = localStorage.getItem(DRAFTS_KEY);
-        return data ? JSON.parse(data) : {};
-      } catch (e) {
-        return {};
-      }
+      return StorageService._getFromCache<Record<string, PlayerEvaluation>>(DRAFTS_KEY) || {};
   },
 
   saveDraft: (playerId: string, evaluation: PlayerEvaluation) => {
       const drafts = StorageService.getDrafts();
       drafts[playerId] = evaluation;
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+      StorageService._saveToCache(DRAFTS_KEY, drafts);
   },
 
   getDraft: (playerId: string): PlayerEvaluation | null => {
@@ -401,30 +418,19 @@ export const StorageService = {
       const drafts = StorageService.getDrafts();
       if (drafts[playerId]) {
           delete drafts[playerId];
-          localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+          StorageService._saveToCache(DRAFTS_KEY, drafts);
       }
   },
 
   setMOTM: async (playerId: string, date: string, venue?: string, batch?: string) => {
       const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
-      try {
-        await setDoc(doc(db, 'session_motm', key), { playerId, timestamp: Date.now(), venue, batch });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `session_motm/${key}`);
-      }
+      await StorageService._write('session_motm', key, { playerId, timestamp: Date.now(), venue, batch }, SESSION_MOTM_KEY);
   },
 
   getMOTM: (date: string, venue?: string, batch?: string): { playerId: string, timestamp: number } | null => {
       const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
-      const storageRaw = localStorage.getItem(SESSION_MOTM_KEY);
-      if (!storageRaw) return null;
-      try {
-          const storage = JSON.parse(storageRaw);
-          return storage[key] || null;
-      } catch (e) {
-          console.error("Failed to parse MOTM", e);
-          return null;
-      }
+      const storage = StorageService._getFromCache<Record<string, any>>(SESSION_MOTM_KEY);
+      return storage ? (storage[key] || null) : null;
   },
 
   getNextInvoiceId: (): string => {
@@ -444,103 +450,51 @@ export const StorageService = {
   },
 
   saveLastInvoiceId: (id: string) => {
-      // No longer needed, calculated dynamically
+    // Deprecated: calculated dynamically via getNextInvoiceId
   },
 
-  getVenues: (): Venue[] => {
-    try {
-      return JSON.parse(localStorage.getItem(VENUES_KEY) || '[]');
-    } catch (e) {
-      return [];
-    }
-  },
+  getVenues: (): Venue[] => StorageService._getFromCache<Venue[]>(VENUES_KEY) || [],
   
   addVenue: async (name: string) => {
       const newId = generateId();
-      try {
-        await setDoc(doc(db, 'venues', newId), { id: newId, name });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `venues/${newId}`);
-      }
+      await StorageService._write('venues', newId, { id: newId, name }, VENUES_KEY);
   },
 
   updateVenue: async (id: string, name: string) => {
-      try {
-        await setDoc(doc(db, 'venues', id), { id, name });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `venues/${id}`);
-      }
+      await StorageService._write('venues', id, { id, name }, VENUES_KEY);
   },
 
   deleteVenue: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'venues', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `venues/${id}`);
-      }
+    await StorageService._delete('venues', id, VENUES_KEY);
   },
 
-  getBatches: (): Batch[] => {
-    try {
-      return JSON.parse(localStorage.getItem(BATCHES_KEY) || '[]');
-    } catch (e) {
-      return [];
-    }
-  },
+  getBatches: (): Batch[] => StorageService._getFromCache<Batch[]>(BATCHES_KEY) || [],
 
   addBatch: async (name: string) => {
       const newId = generateId();
-      try {
-        await setDoc(doc(db, 'batches', newId), { id: newId, name });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `batches/${newId}`);
-      }
+      await StorageService._write('batches', newId, { id: newId, name }, BATCHES_KEY);
   },
 
   updateBatch: async (id: string, name: string) => {
-      try {
-        await setDoc(doc(db, 'batches', id), { id, name });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `batches/${id}`);
-      }
+      await StorageService._write('batches', id, { id, name }, BATCHES_KEY);
   },
 
   deleteBatch: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'batches', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `batches/${id}`);
-      }
+    await StorageService._delete('batches', id, BATCHES_KEY);
   },
 
-  getDrills: (): Drill[] => JSON.parse(localStorage.getItem(DRILLS_KEY) || '[]'),
+  getDrills: (): Drill[] => StorageService._getFromCache<Drill[]>(DRILLS_KEY) || [],
 
   addDrill: async (drill: Omit<Drill, 'id'>) => {
       const newId = generateId();
-      try {
-        const sanitized = sanitizeObject({ ...drill, id: newId });
-        await setDoc(doc(db, 'drills', newId), sanitized);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `drills/${newId}`);
-      }
+      await StorageService._write('drills', newId, { ...drill, id: newId }, DRILLS_KEY);
   },
 
   deleteDrill: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'drills', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `drills/${id}`);
-      }
+    await StorageService._delete('drills', id, DRILLS_KEY);
   },
 
-  getAttendance: (): AttendanceRecord[] => {
-    try {
-      return JSON.parse(localStorage.getItem(ATTENDANCE_KEY) || '[]');
-    } catch (e) {
-      console.error("Failed to parse attendance", e);
-      return [];
-    }
-  },
+  getAttendance: (): AttendanceRecord[] => StorageService._getFromCache<AttendanceRecord[]>(ATTENDANCE_KEY) || [],
   
   getDailyAttendance: (date: string) => StorageService.getAttendance().filter(r => r.date === date),
   
@@ -548,10 +502,7 @@ export const StorageService = {
     // Write each record to Firestore
     const promises = records.map(r => {
         const id = r.id || generateId();
-        const sanitized = sanitizeObject({ ...r, id });
-        return setDoc(doc(db, 'attendance', id), sanitized).catch(error => {
-          handleFirestoreError(error, OperationType.WRITE, `attendance/${id}`);
-        });
+        return StorageService._write('attendance', id, { ...r, id }, ATTENDANCE_KEY);
     });
     await Promise.all(promises);
   },
@@ -565,159 +516,72 @@ export const StorageService = {
       status: AttendanceStatus.PRESENT,
       notes: 'Self Check-In'
     };
-    try {
-      await setDoc(doc(db, 'attendance', id), record);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `attendance/${id}`);
-    }
+    await StorageService._write('attendance', id, record, ATTENDANCE_KEY);
   },
 
   isRollcallFinalized: (date: string, venue?: string, batch?: string): boolean => {
       const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
-      const storageRaw = localStorage.getItem(FINALIZED_ROLLCALLS_KEY);
-      if (!storageRaw) return false;
-      try {
-          const storage = JSON.parse(storageRaw);
-          return !!storage[key];
-      } catch (e) {
-          return false;
-      }
+      const storage = StorageService._getFromCache<Record<string, any>>(FINALIZED_ROLLCALLS_KEY);
+      return storage ? !!storage[key] : false;
   },
 
   finalizeRollcall: async (date: string, venue?: string, batch?: string) => {
       const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
-      try {
-          await setDoc(doc(db, 'finalized_rollcalls', key), { finalized: true, timestamp: Date.now(), venue, batch });
-      } catch (error) {
-          handleFirestoreError(error, OperationType.WRITE, `finalized_rollcalls/${key}`);
-      }
+      await StorageService._write('finalized_rollcalls', key, { finalized: true, timestamp: Date.now(), venue, batch }, FINALIZED_ROLLCALLS_KEY);
   },
 
   unfinalizeRollcall: async (date: string, venue?: string, batch?: string) => {
       const key = (venue && batch) ? `${date}_${venue}_${batch}` : date;
-      try {
-          await deleteDoc(doc(db, 'finalized_rollcalls', key));
-      } catch (error) {
-          handleFirestoreError(error, OperationType.DELETE, `finalized_rollcalls/${key}`);
-      }
+      await StorageService._delete('finalized_rollcalls', key, FINALIZED_ROLLCALLS_KEY);
   },
   
-  getUsers: (): User[] => JSON.parse(localStorage.getItem(USERS_KEY) || '[]'),
+  getUsers: (): User[] => StorageService._getFromCache<User[]>(USERS_KEY) || [],
   
   addUser: async (u: Omit<User, 'id'>) => {
     const newId = generateId();
     const newUser = sanitizeObject({...u, id: newId});
-    try {
-      await setDoc(doc(db, 'users', newId), newUser);
-      
-      // Update local storage to ensure immediate availability
-      const currentUsers = StorageService.getUsers();
-      currentUsers.push(newUser);
-      localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
-      
-      notifyDataChange();
-      return newUser;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `users/${newId}`);
-    }
+    await StorageService._write('users', newId, newUser, USERS_KEY);
+    return newUser;
   },
   
   deleteUser: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'users', id));
-        
-        // Update local storage
-        const currentUsers = StorageService.getUsers();
-        const filtered = currentUsers.filter(u => u.id !== id);
-        localStorage.setItem(USERS_KEY, JSON.stringify(filtered));
-        notifyDataChange();
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `users/${id}`);
-      }
+    await StorageService._delete('users', id, USERS_KEY);
   },
 
   updateUser: async (updatedUser: User) => {
-      try {
-        const sanitized = sanitizeObject(updatedUser);
-        await setDoc(doc(db, 'users', updatedUser.id), sanitized);
-        
-        // Update local storage
-        const currentUsers = StorageService.getUsers();
-        const index = currentUsers.findIndex(u => u.id === updatedUser.id);
-        if (index !== -1) {
-            currentUsers[index] = sanitized;
-            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
-            notifyDataChange();
-        }
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `users/${updatedUser.id}`);
-      }
+    await StorageService._write('users', updatedUser.id, updatedUser, USERS_KEY);
   },
   
-  getMatches: (): Match[] => {
-    try {
-      return JSON.parse(localStorage.getItem(MATCHES_KEY) || '[]');
-    } catch (e) {
-      console.error("Failed to parse matches", e);
-      return [];
-    }
-  },
+  getMatches: (): Match[] => StorageService._getFromCache<Match[]>(MATCHES_KEY) || [],
   
   addMatch: async (m: Omit<Match, 'id'>) => {
     const newId = generateId();
     const newMatch = sanitizeObject({...m, id: newId});
-    try {
-      await setDoc(doc(db, 'matches', newId), newMatch);
-      return newMatch;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `matches/${newId}`);
-    }
+    await StorageService._write('matches', newId, newMatch, MATCHES_KEY);
+    return newMatch;
   },
 
   updateMatch: async (m: Match) => {
-    try {
-      const sanitized = sanitizeObject(m);
-      await setDoc(doc(db, 'matches', m.id), sanitized);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `matches/${m.id}`);
-    }
+    await StorageService._write('matches', m.id, m, MATCHES_KEY);
   },
 
   deleteMatch: async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'matches', id));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `matches/${id}`);
-    }
+    await StorageService._delete('matches', id, MATCHES_KEY);
   },
   
-  getSchedule: (): ScheduleEvent[] => JSON.parse(localStorage.getItem(SCHEDULE_KEY) || '[]'),
+  getSchedule: (): ScheduleEvent[] => StorageService._getFromCache<ScheduleEvent[]>(SCHEDULE_KEY) || [],
   
   addEvent: async (e: Omit<ScheduleEvent, 'id'>) => {
       const newId = generateId();
-      try {
-        const sanitized = sanitizeObject({ ...e, id: newId });
-        await setDoc(doc(db, 'schedule', newId), sanitized);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `schedule/${newId}`);
-      }
+      await StorageService._write('schedule', newId, { ...e, id: newId }, SCHEDULE_KEY);
   },
   
   updateEvent: async (updatedEvent: ScheduleEvent) => {
-      try {
-        const sanitized = sanitizeObject(updatedEvent);
-        await setDoc(doc(db, 'schedule', updatedEvent.id), sanitized);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `schedule/${updatedEvent.id}`);
-      }
+      await StorageService._write('schedule', updatedEvent.id, updatedEvent, SCHEDULE_KEY);
   },
 
   deleteEvent: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'schedule', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `schedule/${id}`);
-      }
+    await StorageService._delete('schedule', id, SCHEDULE_KEY);
   },
   
   toggleRSVP: async (eventId: string, playerId: string, status: 'attending' | 'declined') => {
@@ -741,61 +605,32 @@ export const StorageService = {
       return null;
   },
 
-  getNotices: (): Announcement[] => JSON.parse(localStorage.getItem(NOTICES_KEY) || '[]'),
+  getNotices: (): Announcement[] => StorageService._getFromCache<Announcement[]>(NOTICES_KEY) || [],
   
   addNotice: async (n: Omit<Announcement, 'id' | 'date'>) => {
       const newId = generateId();
-      try {
-        const sanitized = sanitizeObject({ ...n, id: newId, date: new Date().toISOString() });
-        await setDoc(doc(db, 'notices', newId), sanitized);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `notices/${newId}`);
-      }
+      await StorageService._write('notices', newId, { ...n, id: newId, date: new Date().toISOString() }, NOTICES_KEY);
   },
   
   deleteNotice: async (id: string) => {
-      try {
-        await deleteDoc(doc(db, 'notices', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, `notices/${id}`);
-      }
+    await StorageService._delete('notices', id, NOTICES_KEY);
   },
   
-  getFees: (): FeeRecord[] => {
-    try {
-      return JSON.parse(localStorage.getItem(FEES_KEY) || '[]');
-    } catch (e) {
-      return [];
-    }
-  },
+  getFees: (): FeeRecord[] => StorageService._getFromCache<FeeRecord[]>(FEES_KEY) || [],
   
   updateFee: async (f: FeeRecord) => {
     const id = f.id || generateId();
-    try {
-      const sanitized = sanitizeObject({ ...f, id });
-      await setDoc(doc(db, 'fees', id), sanitized);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `fees/${id}`);
-    }
+    await StorageService._write('fees', id, { ...f, id }, FEES_KEY);
   },
 
   deleteFee: async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'fees', id));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `fees/${id}`);
-    }
+    await StorageService._delete('fees', id, FEES_KEY);
   },
 
   getSettings: (): AcademySettings => {
-    const data = localStorage.getItem(SETTINGS_KEY);
-    if (data) {
-      try {
-        return JSON.parse(data);
-      } catch (e) {
-        console.error("Failed to parse local settings", e);
-      }
-    }
+    const data = StorageService._getFromCache<any>(SETTINGS_KEY);
+    if (data?.academy) return data.academy;
+    
     return {
       name: 'ACADEMY PORTAL',
       logoUrl: '',
@@ -806,11 +641,8 @@ export const StorageService = {
   },
   
   saveSettings: async (s: AcademySettings) => { 
-    try {
-      await setDoc(doc(db, 'settings', 'academy'), s);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, 'settings/academy');
-    }
+    await StorageService._write('settings', 'academy', s, SETTINGS_KEY);
+    window.dispatchEvent(new Event('settingsChanged'));
   },
   
   exportData: () => {
@@ -1148,71 +980,39 @@ export const StorageService = {
   },
 
   // --- COMMUNICATION & SUPPORT METHODS ---
-  getMessages: (): BroadcastMessage[] => {
-    try {
-      return JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]');
-    } catch (e) {
-      return [];
-    }
-  },
+  getMessages: (): BroadcastMessage[] => StorageService._getFromCache<BroadcastMessage[]>(MESSAGES_KEY) || [],
 
   sendBroadcast: async (message: Omit<BroadcastMessage, 'id' | 'timestamp' | 'status'>) => {
     const id = generateId();
-    const newMessage: BroadcastMessage = sanitizeObject({
+    const newMessage: BroadcastMessage = {
       ...message,
       id,
       timestamp: new Date().toISOString(),
-      status: 'sent' // Defaulting to sent for this demo scope
-    });
+      status: 'sent'
+    };
 
-    try {
-      await setDoc(doc(db, 'messages', id), newMessage);
-    } catch (error) {
-      console.warn("Firestore write failed for messages, using local fallback", error);
-    }
-    
-    // Fallback: update local storage directly so UI updates immediately
-    const messages = StorageService.getMessages();
-    messages.push(newMessage);
-    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
-    window.dispatchEvent(new Event('academy_data_update'));
-    
+    await StorageService._write('messages', id, newMessage, MESSAGES_KEY);
     return newMessage;
   },
 
   deleteMessage: async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'messages', id));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `messages/${id}`);
-    }
+    await StorageService._delete('messages', id, MESSAGES_KEY);
   },
 
-  getTickets: (): SupportTicket[] => {
-    try {
-      return JSON.parse(localStorage.getItem(TICKETS_KEY) || '[]');
-    } catch (e) {
-      return [];
-    }
-  },
+  getTickets: (): SupportTicket[] => StorageService._getFromCache<SupportTicket[]>(TICKETS_KEY) || [],
 
   addTicket: async (ticket: Omit<SupportTicket, 'id' | 'createdAt' | 'updatedAt' | 'messages'>) => {
     const id = generateId();
     const now = new Date().toISOString();
-    const newTicket: SupportTicket = sanitizeObject({
+    const newTicket: SupportTicket = {
       ...ticket,
       id,
       createdAt: now,
       updatedAt: now,
       messages: []
-    });
-
-    try {
-      await setDoc(doc(db, 'tickets', id), newTicket);
-      return newTicket;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `tickets/${id}`);
-    }
+    };
+    await StorageService._write('tickets', id, newTicket, TICKETS_KEY);
+    return newTicket;
   },
 
   updateTicket: async (ticket: SupportTicket) => {
@@ -1220,18 +1020,34 @@ export const StorageService = {
       ...ticket,
       updatedAt: new Date().toISOString()
     };
-    try {
-      await setDoc(doc(db, 'tickets', ticket.id), sanitizeObject(updatedTicket));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `tickets/${ticket.id}`);
-    }
+    await StorageService._write('tickets', updatedTicket.id, updatedTicket, TICKETS_KEY);
   },
 
   deleteTicket: async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'tickets', id));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `tickets/${id}`);
-    }
+    await StorageService._delete('tickets', id, TICKETS_KEY);
+  },
+
+  // --- INVENTORY METHODS ---
+  getInventory: (): InventoryItem[] => StorageService._getFromCache<InventoryItem[]>(INVENTORY_KEY) || [],
+
+  addInventoryItem: async (item: Omit<InventoryItem, 'id'>) => {
+    const id = generateId();
+    const newItem = { ...item, id };
+    await StorageService._write('inventory', id, newItem, INVENTORY_KEY);
+    return newItem;
+  },
+
+  updateInventoryItem: async (item: InventoryItem) => {
+    await StorageService._write('inventory', item.id, item, INVENTORY_KEY);
+  },
+
+  deleteInventoryItem: async (id: string) => {
+    await StorageService._delete('inventory', id, INVENTORY_KEY);
+  },
+
+  isJerseyNumberAvailable: (jerseyNumber: string, excludePlayerId?: string): boolean => {
+    if (!jerseyNumber) return true;
+    const players = StorageService.getPlayers();
+    return !players.some(p => p.jerseyNumber === jerseyNumber && p.id !== excludePlayerId);
   }
 };

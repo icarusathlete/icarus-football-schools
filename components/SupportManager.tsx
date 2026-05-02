@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
 import { SupportTicket, Role, SupportTicketMessage, User } from '../types';
 import { LifeBuoy, MessageSquare, Clock, CheckCircle2, AlertCircle, X, Search, Filter, Send, User as UserIcon, Plus, ChevronRight, HelpCircle, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
 
 export const SupportManager: React.FC = () => {
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -100,30 +101,19 @@ export const SupportManager: React.FC = () => {
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-700">
-            {/* Header Section - Tactical Midnight Blue Card */}
-            <div className="bg-brand-950 p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group mx-4">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">
-                    <LifeBuoy size={120} className="text-white" />
-                </div>
-                <div className="relative z-10 space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        SUPPORT <span className="text-brand-primary">HUB</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-2">
-                        {isAdmin ? 'Management Interface // Resolution Stream' : 'Help & Feedback // Direct Academy Support'}
-                    </p>
-                </div>
-                
-                {!isAdmin && (
+            <PageHeader 
+                title="SUPPORT HUB" 
+                subtitle={isAdmin ? 'Management Interface // Resolution Stream' : 'Help & Feedback // Direct Academy Support'}
+                extra={!isAdmin && (
                     <button 
                         onClick={() => setShowNewTicket(true)}
-                        className="mt-8 flex items-center gap-4 bg-brand-primary text-brand-secondary px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-widest italic border border-white/10"
+                        className="flex items-center gap-4 bg-brand-primary text-brand-secondary px-8 py-4 rounded-xl shadow-xl hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-widest italic border border-white/10"
                     >
                         <Plus size={18} strokeWidth={3} />
                         CREATE_NEW_QUERY
                     </button>
                 )}
-            </div>
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-4">
                 {/* Ticket List Sidebar */}

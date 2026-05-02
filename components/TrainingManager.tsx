@@ -4,6 +4,7 @@ import { StorageService } from '../services/storageService';
 import { Drill, DrillCategory, DrillDifficulty } from '../types';
 import { Dumbbell, Plus, Search, Filter, Clock, Users, ClipboardList, Zap, Shield, Target, PlayCircle, X, Trash2, Save, Image as ImageIcon, UploadCloud, Youtube, Video } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { PageHeader } from './ui/PageHeader';
 
 export const TrainingManager: React.FC = () => {
     const [drills, setDrills] = useState<Drill[]>([]);
@@ -134,27 +135,19 @@ export const TrainingManager: React.FC = () => {
 
     return (
         <div className="space-y-10 pb-20 animate-in fade-in duration-700">
-            {/* Training Ground Header */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-10 md:p-14 rounded-[3.5rem] relative overflow-hidden group shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700 text-white"><Dumbbell size={160} /></div>
-                <div className="relative z-10 space-y-3">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse shadow-[0_0_10px_#C3F629]" />
-                        <span className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] italic">Active Training Node</span>
-                    </div>
-                    <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        TRAINING <span className="text-brand-accent font-black">GROUND</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.5em] italic pt-2">Professional Drill Library // Learning Objectives</p>
-                </div>
-                <button
-                    onClick={() => setIsCreating(true)}
-                    className="relative z-10 bg-brand-accent text-brand-950 px-12 py-6 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-brand-accent/20 hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.3em] italic border border-white/20"
-                >
-                    <Plus size={20} strokeWidth={4} />
-                    CREATE DRILL
-                </button>
-            </div>
+            <PageHeader 
+                title="TRAINING GROUND" 
+                subtitle="Professional Drill Library // Learning Objectives"
+                extra={
+                    <button
+                        onClick={() => setIsCreating(true)}
+                        className="bg-brand-accent text-brand-950 px-8 py-4 rounded-xl flex items-center justify-center gap-3 shadow-xl hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase tracking-[0.3em] italic border border-white/20"
+                    >
+                        <Plus size={18} strokeWidth={4} />
+                        CREATE DRILL
+                    </button>
+                }
+            />
 
             {/* Training Toolbar */}
             <div className="glass-card p-4 rounded-[2.5rem] shadow-2xl border border-white/10 flex flex-col md:flex-row gap-4">

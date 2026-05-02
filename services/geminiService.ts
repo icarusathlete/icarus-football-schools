@@ -24,9 +24,11 @@ export const GeminiService = {
     `;
 
     try {
-      const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent(prompt);
-      return result.response.text();
+      const result = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
+      return result.text || "<p>No summary generated.</p>";
     } catch (error) {
       console.error("Gemini Error:", error);
       return "<p>Attendance analysis failed.</p>";
@@ -72,9 +74,11 @@ export const GeminiService = {
      `;
 
      try {
-        const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent(prompt);
-        return result.response.text();
+        const result = await ai.models.generateContent({
+          model: "gemini-1.5-flash",
+          contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        });
+        return result.text || "<p class='text-white/30 italic text-sm'>Report generation failed.</p>";
      } catch (error) {
         console.error("Gemini Error:", error);
         return "<p class='text-white/30 italic text-sm'>Strategic sync offline...</p>";
@@ -94,11 +98,46 @@ export const GeminiService = {
     `;
 
     try {
-        const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        return result.response.text();
+        const result = await ai.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        });
+        return result.text || "<p>No analysis generated.</p>";
     } catch (error) {
         return "<p>Analysis unavailable.</p>";
+    }
+  },
+
+  generateCoachVerdictSuggestion: async (player: Player) => {
+    if (!import.meta.env.VITE_GEMINI_API_KEY) return "AI Suggestion unavailable. Please input manual verdict.";
+
+    const context = {
+        name: player.fullName,
+        position: player.position,
+        metrics: player.evaluation?.metrics,
+        timeTrials: player.evaluation?.timeTrials,
+        overallRating: player.evaluation?.overallRating
+    };
+
+    const prompt = `
+        As a professional football coach, write a 2-3 sentence executive verdict for ${player.fullName} (${player.position}).
+        Overall Rating: ${context.overallRating}/100.
+        Technical Stats: ${JSON.stringify(context.metrics)}
+        Physical Stats: ${JSON.stringify(context.timeTrials)}
+        
+        Style: Professional, encouraging but clinical, focus on their strengths and one clear area for growth. 
+        Return ONLY the plain text of the verdict. No HTML, no quotes.
+    `;
+
+    try {
+        const result = await ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        });
+        return result.text?.trim() || "Awaiting coach input...";
+    } catch (error) {
+        console.error("Gemini Error:", error);
+        return "System offline. Please input manual verdict.";
     }
   }
 };

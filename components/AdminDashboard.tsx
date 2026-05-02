@@ -9,6 +9,7 @@ import {
   MapPin, Layers, ChevronDown
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PageHeader } from './ui/PageHeader';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -465,27 +466,10 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-5 pb-32 font-display animate-in fade-in duration-500">
 
-      {/* ── Hero KPIs ───────────────────────────────────────────────────── */}
-      <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] relative overflow-visible ring-1 ring-white/10">
-        <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none select-none">
-          <Command size={180} className="text-white" />
-        </div>
-        <div className="relative z-10">
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 text-[#CCFF00] font-bold uppercase text-[9px] tracking-[0.4em] italic mb-3">
-                <span className="w-8 h-px bg-[#CCFF00]/30"></span>
-                Strategic Operations Center
-              </div>
-              <h1 className="text-5xl sm:text-6xl font-black italic text-white uppercase tracking-tighter leading-[0.85] flex flex-col sm:flex-row items-baseline gap-x-4">
-                ACADEMY <span className="text-[#CCFF00] drop-shadow-[0_0_15px_rgba(204,255,0,0.3)]">HUB</span>
-              </h1>
-              <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] italic pt-2">
-                System Node: Dashboard // Operations · Intelligence · Management
-              </p>
-            </div>
-            
-            {/* Global Filters */}
+      <PageHeader 
+        title="ACADEMY HUB" 
+        subtitle="System Node: Dashboard // Operations · Intelligence · Management"
+        extra={
             <div className="flex flex-col sm:flex-row w-full md:w-auto glass-card p-2 rounded-2xl border border-white/10 gap-2 shadow-lg backdrop-blur-xl">
               <div className="relative">
                 <MapPin size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
@@ -524,34 +508,33 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+        }
+      />
 
-          {/* KPI grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-10">
-            {[
-              { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
-              { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
-              { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
-              { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={16} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
-              { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={16} />, color: alertItems.length > 0 ? '#f59e0b' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
-            ].map((k, i) => (
-              <div key={i} className={`rounded-[2rem] border p-6 group transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden ${k.accent}`}>
-                {k.showBar && <div className="green-light-bar" />}
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] font-black uppercase italic tracking-[0.2em] text-white/40">{k.label}</p>
-                  <span style={{ color: k.color }} className="opacity-60 group-hover:opacity-100 transition-opacity icon-glow-lime">{k.icon}</span>
-                </div>
-                <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color === '#CCFF00' ? '#ffffff' : k.color }}>
-                  {k.color === '#CCFF00' ? <span className="text-white group-hover:text-[#CCFF00] transition-colors">{k.value}</span> : k.value}
-                </p>
-                <p className="text-[10px] font-black italic text-white/30 mt-3">{k.sub}</p>
-                
-                {/* Minimal Sky Blue Accent */}
-                <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-[#00C8FF]/5 rounded-full blur-2xl group-hover:bg-[#00C8FF]/10 transition-all duration-700" />
-              </div>
-            ))}
+      {/* KPI grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {[
+          { label: 'Total Enrolled', value: globalStats.players, sub: 'active players', icon: <Users size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
+          { label: 'New This Month', value: globalStats.newThisMonth, sub: new Date().toLocaleString('en-IN', { month: 'long' }), icon: <CalendarPlus size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
+          { label: "Daily Attendance", value: `${globalStats.rate}%`, sub: `${globalStats.presentToday} present`, icon: <Activity size={16} />, color: '#CCFF00', accent: 'glass-card border-white/10 shadow-[0_15px_30px_rgba(13,27,138,0.2)]', showBar: true },
+          { label: 'Fees Overdue', value: globalStats.overdueCount, sub: `${globalStats.expiringCount} soon`, icon: <Receipt size={16} />, color: globalStats.overdueCount > 0 ? '#f87171' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
+          { label: 'System Alerts', value: alertItems.length, sub: alertItems.length > 0 ? 'review below' : 'all clear', icon: <AlertTriangle size={16} />, color: alertItems.length > 0 ? '#f59e0b' : '#CCFF00', accent: 'glass-card border-white/10', showBar: false },
+        ].map((k, i) => (
+          <div key={i} className={`rounded-[2rem] border p-6 group transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden ${k.accent}`}>
+            {k.showBar && <div className="green-light-bar" />}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[9px] font-black uppercase italic tracking-[0.2em] text-white/40">{k.label}</p>
+              <span style={{ color: k.color }} className="opacity-60 group-hover:opacity-100 transition-opacity icon-glow-lime">{k.icon}</span>
+            </div>
+            <p className="text-4xl font-black italic leading-none tracking-tighter" style={{ color: k.color === '#CCFF00' ? '#ffffff' : k.color }}>
+              {k.color === '#CCFF00' ? <span className="text-white group-hover:text-[#CCFF00] transition-colors">{k.value}</span> : k.value}
+            </p>
+            <p className="text-[10px] font-black italic text-white/30 mt-3">{k.sub}</p>
+            
+            {/* Minimal Sky Blue Accent */}
+            <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-[#00C8FF]/5 rounded-full blur-2xl group-hover:bg-[#00C8FF]/10 transition-all duration-700" />
           </div>
-        </div>
+        ))}
       </div>
 
       {/* ── Alerts ─────────────────────────────────────────────────────────── */}

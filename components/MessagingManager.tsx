@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from '../services/storageService';
 import { BroadcastMessage, Role, Venue, Batch, MessageType } from '../types';
-import { Send, Users, MapPin, Layers, Clock, CheckCircle2, AlertCircle, X, Search, Filter, Mail, MessageSquare, Bell, Sparkles, Zap, ShieldCheck } from 'lucide-react';
+import { Send, Users, MapPin, Layers, Clock, CheckCircle2, AlertCircle, X, Search, Filter, Mail, MessageSquare, Bell, Sparkles, Zap, ShieldCheck, Plus } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
 
 const QUICK_TEMPLATES = {
     rainout: {
@@ -26,6 +27,7 @@ export const MessagingManager: React.FC = () => {
     const [isSending, setIsSending] = useState(false);
     const [sendingProgress, setSendingProgress] = useState(0);
     const [showCompose, setShowCompose] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     
     const [newMessage, setNewMessage] = useState({
         title: '',
@@ -128,41 +130,37 @@ export const MessagingManager: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8 pb-32 animate-in fade-in duration-700">
-            {/* Header Section - Midnight Tactical */}
-            <div className="bg-brand-secondary p-10 md:p-14 rounded-[3rem] border-b-4 border-brand-primary shadow-2xl relative overflow-hidden group">
-                {/* Background Patterns */}
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary rounded-full blur-[120px] -mr-48 -mt-48" />
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-accent rounded-full blur-[120px] -ml-48 -mb-48" />
-                </div>
-
-                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none transition-transform duration-1000 group-hover:scale-125 group-hover:-rotate-12">
-                    <Send size={180} className="text-white" />
-                </div>
-
-                <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="space-y-6">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/10 border border-white/20 rounded-full">
-                            <Zap size={14} className="text-brand-primary animate-pulse" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Live Communication Systems</span>
-                        </div>
-                        <h2 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-[0.85]">
-                            BROADCAST <br />
-                             <span className="text-brand-accent">CENTER</span>
-                        </h2>
-                        <p className="text-white/60 font-bold uppercase text-xs tracking-[0.3em] italic max-w-md">
-                            Precision mass messaging and academy-wide alerting protocols.
-                        </p>
-                    </div>
-
+        <div className="space-y-10 pb-32 animate-in fade-in duration-700">
+            <PageHeader 
+                title="BROADCAST CENTER"
+                subtitle="Precision mass messaging and academy-wide alerting protocols"
+                extra={
                     <button 
                         onClick={() => setShowCompose(true)}
-                        className="bg-brand-accent text-brand-secondary px-12 py-6 rounded-3xl shadow-[0_20px_40px_rgba(204,255,0,0.2)] hover:scale-105 active:scale-95 transition-all font-black text-sm uppercase tracking-widest italic border-b-4 border-brand-secondary/20 flex items-center gap-4 group/btn"
+                        className="bg-brand-accent text-brand-secondary px-8 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all font-black text-[10px] uppercase tracking-widest italic flex items-center gap-3 group/btn"
                     >
-                        <MessageSquare size={20} className="group-hover/btn:rotate-12 transition-transform" />
-                        COMPOSE_BROADCAST
+                        <Plus size={16} className="group-hover/btn:rotate-90 transition-transform" />
+                        NEW_BROADCAST
                     </button>
+                }
+            />
+
+            {/* Tactical Search & Filter Row */}
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div className="relative w-full md:w-96 group">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500/40 group-focus-within:text-brand-accent transition-colors" />
+                    <input 
+                        type="text" 
+                        placeholder="SCAN TRANSMISSION LOGS..." 
+                        className="w-full pl-14 pr-6 py-4 bg-brand-500/5 border border-brand-500/10 rounded-2xl outline-none focus:bg-brand-500/10 focus:border-brand-accent/30 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white placeholder:text-white/20 shadow-2xl italic"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-500/5 border border-brand-500/10">
+                    <Zap size={12} className="text-brand-accent" />
+                    <span className="text-[9px] font-black text-brand-500/60 uppercase tracking-widest italic">COMMUNICATION SYSTEMS NOMINAL</span>
                 </div>
             </div>
 
@@ -235,7 +233,13 @@ export const MessagingManager: React.FC = () => {
                                 <p className="text-[12px] font-black text-white/20 uppercase tracking-widest italic">No Transmission Logs Found</p>
                             </div>
                         ) : (
-                            messages.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map(msg => (
+                            messages
+                                .filter(msg => 
+                                    msg.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                    msg.content.toLowerCase().includes(searchTerm.toLowerCase())
+                                )
+                                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                .map(msg => (
                                 <div key={msg.id} className="group glass-card p-8 rounded-[2.5rem] border border-white/10 hover:scale-[1.01] transition-all relative overflow-hidden shadow-xl">
                                     <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-[0.15] transition-all transform group-hover:scale-125 group-hover:rotate-12 pointer-events-none">
                                         {msg.type === 'email' ? <Mail size={120} className="text-white" /> : msg.type === 'sms' ? <MessageSquare size={120} className="text-white" /> : <Bell size={120} className="text-white" />}

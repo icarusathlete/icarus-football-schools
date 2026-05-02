@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords, LifeBuoy } from 'lucide-react';
+import { Trophy, ClipboardCheck, Users, BarChart3, LogOut, Shield, LayoutDashboard, Calendar, FileText, Megaphone, DollarSign, Menu, X, MoreHorizontal, Medal, Gauge, Database, Download, CheckCircle2, UserCog, Shirt, Dumbbell, Swords, LifeBuoy, ChevronDown, ChevronRight, Package } from 'lucide-react';
 import { User, Role, AcademySettings } from '../types';
 import { StorageService } from '../services/storageService';
 
@@ -11,6 +11,7 @@ interface LayoutProps {
   onTabChange: (tab: any) => void;
   currentUser: User;
   onLogout: () => void;
+  breadcrumbSegments?: string[];
 }
 
 interface NavItem {
@@ -28,7 +29,7 @@ interface NavItemComponentProps {
 const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabChange }) => (
   <button
     onClick={() => onTabChange(item.id)}
-    className={`w-full flex items-center space-x-3 px-5 py-4 rounded-xl transition-all duration-300 group relative ${
+    className={`w-full flex items-center space-x-3 px-5 py-3 rounded-xl transition-all duration-300 group relative ${
       activeTab === item.id 
         ? 'bg-brand-500/10 text-white shadow-lg shadow-brand-500/10 border border-brand-500/20' 
         : 'text-white/40 hover:bg-white/5 hover:text-white'
@@ -41,6 +42,54 @@ const SidebarItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTabCh
     )}
   </button>
 );
+
+interface SidebarSectionProps {
+  section: { id: string; title: string; items: NavItem[]; isPinned?: boolean };
+  activeTab: string;
+  onTabChange: (tab: any) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+const SidebarSection: React.FC<SidebarSectionProps> = ({ section, activeTab, onTabChange, isExpanded, onToggle }) => {
+  if (section.isPinned) {
+    return (
+      <div className="space-y-1 mb-6">
+        {section.items.map(item => (
+          <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1 mb-2">
+      <button 
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-5 py-2 group cursor-pointer transition-colors"
+      >
+        <h3 className="text-[8px] font-black text-brand-500/40 group-hover:text-brand-500/70 uppercase tracking-[0.35em] transition-colors">
+          {section.title}
+        </h3>
+        <div className="p-1 rounded-md group-hover:bg-white/5 transition-colors">
+            {isExpanded ? (
+              <ChevronDown size={10} className="text-brand-500/30 group-hover:text-brand-500/60" />
+            ) : (
+              <ChevronRight size={10} className="text-brand-500/30 group-hover:text-brand-500/60" />
+            )}
+        </div>
+      </button>
+      
+      {isExpanded && (
+        <div className="space-y-1 mt-1 animate-in slide-in-from-top-2 duration-200">
+          {section.items.map(item => (
+            <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getShortLabel = (label: string) => {
   const mapping: Record<string, string> = {
@@ -71,10 +120,17 @@ const BottomNavItem: React.FC<NavItemComponentProps> = ({ item, activeTab, onTab
   </button>
 );
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, currentUser, onLogout }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, currentUser, onLogout, breadcrumbSegments = [] }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
   const [lastSaved, setLastSaved] = useState<Date>(new Date());
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    tools: true, // Default open tools
+    analytics: false,
+    communication: false,
+    general: false
+  });
 
   useEffect(() => {
     const handleSettingsChange = () => setSettings(StorageService.getSettings());
@@ -90,7 +146,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   }, []);
 
   const getNavSections = () => {
-    const sections: { title: string; items: NavItem[] }[] = [];
+    const sections: { id: string; title: string; items: NavItem[]; isPinned?: boolean }[] = [];
     
     const core = [
       { id: 'leaderboard', label: 'Rankings', icon: Medal },
@@ -104,17 +160,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       { id: 'support', label: 'Support Hub', icon: LifeBuoy },
     ];
 
-    if (currentUser.role === 'player') {
-      sections.push({ title: 'ACADEMY CORE', items: [{ id: 'player-dashboard', label: 'Portal', icon: LayoutDashboard }, ...core] });
-      sections.push({ title: 'SUPPORT', items: [{ id: 'support', label: 'Support Hub', icon: LifeBuoy }] });
-      return sections;
-    }
-
-    // Guest users (pending/rejected): single locked tab
-    if (currentUser.role === 'pending' || currentUser.role === 'rejected') {
-      sections.push({ title: 'GUEST ACCESS', items: [{ id: 'guest', label: 'Home', icon: LayoutDashboard }] });
-      return sections;
-    }
+    const intelligence = [
+      { id: 'squad-comparison', label: 'Performance', icon: BarChart3 },
+      { id: 'head-to-head', label: 'Match Analysis', icon: Swords },
+      { id: 'evaluations', label: 'Player Reports', icon: Gauge },
+    ];
 
     const operations = [
       { id: 'coach', label: 'Attendance', icon: ClipboardCheck },
@@ -122,38 +172,88 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       { id: 'training', label: 'Training', icon: Dumbbell },
     ];
 
-    const intelligence = [
-      { id: 'squad-comparison', label: 'Performance', icon: BarChart3 },
-      { id: 'head-to-head', label: 'Match Analysis', icon: Swords },
-      { id: 'evaluations', label: 'Player Reports', icon: Gauge },
-    ];
-
     const management = [
       { id: 'admin', label: 'Academy Hub', icon: LayoutDashboard },
       { id: 'players', label: 'Squad Management', icon: UserCog },
       { id: 'register', label: 'New Athlete', icon: Users },
+      { id: 'inventory', label: 'Kit & Equipment', icon: Package },
       { id: 'finance', label: 'Finance Hub', icon: DollarSign },
       { id: 'users', label: 'Access Control', icon: Shield },
     ];
 
-    if (currentUser.role === 'admin') {
-      sections.push({ title: 'MANAGEMENT', items: management.slice(0, 5) });
-      sections.push({ title: 'COMMUNICATION', items: communication });
-      sections.push({ title: 'ACADEMY TOOLS', items: operations });
-      sections.push({ title: 'ANALYTICS', items: intelligence });
-      sections.push({ title: 'GENERAL', items: core });
-    } else if (currentUser.role === 'coach') {
-      sections.push({ title: 'COMMUNICATION', items: communication });
-      sections.push({ title: 'ACADEMY TOOLS', items: operations });
-      sections.push({ title: 'ANALYTICS', items: intelligence });
-      sections.push({ title: 'GENERAL', items: core });
+    if (currentUser.role === 'player') {
+      sections.push({ id: 'core', title: 'ACADEMY CORE', items: [{ id: 'player-dashboard', label: 'Portal', icon: LayoutDashboard }, ...core] });
+      sections.push({ id: 'support', title: 'SUPPORT', items: [{ id: 'support', label: 'Support Hub', icon: LifeBuoy }] });
+      return sections;
     }
+
+    if (currentUser.role === 'pending' || currentUser.role === 'rejected') {
+      sections.push({ id: 'guest', title: 'GUEST ACCESS', items: [{ id: 'guest', label: 'Home', icon: LayoutDashboard }] });
+      return sections;
+    }
+
+    const isLevelAdmin = currentUser.role === 'admin';
+    const isLevelCoach = currentUser.role === 'coach';
+
+    // 1. PINNED SECTION (Always Visible)
+    const pinned: NavItem[] = [];
+    if (isLevelAdmin) {
+      pinned.push(management[0]); // Hub
+      pinned.push(operations[0]); // Attendance
+      pinned.push(management[1]); // Squad
+    } else if (isLevelCoach) {
+      pinned.push(operations[0]); // Attendance
+    }
+    
+    if (pinned.length > 0) {
+      sections.push({ id: 'pinned', title: 'QUICK ACCESS', items: pinned, isPinned: true });
+    }
+
+    // 2. ACADEMY TOOLS (Collapsible)
+    const tools: NavItem[] = [];
+    tools.push(operations[1]); // Match Center
+    tools.push(operations[2]); // Training
+    if (isLevelAdmin) {
+      tools.push(management[2]); // New Athlete
+      tools.push(management[3]); // Kit & Equipment
+      tools.push(management[4]); // Finance
+      tools.push(management[5]); // Access
+    }
+    sections.push({ id: 'tools', title: 'MANAGEMENT', items: tools });
+
+    // 3. ANALYTICS (Collapsible)
+    sections.push({ id: 'analytics', title: 'ANALYTICS', items: intelligence });
+
+    // 4. COMMUNICATION (Collapsible)
+    sections.push({ id: 'communication', title: 'COMMUNICATION', items: communication });
+
+    // 5. GENERAL (Collapsible)
+    sections.push({ id: 'general', title: 'ACADEMY CORE', items: core });
 
     return sections;
   };
 
+  useEffect(() => {
+    const sections = getNavSections();
+    const currentSection = sections.find(s => s.items.some(i => i.id === activeTab));
+    if (currentSection && !currentSection.isPinned && !expandedSections[currentSection.id]) {
+        setExpandedSections(prev => ({ ...prev, [currentSection.id]: true }));
+    }
+  }, [activeTab]);
+
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const navSections = getNavSections();
   const allNavItems = navSections.flatMap(s => s.items);
+
+  // Breadcrumb Logic
+  const currentSection = navSections.find(s => s.items.some(i => i.id === activeTab));
+  const currentItem = allNavItems.find(i => i.id === activeTab);
+  const baseSegments = currentSection ? [currentSection.title] : [];
+  if (currentItem) baseSegments.push(currentItem.label);
+  const finalSegments = [...baseSegments, ...breadcrumbSegments];
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row relative overflow-x-hidden">
@@ -176,14 +276,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             </p>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
-          {navSections.map((section, idx) => (
-            <div key={idx} className="space-y-1">
-              <h3 className="px-5 text-[8px] font-black text-brand-500/40 uppercase tracking-[0.35em] mb-4">{section.title}</h3>
-              <div className="space-y-1">
-                {section.items.map(item => <SidebarItem key={item.id} item={item} activeTab={activeTab} onTabChange={onTabChange} />)}
-              </div>
-            </div>
+        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-2 custom-scrollbar">
+          {navSections.map((section) => (
+            <SidebarSection 
+              key={section.id} 
+              section={section} 
+              activeTab={activeTab} 
+              onTabChange={onTabChange} 
+              isExpanded={expandedSections[section.id] || false}
+              onToggle={() => toggleSection(section.id)}
+            />
           ))}
         </div>
 
@@ -229,7 +331,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
          </button>
       </header>
       <main className="flex-1 min-h-[calc(100vh-64px)] md:h-screen md:overflow-y-auto pb-24 md:pb-8 relative custom-scrollbar scroll-smooth box-border transition-colors duration-500">
-        <div className="p-4 md:p-10 max-w-7xl mx-auto w-full">{children}</div>
+        <div className="p-4 md:px-10 md:pt-6 md:pb-10 max-w-7xl mx-auto w-full">
+          {/* Breadcrumb Bar - Refined Digital Stadium Style */}
+          {finalSegments.length > 0 && (
+            <div className="flex items-center gap-3 mb-6 animate-in fade-in slide-in-from-top-1 duration-500">
+              {finalSegments.map((segment, idx) => (
+                <React.Fragment key={idx}>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40 whitespace-nowrap">
+                    {segment}
+                  </span>
+                  {idx < finalSegments.length - 1 && (
+                    <ChevronRight size={10} className="text-white/10 shrink-0" />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          {children}
+        </div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe shadow-[0_-10px_40px_rgba(13,27,138,0.3)] bg-brand-secondary border-t border-white/10" >
         <div className="flex justify-around items-center h-20">

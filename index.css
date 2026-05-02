@@ -202,12 +202,114 @@ select option {
   animation: shimmer 0.7s ease-in-out forwards;
 }
 
-/* ── Scan line animation ──────────────────────── */
-@keyframes scan {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(400%); }
+/* ── Performance Pulse Animation ─────────────── */
+@keyframes performance-pulse {
+  0% { box-shadow: 0 0 20px rgba(195, 246, 41, 0.2); transform: scale(1); }
+  50% { box-shadow: 0 0 40px rgba(195, 246, 41, 0.4); transform: scale(1.02); }
+  100% { box-shadow: 0 0 20px rgba(195, 246, 41, 0.2); transform: scale(1); }
 }
 
-.animate-scan {
-  animation: scan 2.5s linear infinite;
+.performance-pulse {
+  animation: performance-pulse 2s infinite ease-in-out;
+  border-color: rgba(195, 246, 41, 0.5) !important;
+}
+
+/* ── Stats Badges ─────────────────────────────── */
+.stats-badge {
+  @apply px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest flex items-center gap-1;
+}
+
+.stats-badge-goal {
+  background: rgba(195, 246, 41, 0.15);
+  color: #C3F629;
+  border: 1px solid rgba(195, 246, 41, 0.3);
+}
+
+.stats-badge-assist {
+  background: rgba(0, 200, 255, 0.15);
+  color: #00C8FF;
+  border: 1px solid rgba(0, 200, 255, 0.3);
+}
+
+/* ── Avatar Fallback ──────────────────────────── */
+.avatar-fallback {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+/* ── HUD Targeting Reticle ────────────────────── */
+.hud-reticle-container {
+  position: relative;
+  padding: 4px;
+}
+
+.hud-reticle-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: #C3F629;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.hud-reticle-container:hover .hud-reticle-corner {
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+}
+
+.corner-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 4px; }
+.corner-tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 4px; }
+.corner-bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 4px; }
+.corner-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 4px; }
+
+/* ── Neon Flash Feedback ──────────────────────── */
+@keyframes neon-flash {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+.neon-flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(195, 246, 41, 0.4) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+}
+
+.animate-neon-flash {
+  animation: neon-flash 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── PDF Export Overrides ─────────────────────── */
+.pdf-export-mode {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.pdf-export-mode .glass-card, 
+.pdf-export-mode .glass-card-alt {
+  background: #050066 !important; /* Solid fallback for capture */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ── Elite Scanning Animation ─────────────────── */
+@keyframes scan-line-move {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateY(1000%); opacity: 0; }
+}
+
+.animate-scan-slow {
+  animation: scan-line-move 8s linear infinite;
 }

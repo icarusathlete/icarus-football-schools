@@ -8,6 +8,8 @@ import {
     Radio, Layers, Target, Command
 } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { PageHeader } from './ui/PageHeader';
+import { Role, ScheduleEvent, Drill, User, EventType, Venue } from '../types';
 
 interface ScheduleProps {
   role: Role;
@@ -226,79 +228,62 @@ export const Schedule: React.FC<ScheduleProps> = ({ role }) => {
 
   return (
     <div className="space-y-8 pb-24 animate-in fade-in duration-700">
-      
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-900/60 backdrop-blur-xl border-white/10 border border-white/10 shadow-xl group p-8 md:p-12">
-        {/* Mesh gradient — subtle on white */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_60%_-10%,_rgba(59,130,246,0.05),_transparent)] opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_100%,_rgba(14,165,233,0.03),_transparent)] opacity-40" />
-        <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
-          <CalendarIcon size={120} className="text-white" />
-        </div>
-        
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full">
-          <div>
-            <div className="flex items-center gap-3 mb-4 transition-transform duration-500 hover:translate-x-1">
-              <div className="w-10 h-10 rounded-2xl bg-brand-950/400/10 flex items-center justify-center shadow-lg shadow-brand-500/5">
-                <CalendarIcon size={18} className="text-brand-500" />
-              </div>
-              <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.4em] italic leading-none">ACADEMY_OPERATIONS_HUB</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-               Academy <span className="text-brand-500">Schedule</span>
-            </h2>
-            <p className="font-black mt-3 uppercase text-[10px] tracking-[0.35em] text-brand-400 italic max-w-md leading-relaxed">
-              Manage training sessions, matches, and events.
-            </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full lg:w-auto mt-6 lg:mt-0">
-            {/* View Toggle - Light Pill */}
-            <div className="flex bg-brand-950/40 p-1.5 rounded-2xl border border-white/10 shadow-inner self-start">
-                <button 
-                  onClick={() => setViewMode('list')} 
-                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-950/400 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}
-                >
-                    <LayoutList size={14} strokeWidth={2.5} /> LIST
-                </button>
-                <button 
-                  onClick={() => setViewMode('calendar')} 
-                  className={`px-4 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-950/400 text-white shadow-lg shadow-brand-500/20' : 'text-brand-400 hover:text-brand-600'}`}
-                >
-                    <Calendar size={14} strokeWidth={2.5} /> CAL
-                </button>
+      <PageHeader
+        title="Academy Schedule"
+        subtitle="Manage training sessions, matches & events"
+        extra={
+          <>
+            {/* View Toggle */}
+            <div className="flex bg-brand-900/60 p-1 rounded-xl border border-white/10">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'list' ? 'bg-brand-950 text-white shadow-md' : 'text-brand-400 hover:text-white'}`}
+              >
+                <LayoutList size={12} strokeWidth={2.5} /> List
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`px-4 py-2 rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${viewMode === 'calendar' ? 'bg-brand-950 text-white shadow-md' : 'text-brand-400 hover:text-white'}`}
+              >
+                <Calendar size={12} strokeWidth={2.5} /> Cal
+              </button>
             </div>
 
-            {/* Filter Hub - horizontal scroll on mobile */}
-            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
-                {[
-                    { id: 'all', label: 'ALL', icon: Filter },
-                    { id: 'training', label: 'TRAINING', icon: Zap },
-                    { id: 'match', label: 'MATCHES', icon: Trophy },
-                    { id: 'social', label: 'SOCIAL', icon: PartyPopper }
-                ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-brand-950 text-white border-brand-950 shadow-lg scale-105' : 'text-brand-400 border-white/10 bg-brand-950/40 hover:border-brand-300 hover:text-brand-600'}`}
-                        >
-                            <tab.icon size={12} strokeWidth={activeTab === tab.id ? 3 : 2} />
-                            {tab.label}
-                        </button>
-                ))}
-            </div>
+            {/* Filter Tabs */}
+            {[
+              { id: 'all', label: 'All', icon: Filter },
+              { id: 'training', label: 'Train', icon: Zap },
+              { id: 'match', label: 'Match', icon: Trophy },
+              { id: 'social', label: 'Social', icon: PartyPopper }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-brand-950 text-white shadow-md'
+                    : 'text-brand-400 hover:text-white'
+                }`}
+              >
+                <tab.icon size={11} strokeWidth={activeTab === tab.id ? 3 : 2} />
+                {tab.label}
+              </button>
+            ))}
 
+            {/* Add Event */}
             {(role === 'admin' || role === 'coach') && (
-                <button 
-                    onClick={handleCreate}
-                    className="flex items-center gap-2.5 bg-brand-950/400 text-white px-6 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-500/20 font-black text-[10px] uppercase tracking-[0.2em] italic border border-brand-400/20 ml-auto"
-                >
-                    <Plus size={16} strokeWidth={3} />
-                    ADD EVENT
-                </button>
+              <button
+                onClick={handleCreate}
+                className="flex items-center gap-2 bg-brand-500 text-brand-950 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all font-black text-[9px] uppercase tracking-[0.2em] italic"
+              >
+                <Plus size={13} strokeWidth={3} />
+                Add Event
+              </button>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Location Control Hub */}
       <div className="space-y-4">

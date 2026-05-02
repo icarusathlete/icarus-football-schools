@@ -3,6 +3,7 @@ import { StorageService } from '../services/storageService';
 import { Player } from '../types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Shield, Search, X, UserCheck, Activity, Brain, Zap } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
 
 export const SquadComparison: React.FC = () => {
     const [players, setPlayers] = useState<Player[]>([]);
@@ -74,19 +75,15 @@ export const SquadComparison: React.FC = () => {
 
     return (
         <div className="space-y-8 pb-32 animate-in fade-in duration-700 font-display">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700"><Brain size={120} className="text-white" /></div>
-                <div className="relative z-10 space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-                       SQUAD <span className="text-[#CCFF00] font-black">COMPARISON</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic">Select up to 3 athletes for multidimensional tactical analysis.</p>
-                </div>
-                <div className="px-5 py-2.5 rounded-full bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00] text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 italic animate-pulse relative z-10">
-                    <Brain size={16} className="text-[#CCFF00]"/> Neural Asset Analysis
-                </div>
-            </div>
+            <PageHeader 
+                title="SQUAD COMPARISON" 
+                subtitle="Select up to 3 athletes for multidimensional tactical analysis."
+                extra={
+                    <div className="px-5 py-2.5 rounded-full bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00] text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 italic animate-pulse">
+                        <Brain size={16} className="text-[#CCFF00]"/> Neural Asset Analysis
+                    </div>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left Col: Selector */}

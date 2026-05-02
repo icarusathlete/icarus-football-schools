@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, Component } from 'react';
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { Onboarding } from './components/Onboarding';
@@ -34,15 +34,18 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
+
   static getDerivedStateFromError() { return { hasError: true }; }
+
   componentDidCatch(error: any, errorInfo: any) {
     console.error("Uncaught error:", error, errorInfo);
   }
+
   render() {
     if (this.state.hasError) return (
         <div className="p-8 text-brand-secondary">
@@ -74,11 +77,13 @@ const PlayerManager = lazyRetry(() => import('./components/PlayerManager').then(
 const PlayerPortal = lazyRetry(() => import('./components/PlayerPortal').then(m => ({ default: m.PlayerPortal })));
 const MessagingManager = lazyRetry(() => import('./components/MessagingManager').then(m => ({ default: m.MessagingManager })));
 const SupportManager = lazyRetry(() => import('./components/SupportManager').then(m => ({ default: m.SupportManager })));
+const KitInventory = lazyRetry(() => import('./components/KitInventory').then(m => ({ default: m.KitInventory })));
 const GuestDashboard = lazyRetry(() => import('./components/GuestDashboard').then(m => ({ default: m.GuestDashboard })));
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<string>('');
+  const [breadcrumbSegments, setBreadcrumbSegments] = useState<string[]>([]);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [settings, setSettings] = useState(StorageService.getSettings());
 
@@ -176,13 +181,14 @@ const App: React.FC = () => {
       case 'matches': return <MatchManager />;
       case 'squad-comparison': return <SquadComparison />;
       case 'head-to-head': return <HeadToHead />;
-      case 'evaluations': return <EvaluationManager />;
+      case 'evaluations': return <EvaluationManager onBreadcrumbChange={setBreadcrumbSegments} />;
       case 'training': return <TrainingManager />;
       case 'admin': return <AdminDashboard />;
       case 'users': return <UserManagement />;
       case 'register': return <PlayerRegistration />;
       case 'finance': return <FinanceManager />;
-      case 'players': return <PlayerManager />;
+      case 'players': return <PlayerManager onBreadcrumbChange={setBreadcrumbSegments} />;
+      case 'inventory': return <KitInventory />;
       case 'player-dashboard': return <PlayerPortal user={currentUser} />;
       case 'broadcast': return <MessagingManager />;
       case 'support': return <SupportManager />;
@@ -212,7 +218,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout currentUser={currentUser} activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout}>
+    <Layout currentUser={currentUser} activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab); setBreadcrumbSegments([]); }} onLogout={handleLogout} breadcrumbSegments={breadcrumbSegments}>
       <Suspense fallback={
         <div className="p-8 animate-in fade-in duration-500">
            <div className="flex items-center gap-4 mb-8">

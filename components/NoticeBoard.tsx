@@ -5,6 +5,7 @@ import { Announcement, Role, AcademySettings } from '../types';
 import { Bell, Megaphone, Clock, Plus, X, Image as ImageIcon, Download, Share2, Calendar, User, Shield, AlertCircle, Loader2, QrCode, ChevronRight } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { ConfirmModal } from './ConfirmModal';
+import { PageHeader } from './ui/PageHeader';
 
 interface NoticeBoardProps {
     role: Role;
@@ -241,24 +242,21 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({ role }) => {
                 )}
             </div>
 
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-brand-900 p-8 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12"><Megaphone size={120} className="text-white" /></div>
-                <div className="relative z-10 md:space-y-2">
-                    <h2 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none">
-                        NOTICE <span className="text-[#CCFF00]">BOARD</span>
-                    </h2>
-                    <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.4em] italic pt-4">Official Announcements // Academy Intelligence Stream</p>
-                </div>
-                {(role === 'admin' || role === 'coach') && (
-                    <button
-                        onClick={() => setShowForm(!showForm)}
-                        className="w-full lg:w-auto flex items-center justify-center gap-4 bg-brand-primary text-brand-secondary px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-xs uppercase tracking-widest italic border border-white/10"
-                    >
-                        <Plus size={18} strokeWidth={3} />
-                        CREATE_ANNOUNCEMENT
-                    </button>
-                )}
-            </div>
+            <PageHeader 
+                title="NOTICE BOARD" 
+                subtitle="Official Announcements // Academy Intelligence Stream"
+                extra={
+                    (role === 'admin' || role === 'coach') && (
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="w-full lg:w-auto flex items-center justify-center gap-4 bg-brand-primary text-brand-secondary px-10 py-5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all z-10 font-black text-xs uppercase tracking-widest italic border border-white/10"
+                        >
+                            <Plus size={18} strokeWidth={3} />
+                            CREATE_ANNOUNCEMENT
+                        </button>
+                    )
+                }
+            />
 
             {showForm && (
                 <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-950/80 backdrop-blur-xl animate-in fade-in duration-300">

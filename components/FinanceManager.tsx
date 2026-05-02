@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
-import { Player, FeeRecord, AcademySettings } from '../types';
-import { Check, X, AlertCircle, DollarSign, Search, Calendar, ChevronRight, User as UserIcon, FileText, Download, Loader2, Send, Phone, MapPin, Mail, Globe, Trophy } from 'lucide-react';
+import { Player, FeeRecord, AcademySettings, Venue, User, Role } from '../types';
+import { Check, X, AlertCircle, DollarSign, Search, Calendar, ChevronRight, User as UserIcon, FileText, Download, Loader2, Send, Phone, MapPin, Mail, Globe, Trophy, Filter, Activity, Target, Zap } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { PageHeader } from './ui/PageHeader';
 
 import { jsPDF } from 'jspdf';
 
@@ -316,75 +317,95 @@ export const FinanceManager: React.FC = () => {
             {/* Student Search & Stats */}
             <div className="flex flex-col space-y-8">
                 <>
-                    {/* Header Section */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 glass-card p-10 md:p-14 rounded-[3.5rem] relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700"><DollarSign size={160} className="text-white" /></div>
-                        <div className="relative z-10 space-y-3">
-                            <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
-                                FINANCE <span className="text-brand-accent font-black">DECK</span>
-                            </h2>
-                            <p className="text-white/40 font-black uppercase text-[10px] tracking-[0.5em] italic pt-2">Revenue Tracking // Transaction Records</p>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full lg:w-auto">
-                            <div className="flex flex-col gap-3">
-                                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest italic ml-1">Payment Status</label>
-                                <div className="relative group/select">
-                                    <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-accent group-focus-within/select:scale-110 transition-all" />
-                                    <select
-                                        value={feeStatusFilter}
-                                        onChange={e => setFeeStatusFilter(e.target.value)}
-                                        className="w-full pl-14 pr-12 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[11px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-inner hover:bg-white/10 transition-all focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent/40"
-                                    >
-                                        <option value="All" className="bg-[#0a0f2d] text-white">All Statuses</option>
-                                        <option value="Pending" className="bg-[#0a0f2d] text-white">Pending / Overdue</option>
-                                        <option value="Paid" className="bg-[#0a0f2d] text-white">Fees Paid</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest italic ml-1">Training Location</label>
-                                <div className="relative group/select">
-                                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-accent group-focus-within/select:scale-110 transition-all" />
-                                    <select
-                                        value={selectedVenue}
-                                        onChange={e => setSelectedVenue(e.target.value)}
-                                        className="w-full pl-14 pr-12 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none text-white font-black italic text-[11px] uppercase tracking-[0.2em] appearance-none cursor-pointer shadow-inner hover:bg-white/10 transition-all focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent/40"
-                                    >
-                                        <option value="All" className="bg-[#0a0f2d] text-white">All Locations</option>
-                                        {venues.map(v => (
-                                            <option key={v.id} value={v.name} className="bg-[#0a0f2d] text-white">{v.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="glass-card-alt px-10 py-6 rounded-[2.5rem] border border-white/20 flex flex-row items-center justify-between gap-8 w-full sm:w-auto shadow-2xl relative overflow-hidden group/stats">
-                                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/stats:opacity-100 transition-opacity duration-500"></div>
-                                <div className="relative z-10">
-                                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 italic">COLLECTED DATA</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-black text-white italic tracking-tighter">₹{totalCollected}</span>
-                                        <span className="text-[11px] font-bold text-white/20">/ ₹{totalDue}</span>
-                                    </div>
-                                </div>
-                                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-brand-accent border border-white/10 shadow-xl group-hover/stats:scale-110 transition-transform duration-500 relative z-10">
-                                    <Trophy size={24} />
-                                </div>
+            {/* Header */}
+            <PageHeader 
+                title="FINANCE DECK"
+                subtitle="High-fidelity revenue tracking and academy transaction records"
+                extra={
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest italic mb-1">TOTAL_COLLECTED</p>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-black text-brand-accent italic tracking-tighter">₹{totalCollected.toLocaleString()}</span>
+                                <span className="text-[10px] font-bold text-white/20">/ ₹{totalDue.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
+                }
+            />
 
-                    <div className="relative group/search mx-1">
-                        <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/search:text-brand-accent transition-all w-5 h-5" />
-                        <input
-                            placeholder="SEARCH_STUDENT_ATHLETES_..."
-                            className="w-full pl-18 pr-8 py-7 bg-white/5 border border-white/10 rounded-[2.5rem] shadow-inner focus:border-brand-accent/40 focus:bg-white/10 outline-none transition-all font-black text-[13px] text-white italic tracking-[0.2em] placeholder:text-white/10"
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                    { label: 'Total Revenue', value: `₹${(totalCollected/1000).toFixed(1)}K`, icon: <DollarSign size={18} />, color: '#C3F629' },
+                    { label: 'Active Students', value: filteredPlayers.length, icon: <UserIcon size={18} />, color: '#60a5fa' },
+                    { label: 'Pending Nodes', value: filteredPlayers.filter(p => getStatus(p.id)?.status !== 'PAID').length, icon: <Activity size={18} />, color: '#f59e0b' },
+                    { label: 'Collection Rate', value: `${Math.round((totalCollected/totalDue) * 100 || 0)}%`, icon: <Target size={18} />, color: '#C3F629', pulse: true }
+                ].map((k, i) => (
+                    <div key={i} className="glass-card p-8 rounded-[2.5rem] group hover:bg-white/10 hover:border-white/30 transition-all duration-500 shadow-xl relative overflow-hidden">
+                        {k.pulse && <div className="green-light-bar" />}
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                            <div style={{ color: k.color }}>{k.icon}</div>
+                        </div>
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-4">{k.label}</p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-4xl font-black italic leading-none tracking-tighter text-white group-hover:text-brand-accent transition-colors duration-500">{k.value}</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Tactical Search & Filter Row */}
+            <div className="flex flex-col xl:flex-row gap-6 items-center justify-between">
+                <div className="flex flex-col md:flex-row gap-6 w-full xl:w-auto">
+                    <div className="relative w-full md:w-96 group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-500/40 group-focus-within:text-brand-accent transition-colors" />
+                        <input 
+                            type="text" 
+                            placeholder="SEARCH_STUDENT_ATHLETES_..." 
+                            className="w-full pl-14 pr-6 py-4 bg-brand-500/5 border border-brand-500/10 rounded-2xl outline-none focus:bg-brand-500/10 focus:border-brand-accent/30 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white placeholder:text-white/20 shadow-2xl italic"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
                     </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="relative group/select min-w-[180px]">
+                            <Filter className="absolute left-5 top-1/2 -translate-y-1/2 w-3 h-3 text-brand-accent/40 group-focus-within/select:text-brand-accent transition-all" />
+                            <select
+                                value={feeStatusFilter}
+                                onChange={e => setFeeStatusFilter(e.target.value)}
+                                className="w-full pl-12 pr-10 py-4 bg-brand-500/5 border border-brand-500/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-widest appearance-none cursor-pointer hover:bg-brand-500/10 transition-all focus:border-brand-accent/40"
+                            >
+                                <option value="All">ALL STATUSES</option>
+                                <option value="Pending">PENDING / OVERDUE</option>
+                                <option value="Paid">FEES PAID</option>
+                            </select>
+                        </div>
+
+                        <div className="relative group/select min-w-[180px]">
+                            <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-3 h-3 text-brand-accent/40 group-focus-within/select:text-brand-accent transition-all" />
+                            <select
+                                value={selectedVenue}
+                                onChange={e => setSelectedVenue(e.target.value)}
+                                className="w-full pl-12 pr-10 py-4 bg-brand-500/5 border border-brand-500/10 rounded-2xl outline-none text-white font-black italic text-[10px] uppercase tracking-widest appearance-none cursor-pointer hover:bg-brand-500/10 transition-all focus:border-brand-accent/40"
+                            >
+                                <option value="All">ALL LOCATIONS</option>
+                                {venues.map(v => (
+                                    <option key={v.id} value={v.name}>{v.name.toUpperCase()}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-500/5 border border-brand-500/10">
+                    <Zap size={12} className="text-brand-accent" />
+                    <span className="text-[9px] font-black text-brand-500/60 uppercase tracking-widest italic">FINANCIAL SYSTEMS SECURE</span>
+                </div>
+            </div>
 
                     {/* Unified Responsive Card Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -646,7 +667,7 @@ export const FinanceManager: React.FC = () => {
                                             {selectedPlayerForInvoice.fullName || ''}
                                         </span>
                                         <span style={{ position: 'absolute', top: '245px', left: '331px', fontWeight: 700, maxWidth: '240px', lineHeight: '1.2' }}>
-                                            {invoiceForm.address || selectedPlayerForInvoice.address || ''}
+                                            {selectedPlayerForInvoice.address || ''}
                                         </span>
 
                                         <span style={{ position: 'absolute', top: '271px', left: '120px', fontWeight: 700 }}>

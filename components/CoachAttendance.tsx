@@ -5,6 +5,7 @@ import {
     Search, MapPin, Layers, Check, X, Calendar, 
     Save, Filter, Users, Zap, Trophy, Lock, RotateCcw, Radio
 } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
 
 export const CoachAttendance: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -206,43 +207,13 @@ export const CoachAttendance: React.FC = () => {
       {/* ═══════════════════════════════
           HERO HEADER
       ═══════════════════════════════ */}
-      <div className="glass-card p-8 md:p-12 relative overflow-hidden group">
-        {/* Tactical Scan Line overlay */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-          <div className="w-full h-[2px] bg-brand-400 absolute top-0 shadow-[0_0_15px_rgba(0,200,255,0.8)] animate-scan" />
-        </div>
-        
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12">
-          <Calendar size={140} className="text-brand-500/20" />
-        </div>
-
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 relative z-10">
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-300 italic opacity-80">Icarus // Attendance Protocol</p>
-              <h1 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
-                SESSION <span className="text-brand-400">ROLLCALL</span>
-              </h1>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-widest">
-              <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
-                <Radio size={10} className="animate-pulse text-brand-500"/> {selectedDate}
-              </span>
-              {selectedVenue && (
-                <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
-                  <MapPin size={10} className="text-brand-500"/> {selectedVenue}
-                </span>
-              )}
-              {selectedBatch && (
-                <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
-                  <Layers size={10} className="text-brand-500"/> {selectedBatch}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* KPI Stats - Tactical Grid */}
+      {/* ═══════════════════════════════
+          HERO HEADER
+      ═══════════════════════════════ */}
+      <PageHeader 
+        title="SESSION ROLLCALL" 
+        subtitle="Icarus // Attendance Protocol"
+        extra={
           <div className="grid grid-cols-2 sm:flex gap-4 w-full lg:w-auto">
             <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center min-w-[110px] transition-all hover:bg-white/10 hover:border-brand-500/30 group/stat">
               <p className="text-[9px] font-black text-brand-300 uppercase tracking-widest mb-2 opacity-60">Present</p>
@@ -273,7 +244,23 @@ export const CoachAttendance: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+        }
+      />
+
+      <div className="flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-widest -mt-4 mb-8">
+        <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+          <Radio size={10} className="animate-pulse text-brand-500"/> {selectedDate}
+        </span>
+        {selectedVenue && (
+          <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+            <MapPin size={10} className="text-brand-500"/> {selectedVenue}
+          </span>
+        )}
+        {selectedBatch && (
+          <span className="flex items-center gap-2 text-brand-400 bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
+            <Layers size={10} className="text-brand-500"/> {selectedBatch}
+          </span>
+        )}
       </div>
 
       {/* ═══════════════════════════════
