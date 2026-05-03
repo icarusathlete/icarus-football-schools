@@ -1,7 +1,6 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Player, AcademySettings, PlayerEvaluation, AttendanceRecord, Match } from '../types';
-import { Trophy, Star, Shield, Download, Loader2, Timer, Zap, Calendar, Gauge, Award, Target, Brain, Info, Footprints, Activity, Camera, Quote, X } from 'lucide-react';
+import { Shield, Download, Loader2, Award, X, Camera, RefreshCcw, Edit2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { GeminiService } from '../services/geminiService';
@@ -16,141 +15,50 @@ interface EvaluationCardProps {
   isCoach?: boolean;
 }
 
-// --- ELITE RADAR CHART COMPONENT ---
-const RadarChart = ({ data, color = '#CCFF00' }: { data: { label: string, value: number }[], color?: string }) => {
-    const size = 200;
-    const center = size / 2;
-    const radius = 80;
-    const levels = 4;
-    const points = data.length;
-    const angleStep = (Math.PI * 2) / points;
+// Format date strictly according to professional standards
+const formatDate = (dateStr: string | Date | undefined) => {
+    if (!dateStr) return 'UNKNOWN';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
+};
 
-    // Generate background polygons (the grid)
-    const bgPolygons = Array.from({ length: levels }).map((_, i) => {
-        const r = (radius / levels) * (i + 1);
-        const polyPoints = data.map((_, j) => {
-            const angle = angleStep * j - Math.PI / 2;
-            const x = center + r * Math.cos(angle);
-            const y = center + r * Math.sin(angle);
-            return `${x},${y}`;
-        }).join(' ');
-        return polyPoints;
-    });
+const getFirstName = (fullName: string) => {
+    if (!fullName) return '';
+    const parts = fullName.split(' ');
+    if (parts.length === 1) return parts[0];
+    return parts.slice(0, -1).join(' ');
+};
 
-    // Generate the data polygon
-    const dataPoints = data.map((d, i) => {
-        const angle = angleStep * i - Math.PI / 2;
-        const r = (radius * (Math.min(100, d.value) / 100));
-        const x = center + r * Math.cos(angle);
-        const y = center + r * Math.sin(angle);
-        return `${x},${y}`;
-    }).join(' ');
+const getLastName = (fullName: string) => {
+    if (!fullName) return '';
+    const parts = fullName.split(' ');
+    if (parts.length === 1) return '';
+    return parts[parts.length - 1];
+};
 
-    return (
-        <div className="flex flex-col items-center justify-center relative group">
-            <svg width={size} height={size} className="overflow-visible filter drop-shadow-[0_0_15px_rgba(204,255,0,0.1)]">
-                {/* Background Grid */}
-                {bgPolygons.map((p, i) => (
-                    <polygon
-                        key={i}
-                        points={p}
-                        fill="none"
-                        stroke="rgba(255,255,255,0.05)"
-                        strokeWidth="1"
-                    />
-                ))}
-                {/* Axis lines */}
-                {data.map((_, i) => {
-                    const angle = angleStep * i - Math.PI / 2;
-                    const x = center + radius * Math.cos(angle);
-                    const y = center + radius * Math.sin(angle);
-                    return (
-                        <line
-                            key={i}
-                            x1={center}
-                            y1={center}
-                            x2={x}
-                            y2={y}
-                            stroke="rgba(255,255,255,0.05)"
-                            strokeWidth="1"
-                        />
-                    );
-                })}
-                {/* Data Polygon */}
-                <polygon
-                    points={dataPoints}
-                    fill={`${color}15`}
-                    stroke={color}
-                    strokeWidth="2"
-                    className="transition-all duration-1000 ease-out"
-                    style={{ 
-                        filter: `drop-shadow(0 0 8px ${color}40)`
-                    }}
-                />
-                {/* Labels */}
-                {data.map((d, i) => {
-                    const angle = angleStep * i - Math.PI / 2;
-                    const x = center + (radius + 25) * Math.cos(angle);
-                    const y = center + (radius + 15) * Math.sin(angle);
-                    return (
-                        <text
-                            key={i}
-                            x={x}
-                            y={y}
-                            textAnchor="middle"
-                            className="text-[8px] font-black uppercase tracking-widest fill-white/40 italic"
-                            style={{ fontSize: '7px' }}
-                        >
-                            {d.label}
-                        </text>
-                    );
-                })}
-                {/* Data Points */}
-                {data.map((d, i) => {
-                    const angle = angleStep * i - Math.PI / 2;
-                    const r = (radius * (Math.min(100, d.value) / 100));
-                    const x = center + r * Math.cos(angle);
-                    const y = center + r * Math.sin(angle);
-                    return (
-                        <circle
-                            key={i}
-                            cx={x}
-                            cy={y}
-                            r="3"
-                            fill={color}
-                            className="transition-all duration-1000"
-                        />
-                    );
-                })}
-            </svg>
-            
-            {/* Value HUD */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="text-[10px] font-black text-brand-500">KINETIC_PROFILE</div>
-                    <div className="text-[8px] text-white/30 font-mono tracking-tighter">DATA_SYNC_ACTIVE</div>
-                </div>
-            </div>
-        </div>
+const toTitleCase = (str: string) => {
+    return str.replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
 };
 
-// Physical Engine Bar
-const PhysicalBar = ({ value, label, max = 100, unit = '', inverse = false }: { value: number, label: string, max?: number, unit?: string, inverse?: boolean }) => {
-    // For time trials, lower is better. Normalize for visualization.
-    const percentage = inverse ? ((max - value) / max) * 100 : (value / max) * 100;
-    
+// V4 Progress Bar for stats
+// For time-based metrics (inverse=true): lower time = better = more fill.
+// fill% = (max - value) / max * 100, clamped 0-100.
+const V4ProgressBar = ({ label, value, max = 100, inverse = false, unit = '', color = '#C8FF00' }: { label: string, value: number, max?: number, inverse?: boolean, unit?: string, color?: string }) => {
+    const percentage = inverse
+        ? Math.max(0, Math.min(100, ((max - value) / max) * 100))
+        : Math.max(0, Math.min(100, (value / max) * 100));
+
     return (
-        <div className="space-y-1.5">
-            <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{label}</span>
-                <span className="text-xs font-black text-cyan-400 italic">{value}{unit}</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/10 p-[1px]">
-                <div 
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-                    style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-                />
+        <div className="flex items-center justify-between mb-[10px]">
+            <span className="text-[9px] uppercase text-white font-medium truncate pr-2 max-w-[45%] leading-tight">{label}</span>
+            <div className="flex items-center gap-3 flex-1 justify-end">
+                <div className="h-[5px] w-[120px] bg-white/[0.08] rounded-[2px] overflow-hidden">
+                    <div className="h-full rounded-[2px]" style={{ width: `${percentage}%`, backgroundColor: color }} />
+                </div>
+                <span className="text-[11px] font-bold text-white w-[32px] text-right">{value}{unit}</span>
             </div>
         </div>
     );
@@ -161,34 +69,54 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiReport, setAiReport] = useState<string | null>(player?.evaluation?.aiReport || null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [isEditingRemarks, setIsEditingRemarks] = useState(false);
+  const [editedRemarks, setEditedRemarks] = useState<string>(player?.evaluation?.coachRemarks || player?.evaluation?.aiReport || '');
   const evalData = player?.evaluation;
   
-  useEffect(() => {
-    // Only auto-generate if we have evaluation data but no stored report yet
-    if (evalData && !evalData.aiReport && !aiReport && player?.id) {
-      handleGenerateAIReport();
-    } else if (evalData?.aiReport && evalData.aiReport !== aiReport) {
-      // Sync state if player object changes (e.g. from cache sync)
-      setAiReport(evalData.aiReport);
-    }
-  }, [player?.id, evalData]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
-  const handleGenerateAIReport = async () => {
+  useEffect(() => {
+    const updateScale = () => {
+      if (wrapperRef.current) {
+        const containerWidth = wrapperRef.current.clientWidth;
+        const newScale = Math.min(1, containerWidth / 1600);
+        setScale(newScale);
+      }
+    };
+    
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+  
+  useEffect(() => {
+    if (evalData?.aiReport) {
+      setAiReport(evalData.aiReport);
+      if (!editedRemarks) setEditedRemarks(evalData.coachRemarks || evalData.aiReport || '');
+    } else if (evalData && !aiReport && player?.id && !isLoadingAI) {
+      handleGenerateAIReport();
+    }
+  }, [player?.id, evalData?.aiReport]);
+
+  const handleGenerateAIReport = async (manual = false) => {
+    if (isLoadingAI) return;
     setIsLoadingAI(true);
     try {
       const report = await GeminiService.generateReportCard(player, attendance, matches);
       setAiReport(report);
       
-      // PERSIST: Save the generated report back to the player object
+      if (manual || !player.evaluation?.coachRemarks) {
+        setEditedRemarks(report);
+      }
+
       if (player.evaluation) {
         const updatedPlayer: Player = {
           ...player,
-          evaluation: {
-            ...player.evaluation,
-            aiReport: report
-          }
+          evaluation: { ...player.evaluation, aiReport: report }
         };
         await StorageService.updatePlayer(updatedPlayer);
+        window.dispatchEvent(new CustomEvent('academy_data_update'));
       }
     } catch (error) {
       console.error("AI Generation failed:", error);
@@ -197,24 +125,23 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     }
   };
 
-  if (!player || !evalData) return (
-    <div className="p-12 text-center bg-brand-950/20 rounded-[2.5rem] border-2 border-dashed border-brand-500/20 shadow-2xl backdrop-blur-xl">
-      <div className="w-20 h-20 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-500/20">
-        <Trophy className="w-10 h-10 text-brand-500/40" />
-      </div>
-      <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">Scout Report <span className="text-brand-500">Not Found</span></h3>
-      <p className="text-white/40 text-sm mt-3 max-w-sm mx-auto font-medium">Finalize a player evaluation to generate this professional performance record.</p>
-    </div>
-  );
-
-  const calculateAge = (dob: string) => {
-    if (!dob) return 0;
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
-    return age;
+  const handleSaveRemarks = async () => {
+    if (!player.evaluation) return;
+    
+    try {
+      const updatedPlayer: Player = {
+        ...player,
+        evaluation: { 
+          ...player.evaluation, 
+          coachRemarks: editedRemarks 
+        }
+      };
+      await StorageService.updatePlayer(updatedPlayer);
+      setIsEditingRemarks(false);
+      window.dispatchEvent(new CustomEvent('academy_data_update'));
+    } catch (error) {
+      console.error("Save failed:", error);
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -222,416 +149,464 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     if (!element) return;
     setIsGenerating(true);
 
-    // Preparation for PDF capture: Simplify styles that html2canvas struggles with
-    const originalStyle = element.style.cssText;
-    element.style.width = '1200px';
-    element.classList.add('pdf-export-mode');
-
     try {
         const canvas = await html2canvas(element, {
-            scale: 2,
+            scale: 3, 
             useCORS: true,
-            backgroundColor: '#040054',
+            backgroundColor: '#060D1F',
             logging: false,
-            allowTaint: true,
+            width: 1600,
+            height: 1000,
+            windowWidth: 1600,
+            windowHeight: 1000,
             onclone: (clonedDoc) => {
-                // Ensure cloned elements have simplified backgrounds if needed
-                const clonedElement = clonedDoc.querySelector('[ref="cardRef"]') as HTMLElement;
+                const clonedElement = clonedDoc.querySelector('[data-report-container="true"]') as HTMLElement;
                 if (clonedElement) {
-                    clonedElement.style.borderRadius = '0'; // Sharper corners for PDF
+                    clonedElement.style.transform = 'none';
+                    clonedElement.style.position = 'relative';
+                    clonedElement.style.margin = '0';
+                    clonedElement.style.border = 'none';
+                    
+                    const elements = clonedElement.querySelectorAll('*');
+                    elements.forEach((el) => {
+                        (el as HTMLElement).style.opacity = '1';
+                    });
                 }
             }
         });
 
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-
+        const imgData = canvas.toDataURL('image/png', 1.0);
         const pdf = new jsPDF({
-            orientation: imgWidth > imgHeight ? 'landscape' : 'portrait',
+            orientation: 'landscape',
             unit: 'px',
-            format: [imgWidth, imgHeight]
+            format: [1600, 1000],
+            hotfixes: ['px_scaling']
         });
 
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-        pdf.save(`${player?.fullName?.replace(/\s+/g, '_') || 'PLAYER'}_ICARUS_SCOUT_REPORT.pdf`);
+        pdf.addImage(imgData, 'PNG', 0, 0, 1600, 1000);
+        pdf.save(`${player?.fullName?.replace(/\s+/g, '_')}_SCOUT_DOSSIER.pdf`);
     } catch (error) {
         console.error("PDF Generation failed:", error);
-        alert("Export failed. Large images might be causing an issue.");
     } finally {
-        if (element) {
-            element.style.cssText = originalStyle;
-            element.classList.remove('pdf-export-mode');
-        }
         setIsGenerating(false);
     }
   };
 
+  if (!player || !evalData) return null;
+
   return (
-    <div className="space-y-8">
-        <div className="flex justify-end gap-3 px-4">
-             {onClose && (
-                <button 
-                    onClick={onClose}
-                    className="bg-red-500/10 border border-red-500/20 text-red-500 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all flex items-center gap-2"
-                >
-                    <X size={16}/> EXIT_REPORT
+    <div className="space-y-6">
+        {/* Controls Header (Not part of PDF) */}
+        <div className="flex justify-between items-center bg-[#07102A]/80 backdrop-blur-2xl p-6 rounded-[1.5rem] border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-6">
+                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
+                    <Shield className="text-[#C8FF00]" size={24} />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-white uppercase tracking-widest">Premium Dossier Render</h2>
+                    <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Export Management</p>
+                </div>
+            </div>
+            <div className="flex gap-4">
+                {isCoach && (
+                    <button onClick={() => handleGenerateAIReport(true)} disabled={isLoadingAI} className="bg-white/5 text-white/70 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-3 hover:bg-white/10 transition-all border border-white/5">
+                        {isLoadingAI ? <Loader2 className="animate-spin" size={16}/> : <RefreshCcw size={16} />} REGENERATE AI
+                    </button>
+                )}
+                {isCoach && (
+                    <button 
+                        onClick={() => setIsEditingRemarks(!isEditingRemarks)} 
+                        className={`px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-3 transition-all border ${isEditingRemarks ? 'bg-white text-black border-white' : 'bg-white/5 text-white/70 border-white/5 hover:bg-white/10'}`}
+                    >
+                        {isEditingRemarks ? <X size={16}/> : <Edit2 size={16} />} 
+                        {isEditingRemarks ? 'CANCEL EDIT' : 'EDIT VERDICT'}
+                    </button>
+                )}
+                <button onClick={handleDownloadPDF} disabled={isGenerating} className="bg-[#C8FF00] text-[#050E25] px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-3 hover:opacity-90 transition-all shadow-lg">
+                    {isGenerating ? <Loader2 className="animate-spin" size={18}/> : <Download size={18}/>} EXPORT PDF
                 </button>
-             )}
-             <button 
-                onClick={handleGenerateAIReport}
-                disabled={isLoadingAI}
-                className="bg-white/5 border border-white/10 text-white px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 group disabled:opacity-50"
-            >
-                {isLoadingAI ? <Loader2 className="animate-spin" size={16}/> : <Brain size={16} className="group-hover:text-cyan-400 transition-colors" />} 
-                REFRESH ANALYTICS
-            </button>
-            <button 
-                onClick={handleDownloadPDF} 
-                disabled={isGenerating}
-                className="bg-brand-500 text-brand-950 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-500/20 flex items-center gap-3 disabled:opacity-50 italic"
-            >
-                {isGenerating ? <Loader2 className="animate-spin" size={18}/> : <Download size={18} />} 
-                DOWNLOAD PORTFOLIO
-            </button>
+                {onClose && (
+                    <button onClick={onClose} className="p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all ml-2">
+                        <X size={24} />
+                    </button>
+                )}
+            </div>
         </div>
 
-        {/* --- PROFESSIONAL SCOUT DOSSIER --- */}
-        <div ref={cardRef} className="w-full max-w-[1200px] mx-auto bg-[#040054] text-white p-6 md:p-16 overflow-hidden relative select-none border border-white/10 rounded-3xl md:rounded-[4rem] shadow-2xl" style={{ fontFamily: 'Inter, sans-serif' }}>
-            
-            {/* Ambient Background Elements */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(204,255,0,0.08),transparent_60%)]" />
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-30" />
-            
-            {/* Scanline Overlay */}
-            <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
-            
-            {/* Moving Scanning Line */}
-            <div className="absolute inset-x-0 h-[2px] bg-brand-500/10 shadow-[0_0_20px_rgba(0,200,255,0.5)] z-[51] pointer-events-none animate-scan-slow" />
-            
-            {/* 1. Tactical Pitch Background Pattern */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.07]">
-                {/* Grid */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-                
-                {/* Pitch Lines */}
-                <div className="absolute inset-12 border border-white/5 rounded-sm">
-                    {/* Halfway line */}
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/5" />
-                    {/* Center circle */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/5 rounded-full" />
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/5 rounded-full" />
-                    
-                    {/* Penalty boxes */}
-                    <div className="absolute left-0 top-1/4 bottom-1/4 w-40 border-y border-r border-white/5" />
-                    <div className="absolute right-0 top-1/4 bottom-1/4 w-40 border-y border-l border-white/5" />
-                    
-                    {/* Goal boxes */}
-                    <div className="absolute left-0 top-[37.5%] bottom-[37.5%] w-16 border-y border-r border-white/5" />
-                    <div className="absolute right-0 top-[37.5%] bottom-[37.5%] w-16 border-y border-l border-white/5" />
-                </div>
-            </div>
+        {/* --- THE DOSSIER (1600x1000 LANDSCAPE AREA) --- */}
+        <div ref={wrapperRef} className="w-full flex justify-center overflow-hidden rounded-[1.5rem] bg-[#060D1F] border border-white/10" style={{ height: `${1000 * scale}px` }}>
+            <div style={{ width: `${1600 * scale}px`, height: `${1000 * scale}px`, position: 'relative' }}>
+                <style>
+                    {`
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+                        .v4-dossier {
+                            font-family: 'Inter', sans-serif;
+                            background-color: #060D1F;
+                        }
+                        .v4-noise {
+                            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+                            opacity: 0.04;
+                            mix-blend-mode: overlay;
+                        }
+                        .v4-pitch-lines {
+                            background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 100 65' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='100' height='65' fill='none' stroke='white' stroke-width='0.5'/%3E%3Cline x1='50' y1='0' x2='50' y2='65' stroke='white' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='32.5' r='9.15' fill='none' stroke='white' stroke-width='0.5'/%3E%3Crect x='0' y='13.84' width='16.5' height='37.32' fill='none' stroke='white' stroke-width='0.5'/%3E%3Crect x='83.5' y='13.84' width='16.5' height='37.32' fill='none' stroke='white' stroke-width='0.5'/%3E%3Crect x='0' y='24.84' width='5.5' height='15.32' fill='none' stroke='white' stroke-width='0.5'/%3E%3Crect x='94.5' y='24.84' width='5.5' height='15.32' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E");
+                            background-repeat: no-repeat;
+                            background-size: cover;
+                        }
+                    `}
+                </style>
+                <div 
+                    ref={cardRef} 
+                    data-report-container="true"
+                    className="w-[1600px] min-w-[1600px] h-[1000px] v4-dossier overflow-hidden relative"
+                    style={{ 
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top left',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0
+                    }}
+                >
+                    {/* LAYER 1: Base color applied via v4-dossier class */}
 
-            {/* 2. Confidential Watermark */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] select-none overflow-hidden">
-                <div className="text-[12vw] font-black uppercase tracking-[0.2em] -rotate-12 whitespace-nowrap">
-                    CONFIDENTIAL: SCOUT DOSSIER
-                </div>
-            </div>
-            
-            {/* Watermark HUD */}
-            <div className="absolute top-10 right-16 flex items-center gap-4 opacity-20 group">
-                <div className="h-0.5 w-12 bg-white/20" />
-                <div className="text-[9px] font-mono tracking-[0.6em] uppercase">SYSTEM_ENCODE_BETA_v5.0</div>
-                <div className="h-0.5 w-4 bg-brand-500" />
-            </div>
+                    {/* LAYER 2: Pitch texture — 11% opacity, clearly visible as design element */}
+                    <div className="absolute w-[60%] h-[80%] bottom-[-10%] right-[-10%] v4-pitch-lines opacity-[0.11] pointer-events-none z-[1]" style={{ transform: 'rotate(12deg)' }} />
 
-            {/* Corner Reticles */}
-            <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-brand-500/30 rounded-tl-2xl pointer-events-none" />
-            <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-brand-500/30 rounded-tr-2xl pointer-events-none" />
-            <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-brand-500/30 rounded-bl-2xl pointer-events-none" />
-            <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-brand-500/30 rounded-br-2xl pointer-events-none" />
+                    {/* LAYER 3: Atmospheric lighting */}
+                    {/* Lime bloom — wider + brighter so player stands in a pool of light */}
+                    <div className="absolute w-[1000px] h-[1000px] rounded-full pointer-events-none z-[1]" style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.18) 0%, transparent 65%)', top: '45%', left: '38%', transform: 'translate(-50%, -50%)' }} />
+                    {/* Cyan bloom — right data panel */}
+                    <div className="absolute w-[600px] h-[600px] rounded-full pointer-events-none z-[1]" style={{ background: 'radial-gradient(circle, rgba(0,100,255,0.08) 0%, transparent 70%)', top: '20%', left: '85%', transform: 'translate(-50%, -50%)' }} />
+                    {/* Motion streak — kinetic energy line at 58% height */}
+                    <div className="absolute pointer-events-none z-[1]" style={{ top: '58%', left: '20%', width: '45%', height: '4px', background: 'linear-gradient(90deg, transparent 0%, rgba(200,255,0,0.12) 30%, rgba(200,255,0,0.12) 70%, transparent 100%)' }} />
 
-            {/* HEADER: Identity & Core Bio */}
-            <div className="relative z-10 flex flex-col md:flex-row justify-between items-end mb-16 gap-10">
-                <div className="flex items-center gap-8">
-                     <div className="relative">
-                        <div className="absolute inset-0 bg-brand-500 rounded-2xl blur-2xl opacity-10" />
-                        <img 
-                            src={player.photoUrl} 
-                            className="w-32 h-32 rounded-3xl object-cover border-4 border-white/5 relative z-10 shadow-2xl"
-                        />
-                        <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-brand-500 text-brand-950 rounded-xl flex items-center justify-center border-4 border-[#040054] z-20">
-                            <Star size={16} fill="currentColor" />
+                    {/* LAYER 4: Vignette */}
+                    <div className="absolute inset-0 pointer-events-none z-[1]" style={{ background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.7) 120%)' }} />
+
+                    {/* LAYER 5: Grain */}
+                    <div className="absolute inset-0 v4-noise pointer-events-none z-[1]" />
+
+                    {/* DIAGONAL ACCENT (Z: 2) */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-[2]">
+                        <line x1="15%" y1="85%" x2="45%" y2="100%" stroke="#C8FF00" strokeWidth="3" />
+                    </svg>
+
+                    {/* DEAD ZONE 1 — Radar chart + stat pills (left mid, Z:8) */}
+                    {(() => {
+                        const cx = 90, cy = 90, r = 72;
+                        const attrs = [
+                            { label: 'PASS', value: evalData.metrics?.passing || 0 },
+                            { label: 'SHOOT', value: evalData.metrics?.shooting || 0 },
+                            { label: 'CTRL', value: evalData.metrics?.juggling || 0 },
+                            { label: 'WEAK', value: evalData.metrics?.weakFoot || 0 },
+                            { label: 'TAC', value: Math.round((evalData.metrics?.passing || 0) * 0.9) },
+                        ];
+                        const n = attrs.length;
+                        // Pentagon: angle starts from top (-90deg)
+                        const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+                        const pt = (i: number, radius: number) => ({
+                            x: cx + radius * Math.cos(angle(i)),
+                            y: cy + radius * Math.sin(angle(i)),
+                        });
+                        // Outer pentagon grid rings
+                        const rings = [0.25, 0.5, 0.75, 1.0];
+                        const outerPts = attrs.map((_, i) => pt(i, r));
+                        const outerPath = outerPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z';
+                        // Data polygon
+                        const dataPts = attrs.map((a, i) => pt(i, (a.value / 100) * r));
+                        const dataPath = dataPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z';
+                        const accuracy = evalData.metrics?.passing || 0;
+                        const power = evalData.metrics?.shooting || 0;
+                        return (
+                            <div className="absolute z-[8] pointer-events-none" style={{ left: '3%', top: '220px' }}>
+                                <svg width="180" height="180" viewBox="0 0 180 180">
+                                    {/* Grid rings */}
+                                    {rings.map((ring, ri) => {
+                                        const rPts = attrs.map((_, i) => pt(i, r * ring));
+                                        const rPath = rPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z';
+                                        return <path key={ri} d={rPath} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />;
+                                    })}
+                                    {/* Axis lines */}
+                                    {attrs.map((_, i) => {
+                                        const p = pt(i, r);
+                                        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.1)" strokeWidth="1" />;
+                                    })}
+                                    {/* Outer pentagon */}
+                                    <path d={outerPath} fill="none" stroke="rgba(200,255,0,0.3)" strokeWidth="1.5" />
+                                    {/* Data fill */}
+                                    <path d={dataPath} fill="rgba(200,255,0,0.08)" stroke="#C8FF00" strokeWidth="1.5" />
+                                    {/* Data dots */}
+                                    {dataPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3" fill="#C8FF00" />)}
+                                    {/* Labels */}
+                                    {attrs.map((a, i) => {
+                                        const lp = pt(i, r + 14);
+                                        return (
+                                            <text key={i} x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle"
+                                                style={{ fontSize: '7px', fill: 'rgba(255,255,255,0.7)', fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                {a.label}
+                                            </text>
+                                        );
+                                    })}
+                                </svg>
+                                {/* Stat pills */}
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                                    <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '6px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'Inter,sans-serif' }}>ACCURACY</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', fontFamily: 'Inter,sans-serif' }}>{accuracy}%</span>
+                                    </div>
+                                    <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '6px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'Inter,sans-serif' }}>POWER</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', fontFamily: 'Inter,sans-serif' }}>{power}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {/* DEAD ZONE 3 — Vertical watermark on right margin (Z:2) */}
+                    <div className="absolute pointer-events-none z-[2]" style={{
+                        right: '0.5%', top: '50%', transform: 'translateY(-50%) rotate(90deg)',
+                        transformOrigin: 'center center',
+                        whiteSpace: 'nowrap',
+                        fontSize: '9px', letterSpacing: '0.15em',
+                        color: 'rgba(255,255,255,0.06)',
+                        textTransform: 'uppercase',
+                        fontFamily: 'Inter, sans-serif',
+                        fontWeight: 600,
+                    }}>ICARUS FOOTBALL SCHOOLS</div>
+
+                    {/* COMPOSITE RATING TEXT (Z: 9) */}
+                    <div className="absolute top-[80px] left-1/2 -translate-x-1/2 flex flex-col items-center z-[9]">
+                        <span className="text-[9px] tracking-[0.2em] text-white/40 uppercase">COMPOSITE RATING</span>
+                        <span className="text-[96px] font-bold text-[#C8FF00] leading-none mt-2">{evalData.overallRating}</span>
+                        <div className="w-[80px] h-[1px] bg-[#C8FF00] mt-4" />
+                    </div>
+
+                    {/* FLOATING NAME TEXT (Z: 8) */}
+                    <div className="absolute top-[90px] left-[3%] flex flex-col z-[8]">
+                        <span className="text-[28px] text-white font-normal leading-tight tracking-wide">{toTitleCase(getFirstName(player.fullName))}</span>
+                        <span className="text-[52px] text-white font-bold leading-none tracking-wide">{toTitleCase(getLastName(player.fullName))}</span>
+                        <div className="flex items-center gap-3 mt-4">
+                            <span className="px-3 py-1 bg-[#C8FF00] text-[#050E25] text-[10px] font-bold uppercase rounded-sm">{player.position || 'TBD'}</span>
+                            <span className="text-[10px] text-white/40 font-mono tracking-wider">DOB: {formatDate(player.dateOfBirth)}</span>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                            <span className="px-3 py-1 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-brand-500 italic rounded-md">ELITE PROSPECT</span>
-                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.5em] italic">#{player.memberId}</span>
-                        </div>
-                        <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none text-white">
-                            {player?.fullName?.split(' ')?.[0] || 'PLAYER'} <span className="text-brand-500">{player?.fullName?.split(' ')?.slice(1).join(' ') || ''}</span>
-                        </h1>
-                        <div className="flex gap-8">
+
+                    {/* GLASS DATA PANEL (Z: 7) */}
+                    <div className="absolute right-[2%] top-[80px] w-[28%] bg-white/[0.04] backdrop-blur-[12px] border border-white/[0.08] rounded-[16px] p-[24px] flex flex-col gap-[20px] z-[7]">
+                        {/* Technical Profile */}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-[16px] h-[2px] bg-[#C8FF00]" />
+                                <span className="text-[8px] tracking-[0.1em] uppercase text-white/35">TECHNICAL PROFILE</span>
+                            </div>
                             <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">FIELD_POSITION</span>
-                                <span className="text-sm font-black italic uppercase tracking-widest text-white/80">{player.position}</span>
+                                <V4ProgressBar label="PASSING ACCURACY" value={evalData.metrics?.passing || 0} />
+                                <V4ProgressBar label="SHOOTING" value={evalData.metrics?.shooting || 0} />
+                                <V4ProgressBar label="TECHNICAL CONTROL" value={evalData.metrics?.juggling || 0} />
+                                <V4ProgressBar label="WEAK FOOT" value={evalData.metrics?.weakFoot || 0} />
+                                <V4ProgressBar label="FIRST TOUCH" value={Math.round(((evalData.metrics?.passing||0) + (evalData.metrics?.juggling||0))/2)} />
+                                <V4ProgressBar label="TACTICAL AWARENESS" value={Math.round((evalData.metrics?.passing||0) * 0.9)} />
+                            </div>
+                        </div>
+                        <div className="h-[1px] w-full" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                        
+                        {/* Physical Metrics */}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-[16px] h-[2px] bg-[#00D4FF]" />
+                                <span className="text-[8px] tracking-[0.1em] uppercase text-white/35">PHYSICAL METRICS</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">AGE_GROUP</span>
-                                <span className="text-sm font-black italic uppercase tracking-widest text-white/80">U-{calculateAge(player.dateOfBirth)} ACADEMY</span>
+                                <V4ProgressBar label="SPRINT SPEED" value={evalData.timeTrials?.speed || 0} max={35} inverse unit="s" color="#00D4FF" />
+                                <V4ProgressBar label="AGILITY" value={evalData.timeTrials?.agility || 0} max={30} inverse unit="s" color="#00D4FF" />
+                                <V4ProgressBar label="DRIBBLING" value={evalData.timeTrials?.dribbling || 0} max={40} inverse unit="s" color="#00D4FF" />
+                                <V4ProgressBar label="ENDURANCE" value={evalData.metrics?.beepTest || 0} max={100} unit="" color="#00D4FF" />
                             </div>
+                        </div>
+                        <div className="h-[1px] w-full" style={{ background: 'rgba(255,255,255,0.1)' }} />
+
+                        {/* Development Priorities */}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-[16px] h-[2px] bg-[#C8FF00]" />
+                                <span className="text-[8px] tracking-[0.1em] uppercase text-white/35">TECHNICAL DEVELOPMENT PRIORITIES</span>
+                            </div>
+                            <ul className="flex flex-col gap-3 mb-5">
+                                {(evalData.developmentAreas?.length ? evalData.developmentAreas : ['Requires tactical maturation', 'Positional discipline']).slice(0, 3).map((area, i) => (
+                                    <li key={i} className="flex items-start gap-2">
+                                        <span className="text-[#C8FF00] text-[11px] leading-tight mt-[1px]">▸</span>
+                                        <span className="text-[11px] text-white leading-tight">{area}</span>
+                                    </li>
+                                ))}
+                            </ul>
                             <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">HT / WT</span>
-                                <span className="text-sm font-black italic uppercase tracking-widest text-white/80">{evalData?.height || '--'}CM / {evalData?.weight || '--'}KG</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col items-end">
-                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.8em] mb-4 italic">COMPOSITE_SCORE</span>
-                    <div className="flex items-start gap-4">
-                        <div className="text-7xl md:text-9xl font-black italic leading-[0.85] tracking-tighter text-white font-mono" style={{ filter: 'drop-shadow(0 0 20px rgba(204,255,0,0.3))' }}>
-                            {evalData.overallRating}
-                        </div>
-                        <div className="pt-2">
-                             <span className="text-brand-500 font-black text-xl italic font-mono">/100</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* MAIN PERFORMANCE GRID: THE SYMMETRICAL CORE */}
-            <div className="grid grid-cols-12 gap-12 relative z-10 items-center">
-                
-                {/* 1. LEFT: TECHNICAL DATA HUD (3 Cols) */}
-                <div className="col-span-12 lg:col-span-3 space-y-12">
-                    <div className="relative glass-card-alt p-8 rounded-[2.5rem] border-white/5 overflow-hidden group">
-                        {/* Radar Pulse Background */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(204,255,0,0.05),transparent_70%)] animate-pulse" />
-                        
-                        <div className="flex items-center gap-3 mb-10 relative z-10">
-                            <Shield size={16} className="text-brand-500" />
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">TECHNICAL_INDEX</h3>
-                        </div>
-                        
-                        <div className="flex justify-center mb-8">
-                            <RadarChart 
-                                data={[
-                                    { label: 'PASS', value: evalData?.metrics?.passing || 0 },
-                                    { label: 'SHOT', value: evalData?.metrics?.shooting || 0 },
-                                    { label: 'CTRL', value: evalData?.metrics?.juggling || 0 },
-                                    { label: 'WF', value: evalData?.metrics?.weakFoot || 0 },
-                                    { label: 'STAM', value: evalData?.metrics?.beepTest || 0 }
-                                ]} 
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
-                            <div className="flex flex-col items-center">
-                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">ACCURACY</span>
-                                <span className="text-lg font-black text-brand-500 italic">{evalData?.metrics?.passing}%</span>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">POWER</span>
-                                <span className="text-lg font-black text-brand-500 italic">{evalData?.metrics?.shooting}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 2. CENTER: THE KINETIC HERO (6 Cols) */}
-                <div className="col-span-12 lg:col-span-6 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-[550px]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(204,255,0,0.02),transparent_70%)] rounded-[4rem]" />
-                    
-                    {/* The Large Hero Action Image */}
-                    {evalData.actionImageUrl ? (
-                        <div className="relative w-full h-full flex items-center justify-center group/hero">
-                            {/* Decorative Frame */}
-                            <div className="absolute inset-0 border-x border-white/5 rounded-3xl md:rounded-[4rem] -z-10" />
-                            
-                            {/* Hero HUD Overlay */}
-                            <div className="absolute top-10 left-10 z-20 pointer-events-none">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">REC // 00:42:15</span>
-                                </div>
-                                <div className="text-[7px] font-mono text-white/20 uppercase">COORD: 34.0522° N, 118.2437° W</div>
-                            </div>
-
-                            <img 
-                                src={evalData.actionImageUrl} 
-                                className="relative z-10 w-full md:w-[110%] h-auto md:h-[110%] object-contain object-bottom drop-shadow-[0_40px_80px_rgba(0,0,0,0.9)] transition-all duration-1000 group-hover/hero:scale-[1.05] group-hover/hero:-translate-y-4"
-                                style={{ 
-                                    maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
-                                }}
-                            />
-                            
-                            {/* Overlay UI Elements */}
-                            <div className="absolute bottom-4 left-0 right-0 text-center z-20">
-                                <div className="inline-flex items-center gap-3 bg-brand-500 text-brand-950 px-4 md:px-8 py-2 md:py-3 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-[0.5em] italic shadow-2xl">
-                                    <Camera size={14} /> KINETIC_CAPTURE_LIVE
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center gap-8 opacity-5 border-2 border-dashed border-white/10 w-full h-[300px] md:h-[500px] rounded-3xl md:rounded-[4rem]">
-                            <Camera size={80} strokeWidth={0.5} />
-                            <span className="text-[10px] md:text-[14px] font-black uppercase tracking-[1em] md:tracking-[1.5em] italic">SIGNAL_LOST:UPLOAD_HERO_ASSET</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* 3. RIGHT: PHYSICAL DATA HUD (3 Cols) */}
-                <div className="col-span-12 lg:col-span-3 space-y-12">
-                   <div className="relative">
-                        <div className="flex items-center gap-3 mb-10 justify-end text-right">
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">PHYSICAL_ENGINE</h3>
-                            <Gauge size={16} className="text-brand-500" />
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-12">
-                            <PhysicalBar value={evalData?.timeTrials?.speed || 7.0} label="SPRINT SPEED" unit="s" max={7.0} inverse />
-                            <PhysicalBar value={evalData?.timeTrials?.agility || 24.0} label="AGILITY DRILL" unit="s" max={24.0} inverse />
-                            <PhysicalBar value={evalData?.timeTrials?.dribbling || 28.0} label="DRIBBLING" unit="s" max={28.0} inverse />
-                            <PhysicalBar value={evalData?.metrics?.beepTest || 0} label="STAMINA" max={100} />
-                        </div>
-                        
-                        <div className="space-y-12">
-                            {/* Level Progress */}
-                            <div className="pt-10 border-t border-white/5">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] italic">DEVELOPMENT_STAGE</span>
-                                    <span className="text-xs font-black italic text-brand-500">LEVEL {Math.floor(evalData.level / 10)}</span>
-                                </div>
-                                <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 p-[1px]">
-                                    <div className="h-full bg-brand-500 shadow-[0_0_20px_rgba(204,255,0,0.6)] transition-all duration-1000" style={{ width: `${evalData.level}%` }} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-                {/* Qualitative Assessments: Coach & AI */}
-                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                    {/* Coach Verdict - Elite Executive Assessment */}
-                    <div className="bg-[#050066] p-8 md:p-12 rounded-3xl md:rounded-[3.5rem] border border-brand-500/30 relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 pointer-events-none">
-                            <Award size={140} />
-                        </div>
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="p-2 rounded-xl bg-brand-500/20 text-brand-500">
-                                <Award size={18} strokeWidth={2.5} />
-                            </div>
-                            <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.5em] text-brand-500 italic">OFFICIAL_TECHNICAL_VERDICT</h4>
-                        </div>
-                        <div className="min-h-[160px] relative">
-                            <div className="absolute -top-4 -left-2 text-brand-500/10"><Quote size={32} /></div>
-                            {evalData.coachRemarks ? (
-                                <p className="text-base md:text-xl font-medium italic text-white/90 leading-relaxed tracking-tight relative z-10" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    {evalData.coachRemarks}
-                                </p>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-10 gap-3 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
-                                    <Info size={24} className="text-white/10" />
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-white/20 italic">AWAITING_LEAD_COACH_INPUT</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                            <div className="flex flex-col">
-                                <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">VALIDATION_STAMP</span>
-                                <span className="text-[9px] font-bold text-brand-500/60 uppercase tracking-widest">{new Date(evalData.evaluationDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}</span>
-                            </div>
-                            <div className="h-8 w-[1px] bg-white/10 mx-4" />
-                            <div className="flex-1 text-right">
-                                <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">AUTHORISING_OFFICER</span>
-                                <span className="text-[10px] font-black text-white uppercase tracking-wider block">{evalData.coachName || 'ICARUS_DIRECTOR'}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* AI Verdict (Strategic Analytics) */}
-                    <div className="bg-white/[0.03] p-8 md:p-12 rounded-3xl md:rounded-[3rem] border border-white/10 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Brain size={120} /></div>
-                        
-                        {/* Scanning Effect Overlay */}
-                        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(transparent_50%,rgba(0,200,255,0.5)_50%)] bg-[size:100%_4px] animate-[pulse_4s_infinite]" />
-
-                        <div className="flex items-center gap-4 mb-6 md:mb-8">
-                            <Zap size={20} className="text-cyan-400" />
-                            <h4 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] text-cyan-400/60 italic">AI_KINETIC_ANALYTICS</h4>
-                        </div>
-                        <div className="min-h-[140px] relative z-10">
-                            {isLoadingAI ? (
-                                <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                    <Loader2 className="animate-spin text-cyan-400" size={32} />
-                                    <span className="text-[8px] font-black uppercase tracking-[0.6em] text-white/10">SYNCING_MATRIX...</span>
-                                </div>
-                            ) : (
-                                <p className="text-base md:text-lg font-medium italic text-cyan-50/70 leading-relaxed" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    {aiReport || 'Performance stream awaiting synchronization.'}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Priority & Signature Area */}
-                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mt-4">
-                    <div className="bg-white/[0.02] p-8 md:p-10 rounded-3xl md:rounded-[3rem] border border-white/10">
-                        <div className="flex items-center gap-4 mb-6 md:mb-8">
-                            <Target size={20} className="text-brand-500" />
-                            <h4 className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] text-white/20 italic">STRATEGIC_DIRECTIVES</h4>
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                            {evalData?.developmentAreas?.map(area => (
-                                <span key={area} className="px-4 md:px-6 py-2 md:py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 text-[8px] md:text-[10px] font-black uppercase tracking-widest rounded-xl italic flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500/40" />
-                                    {area}
+                                <span className="text-[8px] tracking-[0.1em] uppercase text-white/35 flex items-center gap-2 mb-2">
+                                    PROGRESSION LEVEL <span className="text-[#C8FF00] font-bold text-[9px] ml-1">LEVEL 3 / 5</span>
                                 </span>
-                            ))}
+                                <div className="flex gap-[4px] w-[140px]">
+                                    {[1, 2, 3, 4, 5].map(i => (
+                                        <div key={i} className={`h-[4px] flex-1 rounded-[1px] ${i <= 3 ? 'bg-[#C8FF00]' : 'bg-white/[0.1]'}`} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="h-[1px] w-full" style={{ background: 'rgba(255,255,255,0.1)' }} />
+
+                        {/* Evaluator's Assessment */}
+                        <div className="bg-black/20 rounded-[8px] p-[12px] flex flex-col border border-white/[0.04] mt-auto" style={{ minHeight: '120px' }}>
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-[16px] h-[2px] bg-[#00D4FF]" />
+                                <span className="text-[8px] text-[#00D4FF] uppercase tracking-[0.1em] font-semibold">EVALUATOR'S ASSESSMENT</span>
+                            </div>
+                            <div className="text-[11px] italic leading-relaxed flex-1 overflow-hidden" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                                {isEditingRemarks ? (
+                                    <div className="space-y-3 h-full flex flex-col">
+                                        <textarea 
+                                            className="w-full flex-1 bg-black/30 border border-white/20 rounded-lg p-2 text-[11px] text-white/90 focus:border-[#C8FF00] outline-none resize-none transition-all"
+                                            value={editedRemarks}
+                                            onChange={(e) => setEditedRemarks(e.target.value)}
+                                            placeholder="Enter professional assessment..."
+                                        />
+                                        <button 
+                                            onClick={handleSaveRemarks}
+                                            className="w-full py-2 bg-[#C8FF00] text-[#050E25] rounded-lg text-[10px] font-bold uppercase hover:bg-white transition-all"
+                                        >
+                                            Save Assessment
+                                        </button>
+                                    </div>
+                                ) : evalData.coachRemarks ? (
+                                    <span>{evalData.coachRemarks}</span>
+                                ) : (
+                                    <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>No assessment recorded for this evaluation.</span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between px-4 md:px-6 py-4">
-                         <div className="flex-1">
-                            <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-4 md:mb-6 italic">VALIDATION_SIGNAL</span>
-                            {evalData.coachSignatureUrl ? (
-                                <img src={evalData.coachSignatureUrl} className="h-16 md:h-20 object-contain brightness-200 invert-[0.9] opacity-90 mix-blend-screen scale-110 -ml-4" />
-                            ) : (
-                                <div className="h-16 md:h-20 flex items-center text-[10px] font-black italic text-white/10 uppercase tracking-[0.8em]">AWAITING_AUTH</div>
-                            )}
+                    {/* HEADER BAR (Z: 6) */}
+                    <div className="absolute top-0 left-0 right-0 h-[56px] bg-black/40 backdrop-blur-[8px] border-b border-[#C8FF00]/30 px-8 flex justify-between items-center z-[6]">
+                        <div className="flex items-center gap-4">
+                            <Shield className="text-white h-[24px] w-[24px]" />
+                            <div className="w-[1px] h-[24px] bg-[#C8FF00]" />
+                            <span className="text-[10px] text-white tracking-[0.1em] uppercase">ICARUS FOOTBALL SCHOOLS</span>
+                            <span className="text-[10px] text-white/40">·</span>
+                            <span className="text-[10px] text-white/40 tracking-[0.1em] uppercase">PLAYER SCOUTING REPORT</span>
                         </div>
-                        <div className="text-right">
-                             <div className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] block mb-2 md:mb-3 italic">LEAD_INSTRUCTOR</div>
-                            <div className="text-xl md:text-2xl font-black italic text-brand-500 uppercase tracking-tighter leading-none">{evalData.coachName}</div>
-                            <div className="text-[9px] md:text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-3 md:mt-4 font-mono">{evalData.evaluationDate}</div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-[9px] text-white/35 font-mono tracking-widest">DOCUMENT REF: ICR-{player.memberId || '0000'}-{new Date().getFullYear()}</span>
+                            <div className="px-3 py-1 bg-[#8B0000] rounded-full shadow-[0_0_8px_rgba(139,0,0,0.5)]">
+                                <span className="text-[8px] text-white font-bold uppercase tracking-widest">CONFIDENTIAL</span>
+                            </div>
                         </div>
                     </div>
+
+                    {/* BIO STRIP BAR (Z: 5) */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[52px] bg-black/50 backdrop-blur-[8px] border-t border-[#C8FF00]/20 px-8 flex justify-between items-center z-[5]">
+                        <div className="flex items-center gap-5">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">HT:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{evalData.height || '--'}CM</span>
+                            </div>
+                            <span className="text-[#C8FF00] text-[10px]">·</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">WT:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{evalData.weight || '--'}KG</span>
+                            </div>
+                            <span className="text-[#C8FF00] text-[10px]">·</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">DATE OF BIRTH:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{formatDate(player.dateOfBirth)}</span>
+                            </div>
+                            <span className="text-[#C8FF00] text-[10px]">·</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">ACADEMY:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{settings.name || 'ICARUS FOOTBALL SCHOOLS'}</span>
+                            </div>
+                            <span className="text-[#C8FF00] text-[10px]">·</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">BATCH:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{player.dateOfBirth ? `U-${new Date().getFullYear() - new Date(player.dateOfBirth).getFullYear()}` : 'U-12'}</span>
+                            </div>
+                            <span className="text-[#C8FF00] text-[10px]">·</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">LOCATION:</span>
+                                <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">GAUR CITY, NOIDA</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[9px] text-white/35 tracking-[0.1em] uppercase">ASSESSING COACH:</span>
+                            <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{evalData.coachName || 'STAFF'}</span>
+                            <span className="text-[#C8FF00] text-[10px] mx-1">·</span>
+                            <span className="text-[9px] text-white tracking-[0.1em] uppercase font-bold">{formatDate(evalData.evaluationDate || new Date())}</span>
+                        </div>
+                    </div>
+
+                    {/* PLAYER PHOTO (Z: 4) */}
+                    <div className="absolute left-[22%] bottom-[20px] h-[85%] z-[4] pointer-events-none flex justify-center items-end">
+                        {/* Ground reflection spotlight */}
+                        <div className="absolute bottom-[0] left-1/2 -translate-x-1/2 w-[400px] h-[400px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.15) 0%, transparent 50%)', transform: 'scaleY(0.25) translateY(150%)' }} />
+                        {player.actionPhotoUrl || player.scoutPhoto || evalData.actionPhotoUrl || evalData.actionImageUrl ? (
+                            <img src={player.actionPhotoUrl || player.scoutPhoto || evalData.actionPhotoUrl || evalData.actionImageUrl} className="h-full object-contain object-bottom relative z-10 drop-shadow-[0_0_30px_rgba(0,0,0,0.5)]" />
+                        ) : (
+                            <div className="h-[60%] flex flex-col items-center justify-center text-white/20 mb-[20%]">
+                                <Camera size={64} className="mb-4" />
+                                <span className="text-[8px] tracking-[0.1em] uppercase text-white/35">NO ACTION PHOTO</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* FIFA CARD (Z: 3) */}
+                    <div 
+                        className="absolute left-[3%] bottom-[5%] w-[260px] h-[390px] bg-black/20 backdrop-blur-[4px] border-[1.5px] border-[#C8FF00]/60 rounded-[16px] overflow-hidden flex flex-col items-center shadow-[0_0_32px_rgba(200,255,0,0.3)] z-[3]"
+                    >
+                        {/* Top 40% */}
+                        <div className="w-full h-[45%] relative flex flex-col px-[14px] pt-[14px] z-10">
+                            <div className="flex justify-between items-start">
+                                <div className="flex flex-col items-start leading-none">
+                                    <span className="text-[68px] font-bold text-[#C8FF00] font-mono leading-none">{evalData.overallRating}</span>
+                                    <span className="text-[12px] font-bold text-[#C8FF00] uppercase mt-1">{player.position || 'TBD'}</span>
+                                </div>
+                                <Shield className="text-white h-[22px] w-[22px] absolute top-[14px] right-[14px]" />
+                            </div>
+                        </div>
+
+                        {/* Middle Profile Photo */}
+                        <div className="w-full h-[45%] absolute top-[30%] left-0">
+                            <img src={player.headshotUrl || player.photoUrl || '/default-avatar.png'} className="w-full h-full object-cover object-top filter contrast-125" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                        </div>
+
+                        {/* Bottom 25% */}
+                        <div className="w-full absolute bottom-0 left-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end items-center px-3 pb-3 pt-6">
+                            <span className="text-[13px] font-bold text-white uppercase text-center leading-tight line-clamp-1">{player.fullName}</span>
+                            
+                            <div className="grid grid-cols-4 gap-1 w-full mt-2">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[7px] uppercase text-white/50">PAC</span>
+                                    <span className="text-[11px] font-bold text-white">{Math.max(0, evalData.timeTrials?.speed ? Math.round((35 - evalData.timeTrials.speed) / 35 * 99) : 0)}</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[7px] uppercase text-white/50">DRI</span>
+                                    <span className="text-[11px] font-bold text-white">{Math.max(0, evalData.metrics?.juggling || 0)}</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[7px] uppercase text-white/50">SHO</span>
+                                    <span className="text-[11px] font-bold text-white">{Math.max(0, evalData.metrics?.shooting || 0)}</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[7px] uppercase text-white/50">DEF</span>
+                                    <span className="text-[11px] font-bold text-white">{Math.max(0, evalData.metrics?.passing || 0)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-            {/* Footer Metadata Wrapper */}
-            <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40 relative z-10">
-                <div className="flex items-center gap-8">
-                    <img src="/logo-full.png" className="h-6 grayscale brightness-200" alt="Icarus" />
-                    <div className="h-4 w-[1px] bg-white/20" />
-                    <div className="flex flex-col">
-                        <div className="text-[9px] font-black uppercase tracking-[0.6em] text-brand-500">ELITE_ACADEMY_SYSTEM_PROTOCOL</div>
-                        <div className="text-[7px] font-mono tracking-[0.2em] mt-1 text-white/50 animate-pulse">UPSTREAM_DATA_SYNC: 100% // ENCRYPTION_AES_256</div>
-                    </div>
-                </div>
-                <div className="flex gap-10">
-                    <div className="text-[9px] font-black uppercase tracking-[0.6em]">EST. 2024</div>
-                    <div className="text-[9px] font-black uppercase tracking-[0.6em] font-mono">REPORT_ID_{Math.floor(Math.random() * 900000 + 100000)}</div>
-                </div>
-            </div>
-
-            {/* Final Background Grain Overlay */}
-            <div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
         </div>
+    </div>
   );
 };
+
+export default EvaluationCard;

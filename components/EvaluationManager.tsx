@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StorageService } from '../services/storageService';
 import { Player, PlayerEvaluation } from '../types';
-import { Search, Save, X, Trash2, Shield, Activity, Target, Zap, Ruler, Weight, Timer, Plus, Minus, ChevronRight, Play, Square, RefreshCcw, SaveAll, Loader2, Camera, Award, Eye, Brain } from 'lucide-react';
+import { Search, Save, X, Trash2, Shield, Activity, Target, Zap, Ruler, Weight, Timer, Plus, Minus, ChevronRight, Play, Square, RefreshCcw, SaveAll, Loader2, Camera, Award, Eye, Brain, Sparkles, Check, Trash } from 'lucide-react';
 import { EvaluationCard } from './EvaluationCard';
 import { PageHeader } from './ui/PageHeader';
 import { GeminiService } from '../services/geminiService';
@@ -286,6 +286,7 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
 
   const STEPS = [
     { title: 'PHYSIQUE', icon: <Ruler size={14} /> },
@@ -454,6 +455,16 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
   const handleActionPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validation: Size (2MB) and Type
+      if (file.size > 2 * 1024 * 1024) {
+        alert("FILE_OVERSIZE: Maximum 2MB permitted for tactical uploads.");
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert("INVALID_FORMAT: Only image assets are supported.");
+        return;
+      }
+
       try {
         const compressed = await compressImage(file, 1000, 0.6); // Slightly higher for action photo
         setForm(prev => ({ ...prev, actionImageUrl: compressed }));
@@ -466,6 +477,16 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
   const handleSignatureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validation: Size (1MB) and Type
+      if (file.size > 1 * 1024 * 1024) {
+        alert("FILE_OVERSIZE: Maximum 1MB permitted for authorization signatures.");
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert("INVALID_FORMAT: Only image assets are supported.");
+        return;
+      }
+
       try {
         const compressed = await compressImage(file, 400, 0.5); // Smaller for signature
         setForm(prev => ({ ...prev, coachSignatureUrl: compressed }));
@@ -478,8 +499,8 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
   const handleMagicScribe = async () => {
     if (!selectedPlayerId) return;
     setIsAiGenerating(true);
+    setAiSuggestions([]);
     
-    // We pass the player data including current form metrics
     const player = players.find(p => p.id === selectedPlayerId);
     if (!player) return;
 
@@ -489,16 +510,21 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
     };
 
     try {
-        const suggestion = await GeminiService.generateCoachVerdictSuggestion(playerWithCurrentMetrics);
-        setForm(prev => ({ 
-            ...prev, 
-            coachRemarks: prev.coachRemarks ? `${prev.coachRemarks} ${suggestion}` : suggestion 
-        }));
+        const suggestions = await GeminiService.generateCoachVerdictSuggestion(player, form);
+        setAiSuggestions(suggestions);
     } catch (err) {
         console.error("Magic Scribe failed", err);
     } finally {
         setIsAiGenerating(false);
     }
+  };
+
+  const pickSuggestion = (suggestion: string) => {
+    setForm(prev => ({
+        ...prev,
+        coachRemarks: prev.coachRemarks ? `${prev.coachRemarks}\n\n${suggestion}` : suggestion
+    }));
+    setAiSuggestions([]);
   };
 
   const addPhrase = (phrase: string) => {
@@ -927,10 +953,13 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
                                             <button 
                                                 onClick={handleMagicScribe}
                                                 disabled={isAiGenerating}
-                                                className="flex items-center gap-2 px-4 py-2 bg-brand-accent/10 border border-brand-accent/20 rounded-xl text-brand-accent text-[9px] font-black uppercase tracking-widest hover:bg-brand-accent/20 transition-all disabled:opacity-50"
+                                                className={`flex items-center gap-2 px-5 py-2.5 bg-brand-accent/10 border border-brand-accent/30 rounded-xl text-brand-accent text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 relative overflow-hidden group/magic ${isAiGenerating ? 'performance-pulse' : 'hover:bg-brand-accent/20'}`}
                                             >
-                                                {isAiGenerating ? <Loader2 size={12} className="animate-spin" /> : <Brain size={12} />}
-                                                MAGIC_SCRIBE_AI
+                                                {isAiGenerating && (
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+                                                )}
+                                                {isAiGenerating ? <Loader2 size={14} className="animate-spin relative z-10" /> : <Brain size={14} className="relative z-10 group-hover/magic:scale-110 transition-transform" />}
+                                                <span className="relative z-10">MAGIC_SCRIBE_AI</span>
                                             </button>
                                         </div>
                                         <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar-hide">
@@ -949,6 +978,57 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
                                             ))}
                                         </div>
                                     </div>
+
+                                    {/* AI SUGGESTION ENGINE UI */}
+                                    {aiSuggestions.length > 0 && (
+                                        <div className="mb-8 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                            <div className="flex items-center justify-between px-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_#CCFF00]" />
+                                                    <span className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] italic">AI_DOSSIER_VARIATIONS_LOADED</span>
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    <button 
+                                                        onClick={handleMagicScribe}
+                                                        className="text-[8px] font-black text-brand-accent/60 uppercase tracking-widest hover:text-brand-accent transition-colors flex items-center gap-2"
+                                                    >
+                                                        <RefreshCcw size={10} className={isAiGenerating ? 'animate-spin' : ''} /> REGENERATE
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setAiSuggestions([])}
+                                                        className="text-[8px] font-black text-white/30 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2"
+                                                    >
+                                                        <X size={10} /> CLEAR_ALL
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                {aiSuggestions.map((suggestion, idx) => (
+                                                    <div 
+                                                        key={idx}
+                                                        onClick={() => pickSuggestion(suggestion)}
+                                                        className="group/sugg relative bg-brand-accent/[0.03] border border-brand-accent/10 rounded-2xl p-6 hover:bg-brand-accent/10 hover:border-brand-accent/30 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
+                                                    >
+                                                        <div className="absolute top-0 left-0 w-full h-0.5 bg-brand-accent/20 animate-scan-line opacity-20 pointer-events-none" />
+                                                        <div className="absolute top-0 left-0 w-1 h-full bg-brand-accent/20 group-hover/sugg:bg-brand-accent transition-colors shadow-[0_0_15px_rgba(204,255,0,0.4)]" />
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="p-1.5 bg-brand-accent/10 rounded-lg text-brand-accent group-hover/sugg:bg-brand-accent group-hover/sugg:text-brand-950 transition-colors">
+                                                                    <Sparkles size={10} />
+                                                                </div>
+                                                                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">VARIATION_0{idx + 1}</span>
+                                                            </div>
+                                                            <Plus size={12} className="text-brand-accent opacity-0 group-hover/sugg:opacity-100 transition-opacity" />
+                                                        </div>
+                                                        <p className="text-[11px] font-medium text-white/80 leading-relaxed italic line-clamp-4 group-hover/sugg:text-white transition-colors">
+                                                            {suggestion}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <textarea 
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-2xl md:rounded-[2rem] p-6 md:p-8 text-[11px] md:text-sm font-medium text-white focus:border-brand-accent/50 outline-none transition-all placeholder:text-white/10 italic leading-relaxed resize-none shadow-2xl min-h-[200px] md:min-h-[300px]"
@@ -1190,8 +1270,8 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
     )}
         {/* SCOUT REPORT PREVIEW MODAL */}
         {previewPlayer && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-12 bg-brand-950/90 backdrop-blur-3xl animate-in fade-in duration-500 overflow-y-auto">
-                <div className="w-full max-w-7xl animate-in zoom-in-95 duration-500 py-20">
+            <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 md:p-12 bg-brand-950/90 backdrop-blur-3xl animate-in fade-in duration-500 overflow-y-auto">
+                <div className="w-full max-w-7xl animate-in zoom-in-95 duration-500 my-auto">
                     <EvaluationCard 
                         player={previewPlayer} 
                         settings={StorageService.getSettings()} 

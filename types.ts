@@ -47,7 +47,8 @@ export interface PlayerEvaluation {
   coachName: string;
   evaluationDate: string;
   coachRemarks?: string;
-  actionImageUrl?: string;
+  actionImageUrl?: string; // Legacy field
+  actionPhotoUrl?: string; // New field for evaluation-specific action shot
   coachSignatureUrl?: string;
   aiReport?: string; // Cache the generated report
 }
@@ -72,7 +73,10 @@ export interface Player {
   address?: string; 
   venue?: string; // Storing venue name
   batch?: string; // Storing batch name
-  photoUrl: string;
+  photoUrl: string; // Legacy field
+  headshotUrl?: string; // New field for standard portrait
+  actionPhotoUrl?: string; // New field for background-removed action shot
+  scoutPhoto?: string; // Legacy field
   position: string;
   registeredAt: string;
   email?: string;

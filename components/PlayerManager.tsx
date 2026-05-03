@@ -59,7 +59,9 @@ export const PlayerManager: React.FC = () => {
   const [viewingPerformance, setViewingPerformance] = useState<Player | null>(null);
   const [editingCoach, setEditingCoach] = useState<User | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [scoutPreviewUrl, setScoutPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scoutPhotoInputRef = useRef<HTMLInputElement>(null);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{item: Player | User, type: 'player' | 'coach'} | null>(null);
@@ -177,8 +179,13 @@ export const PlayerManager: React.FC = () => {
 
   const openEditModal = (item: Player | User, type: 'player' | 'coach') => {
       setPreviewUrl(item.photoUrl || null);
-      if (type === 'player') setEditingPlayer({ ...item as Player });
-      else setEditingCoach({ ...item as User });
+      if (type === 'player') {
+          const p = item as Player;
+          setScoutPreviewUrl(p.scoutPhoto || null);
+          setEditingPlayer({ ...p });
+      } else {
+          setEditingCoach({ ...item as User });
+      }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,6 +201,18 @@ export const PlayerManager: React.FC = () => {
       }
   };
 
+  const handleScoutPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setScoutPreviewUrl(reader.result as string);
+              if (editingPlayer) setEditingPlayer({ ...editingPlayer, scoutPhoto: reader.result as string });
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
   const savePlayerChanges = (e: React.FormEvent) => {
       e.preventDefault();
       if (editingPlayer) {
@@ -201,6 +220,7 @@ export const PlayerManager: React.FC = () => {
           loadData();
           setEditingPlayer(null);
           setPreviewUrl(null);
+          setScoutPreviewUrl(null);
       }
   };
 
@@ -533,17 +553,59 @@ export const PlayerManager: React.FC = () => {
                   </div>
                   
                   <form onSubmit={savePlayerChanges} className="p-6 sm:p-8 md:p-12 space-y-8 md:space-y-10 overflow-y-auto custom-scrollbar text-left flex-1">
-                      <div className="flex justify-center">
-                          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                              <div className="absolute -inset-2 bg-gradient-to-br from-brand-accent to-brand-primary rounded-[3rem] opacity-20 group-hover:opacity-40 transition-opacity blur-xl"></div>
-                              <div className="relative w-40 h-40 rounded-[2.5rem] overflow-hidden border-4 border-white/20 z-10">
-                                  <img src={previewUrl || editingPlayer.photoUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                  <div className="absolute inset-0 bg-brand-950/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                      <Camera className="text-brand-accent" size={36} />
-                                      <span className="text-[10px] font-black text-white uppercase mt-2 italic">UPLOAD IMAGE</span>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                          {/* Profile Photo */}
+                          <div className="space-y-4">
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic ml-1 text-center block">Headshot Profile</label>
+                              <div className="relative group cursor-pointer mx-auto w-32 h-32" onClick={() => fileInputRef.current?.click()}>
+                                  <div className="absolute -inset-2 bg-gradient-to-br from-brand-accent to-brand-primary rounded-[2.5rem] opacity-20 group-hover:opacity-40 transition-opacity blur-xl"></div>
+                                  <div className="relative w-full h-full rounded-[2rem] overflow-hidden border-2 border-white/20 z-10">
+                                      <img src={previewUrl || editingPlayer.photoUrl || '/default-avatar.png'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                      <div className="absolute inset-0 bg-brand-950/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                          <Camera className="text-brand-accent" size={24} />
+                                      </div>
                                   </div>
+                                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoChange} />
                               </div>
-                              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoChange} />
+                          </div>
+
+                          {/* Scout Action Photo */}
+                          <div className="space-y-4">
+                              <div className="flex items-center justify-between px-1">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic">Action Photo (No Background)</label>
+                                <div className="flex items-center gap-2">
+                                  <div className="px-2 py-0.5 bg-brand-accent/10 border border-brand-accent/20 rounded-md">
+                                    <span className="text-[8px] font-black text-brand-accent uppercase tracking-widest italic">PRO TIP</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="relative group cursor-pointer mx-auto w-full h-40" onClick={() => scoutPhotoInputRef.current?.click()}>
+                                  <div className="absolute -inset-2 bg-gradient-to-br from-brand-primary to-brand-accent rounded-[2rem] opacity-10 group-hover:opacity-20 transition-opacity blur-xl"></div>
+                                  <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden border-2 border-white/10 group-hover:border-brand-accent/40 z-10 bg-white/5 flex flex-col items-center justify-center transition-all duration-500">
+                                      {scoutPreviewUrl || editingPlayer.scoutPhoto ? (
+                                          <div className="relative w-full h-full p-4">
+                                            <img src={scoutPreviewUrl || editingPlayer.scoutPhoto} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
+                                            <div className="absolute inset-0 bg-brand-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Camera className="text-brand-accent" size={24} />
+                                            </div>
+                                          </div>
+                                      ) : (
+                                          <div className="flex flex-col items-center justify-center gap-3">
+                                              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-brand-accent group-hover:bg-brand-accent/10 transition-all">
+                                                <Camera size={24} />
+                                              </div>
+                                              <div className="text-center">
+                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest block">Awaiting Tactical Feed</span>
+                                                <span className="text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] mt-1 block">Click to upload action shot</span>
+                                              </div>
+                                          </div>
+                                      )}
+                                  </div>
+                                  <input type="file" ref={scoutPhotoInputRef} className="hidden" accept="image/*" onChange={handleScoutPhotoChange} />
+                              </div>
+                              <p className="text-[9px] font-medium text-white/30 italic text-center px-4 leading-relaxed">
+                                Use transparent PNGs or cutouts for the best results in the Elite Scout Dossier export.
+                              </p>
                           </div>
                       </div>
 

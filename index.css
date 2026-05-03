@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -312,4 +312,17 @@ select option {
 
 .animate-scan-slow {
   animation: scan-line-move 8s linear infinite;
+}
+
+/* ── Scanning Line Animation ────────────────── */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); opacity: 0; }
+  5% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  95% { opacity: 0.5; }
+  100% { transform: translateY(1000%); opacity: 0; }
+}
+
+.animate-scan-line {
+  animation: scan-line 4s linear infinite;
 }
