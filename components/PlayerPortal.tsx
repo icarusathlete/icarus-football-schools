@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
 import { GeminiService } from '../services/geminiService';
 import { Player, AttendanceRecord, AttendanceStatus, User, Match, ScheduleEvent, FeeRecord, AcademySettings, EventType, Drill, Certificate, CoachMessage, WeeklyTip } from '../types';
-import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, ChevronRight, Dumbbell, Play, Youtube, Loader2, Users, Command, Receipt, Medal, Crown, Award } from 'lucide-react';
+import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, ChevronRight, Dumbbell, Play, Youtube, Loader2, Users, Command, Receipt, Medal, Crown, Award, Flame, TrendingUp } from 'lucide-react';
 import { auth } from '../firebase';
 import { EvaluationCard } from './EvaluationCard';
 import html2canvas from 'html2canvas';
@@ -38,6 +38,129 @@ const numberToWords = (num: number): string => {
     return str + 'Only';
 };
 
+const ProgressCircle: React.FC<{ progress: number, size?: number, strokeWidth?: number, tierClass?: string, glow?: boolean }> = ({ progress, size = 84, strokeWidth = 3, tierClass = '', glow = false }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (progress / 100) * circumference;
+
+    return (
+        <svg width={size} height={size} className="absolute -rotate-90 pointer-events-none overflow-visible">
+            {glow && (
+                <circle
+                    className={`${tierClass} opacity-20 blur-[6px]`}
+                    strokeWidth={strokeWidth + 2}
+                    strokeDasharray={`${circumference} ${circumference}`}
+                    style={{ strokeDashoffset: offset }}
+                    stroke="currentColor"
+                    fill="transparent"
+                    r={radius}
+                    cx={size / 2}
+                    cy={size / 2}
+                    strokeLinecap="round"
+                />
+            )}
+            <circle
+                className="text-white/[0.03]"
+                strokeWidth={strokeWidth}
+                stroke="currentColor"
+                fill="transparent"
+                r={radius}
+                cx={size / 2}
+                cy={size / 2}
+            />
+            <circle
+                className={`progress-ring__circle ${tierClass}`}
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${circumference} ${circumference}`}
+                style={{ strokeDashoffset: offset }}
+                stroke="currentColor"
+                fill="transparent"
+                r={radius}
+                cx={size / 2}
+                cy={size / 2}
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+};
+
+const getTierData = (value: any, tiers: number[], inverse = false) => {
+    // Robust numeric conversion
+    const parsed = parseFloat(value);
+    const numValue = !isNaN(parsed) ? parsed : (inverse ? 100 : 0);
+    
+    let currentTier = -1;
+    if (inverse) {
+        for (let i = 0; i < tiers.length; i++) {
+            if (numValue <= tiers[i]) currentTier = i;
+            else break;
+        }
+    } else {
+        for (let i = 0; i < tiers.length; i++) {
+            if (numValue >= tiers[i]) currentTier = i;
+            else break;
+        }
+    }
+    
+    const tierNames = ['Bronze', 'Silver', 'Gold', 'Elite'];
+    const tierClasses = ['badge-bronze', 'badge-silver', 'badge-gold', 'badge-platinum'];
+    const tierColors = ['#cd7f32', '#e2e8f0', '#FFD700', '#00C8FF'];
+    
+    const nextTierValue = currentTier < tiers.length - 1 ? tiers[currentTier + 1] : null;
+    const prevTierValue = currentTier === -1 ? (inverse ? 100 : 0) : tiers[currentTier];
+    
+    let progress = 0;
+    if (currentTier === tiers.length - 1) {
+        progress = 100;
+    } else if (nextTierValue !== null) {
+        const range = Math.abs(nextTierValue - prevTierValue);
+        const currentProgress = Math.abs(numValue - prevTierValue);
+        progress = (currentProgress / (range || 1)) * 100;
+    }
+
+    // Strategic advice generation
+    let strategicAdvice = "";
+    if (currentTier === tiers.length - 1) {
+        strategicAdvice = "Maximum Tier Unlocked. You are a true Academy Legend!";
+    } else {
+        const nextTier = tierNames[currentTier + 1];
+        const diff = nextTierValue !== null ? Math.abs(nextTierValue - numValue) : 0;
+        
+        if (currentTier === -1) {
+            strategicAdvice = `Unlock your ${nextTier} badge by reaching ${nextTierValue}${inverse ? ' or less' : ''}. Keep grinding!`;
+        } else {
+            strategicAdvice = `You're ${diff.toFixed(0)} units away from ${nextTier}! ${diff <= 5 ? "Almost there!" : "Keep pushing!"}`;
+        }
+    }
+
+    return {
+        level: currentTier + 1, // 0 to 4
+        tierName: currentTier === -1 ? 'Initiate' : tierNames[currentTier],
+        nextTierName: currentTier < tiers.length - 1 ? tierNames[currentTier + 1] : 'MAX',
+        tierClass: currentTier === -1 ? 'badge-locked' : tierClasses[currentTier],
+        tierColor: currentTier === -1 ? '#ffffff33' : tierColors[currentTier],
+        progress: Math.min(100, Math.max(0, progress)),
+        isMaxed: currentTier === tiers.length - 1,
+        nextValue: nextTierValue,
+        remaining: nextTierValue !== null ? Math.max(0, Math.abs(nextTierValue - numValue)) : 0,
+        currentValue: numValue,
+        strategicAdvice
+    };
+};
+
+const getMasteryData = (score: number) => {
+    const levels = [
+        { min: 0, title: "Unranked Recruit", icon: UserCheck, class: "text-slate-400", bg: "bg-slate-400/5", border: "border-slate-400/10" },
+        { min: 500, title: "Rising Prospect", icon: Zap, class: "text-brand-accent", bg: "bg-brand-accent/5", border: "border-brand-accent/10" },
+        { min: 1500, title: "Vanguard Sentinel", icon: Shield, class: "text-blue-400", bg: "bg-blue-400/5", border: "border-blue-400/10" },
+        { min: 3000, title: "Elite Strategist", icon: Target, class: "text-purple-400", bg: "bg-purple-400/5", border: "border-purple-400/10" },
+        { min: 4500, title: "Master Tactician", icon: Crown, class: "text-brand-primary", bg: "bg-brand-primary/5", border: "border-brand-primary/10" },
+        { min: 6000, title: "Immortal Titan", icon: Sparkles, class: "text-orange-500", bg: "bg-orange-500/5", border: "border-orange-500/10" }
+    ];
+    
+    return [...levels].reverse().find(l => score >= l.min) || levels[0];
+};
+
 export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection }) => {
     const [player, setPlayer] = useState<Player | null>(null);
     const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
@@ -58,10 +181,11 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
     const [motmToday, setMotmToday] = useState<{playerId: string, timestamp: number} | null>(null);
     const [checkedInToday, setCheckedInToday] = useState(false);
     const [isCheckingIn, setIsCheckingIn] = useState(false);
-    const [academyRank, setAcademyRank] = useState<{ rank: number, total: number, pts: number } | null>(null);
     const [isCertificatesModalOpen, setCertificatesModalOpen] = useState(false);
     const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [weeklyTip, setWeeklyTip] = useState<WeeklyTip | null>(null);
+    const [selectedBadge, setSelectedBadge] = useState<{config: any, tierData: any} | null>(null);
+    const [isRecentSessionsOpen, setIsRecentSessionsOpen] = useState(false);
     const invoiceHiddenRef = useRef<HTMLDivElement>(null);
     const idCardRef = useRef<HTMLDivElement>(null);
     const progressRef = useRef<HTMLDivElement>(null);
@@ -103,33 +227,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                 loadCoaches();
                 loadCertificates();
                 loadWeeklyTip();
-
-                // Calculate Rank
-                const allMs = StorageService.getMatches();
-                const allPs = StorageService.getPlayers();
-                const mvpData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
-                
-                const rankings = allPs.map(player => {
-                    const tCount = Object.entries(mvpData).filter(([key, val]) => {
-                        const entryId = typeof val === 'object' ? (val as any).playerId : val;
-                        return entryId === player.id && key.startsWith(currentMonth);
-                    }).length;
-                    const mCount = allMs.filter(m => m.date.startsWith(currentMonth) && m.playerOfTheMatchId === player.id).length;
-                    const rPts = allMs.filter(m => m.date.startsWith(currentMonth))
-                        .reduce((acc, m) => {
-                            const s = m.playerStats?.find(ps => ps.playerId === player.id);
-                            return acc + ((s?.rating || 0) / 2);
-                        }, 0);
-                    const total = parseFloat((tCount * 1 + mCount * 5 + rPts).toFixed(1));
-                    return { id: player.id, pts: total };
-                }).sort((a, b) => b.pts - a.pts);
-
-                const myIdx = rankings.findIndex(r => r.id === p.id);
-                if (myIdx !== -1 && rankings[myIdx].pts > 0) {
-                    setAcademyRank({ rank: myIdx + 1, total: rankings.length, pts: rankings[myIdx].pts });
-                } else {
-                    setAcademyRank(null);
-                }
             }
         };
 
@@ -143,6 +240,155 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
             window.removeEventListener('settingsChanged', handleSettingsChange);
         };
     }, [user]);
+
+    const { monthlyRank: academyRank, allTimeRank, derivedStats } = React.useMemo(() => {
+        if (!player) return { monthlyRank: null, allTimeRank: null, derivedStats: null };
+        
+        const allMs = StorageService.getMatches();
+        const allPs = StorageService.getPlayers();
+        const mvpData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        const calculateRankings = (filterFn?: (date: string) => boolean) => {
+            const mvpDataSafe = typeof mvpData === 'object' && mvpData !== null ? mvpData : {};
+            return allPs.map(p => {
+                const tCount = Object.entries(mvpDataSafe).filter(([key, val]) => {
+                    if (!val) return false;
+                    const entryId = (typeof val === 'object' && val !== null) ? (val as any).playerId : val;
+                    return entryId === p.id && (!filterFn || filterFn(key));
+                }).length;
+                
+                const mCount = allMs.filter(m => (!filterFn || filterFn(m.date)) && m.playerOfTheMatchId === p.id).length;
+                
+                const rPts = allMs.filter(m => (!filterFn || filterFn(m.date)))
+                    .reduce((acc, m) => {
+                        const s = m.playerStats?.find(ps => ps.playerId === p.id);
+                        return acc + ((s?.rating || 0) / 2);
+                    }, 0);
+                
+                const total = parseFloat((tCount * 1 + mCount * 5 + rPts).toFixed(1));
+                return { id: p.id, pts: total };
+            }).sort((a, b) => b.pts - a.pts);
+        };
+
+        const mRankings = calculateRankings(date => date.startsWith(currentMonth));
+        const aRankings = calculateRankings();
+
+        const getPlayerRank = (rankings: {id: string, pts: number}[], playerId: string) => {
+            const idx = rankings.findIndex(r => r.id === playerId);
+            if (idx !== -1 && rankings[idx].pts > 0) {
+                const percentile = Math.ceil(((idx + 1) / rankings.length) * 100);
+                return { rank: idx + 1, total: rankings.length, pts: rankings[idx].pts, percentile };
+            }
+            return null;
+        };
+
+        const mRank = getPlayerRank(mRankings, player.id);
+        const aRank = getPlayerRank(aRankings, player.id);
+
+        // --- Derived Stats Logic ---
+        const presentCount = attendance.filter(a => a.status === AttendanceStatus.PRESENT).length;
+        const attendanceRate = attendance.length > 0 ? Math.round((presentCount / attendance.length) * 100) : 0;
+        
+        const myMatches = matches.filter(m => m.playerStats?.some(s => s.playerId === player.id));
+        const myMatchStats = myMatches.map(m => ({
+            date: m.date,
+            opponent: m.opponent,
+            result: m.result,
+            scoreFor: m.scoreFor,
+            scoreAgainst: m.scoreAgainst,
+            myStats: m.playerStats.find(s => s.playerId === player.id)
+        })).filter(m => m.myStats);
+
+        const lastMatch = myMatches.length > 0 ? [...myMatches].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : null;
+
+        const totalWins = myMatches.filter(m => m.result === 'W').length;
+        const totalGoals = myMatchStats.reduce((acc, m) => acc + (m.myStats?.goals || 0), 0);
+        const totalAssists = myMatchStats.reduce((acc, m) => acc + (m.myStats?.assists || 0), 0);
+        const totalStarts = myMatchStats.reduce((acc, m) => acc + (m.myStats?.isStarter ? 1 : 0), 0);
+        const winRate = myMatches.length > 0 ? Math.round((totalWins / myMatches.length) * 100) : 0;
+        const avgRating = myMatchStats.length > 0 
+            ? parseFloat((myMatchStats.reduce((acc, m) => acc + (m.myStats?.rating || 0), 0) / myMatchStats.length).toFixed(1)) 
+            : 0;
+        
+        const motmCount = myMatches.filter(m => m.playerOfTheMatchId === player.id).length;
+
+        // Badge Generation
+        const badgesData = {
+            iron_will: getTierData(attendanceRate, [50, 75, 90, 100]),
+            century: getTierData(presentCount, [10, 50, 100, 250]),
+            victor: getTierData(totalWins, [1, 10, 25, 50]),
+            elite: getTierData(aRank?.percentile || 100, [25, 10, 5, 1], true),
+            striker: getTierData(totalGoals, [1, 5, 10, 20]),
+            architect: getTierData(totalAssists, [1, 5, 10, 20]),
+            mainman: getTierData(motmCount, [1, 3, 7, 15])
+        };
+
+        const activeBadgeCount = Object.values(badgesData).filter(b => b.level > 0).length;
+        const powerScore = Object.values(badgesData).reduce((acc, b) => acc + (b.level * 250) + Math.round(b.progress * 2.5), 0);
+        const mastery = getMasteryData(powerScore);
+        
+        const badgeLabels: {[key: string]: string} = {
+            iron_will: 'IRON WILL',
+            century: 'CENTURY',
+            victor: 'VICTOR',
+            elite: 'TOP GUN',
+            striker: 'STRIKER',
+            architect: 'ARCHITECT',
+            mainman: 'MAIN MAN'
+        };
+
+        const nextAchievement = Object.entries(badgesData)
+            .map(([id, b]) => ({ ...b, id, label: badgeLabels[id] }))
+            .filter(b => !b.isMaxed)
+            .sort((a, b) => b.progress - a.progress)[0] || null;
+
+        return {
+            monthlyRank: mRank,
+            allTimeRank: aRank,
+            derivedStats: {
+                attendanceRate,
+                presentCount,
+                totalWins,
+                totalGoals,
+                totalAssists,
+                totalStarts,
+                winRate,
+                avgRating,
+                motmCount,
+                powerScore,
+                badgesData,
+                mastery,
+                nextAchievement,
+                activeBadgeCount,
+                maxPossibleXP: 7000,
+                myMatchStats,
+                lastMatch
+            }
+        };
+    }, [player, attendance, matches]);
+
+    const {
+        attendanceRate = 0,
+        presentCount = 0,
+        totalWins = 0,
+        totalGoals = 0,
+        totalAssists = 0,
+        totalStarts = 0,
+        winRate = 0,
+        avgRating = 0,
+        motmCount = 0,
+        powerScore = 0,
+        badgesData = {} as any,
+        mastery = { title: 'Rookie', icon: Users, class: 'text-slate-400', bg: 'bg-slate-400/5', border: 'border-slate-400/10' },
+        nextAchievement = null,
+        activeBadgeCount = 0,
+        maxPossibleXP = 7000,
+        myMatchStats = [],
+        lastMatch = null
+    } = derivedStats || {};
+
+
 
     const loadSchedule = () => {
         const schedule = StorageService.getSchedule();
@@ -313,18 +559,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
         );
     }
 
-    const presentCount = attendance.filter(a => a.status === AttendanceStatus.PRESENT || a.status === AttendanceStatus.LATE).length;
-    const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
-    const myMatchStats = matches.map(m => {
-        const stats = m.playerStats.find(s => s.playerId === player.id);
-        return { ...m, myStats: stats };
-    }).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const lastMatch = myMatchStats[0];
-    const totalGoals = myMatchStats.reduce((acc, m) => acc + (m.myStats?.goals || 0), 0);
-    const totalAssists = myMatchStats.reduce((acc, m) => acc + (m.myStats?.assists || 0), 0);
-    const totalStarts = myMatchStats.reduce((acc, m) => acc + (m.myStats?.isStarter ? 1 : 0), 0);
-    const avgRating = myMatchStats.length ? (myMatchStats.reduce((acc, m) => acc + (m.myStats?.rating || 0), 0) / myMatchStats.length).toFixed(1) : '0';
-
     const handleAnalyzeMatch = async () => {
         if (!lastMatch || !player) return;
         setIsAnalyzingMatch(true);
@@ -457,8 +691,38 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                     
                                     <h1 className="text-3xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-8 italic" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                                         {player.fullName.split(' ')[0]}<br/>
-                                        <span className="text-brand-primary drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">{player.fullName.split(' ').slice(1).join(' ')}</span>
+                                        {player.fullName.split(' ').length > 1 && (
+                                            <span className="text-brand-primary drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">
+                                                {player.fullName.split(' ').slice(1).join(' ')}
+                                            </span>
+                                        )}
                                     </h1>
+
+                                    {(() => {
+                                        const MasteryIcon = mastery.icon;
+                                        const isOnFire = attendanceRate >= 95 || (myMatchStats.length >= 3 && myMatchStats.slice(0,3).every(m => (m.rating || 0) >= 8.5));
+
+
+                                        return (
+                                            <div className="flex items-center gap-4 mb-8 justify-center md:justify-start">
+                                                <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl ${mastery.bg} border ${mastery.border} backdrop-blur-xl shadow-2xl transition-all duration-500`}>
+                                                    <MasteryIcon size={18} className={`${mastery.class}`} />
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[7px] font-black text-white/40 uppercase tracking-[0.3em] italic leading-none mb-1">Academy Status</span>
+                                                        <span className={`text-xs font-black uppercase tracking-tighter italic leading-none ${mastery.class}`}>{mastery.title}</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Hot Streak Indicator */}
+                                                {isOnFire && (
+                                                    <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-500/20 border border-orange-500/40 backdrop-blur-md animate-pulse shadow-[0_0_20px_rgba(249,115,22,0.4)]">
+                                                        <Flame size={14} className="text-orange-500 fill-orange-500" />
+                                                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest italic">ON FIRE</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                     
                                     <div className="flex flex-wrap items-center gap-8 text-white/40 text-[10px] font-black uppercase tracking-[0.3em] italic">
                                         <span className="flex items-center gap-3"><MapPin size={16} className="text-brand-primary" /> {player.venue || 'CENTRAL HUB'}</span>
@@ -490,150 +754,431 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                     </div>
 
                     {/* ─── Achievement Badge System (Digital Stadium Elite) ────────── */}
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between px-4">
-                            <h2 className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] italic">Achievements</h2>
-                            <span className="text-[9px] font-black text-brand-primary uppercase tracking-[0.2em] italic">
-                                {([
-                                    presentCount > 0,
-                                    parseFloat(attendanceRate) >= 80,
-                                    false, // Leader
-                                    matches.some(m => m.result === 'W'),
-                                    presentCount >= 100,
-                                    academyRank && academyRank.rank <= 3
-                                ].filter(Boolean).length)} / 6 UNLOCKED
-                            </span>
+                    <div className="space-y-8">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 px-4">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-brand-accent/10 rounded-2xl border border-brand-accent/20">
+                                    <Award className="text-brand-accent animate-pulse" size={24} />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-white italic uppercase tracking-tight">ACHIEVEMENT <span className="text-brand-accent">PODIUM</span></h2>
+                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic">Tactical Mastery // Tier Progression</p>
+                                </div>
+                            </div>
+
+                            {/* Next Achievement Prompt */}
+                            {nextAchievement && (
+                                <div className="flex items-center gap-6 px-8 py-5 bg-brand-primary/10 border border-brand-primary/30 rounded-[2.5rem] backdrop-blur-3xl animate-in slide-in-from-right duration-1000 hover:bg-brand-primary/15 transition-all group/prompt shadow-2xl relative overflow-hidden">
+                                    {/* Animated background glow */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/5 to-transparent -translate-x-full group-hover/prompt:translate-x-full transition-transform duration-1000" />
+                                    
+                                    <div className="relative p-3 bg-brand-primary/20 rounded-2xl group-hover/prompt:scale-110 group-hover/prompt:rotate-3 transition-all shadow-inner">
+                                        <TrendingUp size={20} className="text-brand-primary" />
+                                    </div>
+                                    <div className="relative flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="text-[9px] font-black text-brand-primary uppercase tracking-[0.3em] italic">NEXT MILESTONE</div>
+                                            <div className="h-px flex-1 bg-brand-primary/20" />
+                                        </div>
+                                        <div className="text-sm font-black text-white uppercase italic tracking-tight">
+                                            Advance <span className="text-brand-primary">{nextAchievement.label}</span> to <span className="text-brand-accent">{nextAchievement.nextTierName}</span>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-white/50 uppercase tracking-tighter mt-1 italic leading-tight">
+                                            {nextAchievement.strategicAdvice}
+                                        </p>
+                                    </div>
+                                    <div className="relative w-24 h-2 bg-white/10 rounded-full overflow-hidden shadow-inner">
+                                        <div className="h-full bg-gradient-to-r from-brand-primary to-brand-accent shadow-[0_0_15px_rgba(0,200,255,0.8)] transition-all duration-1000" style={{ width: `${nextAchievement.progress}%` }} />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+                                    </div>
+                                </div>
+                            )}
+
+
+                            <div className="flex flex-col items-end">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right">
+                                        <span className="text-[8px] font-black text-white/20 uppercase tracking-widest block">POWER SCORE</span>
+                                        <span className="text-xl font-black text-brand-primary italic uppercase tracking-tighter">{powerScore} <span className="text-[10px]">XP</span></span>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/10" />
+                                    <div className="text-right">
+                                        <span className="text-[8px] font-black text-white/20 uppercase tracking-widest block">ACTIVE</span>
+                                        <span className="text-xl font-black text-white italic uppercase tracking-tighter">{activeBadgeCount}<span className="text-white/20">/7</span></span>
+                                    </div>
+                                </div>
+                                <div className="w-32 h-1 bg-white/5 rounded-full mt-3 overflow-hidden">
+                                    <div className="h-full bg-brand-accent animate-progress transition-all duration-1000" style={{ width: `${(powerScore / maxPossibleXP) * 100}%` }} />
+                                </div>
+                            </div>
                         </div>
                         
-                        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar px-2">
-                            {[
-                                { id: 'first_boot', name: 'FIRST BOOT', icon: Zap, req: 'Attend first session', earned: presentCount > 0 },
-                                { id: 'iron_will', name: 'IRON WILL', icon: Activity, req: '80%+ Attendance', earned: parseFloat(attendanceRate) >= 80 },
-                                { id: 'leader', name: 'LEADER', icon: Crown, req: 'Become Captain', earned: false },
-                                { id: 'undefeated', name: 'UNDEFEATED', icon: Shield, req: 'Win a Match', earned: matches.some(m => m.result === 'W') },
-                                { id: 'century', name: 'CENTURY', icon: Medal, req: '100 Sessions', earned: presentCount >= 100 },
-                                { id: 'rising_star', name: 'RISING STAR', icon: Star, req: 'Rank Top 3', earned: !!(academyRank && academyRank.rank <= 3) }
-                            ].map((badge) => (
-                                <div key={badge.id} className="flex flex-col items-center gap-4 shrink-0 group cursor-help">
-                                    <div className={`relative w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-500 shadow-2xl
-                                        ${badge.earned 
-                                            ? 'bg-brand-secondary/40 border-brand-accent/50 shadow-brand-accent/20 scale-110' 
-                                            : 'bg-white/5 border-white/10 grayscale opacity-40 hover:opacity-60'}`}>
-                                        <badge.icon size={28} className={badge.earned ? 'text-brand-accent' : 'text-white/40'} />
-                                        {!badge.earned && (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-brand-950/40 rounded-full">
-                                                <Command size={14} className="text-white/20" />
+                        <div className="flex gap-10 overflow-x-auto pb-4 no-scrollbar px-4 pt-4">
+                            {(() => {
+                                const badgeConfigs = [
+                                    { id: 'iron_will', name: 'IRON WILL', icon: Activity, unit: '%', desc: 'Attendance Consistency', data: badgesData.iron_will, tiers: [50, 75, 90, 100] },
+                                    { id: 'century', name: 'CENTURY', icon: Medal, unit: '', desc: 'Total Training Sessions', data: badgesData.century, tiers: [10, 50, 100, 250] },
+                                    { id: 'victor', name: 'VICTOR', icon: Trophy, unit: '', desc: 'Match Victories', data: badgesData.victor, tiers: [1, 10, 25, 50] },
+                                    { id: 'elite', name: 'TOP GUN', icon: Crown, unit: '%', desc: 'All-Time Academy Ranking', inverse: true, data: badgesData.elite, tiers: [25, 10, 5, 1] },
+                                    { id: 'striker', name: 'STRIKER', icon: Target, unit: '', desc: 'Total Goals Scored', data: badgesData.striker, tiers: [1, 5, 10, 20] },
+                                    { id: 'architect', name: 'ARCHITECT', icon: Zap, unit: '', desc: 'Total Assists Provided', data: badgesData.architect, tiers: [1, 5, 10, 20] },
+                                    { id: 'mainman', name: 'MAIN MAN', icon: Star, unit: '', desc: 'Man of the Match Awards', data: badgesData.mainman, tiers: [1, 3, 7, 15] }
+                                ];
+
+                                return badgeConfigs.map((config, index) => {
+                                    // Safety fallback to prevent crashes if data is missing
+                                    const tierData = config.data || { 
+                                        level: 0, 
+                                        tierName: 'Locked', 
+                                        tierClass: 'badge-locked', 
+                                        progress: 0, 
+                                        remaining: 1, 
+                                        currentValue: 0,
+                                        isMaxed: false 
+                                    };
+                                    const isLocked = tierData.level === 0;
+                                    const Icon = config.icon;
+                                    
+                                    return (
+                                        <div key={config.id} 
+                                            className={`relative shrink-0 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer group`}
+                                            style={{ animationDelay: `${index * 100}ms` }}
+                                            onClick={() => setSelectedBadge({ config, tierData })}
+                                        >
+                                            {/* Badge Aura (Elite only) */}
+                                            {tierData.level === 4 && (
+                                                <div className="absolute -inset-4 bg-brand-primary/20 rounded-full blur-2xl animate-pulse" />
+                                            )}
+                                            
+                                            <div className={`relative w-28 h-28 flex flex-col items-center justify-center rounded-[2rem] border transition-all duration-500 overflow-hidden
+                                                ${isLocked ? 'bg-white/[0.02] border-white/5 shadow-inner' : 'bg-white/5 hover:bg-white/10 hover:scale-110 active:scale-95 shadow-2xl'}
+                                                ${tierData.tierClass}
+                                                backdrop-blur-md group-hover:border-white/20`}
+                                            >
+                                                {/* Background Radar Effect */}
+                                                {!isLocked && (
+                                                    <div className="absolute inset-0 pointer-events-none">
+                                                        <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/0 via-brand-primary/5 to-brand-primary/0 animate-radar-scan opacity-20" />
+                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,200,255,0.1),transparent_70%)]" />
+                                                    </div>
+                                                )}
+
+                                                {/* Background Shimmer */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                                
+                                                <ProgressCircle 
+                                                    progress={tierData.progress} 
+                                                    tierClass={tierData.tierClass} 
+                                                    size={112} 
+                                                    strokeWidth={2}
+                                                    glow={tierData.level >= 3}
+                                                />
+                                                
+                                                <div className={`z-10 flex flex-col items-center transition-all duration-500 ${isLocked ? 'grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100' : 'group-hover:-translate-y-1'}`}>
+                                                    <div className="relative">
+                                                        <Icon size={24} className={`${tierData.tierClass} mb-2 drop-shadow-[0_0_10px_currentColor] transition-transform duration-500 group-hover:scale-110`} />
+                                                        {tierData.level === 4 && <Sparkles size={12} className="absolute -top-2 -right-2 text-brand-primary animate-pulse" />}
+                                                    </div>
+                                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-0.5">{config.name}</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-tighter italic ${tierData.tierClass} drop-shadow-[0_0_8px_currentColor]`}>
+                                                        {isLocked ? 'LOCKED' : tierData.tierName}
+                                                    </span>
+                                                </div>
+
+                                                {/* Lock Icon */}
+                                                {isLocked && (
+                                                    <div className="absolute top-2 right-2 p-1 bg-white/5 rounded-lg opacity-40 group-hover:opacity-0 transition-opacity">
+                                                        <Shield size={10} className="text-white" />
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                        {badge.earned && (
-                                            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-brand-accent flex items-center justify-center border-2 border-brand-950 shadow-lg animate-bounce">
-                                                <CheckCircle2 size={12} className="text-brand-950" />
-                                            </div>
-                                        )}
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    </div>
+
+                    {/* Badge Details Modal */}
+                    {selectedBadge && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
+                            <div 
+                                className="absolute inset-0 z-0 bg-black/40 backdrop-blur-sm" 
+                                onClick={() => setSelectedBadge(null)}
+                            />
+                            
+                            <div className={`relative z-10 w-full max-w-sm rounded-[3rem] border-2 border-white/10 bg-brand-950/95 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-pop ring-1 ring-white/5
+                                ${selectedBadge.tierData.tierClass === 'text-brand-accent' ? 'border-brand-accent/20' : 
+                                  selectedBadge.tierData.tierClass === 'text-brand-primary' ? 'border-brand-primary/20' : 
+                                  'border-white/20'}`}
+                            >
+                                {/* Elite Background Effects */}
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                    <div className={`absolute -top-[50%] -left-[50%] w-[200%] h-[200%] opacity-20 animate-glow-spin
+                                        bg-[conic-gradient(from_0deg,transparent_0deg,currentColor_120deg,transparent_240deg)]
+                                        ${selectedBadge.tierData.tierClass}`} 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-950/50 to-brand-950" />
+                                </div>
+
+                                <div className="relative p-8 space-y-6 overflow-hidden">
+                                    {/* Particle drift effect */}
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        {[...Array(8)].map((_, i) => (
+                                            <div 
+                                                key={i}
+                                                className={`particle ${selectedBadge.tierData.tierClass.replace('text-', 'bg-')}`}
+                                                style={{
+                                                    left: `${Math.random() * 100}%`,
+                                                    top: `${70 + Math.random() * 30}%`,
+                                                    animationDelay: `${Math.random() * 4}s`,
+                                                    width: `${2 + Math.random() * 3}px`,
+                                                    height: `${2 + Math.random() * 3}px`,
+                                                    opacity: 0.2
+                                                }}
+                                            />
+                                        ))}
                                     </div>
-                                    <div className="text-center">
-                                        <span className={`block text-[9px] font-black uppercase tracking-[0.2em] italic ${badge.earned ? 'text-white' : 'text-white/20'}`}>
-                                            {badge.name}
-                                        </span>
-                                        <div className="h-0 overflow-hidden group-hover:h-auto transition-all duration-500">
-                                            <span className="block text-[8px] font-bold text-brand-primary uppercase tracking-widest mt-1 italic whitespace-nowrap">
-                                                {badge.earned ? 'UNLOCKED' : badge.req}
-                                            </span>
+                                    {/* Modal Header with Gamified Icon */}
+                                    <div className="flex flex-col items-center text-center space-y-4">
+                                        <div className="relative group/badge">
+                                            {/* Rotating Glow Ring */}
+                                            <div className={`absolute -inset-6 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 animate-pulse
+                                                ${selectedBadge.tierData.tierClass.replace('text-', 'bg-')}`} 
+                                            />
+                                            
+                                            <div className={`relative p-6 rounded-[2.5rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md animate-float shine-effect
+                                                transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6`}>
+                                                <selectedBadge.config.icon size={48} className={`${selectedBadge.tierData.tierClass} drop-shadow-[0_0_20px_currentColor]`} />
+                                                
+                                                {/* Tier Level Badge */}
+                                                <div className={`absolute -bottom-2 -right-2 px-3 py-1 rounded-full text-[10px] font-black italic border border-white/20 shadow-lg
+                                                    ${selectedBadge.tierData.tierClass.replace('text-', 'bg-')} text-brand-950`}>
+                                                    LVL {selectedBadge.tierData.level}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-white/20" />
+                                                <span className={`text-[10px] font-black uppercase tracking-[0.4em] italic ${selectedBadge.tierData.tierClass} text-glow`}>
+                                                    {selectedBadge.tierData.tierName} RANK
+                                                </span>
+                                                <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-white/20" />
+                                            </div>
+                                            <h3 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none">
+                                                {selectedBadge.config.name}
+                                            </h3>
+                                            <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
+                                                {selectedBadge.config.desc}
+                                            </p>
+                                        </div>
+
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedBadge(null);
+                                            }}
+                                            className="absolute top-2 right-2 p-3 hover:bg-white/10 rounded-2xl text-white/20 hover:text-white transition-all group/close"
+                                        >
+                                            <X size={24} className="transition-transform duration-300 group-hover/close:rotate-90" />
+                                        </button>
+                                    </div>
+
+                                    {/* Stats Grid */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="group/stat relative p-5 rounded-[2rem] bg-white/5 border border-white/5 shadow-inner hover:bg-white/10 transition-colors overflow-hidden">
+                                            <div className="absolute inset-0 bg-brand-accent/5 translate-y-full group-hover/stat:translate-y-0 transition-transform duration-500" />
+                                            <div className="relative">
+                                                <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">XP EARNED</div>
+                                                <div className="text-3xl font-black text-brand-accent italic drop-shadow-sm">
+                                                    +{selectedBadge.tierData.level * 250}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="group/stat relative p-5 rounded-[2rem] bg-white/5 border border-white/5 shadow-inner hover:bg-white/10 transition-colors overflow-hidden text-right">
+                                            <div className="absolute inset-0 bg-brand-primary/5 translate-y-full group-hover/stat:translate-y-0 transition-transform duration-500" />
+                                            <div className="relative">
+                                                <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">PERSONAL BEST</div>
+                                                <div className="text-3xl font-black text-white italic drop-shadow-sm">
+                                                    {selectedBadge.tierData.currentValue}<span className="text-xs opacity-40 ml-1">{selectedBadge.config.unit}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress Section */}
+                                    {!selectedBadge.tierData.isMaxed ? (
+                                        <div className="space-y-4 p-6 rounded-[2.5rem] bg-brand-primary/5 border border-brand-primary/10 relative overflow-hidden group/progress">
+                                            <div className="absolute inset-0 bg-brand-primary/5 opacity-0 group-hover/progress:opacity-100 transition-opacity duration-500" />
+                                            
+                                            <div className="relative flex justify-between items-end">
+                                                <div>
+                                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block mb-1">PATH TO LEVEL {selectedBadge.tierData.level + 1}</span>
+                                                    <span className="text-sm font-black text-white italic uppercase tracking-tight">TARGET: {selectedBadge.tierData.nextValue}{selectedBadge.config.unit}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-lg font-black text-brand-primary italic leading-none block">
+                                                        {Math.ceil(selectedBadge.tierData.remaining)}
+                                                    </span>
+                                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest italic">TO GO</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="h-3 bg-white/5 rounded-full overflow-hidden relative shadow-inner border border-white/5">
+                                                <div 
+                                                    className="h-full bg-brand-primary shadow-[0_0_20px_rgba(0,200,255,0.8)] transition-all duration-1000 ease-out relative" 
+                                                    style={{ width: `${selectedBadge.tierData.progress}%` }} 
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+                                                </div>
+                                            </div>
+
+                                            <div className="relative flex items-start gap-3 pt-2">
+                                                <div className="mt-1 p-1.5 bg-brand-primary/20 rounded-xl">
+                                                    <TrendingUp size={14} className="text-brand-primary" />
+                                                </div>
+                                                <p className="text-[12px] font-bold text-white/80 uppercase italic tracking-tight leading-relaxed">
+                                                    {selectedBadge.tierData.strategicAdvice}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="relative py-10 px-6 bg-brand-accent/10 border-2 border-brand-accent/30 rounded-[2.5rem] text-lg font-black text-brand-accent uppercase tracking-[0.2em] italic text-center shadow-[0_0_50px_rgba(195,246,41,0.3)] animate-pulse overflow-hidden group/legendary">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                            <div className="relative z-10 flex flex-col items-center gap-2">
+                                                <Sparkles className="animate-bounce text-brand-accent" size={24} />
+                                                <span className="text-glow">LEGENDARY STATUS</span>
+                                                <span className="text-[10px] tracking-[0.5em] text-white/40">ULTIMATE MASTERY</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Milestone Track */}
+                                    <div className="pt-6 border-t border-white/5">
+                                        <div className="flex justify-between gap-3">
+                                            {selectedBadge.config.tiers.map((t: number, i: number) => (
+                                                <div key={i} className="flex-1 flex flex-col gap-2 group/milestone">
+                                                    <div className={`h-2 rounded-full transition-all duration-1000 relative overflow-hidden
+                                                        ${selectedBadge.tierData.level > i ? 'bg-brand-accent shadow-[0_0_15px_rgba(195,246,41,0.4)]' : 'bg-white/10'}`}>
+                                                        {selectedBadge.tierData.level > i && (
+                                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-[9px] font-black text-center transition-colors duration-500
+                                                        ${selectedBadge.tierData.level > i ? 'text-brand-accent' : 'text-white/20'}`}>
+                                                        {t}{selectedBadge.config.unit}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* ─── Recent Sessions Recap Feed (Digital Stadium Elite) ────────── */}
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
                         <div className="xl:col-span-12">
                             <div className="glass-card rounded-[3rem] p-10 md:p-12 border border-white/5 shadow-2xl relative overflow-hidden bg-brand-900/20 backdrop-blur-3xl">
-                                <div className="flex items-center justify-between mb-10">
+                                <div 
+                                    className="flex items-center justify-between cursor-pointer group/header"
+                                    onClick={() => setIsRecentSessionsOpen(!isRecentSessionsOpen)}
+                                >
                                     <div>
-                                        <h2 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter">
+                                        <h2 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter flex items-center gap-4">
                                             RECENT <span className="text-brand-primary">SESSIONS</span>
+                                            <div className={`p-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-500 group-hover/header:border-brand-primary/30 ${isRecentSessionsOpen ? 'rotate-180 bg-brand-primary/10 border-brand-primary/20' : ''}`}>
+                                                <ChevronDown size={20} className={`transition-colors duration-500 ${isRecentSessionsOpen ? 'text-brand-primary' : 'text-white/40'}`} />
+                                            </div>
                                         </h2>
                                         <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mt-2 italic">Training History // Tactical Recap</p>
                                     </div>
-                                    <div className="hidden md:block px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black text-white/40 uppercase tracking-[0.2em] italic">
-                                        Last 5 Evaluations
+                                    <div className="flex items-center gap-4">
+                                        <div className="hidden md:block px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black text-white/40 uppercase tracking-[0.2em] italic">
+                                            Last 5 Evaluations
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-6">
-                                    {(() => {
-                                        const recentAtt = [...attendance]
-                                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                                            .slice(0, 5);
-                                        
-                                        if (recentAtt.length === 0) {
-                                            return (
-                                                <div className="py-20 text-center">
-                                                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-white/10">
-                                                        <Calendar size={32} />
-                                                    </div>
-                                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">No session history found yet</p>
-                                                </div>
-                                            );
-                                        }
+                                <div className={`grid transition-all duration-500 ease-in-out ${isRecentSessionsOpen ? 'grid-rows-[1fr] opacity-100 mt-10' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                                    <div className="overflow-hidden">
+                                        <div className="space-y-6">
+                                            {(() => {
+                                                const recentAtt = [...attendance]
+                                                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                                    .slice(0, 5);
+                                                
+                                                if (recentAtt.length === 0) {
+                                                    return (
+                                                        <div className="py-20 text-center">
+                                                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-white/10">
+                                                                <Calendar size={32} />
+                                                            </div>
+                                                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">No session history found yet</p>
+                                                        </div>
+                                                    );
+                                                }
 
-                                        const motmData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
+                                                const motmData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
 
-                                        return recentAtt.map((att) => {
-                                            const session = allSchedule.find(s => s.date === att.date);
-                                            const isMOTM = Object.entries(motmData).some(([key, val]) => {
-                                                const entryId = typeof val === 'object' ? (val as any).playerId : val;
-                                                return entryId === player.id && key.startsWith(att.date);
-                                            });
+                                                return recentAtt.map((att) => {
+                                                    const session = allSchedule.find(s => s.date === att.date);
+                                                    const isMOTM = Object.entries(motmData).some(([key, val]) => {
+                                                        const entryId = typeof val === 'object' ? (val as any).playerId : val;
+                                                        return entryId === player.id && key.startsWith(att.date);
+                                                    });
 
-                                            return (
-                                                <div key={att.id} className="group relative flex flex-col md:flex-row items-center justify-between p-6 md:p-8 rounded-[2.5rem] bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-500 gap-6 md:gap-12">
-                                                    <div className="flex items-center gap-8 w-full md:w-auto">
-                                                        {/* Status Dot */}
-                                                        <div className={`shrink-0 w-3 h-3 rounded-full shadow-[0_0_12px] ${att.status === 'PRESENT' ? 'bg-brand-accent shadow-brand-accent/50' : 'bg-red-500 shadow-red-500/50'}`} />
-                                                        
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-1">
-                                                                {new Date(att.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}
-                                                            </span>
-                                                            <div className="flex items-center gap-4">
-                                                                <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">
-                                                                    {session?.title || 'REGULAR TRAINING'}
-                                                                </h4>
-                                                                {isMOTM && (
-                                                                    <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-brand-accent/20 border border-brand-accent/30">
-                                                                        <Trophy size={12} className="text-brand-accent" />
-                                                                        <span className="text-[8px] font-black text-brand-accent uppercase italic">MOTM</span>
+                                                    return (
+                                                        <div key={att.id} className="group relative flex flex-col md:flex-row items-center justify-between p-6 md:p-8 rounded-[2.5rem] bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-500 gap-6 md:gap-12">
+                                                            <div className="flex items-center gap-8 w-full md:w-auto">
+                                                                {/* Status Dot */}
+                                                                <div className={`shrink-0 w-3 h-3 rounded-full shadow-[0_0_12px] ${att.status === 'PRESENT' ? 'bg-brand-accent shadow-brand-accent/50' : 'bg-red-500 shadow-red-500/50'}`} />
+                                                                
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-1">
+                                                                        {new Date(att.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}
+                                                                    </span>
+                                                                    <div className="flex items-center gap-4">
+                                                                        <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">
+                                                                            {session?.title || 'REGULAR TRAINING'}
+                                                                        </h4>
+                                                                        {isMOTM && (
+                                                                            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-brand-accent/20 border border-brand-accent/30">
+                                                                                <Trophy size={12} className="text-brand-accent" />
+                                                                                <span className="text-[8px] font-black text-brand-accent uppercase italic">MOTM</span>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-start md:justify-end">
+                                                                <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-brand-950/40 border border-white/5">
+                                                                    <MapPin size={12} className="text-brand-primary" />
+                                                                    <span className="text-[9px] font-black text-white/60 uppercase tracking-widest italic">{session?.location || player.venue || 'CENTRAL HUB'}</span>
+                                                                </div>
+                                                                
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {session?.drillIds?.map(drillId => {
+                                                                        const drill = drills.find(d => d.id === drillId);
+                                                                        if (!drill) return null;
+                                                                        return (
+                                                                            <span key={drillId} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase tracking-widest italic group-hover:border-brand-primary/30 group-hover:text-white transition-all">
+                                                                                #{drill.title}
+                                                                            </span>
+                                                                        );
+                                                                    })}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-
-                                                    <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-start md:justify-end">
-                                                        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-brand-950/40 border border-white/5">
-                                                            <MapPin size={12} className="text-brand-primary" />
-                                                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest italic">{session?.location || player.venue || 'CENTRAL HUB'}</span>
-                                                        </div>
-                                                        
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {session?.drillIds?.map(drillId => {
-                                                                const drill = drills.find(d => d.id === drillId);
-                                                                if (!drill) return null;
-                                                                return (
-                                                                    <span key={drillId} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase tracking-widest italic group-hover:border-brand-primary/30 group-hover:text-white transition-all">
-                                                                        #{drill.title}
-                                                                    </span>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        });
-                                    })()}
+                                                    );
+                                                });
+                                            })()}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

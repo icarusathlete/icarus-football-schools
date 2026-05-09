@@ -28,6 +28,49 @@
 
   --animate-spin-slow: spin 8s linear infinite;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-progress-flow: progress-flow 2s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow-spin: glow-spin 4s linear infinite;
+  --animate-pop: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  @keyframes progress-flow {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+
+  @keyframes glow-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes particle-drift {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+    20% { opacity: 0.5; }
+    100% { transform: translateY(-100px) translateX(20px) scale(0); opacity: 0; }
+  }
+
+  @keyframes level-up-glow {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(2) drop-shadow(0 0 20px currentColor); }
+    100% { filter: brightness(1); }
+  }
+
+  @keyframes shine-sweep {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
+  }
 }
 
 :root {
@@ -53,6 +96,54 @@
   --blue-glow: 0 10px 40px rgba(13, 27, 138, 0.15);
   --cyan-glow: 0 10px 40px rgba(0, 200, 255, 0.2);
   --lime-glow: 0 10px 40px rgba(195, 246, 41, 0.2);
+
+  /* Gamified Utility Tokens */
+  --rarity-bronze: #CD7F32;
+  --rarity-silver: #C0C0C0;
+  --rarity-gold: #FFD700;
+  --rarity-platinum: #E5E4E2;
+  --rarity-legendary: #ff00ff;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+.card-glow-gold {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+}
+
+.card-glow-silver {
+  box-shadow: 0 0 30px rgba(192, 192, 192, 0.2);
+}
+
+.card-glow-bronze {
+  box-shadow: 0 0 30px rgba(205, 127, 50, 0.2);
+}
+
+.particle {
+  position: absolute;
+  background: currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particle-drift 3s ease-out infinite;
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: rotate(25deg);
+  animation: shine-sweep 4s infinite;
 }
 
 body { 
@@ -337,4 +428,103 @@ select option {
 
 .animate-scan-line {
   animation: scan-line 4s linear infinite;
+}
+
+/* ── Achievement Badge Tiers ──────────────────── */
+.badge-tier {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  background-size: 200% 200% !important;
+}
+
+.badge-locked {
+  color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  filter: grayscale(1) opacity(0.5);
+  box-shadow: none;
+}
+
+.badge-bronze {
+  color: #CD7F32;
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(139, 69, 19, 0.1) 100%);
+  border: 1px solid rgba(205, 127, 50, 0.4);
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.2), inset 0 0 10px rgba(205, 127, 50, 0.1);
+}
+
+.badge-silver {
+  color: #E2E8F0;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.2) 0%, rgba(148, 163, 184, 0.1) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.4);
+  box-shadow: 0 0 20px rgba(226, 232, 240, 0.2), inset 0 0 15px rgba(226, 232, 240, 0.1);
+}
+
+.badge-gold {
+  color: #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(218, 165, 32, 0.1) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 215, 0, 0.2);
+  animation: gold-shimmer 3s infinite ease-in-out;
+}
+
+.badge-platinum {
+  color: #00C8FF;
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.2) 0%, rgba(195, 246, 41, 0.1) 100%);
+  border: 1px solid rgba(0, 200, 255, 0.6);
+  box-shadow: 0 0 35px rgba(0, 200, 255, 0.4), 0 0 15px rgba(195, 246, 41, 0.2), inset 0 0 25px rgba(0, 200, 255, 0.3);
+  animation: platinum-glow 4s infinite ease-in-out;
+}
+
+@keyframes gold-shimmer {
+  0%, 100% { 
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.3)); 
+    transform: scale(1);
+    background-position: 0% 50%;
+  }
+  50% { 
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6)); 
+    transform: scale(1.05);
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes platinum-glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.5)); 
+    border-color: rgba(0, 200, 255, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 40px rgba(195, 246, 41, 0.8)); 
+    border-color: rgba(195, 246, 41, 0.8);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes radar-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-radar-scan {
+  animation: radar-scan 2s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+.progress-ring__circle {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
 }

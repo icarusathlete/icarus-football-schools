@@ -86,6 +86,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('');
   const [breadcrumbSegments, setBreadcrumbSegments] = useState<string[]>([]);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isUserLoading, setIsUserLoading] = useState(false);
   const [settings, setSettings] = useState(StorageService.getSettings());
 
   useEffect(() => {
@@ -95,16 +96,17 @@ const App: React.FC = () => {
     const handleSettingsChange = () => setSettings(StorageService.getSettings());
     window.addEventListener('settingsChanged', handleSettingsChange);
 
-    // Safety timeout: If Firebase doesn't signal readiness in 10s, proceed regardless
+    // Safety timeout: If Firebase doesn't signal readiness in 5s, proceed regardless
     const safetyTimeout = setTimeout(() => {
       setIsAuthReady(true);
-    }, 10000);
+    }, 5000);
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       clearTimeout(safetyTimeout);
       setIsAuthReady(true); // Signal ready as soon as we know the auth status
       
       if (firebaseUser) {
+        setIsUserLoading(true);
         // Fetch user role and subscribe to real-time metadata updates
         const userRef = doc(db, 'users', firebaseUser.uid);
         const unsubUser = onSnapshot(userRef, (snapshot) => {
@@ -120,15 +122,22 @@ const App: React.FC = () => {
               else if (userData.role === 'player') setActiveTab('player-dashboard');
               else setActiveTab('guest'); // pending or rejected
             }
+            setIsUserLoading(false);
+          } else {
+            // User authenticated but no document exists (e.g. registration interrupted)
+            setCurrentUser(null);
+            setIsUserLoading(false);
           }
         }, (error) => {
           console.error("User metadata sync error:", error);
           StorageService.stopFirebaseSync();
+          setIsUserLoading(false);
         });
         
         return; 
       } else {
         setCurrentUser(null);
+        setIsUserLoading(false);
         StorageService.stopFirebaseSync();
       }
     });
@@ -200,10 +209,32 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isAuthReady) {
+  if (!isAuthReady || isUserLoading) {
     return (
-      <div className="min-h-screen bg-brand-950 flex items-center justify-center p-12">
-        <LoadingList count={5} />
+      <div className="min-h-screen bg-brand-950 flex flex-col items-center justify-center p-12 overflow-hidden relative">
+        <div className="absolute inset-0 opacity-[0.03]" 
+             style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        
+        <div className="relative z-10 flex flex-col items-center max-w-sm w-full">
+          <div className="w-24 h-24 mb-12 relative">
+            <div className="absolute inset-0 border-4 border-white/5 rounded-[2rem] scale-110" />
+            <div className="absolute inset-0 border-t-4 border-brand-500 rounded-[2rem] animate-spin-slow shadow-[0_0_20px_rgba(0,200,255,0.3)]" />
+            <div className="absolute inset-4 bg-white/5 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/10">
+              <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+            </div>
+          </div>
+          
+          <div className="space-y-4 text-center w-full">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">System Initialization</h2>
+            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+              <div className="h-full bg-gradient-to-r from-brand-500 to-[#CCFF00] animate-progress-flow rounded-full w-2/3" />
+            </div>
+            <div className="flex justify-between items-center px-1">
+              <p className="text-[8px] font-black text-white/20 uppercase tracking-widest italic">Node Status: Online</p>
+              <p className="text-[8px] font-black text-brand-500 uppercase tracking-widest italic animate-pulse">Syncing Identity...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

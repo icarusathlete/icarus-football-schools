@@ -116,6 +116,7 @@ function sanitizeObject(obj: any): any {
 
 export const StorageService = {
   init: () => {
+    console.log("StorageService v2.1.2 - Identity Systems Active");
     // Basic local init if needed, but we rely on Firebase sync now
   },
 
@@ -548,6 +549,10 @@ export const StorageService = {
     const newUser = sanitizeObject({...u, id: newId});
     await StorageService._write('users', newId, newUser, USERS_KEY);
     return newUser;
+  },
+
+  updateUser: async (u: User) => {
+    await StorageService._write('users', u.id, u, USERS_KEY);
   },
   
   deleteUser: async (id: string) => {
