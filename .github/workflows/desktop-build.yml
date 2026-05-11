@@ -1,38 +1,36 @@
 name: Desktop App Build
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_dispatch: # Manual trigger ONLY — not on every push
 
 jobs:
   build:
     runs-on: macos-latest
-    
+    timeout-minutes: 45
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-          
+
       - name: Install Dependencies
-        run: npm install && npm rebuild --verbose
-        
+        run: npm ci
+
       - name: Build Web Assets
         run: npm run build
-        
+
       - name: Build Desktop App
         run: npx electron-builder --mac
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false # Skip signing if not configured
-          
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Icarus-App-macOS
-          path: dist-desktop/*.app.zip # Zip it for download
+          path: dist-desktop/*.app.zip
