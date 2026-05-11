@@ -83,15 +83,32 @@ export const CoachAttendance: React.FC = () => {
   }, [selectedDate, selectedVenue, selectedBatch]);
 
   const toggleAttendance = (playerId: string, status: AttendanceStatus) => {
+    const newStatus = attendance[playerId] === status ? 'none' : status;
+    
     setAttendance(prev => ({
       ...prev,
-      [playerId]: prev[playerId] === status ? 'none' : status
+      [playerId]: newStatus
     }));
+
+    // If status is no longer PRESENT, they cannot be MOTM
+    if (newStatus !== AttendanceStatus.PRESENT && motmId === playerId) {
+        setMotmId(null);
+        StorageService.setMOTM(null, selectedDate, selectedVenue, selectedBatch)
+            .catch(err => console.error('Failed to clear MOTM:', err));
+    }
+    
     setSaveStatus('idle');
   };
 
   const toggleMOTM = (playerId: string) => {
     if (isFinalized) return;
+    
+    // Only PRESENT players can be nominated
+    if (attendance[playerId] !== AttendanceStatus.PRESENT) {
+        alert("Only players marked as Present can be nominated for Star of the Match.");
+        return;
+    }
+
     const newMotmId = motmId === playerId ? null : playerId;
     // Update local state immediately — no await, no reload
     setMotmId(newMotmId);
@@ -512,12 +529,12 @@ export const CoachAttendance: React.FC = () => {
 
                           <button
                             onClick={(e) => { e.stopPropagation(); toggleMOTM(player.id); }}
-                            disabled={isFinalized}
+                            disabled={isFinalized || !isPresent}
                             className={`col-span-2 py-3 rounded-xl border transition-all duration-300 flex items-center justify-center gap-3
                               ${isMotm 
                                 ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
                                 : 'bg-white/5 border-white/10 text-white/10 hover:text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/30'
-                              } ${isFinalized ? 'opacity-20 cursor-not-allowed' : 'active:scale-95'}`}
+                              } ${isFinalized || !isPresent ? 'opacity-20 cursor-not-allowed' : 'active:scale-95'}`}
                           >
                             <Trophy size={14} fill={isMotm ? "currentColor" : "none"} />
                             <span className="text-[9px] font-black tracking-[0.2em] uppercase italic">Star of the Match</span>

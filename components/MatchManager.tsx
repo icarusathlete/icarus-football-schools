@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StorageService } from '../services/storageService';
-import { Player, Match, ScheduleEvent, MatchEvent } from '../types';
+import { Player, Match, ScheduleEvent, MatchEvent, AttendanceRecord, AttendanceStatus } from '../types';
 import { 
     PlusCircle, Calendar, Trophy, ChevronDown, Save, X, Youtube, 
     PlayCircle, Filter, MonitorPlay, FileJson, UploadCloud, 
     AlertCircle, Check, Users, Shirt, Activity, Clock, 
     MessageSquare, Award, PieChart, TrendingUp, History,
     Flame, Zap, Target, MapPin, Shield, Trash2, RefreshCw, ArrowRight,
-    Star, Plus, Minus, Search
+    Star, Plus, Minus, Search, Play
 } from 'lucide-react';
 import { PageHeader } from './ui/PageHeader';
 
@@ -93,6 +93,7 @@ export const MatchManager: React.FC = () => {
     const [settings, setSettings] = useState(StorageService.getSettings());
     const [activeTab, setActiveTab] = useState<'results' | 'fixtures'>('results');
     const [searchTerm, setSearchTerm] = useState('');
+    const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
     
     // Live Match Timer State
     const [matchTime, setMatchTime] = useState(0);
@@ -102,17 +103,19 @@ export const MatchManager: React.FC = () => {
     const [showGoalModal, setShowGoalModal] = useState(false);
     const [showCardModal, setShowCardModal] = useState<{type: 'yellow_card' | 'red_card'} | null>(null);
     const [showSubModal, setShowSubModal] = useState(false);
+    const [showAttendanceModal, setShowAttendanceModal] = useState(false);
     const [selectedGoalScorer, setSelectedGoalScorer] = useState('');
     const [selectedAssistant, setSelectedAssistant] = useState('');
     const [selectedCardPlayer, setSelectedCardPlayer] = useState('');
     const [selectedSubOut, setSelectedSubOut] = useState('');
     const [selectedSubIn, setSelectedSubIn] = useState('');
     
-    // Console Tabs
     // Console State
     const [consoleTab, setConsoleTab] = useState<'tactical' | 'performance'>('tactical');
     const [selectedRatingPlayerId, setSelectedRatingPlayerId] = useState<string | null>(null);
     const [selectedMatchDetails, setSelectedMatchDetails] = useState<Match | null>(null);
+    const [editingHighlightsUrl, setEditingHighlightsUrl] = useState('');
+    const [isUpdatingHighlights, setIsUpdatingHighlights] = useState(false);
     const [matrixSort, setMatrixSort] = useState<'rating' | 'name' | 'impact'>('name');
     const [flashPlayerId, setFlashPlayerId] = useState<string | null>(null);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -155,6 +158,7 @@ export const MatchManager: React.FC = () => {
         const allPlayers = StorageService.getPlayers();
         setPlayers(allPlayers);
         setScheduleEvents(StorageService.getSchedule().filter(e => e.type === 'match'));
+        setAttendance(StorageService.getAttendance());
         
         if (allPlayers.length > 0 && Object.keys(playerStats).length === 0) {
              const initialStats: any = {};
@@ -274,6 +278,18 @@ export const MatchManager: React.FC = () => {
         const match = matches.find(m => m.id === activeMatchId);
         if (!match) return;
 
+        // Check attendance if trying to set as MOTM
+        if (updates.isMOTM) {
+            const date = new Date(match.date).toISOString().split('T')[0];
+            const isAbsent = attendance.find(a => a.playerId === playerId && a.date === date)?.status === 'ABSENT';
+            if (isAbsent) {
+                // Flash the player row or show a subtle notification would be better than an alert, 
+                // but alert is effective for immediate feedback
+                alert("ACTION_DENIED: CANNOT_AWARD_MOTM_TO_ABSENT_PLAYER");
+                return;
+            }
+        }
+
         const updatedMatch = {
             ...match,
             playerOfTheMatchId: updates.isMOTM ? playerId : (match.playerOfTheMatchId === playerId ? '' : match.playerOfTheMatchId),
@@ -345,6 +361,46 @@ export const MatchManager: React.FC = () => {
         });
     };
 
+    const handleAddAttendance = async (playerId: string, status: AttendanceStatus) => {
+        if (!liveMatch) return;
+        
+        const date = new Date(liveMatch.date).toISOString().split('T')[0];
+        const record: AttendanceRecord = {
+            id: `${date}_${playerId}`,
+            playerId,
+            date,
+            status,
+            notes: `Recorded during match vs ${liveMatch.opponent}`
+        };
+
+        try {
+            await StorageService.saveAttendanceBatch([record]);
+            setShowAttendanceModal(false);
+        } catch (error) {
+            console.error('Failed to record attendance:', error);
+        }
+    };
+
+    const handleUpdateHighlights = async () => {
+        if (!selectedMatchDetails) return;
+        
+        setIsUpdatingHighlights(true);
+        try {
+            const updatedMatch = {
+                ...selectedMatchDetails,
+                highlightsUrl: editingHighlightsUrl
+            };
+            await StorageService.updateMatch(updatedMatch);
+            setSelectedMatchDetails(updatedMatch);
+            // Show a temporary success state or notification would be good here
+        } catch (error) {
+            console.error("Failed to update highlights:", error);
+            alert("FAILED_TO_UPDATE_HIGHLIGHTS");
+        } finally {
+            setIsUpdatingHighlights(false);
+        }
+    };
+
     const handleSaveMatch = async () => {
         const statsArray = players.map(p => ({
             playerId: p.id,
@@ -395,6 +451,13 @@ export const MatchManager: React.FC = () => {
             loadData();
         }
     };
+
+    // Effect to sync editing state when match details are selected
+    useEffect(() => {
+        if (selectedMatchDetails) {
+            setEditingHighlightsUrl(selectedMatchDetails.highlightsUrl || '');
+        }
+    }, [selectedMatchDetails]);
 
     const getYouTubeEmbedUrl = (url: string | undefined) => {
         if (!url) return null;
@@ -542,16 +605,16 @@ export const MatchManager: React.FC = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="text-left md:text-center space-y-1">
-                                        <h4 className="text-[11px] lg:text-xs font-black text-white uppercase italic tracking-[0.3em] group-hover:text-brand-accent transition-colors">{settings.name}</h4>
+                                    <div className="text-left md:text-center space-y-1 flex-1 min-w-0">
+                                        <h4 className="text-[11px] lg:text-xs font-black text-white uppercase italic tracking-[0.3em] group-hover:text-brand-accent transition-colors truncate">{settings.name}</h4>
                                         <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest italic">HOME_SQUAD</p>
                                     </div>
                                 </div>
 
                                 {/* Score/Time Unit */}
-                                <div className="flex items-center gap-8 lg:gap-14 w-full md:w-auto justify-center">
+                                <div className="flex items-center gap-4 lg:gap-14 w-full md:w-auto justify-center">
                                     <div className="flex flex-col items-center gap-4 group">
-                                        <div className="text-7xl lg:text-9xl font-black text-white italic leading-none tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group-hover:scale-110">{activeMatch.scoreFor || 0}</div>
+                                        <div className="text-5xl lg:text-9xl font-black text-white italic leading-none tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group-hover:scale-110">{activeMatch.scoreFor || 0}</div>
                                         <button 
                                             onClick={() => updateLiveMatch({ ...activeMatch, scoreFor: Math.max(0, (activeMatch.scoreFor || 0) - 1) })} 
                                             className="p-2 hover:bg-white/10 rounded-full text-white/10 hover:text-white transition-all"
@@ -560,10 +623,10 @@ export const MatchManager: React.FC = () => {
                                         </button>
                                     </div>
 
-                                    <div className="flex flex-col items-center gap-6 min-w-[160px] lg:min-w-[220px]">
+                                    <div className="flex flex-col items-center gap-6 min-w-[120px] lg:min-w-[220px]">
                                         <div className="relative group/timer">
                                             <div className="absolute -inset-4 bg-brand-accent/5 blur-2xl rounded-full opacity-0 group-hover/timer:opacity-100 transition-opacity" />
-                                            <div className="text-4xl lg:text-6xl font-mono font-black text-brand-accent tabular-nums tracking-tight drop-shadow-[0_0_20px_rgba(195,246,41,0.3)]">
+                                            <div className="text-3xl lg:text-6xl font-mono font-black text-brand-accent tabular-nums tracking-tight drop-shadow-[0_0_20px_rgba(195,246,41,0.3)]">
                                                 {formatMatchTime(matchTime)}
                                             </div>
                                         </div>
@@ -577,7 +640,7 @@ export const MatchManager: React.FC = () => {
                                     </div>
 
                                     <div className="flex flex-col items-center gap-4 group">
-                                        <div className="text-7xl lg:text-9xl font-black text-white/20 italic leading-none tracking-tighter transition-all group-hover:text-white/40 group-hover:scale-110">{activeMatch.scoreAgainst || 0}</div>
+                                        <div className="text-5xl lg:text-9xl font-black text-white/20 italic leading-none tracking-tighter transition-all group-hover:text-white/40 group-hover:scale-110">{activeMatch.scoreAgainst || 0}</div>
                                         <button 
                                             onClick={() => updateLiveMatch({ ...activeMatch, scoreAgainst: Math.max(0, (activeMatch.scoreAgainst || 0) - 1) })} 
                                             className="p-2 hover:bg-white/10 rounded-full text-white/10 hover:text-white transition-all"
@@ -589,8 +652,8 @@ export const MatchManager: React.FC = () => {
 
                                 {/* Away Team */}
                                 <div className="flex md:flex-col items-center gap-6 group w-full md:w-1/3 px-4 md:px-0 justify-end md:justify-center">
-                                    <div className="text-right md:text-center space-y-1 order-1 md:order-2">
-                                        <h4 className="text-[11px] lg:text-xs font-black text-white/40 uppercase italic tracking-[0.3em] group-hover:text-white/70 transition-colors">{activeMatch.opponent}</h4>
+                                    <div className="text-right md:text-center space-y-1 order-1 md:order-2 flex-1 min-w-0">
+                                        <h4 className="text-[11px] lg:text-xs font-black text-white/40 uppercase italic tracking-[0.3em] group-hover:text-white/70 transition-colors truncate">{activeMatch.opponent}</h4>
                                         <p className="text-[8px] font-bold text-white/10 uppercase tracking-widest italic">VISITING_SIDE</p>
                                     </div>
                                     <div className="w-16 h-16 lg:w-28 lg:h-28 bg-white/5 rounded-3xl flex items-center justify-center border border-white/5 group-hover:border-white/20 transition-all duration-500 shadow-xl order-2 md:order-1 -rotate-3 group-hover:rotate-0">
@@ -619,7 +682,7 @@ export const MatchManager: React.FC = () => {
                                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                                         <button 
                                             onClick={() => setShowGoalModal(true)} 
-                                            className="group relative overflow-hidden bg-brand-accent/5 hover:bg-brand-accent transition-all duration-500 p-8 rounded-[2.5rem] border border-brand-accent/20 hover:border-brand-accent flex flex-col items-center gap-4 shadow-2xl"
+                                            className="group relative overflow-hidden bg-brand-accent/5 hover:bg-brand-accent transition-all duration-500 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-brand-accent/20 hover:border-brand-accent flex flex-col items-center gap-4 shadow-2xl"
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-t from-brand-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                             <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-brand-accent group-hover:bg-brand-950 group-hover:scale-110 transition-all duration-500 shadow-glow relative z-10">
@@ -633,44 +696,32 @@ export const MatchManager: React.FC = () => {
 
                                         <button 
                                             onClick={() => setShowCardModal({type: 'yellow_card'})} 
-                                            className="group relative overflow-hidden bg-amber-500/5 hover:bg-amber-500 transition-all duration-500 p-8 rounded-[2.5rem] border border-amber-500/20 hover:border-amber-500 flex flex-col items-center gap-4 shadow-2xl"
+                                            className="group relative overflow-hidden bg-amber-500/5 hover:bg-amber-500 transition-all duration-500 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-amber-500/20 hover:border-amber-500 flex flex-col items-center gap-4 shadow-2xl"
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                             <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-amber-500 group-hover:bg-white group-hover:scale-110 transition-all duration-500 relative z-10">
                                                 <div className="w-5 h-7 bg-amber-500 rounded-sm shadow-xl" />
-                                            </div>
-                                            <div className="text-center relative z-10">
-                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">YELLOW_CARD</p>
-                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-white/40 transition-colors">WARNING_PROTOCOL_01</p>
-                                            </div>
+                                    {/* Unified Action Grid */}
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <button onClick={() => setShowGoalModal(true)} className="p-8 bg-brand-accent/5 border border-brand-accent/20 rounded-[2rem] hover:bg-brand-accent hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
+                                            <Trophy size={24} className="text-brand-accent group-hover:text-brand-950" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RECORD_GOAL</span>
                                         </button>
-
-                                        <button 
-                                            onClick={() => setShowCardModal({type: 'red_card'})} 
-                                            className="group relative overflow-hidden bg-red-500/5 hover:bg-red-500 transition-all duration-500 p-8 rounded-[2.5rem] border border-red-500/20 hover:border-red-500 flex flex-col items-center gap-4 shadow-2xl"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-red-500 group-hover:bg-white group-hover:scale-110 transition-all duration-500 relative z-10">
-                                                <div className="w-5 h-7 bg-red-500 rounded-sm shadow-xl" />
-                                            </div>
-                                            <div className="text-center relative z-10">
-                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">RED_CARD</p>
-                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-white/40 transition-colors">EJECTION_PROTOCOL_02</p>
-                                            </div>
+                                        <button onClick={() => setShowCardModal({ type: 'yellow_card' })} className="p-8 bg-amber-500/5 border border-amber-500/20 rounded-[2rem] hover:bg-amber-500 text-white transition-all group flex flex-col items-center gap-4">
+                                            <AlertCircle size={24} className="text-amber-500 group-hover:text-white" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">YELLOW_CARD</span>
                                         </button>
-
-                                        <button 
-                                            onClick={() => setShowSubModal(true)} 
-                                            className="group relative overflow-hidden bg-brand-primary/5 hover:bg-brand-primary transition-all duration-500 p-8 rounded-[2.5rem] border border-brand-primary/20 hover:border-brand-primary flex flex-col items-center gap-4 shadow-2xl"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-brand-primary group-hover:bg-brand-950 group-hover:scale-110 transition-all duration-500 relative z-10">
-                                                <RefreshCw size={28} />
-                                            </div>
-                                            <div className="text-center relative z-10">
-                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-brand-950 transition-colors">SUBSTITUTION</p>
-                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-brand-950/40 transition-colors">TACTICAL_SEQUENCE_SWAP</p>
-                                            </div>
+                                        <button onClick={() => setShowCardModal({ type: 'red_card' })} className="p-8 bg-red-500/5 border border-red-500/20 rounded-[2rem] hover:bg-red-500 text-white transition-all group flex flex-col items-center gap-4">
+                                            <Shield size={24} className="text-red-500 group-hover:text-white" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RED_CARD</span>
+                                        </button>
+                                        <button onClick={() => setShowSubModal(true)} className="p-8 bg-brand-primary/5 border border-brand-primary/20 rounded-[2rem] hover:bg-brand-primary hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
+                                            <RefreshCw size={24} className="text-brand-primary group-hover:text-brand-950" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">EXECUTE_SUB</span>
+                                        </button>
+                                        <button onClick={() => setShowAttendanceModal(true)} className="col-span-2 lg:col-span-4 p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
+                                            <Users size={24} className="text-white group-hover:text-brand-950" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RECORD_ATTENDANCE</span>
                                         </button>
                                     </div>
 
@@ -838,10 +889,20 @@ export const MatchManager: React.FC = () => {
                                         {sortedStats.map(ps => {
                                             const player = players.find(p => p.id === ps.playerId);
                                             if (!player) return null;
+                                            
+                                            // Check if player is absent for this match date
+                                            const matchDate = activeMatch.date;
+                                            const isAbsent = attendance.some(a => 
+                                                a.playerId === ps.playerId && 
+                                                a.date === matchDate && 
+                                                a.status === AttendanceStatus.ABSENT
+                                            );
+
                                             const isMOTM = activeMatch.playerOfTheMatchId === ps.playerId;
                                             const rating = ps.rating || 6.0;
                                             
                                             const getRatingGlow = (r: number) => {
+                                                if (isAbsent) return 'border-red-500/20 bg-red-500/[0.02] opacity-60';
                                                 if (r >= 8.5) return 'performance-pulse shadow-[0_0_40px_rgba(195,246,41,0.2)] border-brand-accent/50';
                                                 if (r >= 7.0) return 'shadow-[0_0_20px_rgba(255,255,255,0.05)] border-white/20';
                                                 if (r < 5) return 'shadow-[0_0_30px_rgba(239,68,68,0.1)] border-red-500/20';
@@ -907,10 +968,14 @@ export const MatchManager: React.FC = () => {
                                                         </div>
 
                                                         <button 
-                                                            onClick={() => updatePlayerPerformance(ps.playerId, { isMOTM: !isMOTM })}
-                                                            className={`p-2.5 rounded-xl transition-all duration-500 border ${isMOTM ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-glow' : 'bg-white/5 text-white/20 border-white/10 hover:text-brand-accent hover:border-brand-accent/40'}`}
+                                                            onClick={() => {
+                                                                if (isAbsent) return;
+                                                                updateLiveMatch({ ...activeMatch, playerOfTheMatchId: isMOTM ? null : ps.playerId });
+                                                            }}
+                                                            disabled={isAbsent}
+                                                            className={`p-2.5 rounded-xl transition-all duration-500 border ${isMOTM ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-glow' : isAbsent ? 'bg-red-500/10 text-red-500/40 border-red-500/20 cursor-not-allowed' : 'bg-white/5 text-white/20 border-white/10 hover:text-brand-accent hover:border-brand-accent/40'}`}
                                                         >
-                                                            <Star size={14} fill={isMOTM ? "currentColor" : "none"} />
+                                                            {isAbsent ? <X size={14} /> : <Star size={14} fill={isMOTM ? "currentColor" : "none"} />}
                                                         </button>
                                                     </div>
 
@@ -985,47 +1050,47 @@ export const MatchManager: React.FC = () => {
                                 <div 
                                     key={m.id} 
                                     onClick={() => setSelectedMatchDetails(m)}
-                                    className="glass-card p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] border border-white/5 hover:border-brand-accent/30 transition-all duration-300 group cursor-pointer flex flex-col lg:flex-row items-center justify-between gap-6"
+                                    className="glass-card p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] border border-white/5 hover:border-brand-accent/30 transition-all duration-300 group cursor-pointer flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6"
                                 >
-                                    <div className="flex items-center gap-6 lg:gap-10 w-full lg:w-auto">
-                                        <div className="flex flex-col items-center min-w-[70px] lg:min-w-[90px] border-r border-white/5 pr-6">
+                                    <div className="flex items-center gap-4 lg:gap-10 w-full lg:w-auto">
+                                        <div className="flex flex-col items-center min-w-[60px] lg:min-w-[90px] border-r border-white/5 pr-4 lg:pr-6 shrink-0">
                                             <p className="text-[7px] font-black text-brand-accent uppercase tracking-widest italic mb-1">{m.date.split('-')[0]}</p>
-                                            <div className="text-lg lg:text-xl font-black text-white italic uppercase tracking-tighter leading-none">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                                            <div className="text-sm lg:text-xl font-black text-white italic uppercase tracking-tighter leading-none">{new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
                                         </div>
                                         
-                                        <div className="flex-1 flex items-center gap-4 lg:gap-8">
-                                            <div className="text-right">
-                                                <h4 className="text-[9px] font-black text-white/60 uppercase tracking-tight truncate max-w-[100px] lg:max-w-none">{settings.name}</h4>
+                                        <div className="flex-1 flex items-center gap-2 lg:gap-8 overflow-hidden min-w-0">
+                                            <div className="text-right flex-1 min-w-0">
+                                                <h4 className="text-[9px] lg:text-[10px] font-black text-white/60 uppercase tracking-tight truncate">{settings.name}</h4>
                                             </div>
-                                            <div className={`px-4 py-2 rounded-xl text-[10px] font-mono font-black italic shadow-2xl flex items-center gap-3 ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border border-brand-accent/20' : m.result === 'L' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-white/5 text-white/40 border border-white/10'}`}>
+                                            <div className="flex items-center gap-1.5 lg:gap-3 shrink-0 font-mono font-black italic shadow-2xl px-3 py-1.5 bg-white/5 rounded-lg text-white/80">
                                                 <span>{m.scoreFor}</span>
-                                                <span className="opacity-20">:</span>
+                                                <span className="opacity-20">-</span>
                                                 <span>{m.scoreAgainst}</span>
                                             </div>
-                                            <div>
-                                                <h4 className="text-[9px] font-black text-white/30 uppercase tracking-tight truncate max-w-[100px] lg:max-w-none group-hover:text-white/60 transition-colors">{m.opponent}</h4>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-[9px] lg:text-[10px] font-black text-white/30 uppercase tracking-tight truncate group-hover:text-white/60 transition-colors">{m.opponent}</h4>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
+                                    <div className="flex items-center gap-2 w-full lg:w-auto justify-end pt-2 lg:pt-0 border-t lg:border-t-0 border-white/5">
                                         {m.highlightsUrl && (
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); setSelectedVideo(getYouTubeEmbedUrl(m.highlightsUrl)); }} 
-                                                className="h-10 px-4 flex items-center justify-center bg-white/5 text-brand-accent border border-white/10 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn"
+                                                className="h-9 lg:h-10 px-3 lg:px-4 flex items-center justify-center bg-white/5 text-brand-accent border border-white/10 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn"
                                             >
-                                                <Youtube size={16} />
+                                                <Play size={16} fill="currentColor" />
                                             </button>
                                         )}
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); setActiveMatchId(m.id); }} 
-                                            className="h-10 px-4 flex items-center justify-center bg-white/5 text-white/40 border border-white/5 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn text-[8px] font-black uppercase tracking-widest italic"
+                                            className="h-9 lg:h-10 px-3 lg:px-4 flex items-center justify-center bg-white/5 text-white/40 border border-white/5 rounded-xl hover:bg-brand-accent hover:text-brand-950 transition-all group/btn text-[8px] font-black uppercase tracking-widest italic"
                                         >
                                             <MonitorPlay size={16} className="mr-2" /> RE-OPEN
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleDeleteMatch(m.id); }}
-                                            className="h-10 px-4 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                            className="h-9 lg:h-10 px-3 lg:px-4 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
                                         >
                                             <Trash2 size={16} />
                                         </button>
@@ -1042,17 +1107,17 @@ export const MatchManager: React.FC = () => {
                             .sort((a,b) => a.date.localeCompare(b.date)).map(ev => (
                             <div key={ev.id} className="glass-card p-8 rounded-[2.5rem] border border-white/10 flex flex-col lg:flex-row items-center justify-between group relative overflow-hidden gap-8 transition-all hover:border-brand-accent/30">
                                 <div className="flex items-center gap-10">
-                                    <div className="w-20 h-20 bg-white/5 rounded-3xl flex flex-col items-center justify-center border border-white/10 group-hover:border-brand-accent transition-all">
-                                        <p className="text-[10px] font-black text-brand-accent uppercase italic leading-none mb-1">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>
-                                        <p className="text-3xl font-black text-white italic leading-none">{new Date(ev.date).getDate()}</p>
+                                    <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 rounded-2xl lg:rounded-3xl flex flex-col items-center justify-center border border-white/10 group-hover:border-brand-accent transition-all shrink-0">
+                                        <p className="text-[8px] lg:text-[10px] font-black text-brand-accent uppercase italic leading-none mb-1">{new Date(ev.date).toLocaleDateString(undefined, { month: 'short' })}</p>
+                                        <p className="text-2xl lg:text-3xl font-black text-white italic leading-none">{new Date(ev.date).getDate()}</p>
                                     </div>
-                                    <div>
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <span className="px-3 py-1.5 bg-brand-accent text-brand-950 text-[9px] font-black uppercase tracking-widest rounded-lg italic">{getRelativeTime(ev.date)}</span>
-                                            <div className="flex items-center gap-2 text-white/40 font-black text-[9px] uppercase tracking-widest italic"><Clock size={14} /> {ev.time}</div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-3 lg:gap-4 mb-2 lg:mb-3">
+                                            <span className="px-2 py-1 lg:px-3 lg:py-1.5 bg-brand-accent text-brand-950 text-[8px] lg:text-[9px] font-black uppercase tracking-widest rounded-lg italic shrink-0">{getRelativeTime(ev.date)}</span>
+                                            <div className="flex items-center gap-1.5 text-white/40 font-black text-[8px] lg:text-[9px] uppercase tracking-widest italic shrink-0"><Clock size={12} /> {ev.time}</div>
                                         </div>
-                                        <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter group-hover:text-brand-accent transition-all">{ev.title}</h3>
-                                        <div className="flex items-center gap-3 text-white/20 font-bold text-xs mt-2 italic"><MapPin size={14} /> {ev.location}</div>
+                                        <h3 className="text-xl lg:text-3xl font-black text-white italic uppercase tracking-tighter group-hover:text-brand-accent transition-all truncate">{ev.title}</h3>
+                                        <div className="flex items-center gap-2 lg:gap-3 text-white/20 font-bold text-[10px] lg:text-xs mt-1 lg:mt-2 italic truncate"><MapPin size={12} /> {ev.location}</div>
                                     </div>
                                 </div>
                                 <button onClick={() => {
@@ -1142,7 +1207,10 @@ export const MatchManager: React.FC = () => {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-4">
-                                    {players.map(p => (
+                                    {players.filter(p => {
+                                        const date = new Date(newMatch.date).toISOString().split('T')[0];
+                                        return !attendance.some(a => a.playerId === p.id && a.date === date && a.status === AttendanceStatus.ABSENT);
+                                    }).map(p => (
                                         <div 
                                             key={p.id} 
                                             onClick={() => toggleStarter(p.id)}
@@ -1223,14 +1291,70 @@ export const MatchManager: React.FC = () => {
                 </div>
             )}
 
-            {/* Video Player Overlay */}
             {selectedVideo && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-8 bg-brand-950/95 backdrop-blur-3xl animate-in fade-in duration-500">
-                    <div className="w-full max-w-6xl aspect-video bg-black rounded-[4rem] overflow-hidden shadow-[0_0_100px_rgba(0,200,255,0.2)] border border-white/10 relative">
-                        <button onClick={() => setSelectedVideo(null)} className="absolute top-10 right-10 z-10 p-5 bg-brand-950/80 text-white rounded-[2rem] hover:bg-brand-accent hover:text-brand-950 transition-all shadow-2xl border border-white/10">
-                            <X size={32}/>
+                <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-6 bg-brand-950/98 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-[100vw] sm:max-w-screen-2xl aspect-video bg-black rounded-none sm:rounded-3xl overflow-hidden shadow-[0_0_150px_rgba(0,200,255,0.3)] border-0 sm:border border-white/10 relative group">
+                        <button 
+                            onClick={() => setSelectedVideo(null)} 
+                            className="absolute top-4 right-4 sm:top-8 sm:right-8 z-20 p-3 sm:p-5 bg-brand-950/80 text-white rounded-2xl hover:bg-brand-accent hover:text-brand-950 transition-all shadow-2xl border border-white/10 hover:scale-110 active:scale-95"
+                        >
+                            <X size={20} className="sm:hidden" />
+                            <X size={32} className="hidden sm:block" />
                         </button>
-                        <iframe src={selectedVideo} className="w-full h-full" title="Match Highlights" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <iframe 
+                            src={`${selectedVideo}?autoplay=1&rel=0&modestbranding=1`} 
+                            className="w-full h-full relative z-10" 
+                            title="Match Highlights" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen 
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Attendance Modal */}
+            {showAttendanceModal && liveMatch && (
+                <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 bg-brand-950/90 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-2xl bg-brand-900/60 rounded-[3rem] border border-white/10 shadow-3xl overflow-hidden relative">
+                        <div className="px-10 py-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">ATTENDANCE_LOG</h3>
+                                <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.4em] mt-2 italic">MATCHDAY_ROLLCALL</p>
+                            </div>
+                            <button onClick={() => setShowAttendanceModal(false)} className="p-4 hover:bg-white/10 rounded-2xl transition-all text-white/40"><X size={24} /></button>
+                        </div>
+
+                        <div className="p-10 max-h-[60vh] overflow-y-auto custom-scrollbar space-y-4">
+                            {players.map(player => {
+                                const date = new Date(liveMatch.date).toISOString().split('T')[0];
+                                const record = attendance.find(a => a.playerId === player.id && a.date === date);
+                                const isAbsent = record?.status === 'ABSENT';
+
+                                return (
+                                    <div key={player.id} className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
+                                        <div>
+                                            <p className="text-sm font-black text-white uppercase italic">{player.fullName}</p>
+                                            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">ID: {player.memberId}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => handleAddAttendance(player.id, AttendanceStatus.PRESENT)}
+                                                className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase transition-all ${!isAbsent ? 'bg-emerald-500 text-white shadow-glow' : 'bg-white/5 text-white/40 border border-white/10'}`}
+                                            >
+                                                PRESENT
+                                            </button>
+                                            <button 
+                                                onClick={() => handleAddAttendance(player.id, AttendanceStatus.ABSENT)}
+                                                className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase transition-all ${isAbsent ? 'bg-red-500 text-white shadow-glow' : 'bg-white/5 text-white/40 border border-white/10'}`}
+                                            >
+                                                ABSENT
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             )}
@@ -1341,8 +1465,8 @@ export const MatchManager: React.FC = () => {
             )}
             {/* Match Highlights Detail Modal */}
             {selectedMatchDetails && (
-                <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 lg:p-10 bg-brand-950/95 backdrop-blur-3xl animate-in fade-in duration-500">
-                    <div className="w-full max-w-2xl bg-brand-900/60 rounded-[3.5rem] border border-white/10 shadow-3xl overflow-hidden relative flex flex-col max-h-[90vh]">
+                <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-brand-950/95 backdrop-blur-3xl animate-in fade-in duration-500">
+                    <div className="w-full max-w-2xl bg-brand-900/60 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-3xl overflow-hidden relative flex flex-col max-h-[90vh]">
                         <div className="green-light-bar" />
                         <div className="px-10 py-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
                             <div className="flex items-center gap-6">
@@ -1361,23 +1485,28 @@ export const MatchManager: React.FC = () => {
 
                         <div className="p-10 overflow-y-auto custom-scrollbar flex-1 space-y-12">
                             {/* Score Overview */}
-                            <div className="flex items-center justify-center gap-14 py-10 rounded-[2.5rem] bg-black/40 border border-white/5 relative overflow-hidden">
+                             <div className="flex flex-col sm:grid sm:grid-cols-[1fr_auto_1fr] items-center gap-6 sm:gap-10 py-10 sm:py-12 px-6 sm:px-14 rounded-[2.5rem] sm:rounded-[4rem] bg-black/40 border border-white/5 relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-brand-accent/5 via-transparent to-brand-primary/5 opacity-50" />
                                 
-                                <div className="text-center relative z-10">
-                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-3 italic">HOME_SQUAD</p>
-                                    <h4 className="text-xl font-black text-white italic uppercase tracking-tight leading-tight max-w-[120px]">{settings.name}</h4>
-                                </div>
-                                
-                                <div className="flex items-center gap-6 relative z-10">
-                                    <div className="text-6xl font-black text-brand-accent italic drop-shadow-glow">{selectedMatchDetails.scoreFor}</div>
-                                    <div className="text-3xl font-black text-white/10 italic">:</div>
-                                    <div className="text-6xl font-black text-white/40 italic">{selectedMatchDetails.scoreAgainst}</div>
+                                <div className="text-center sm:text-left relative z-10 w-full min-w-0">
+                                    <p className="text-[9px] font-black text-brand-primary uppercase tracking-[0.3em] mb-2 sm:mb-4 italic">HOME_SQUAD</p>
+                                    <h4 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tight leading-none break-words sm:line-clamp-2">{settings.name}</h4>
                                 </div>
 
-                                <div className="text-center relative z-10">
-                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-3 italic">VISITING_SIDE</p>
-                                    <h4 className="text-xl font-black text-white/40 italic uppercase tracking-tight leading-tight max-w-[120px]">{selectedMatchDetails.opponent}</h4>
+                                <div className="flex flex-col items-center gap-3 relative z-10 shrink-0">
+                                    <div className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter flex items-center gap-5">
+                                        <span className={selectedMatchDetails.score.our > selectedMatchDetails.score.their ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.score.our}</span>
+                                        <span className="text-white/10 text-3xl sm:text-5xl">:</span>
+                                        <span className={selectedMatchDetails.score.their > selectedMatchDetails.score.our ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.score.their}</span>
+                                    </div>
+                                    <div className="px-5 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
+                                        <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.5em] italic">FINAL_SCORE</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="text-center sm:text-right relative z-10 w-full min-w-0">
+                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2 sm:mb-4 italic">VISITING_SIDE</p>
+                                    <h4 className="text-xl sm:text-2xl font-black text-white italic uppercase tracking-tight leading-none break-words sm:line-clamp-2 px-6 sm:px-0 bg-white/5 sm:bg-transparent py-3 sm:py-0 rounded-2xl sm:rounded-none border sm:border-0 border-white/5">{selectedMatchDetails.opponent}</h4>
                                 </div>
                             </div>
 
@@ -1457,6 +1586,69 @@ export const MatchManager: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Media & Highlights Management */}
+                            <div className="space-y-6 pt-4">
+                                <div className="flex items-center gap-4 px-2">
+                                    <Youtube size={18} className="text-red-500" />
+                                    <p className="text-[11px] font-black text-white uppercase tracking-[0.4em] italic">MEDIA_VAULT</p>
+                                    <div className="h-[1px] flex-1 bg-white/5 mx-4" />
+                                </div>
+
+                                <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+                                    <div className="flex flex-col gap-4">
+                                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] italic ml-2">YOUTUBE_REPLAY_LINK</label>
+                                        <div className="flex flex-col sm:flex-row gap-4">
+                                            <div className="flex-1 relative">
+                                                <input 
+                                                    type="text"
+                                                    value={editingHighlightsUrl}
+                                                    onChange={(e) => setEditingHighlightsUrl(e.target.value)}
+                                                    placeholder="PASTE_MATCH_REPLAY_URL"
+                                                    className="w-full bg-black/40 border border-white/10 p-5 rounded-2xl text-white font-black italic text-xs outline-none focus:border-brand-accent transition-all placeholder:text-white/10"
+                                                />
+                                                {editingHighlightsUrl && (
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                                        <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-glow" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <button 
+                                                onClick={async () => {
+                                                    await handleUpdateHighlights();
+                                                    // Flash success state visually
+                                                    const btn = document.activeElement as HTMLButtonElement;
+                                                    if (btn) {
+                                                        const originalText = btn.innerText;
+                                                        btn.innerText = 'SYNC_COMPLETE';
+                                                        btn.style.backgroundColor = '#C3F629';
+                                                        btn.style.color = '#000';
+                                                        setTimeout(() => {
+                                                            btn.innerText = originalText;
+                                                            btn.style.backgroundColor = '';
+                                                            btn.style.color = '';
+                                                        }, 2000);
+                                                    }
+                                                }}
+                                                disabled={isUpdatingHighlights || editingHighlightsUrl === (selectedMatchDetails.highlightsUrl || '')}
+                                                className="px-8 py-5 bg-white/5 hover:bg-brand-accent hover:text-brand-950 disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/40 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border border-white/10 hover:border-brand-accent italic shrink-0"
+                                            >
+                                                {isUpdatingHighlights ? 'SYNCING...' : 'UPDATE_LINK'}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {selectedMatchDetails.highlightsUrl && (
+                                        <button 
+                                            onClick={() => setSelectedVideo(getYouTubeEmbedUrl(selectedMatchDetails.highlightsUrl!))}
+                                            className="w-full py-6 bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] border border-red-500/20 transition-all flex items-center justify-center gap-4 italic group"
+                                        >
+                                            <Play size={18} className="fill-current group-hover:scale-110 transition-transform" />
+                                            LAUNCH_MATCH_HIGHLIGHTS
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         <div className="p-10 border-t border-white/5 bg-black/20">

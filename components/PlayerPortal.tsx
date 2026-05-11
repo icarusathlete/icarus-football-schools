@@ -420,22 +420,22 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
         setWeeklyTip(batchTip || null);
     };
 
-    const getNextEventCountdown = () => {
+    const nextEvent = React.useMemo(() => {
         if (!player || allSchedule.length === 0) return null;
         const now = new Date();
-        const nextEvent = allSchedule
+        return allSchedule
             .filter(e => {
-                // If player has a venue/batch, try to match it. 
-                // If not assigned yet, show global events.
                 const venueMatch = !e.location || !player.venue || e.location === player.venue;
                 const batchMatch = !e.batch || !player.batch || e.batch === player.batch;
                 return venueMatch && batchMatch;
             })
             .filter(e => new Date(`${e.date}T${e.time}`) > now)
             .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())[0];
+    }, [allSchedule, player]);
 
+    const countdown = React.useMemo(() => {
         if (!nextEvent) return null;
-
+        const now = new Date();
         const eventDate = new Date(`${nextEvent.date}T${nextEvent.time}`);
         const diffMs = eventDate.getTime() - now.getTime();
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -450,9 +450,8 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
         if (isTomorrow) return { text: `${nextEvent.type === 'match' ? 'MATCH DAY' : 'SESSION'} TOMORROW`, type: nextEvent.type };
         
         return { text: `NEXT ${nextEvent.type === 'match' ? 'MATCH' : 'SESSION'} IN ${diffDays}D ${diffHours}H`, type: nextEvent.type };
-    };
+    }, [nextEvent]);
 
-    const countdown = getNextEventCountdown();
 
     const handleSelfCheckIn = async () => {
         if (!user?.linkedPlayerId || isCheckingIn) return;
@@ -576,7 +575,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-            <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+            <div className="max-w-7xl mx-auto space-y-6 relative z-10">
 
             {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ ID Card Generator (Hidden) ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
             <div className="fixed left-[-9999px] top-0">
@@ -613,31 +612,31 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
             </div>
 
             {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Navigation HUD ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div className="flex p-1 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-xl gap-1 shadow-2xl overflow-x-auto w-full lg:w-auto no-scrollbar">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
+                <div className="flex p-1 rounded-xl bg-white/5 border border-white/5 backdrop-blur-xl gap-1 shadow-xl overflow-x-auto w-full lg:w-auto no-scrollbar">
                     {( [['overview', 'DASHBOARD'], ['scout', 'SCOUT REPORT']] as const).map(([m, label]) => (
                         <button key={m} onClick={() => setViewMode(m as any)}
-                            className={`flex-1 lg:flex-none px-4 lg:px-6 xl:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-center gap-2.5 italic whitespace-nowrap
+                            className={`flex-1 lg:flex-none px-4 lg:px-8 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-center gap-2 italic whitespace-nowrap
                                 ${viewMode === m
-                                    ? 'bg-brand-primary text-brand-950 shadow-[0_0_20px_rgba(0,200,255,0.4)] border border-brand-primary/30'
+                                    ? 'bg-brand-primary text-brand-950 shadow-[0_0_15px_rgba(0,200,255,0.3)] border border-brand-primary/30'
                                     : 'text-white/40 hover:text-white hover:bg-white/5'}`}>
-                            {m === 'scout' ? <Target size={14} className={viewMode === m ? 'text-brand-accent' : ''} /> : <Command size={14} className={viewMode === m ? 'text-brand-accent' : ''} />}
+                            {m === 'scout' ? <Target size={12} className={viewMode === m ? 'text-brand-accent' : ''} /> : <Command size={12} className={viewMode === m ? 'text-brand-accent' : ''} />}
                             {label}
                         </button>
                     ))}
                 </div>
                 
-                <div className="flex items-center gap-4">
-                    <div className="flex -space-x-3">
+                <div className="flex items-center gap-3">
+                    <div className="flex -space-x-2">
                         {coaches.slice(0, 3).map((c, i) => (
-                            <div key={c.id} className="w-10 h-10 rounded-full border-4 border-brand-950 bg-white/5 overflow-hidden shadow-sm" style={{ zIndex: 3-i }}>
+                            <div key={c.id} className="w-6 h-6 rounded-full border border-brand-950 bg-white/5 overflow-hidden" style={{ zIndex: 3-i }}>
                                 <img src={c.photoUrl} className="w-full h-full object-cover" alt="Coach" />
                             </div>
                         ))}
                     </div>
                     <div className="text-right">
-                        <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">HEAD COACH</p>
-                        <p className="text-[11px] font-black text-white italic uppercase">{coaches[0]?.username || 'Coaching Team'}</p>
+                        <p className="text-[7px] font-black text-white/20 uppercase tracking-widest">HEAD COACH</p>
+                        <p className="text-[8px] font-black text-white italic uppercase">{coaches[0]?.username || 'Coaching Team'}</p>
                     </div>
                 </div>
             </div>
@@ -654,7 +653,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                 />
               </div>
             ) : (
-                <div className="space-y-10 animate-in slide-in-from-left-8 duration-500">
+                <div className="space-y-6 animate-in slide-in-from-left-8 duration-500">
                     {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ Athlete Hero HUD (Digital Stadium Elite) ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
                     <div className="relative rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-2xl overflow-hidden group bg-brand-900/40 backdrop-blur-3xl">
                         <div className="green-light-bar" />
@@ -665,37 +664,36 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                             <Shield size={400} className="text-white" />
                         </div>
                         
-                        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-12 xl:gap-16 text-white">
+                        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-6 xl:gap-10 text-white">
                             {/* Left Zone (60%): Identity */}
-                            <div className="xl:w-[60%] flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                            <div className="xl:w-[60%] flex flex-col md:flex-row items-center gap-5 md:gap-8">
                                 <div className="relative shrink-0">
-                                    <div className="absolute -inset-4 bg-brand-primary/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="relative w-44 h-44 md:w-56 md:h-56 rounded-[2.5rem] p-1.5 bg-white/5 border border-white/10 shadow-2xl overflow-hidden">
-                                        <img src={player.photoUrl} className="w-full h-full rounded-[2rem] object-cover filter saturate-[1.2] contrast-[1.05]" />
+                                    <div className="absolute -inset-3 bg-brand-primary/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-[1.5rem] p-1 bg-white/5 border border-white/10 shadow-xl overflow-hidden">
+                                        <img src={player.photoUrl} className="w-full h-full rounded-[1.25rem] object-cover filter saturate-[1.2] contrast-[1.05]" />
                                     </div>
-                                    <div className="absolute -bottom-4 -right-4 bg-brand-secondary text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl border-2 border-brand-accent/50 italic">
+                                    <div className="absolute -bottom-2 -right-2 bg-brand-secondary text-white px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] shadow-xl border border-brand-accent/50 italic">
                                         {player.position}
                                     </div>
                                 </div>
                                 
                                 <div className="text-center md:text-left">
-                                    <div className="flex flex-wrap items-center gap-4 mb-6 justify-center md:justify-start">
-                                        <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-brand-accent/10 border border-brand-accent/20 backdrop-blur-md">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse shadow-[0_0_12px_rgba(195,246,41,0.6)]" />
-                                            <span className="text-[8px] font-black text-brand-accent uppercase tracking-[0.2em] italic">Active Status</span>
+                                    <div className="flex flex-wrap items-center gap-2 mb-3 justify-center md:justify-start">
+                                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-brand-accent/10 border border-brand-accent/20 backdrop-blur-md">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
+                                            <span className="text-[8px] font-black text-brand-accent uppercase tracking-[0.2em] italic">Active</span>
                                         </div>
                                         
                                         {countdown && (
-                                            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 backdrop-blur-md">
-                                                <Clock size={10} className="text-brand-primary" />
-                                                <span className="text-[8px] font-black text-brand-primary uppercase tracking-[0.2em] italic">{countdown.text}</span>
+                                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-brand-primary/10 border border-brand-primary/20 backdrop-blur-md">
+                                                <Clock size={9} className="text-brand-primary" />
+                                                <span className="text-[8px] font-black text-brand-primary uppercase tracking-[0.15em] italic">{countdown.text}</span>
                                             </div>
                                         )}
-
-                                        <span className="text-white/20 text-[10px] font-black tracking-[0.4em] uppercase italic">ID: {player.memberId}</span>
+                                        <span className="text-white/20 text-[9px] font-black tracking-[0.3em] uppercase italic">{player.memberId}</span>
                                     </div>
                                     
-                                    <h1 className="text-3xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-8 italic" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-4 italic" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                                         {player.fullName.split(' ')[0]}<br/>
                                         {player.fullName.split(' ').length > 1 && (
                                             <span className="text-brand-primary drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">
@@ -707,53 +705,46 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                     {(() => {
                                         const MasteryIcon = mastery.icon;
                                         const isOnFire = attendanceRate >= 95 || (myMatchStats.length >= 3 && myMatchStats.slice(0,3).every(m => (m.rating || 0) >= 8.5));
-
-
                                         return (
-                                            <div className="flex items-center gap-4 mb-8 justify-center md:justify-start">
-                                                <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl ${mastery.bg} border ${mastery.border} backdrop-blur-xl shadow-2xl transition-all duration-500`}>
-                                                    <MasteryIcon size={18} className={`${mastery.class}`} />
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[7px] font-black text-white/40 uppercase tracking-[0.3em] italic leading-none mb-1">Academy Status</span>
-                                                        <span className={`text-xs font-black uppercase tracking-tighter italic leading-none ${mastery.class}`}>{mastery.title}</span>
-                                                    </div>
+                                            <div className="flex items-center gap-3 mb-4 justify-center md:justify-start flex-wrap">
+                                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl ${mastery.bg} border ${mastery.border} backdrop-blur-xl transition-all duration-500`}>
+                                                    <MasteryIcon size={14} className={`${mastery.class}`} />
+                                                    <span className={`text-[10px] font-black uppercase tracking-tighter italic leading-none ${mastery.class}`}>{mastery.title}</span>
                                                 </div>
-                                                
-                                                {/* Hot Streak Indicator */}
                                                 {isOnFire && (
-                                                    <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-500/20 border border-orange-500/40 backdrop-blur-md animate-pulse shadow-[0_0_20px_rgba(249,115,22,0.4)]">
-                                                        <Flame size={14} className="text-orange-500 fill-orange-500" />
-                                                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest italic">ON FIRE</span>
+                                                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/20 border border-orange-500/40 animate-pulse">
+                                                        <Flame size={12} className="text-orange-500 fill-orange-500" />
+                                                        <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest italic">ON FIRE</span>
                                                     </div>
                                                 )}
                                             </div>
                                         );
                                     })()}
                                     
-                                    <div className="flex flex-wrap items-center gap-8 text-white/40 text-[10px] font-black uppercase tracking-[0.3em] italic">
-                                        <span className="flex items-center gap-3"><MapPin size={16} className="text-brand-primary" /> {player.venue || 'CENTRAL HUB'}</span>
-                                        <span className="flex items-center gap-3"><Calendar size={16} className="text-brand-primary" /> 2024 SEASON</span>
+                                    <div className="flex flex-wrap items-center gap-4 text-white/40 text-[9px] font-black uppercase tracking-[0.2em] italic">
+                                        <span className="flex items-center gap-2"><MapPin size={12} className="text-brand-primary" /> {player.venue || 'CENTRAL HUB'}</span>
+                                        <span className="flex items-center gap-2"><Calendar size={12} className="text-brand-primary" /> 2024 SEASON</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Right Zone (40%): Quick-Stats Grid */}
-                            <div className="xl:w-[40%] w-full grid grid-cols-2 gap-4">
-                                <div className="p-8 rounded-[2rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 group-hover/stat:text-brand-accent transition-colors italic">ATTENDANCE</div>
-                                    <div className="text-3xl font-black text-white font-mono tracking-tighter italic">{attendanceRate}<span className="text-brand-accent text-sm ml-1">%</span></div>
+                            <div className="xl:w-[40%] w-full grid grid-cols-4 xl:grid-cols-2 gap-3">
+                                <div className="p-4 rounded-[1.25rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
+                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-[0.15em] mb-1.5 group-hover/stat:text-brand-accent transition-colors italic">ATTENDANCE</div>
+                                    <div className="text-2xl font-black text-white font-mono tracking-tighter italic">{attendanceRate}<span className="text-brand-accent text-xs ml-0.5">%</span></div>
                                 </div>
-                                <div className="p-8 rounded-[2rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 group-hover/stat:text-brand-primary transition-colors italic">RANK</div>
-                                    <div className="text-3xl font-black text-white font-mono tracking-tighter italic">{academyRank ? `#${academyRank.rank}` : '--'}</div>
+                                <div className="p-4 rounded-[1.25rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
+                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-[0.15em] mb-1.5 group-hover/stat:text-brand-primary transition-colors italic">RANK</div>
+                                    <div className="text-2xl font-black text-white font-mono tracking-tighter italic">{academyRank ? `#${academyRank.rank}` : '--'}</div>
                                 </div>
-                                <div className="p-8 rounded-[2rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 group-hover/stat:text-brand-primary transition-colors italic">RATING</div>
-                                    <div className="text-3xl font-black text-white font-mono tracking-tighter italic">{avgRating}</div>
+                                <div className="p-4 rounded-[1.25rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
+                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-[0.15em] mb-1.5 group-hover/stat:text-brand-primary transition-colors italic">RATING</div>
+                                    <div className="text-2xl font-black text-white font-mono tracking-tighter italic">{avgRating}</div>
                                 </div>
-                                <div className="p-8 rounded-[2rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 group-hover/stat:text-brand-accent transition-colors italic">SESSIONS</div>
-                                    <div className="text-3xl font-black text-white font-mono tracking-tighter italic">{presentCount}</div>
+                                <div className="p-4 rounded-[1.25rem] bg-white/5 border border-white/5 backdrop-blur-xl group/stat hover:bg-white/10 transition-all">
+                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-[0.15em] mb-1.5 group-hover/stat:text-brand-accent transition-colors italic">SESSIONS</div>
+                                    <div className="text-2xl font-black text-white font-mono tracking-tighter italic">{presentCount}</div>
                                 </div>
                             </div>
                         </div>
@@ -819,7 +810,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                             </div>
                         </div>
                         
-                        <div className="flex gap-10 overflow-x-auto pb-4 no-scrollbar px-4 pt-4">
+                        <div className="flex gap-4 overflow-x-auto pb-3 no-scrollbar px-3 pt-3">
                             {(() => {
                                 const badgeConfigs = [
                                     { id: 'iron_will', name: 'IRON WILL', icon: Activity, unit: '%', desc: 'Attendance Consistency', data: badgesData.iron_will, tiers: [50, 75, 90, 100] },
@@ -856,8 +847,8 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                                 <div className="absolute -inset-4 bg-brand-primary/20 rounded-full blur-2xl animate-pulse" />
                                             )}
                                             
-                                            <div className={`relative w-28 h-28 flex flex-col items-center justify-center rounded-[2rem] border transition-all duration-500 overflow-hidden
-                                                ${isLocked ? 'bg-white/[0.02] border-white/5 shadow-inner' : 'bg-white/5 hover:bg-white/10 hover:scale-110 active:scale-95 shadow-2xl'}
+                                            <div className={`relative w-20 h-20 flex flex-col items-center justify-center rounded-2xl border transition-all duration-500 overflow-hidden
+                                                ${isLocked ? 'bg-white/[0.02] border-white/5 shadow-inner' : 'bg-white/5 hover:bg-white/10 hover:scale-110 active:scale-95 shadow-xl'}
                                                 ${tierData.tierClass}
                                                 backdrop-blur-md group-hover:border-white/20`}
                                             >
@@ -875,14 +866,14 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                                 <ProgressCircle 
                                                     progress={tierData.progress} 
                                                     tierClass={tierData.tierClass} 
-                                                    size={112} 
+                                                    size={80} 
                                                     strokeWidth={2}
                                                     glow={tierData.level >= 3}
                                                 />
                                                 
                                                 <div className={`z-10 flex flex-col items-center transition-all duration-500 ${isLocked ? 'grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100' : 'group-hover:-translate-y-1'}`}>
                                                     <div className="relative">
-                                                        <Icon size={24} className={`${tierData.tierClass} mb-2 drop-shadow-[0_0_10px_currentColor] transition-transform duration-500 group-hover:scale-110`} />
+                                                        <Icon size={16} className={`${tierData.tierClass} mb-1 drop-shadow-[0_0_8px_currentColor] transition-transform duration-500 group-hover:scale-110`} />
                                                         {tierData.level === 4 && <Sparkles size={12} className="absolute -top-2 -right-2 text-brand-primary animate-pulse" />}
                                                     </div>
                                                     <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] italic mb-0.5">{config.name}</span>
@@ -965,7 +956,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                             </div>
                                         </div>
 
-                                        <div className="space-y-1">
+                                        <div className="space-y-6">
                                             <div className="flex items-center justify-center gap-2">
                                                 <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-white/20" />
                                                 <span className={`text-[10px] font-black uppercase tracking-[0.4em] italic ${selectedBadge.tierData.tierClass} text-glow`}>
@@ -1088,13 +1079,13 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                     {/* ─── Recent Sessions Recap Feed (Digital Stadium Elite) ────────── */}
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
                         <div className="xl:col-span-12">
-                            <div className="glass-card rounded-[3rem] p-10 md:p-12 border border-white/5 shadow-2xl relative overflow-hidden bg-brand-900/20 backdrop-blur-3xl">
+                            <div className="glass-card rounded-2xl p-5 md:p-6 border border-white/5 shadow-2xl relative overflow-hidden bg-brand-900/20 backdrop-blur-3xl">
                                 <div 
                                     className="flex items-center justify-between cursor-pointer group/header"
                                     onClick={() => setIsRecentSessionsOpen(!isRecentSessionsOpen)}
                                 >
                                     <div>
-                                        <h2 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter flex items-center gap-4">
+                                        <h2 className="text-lg font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
                                             RECENT <span className="text-brand-primary">SESSIONS</span>
                                             <div className={`p-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-500 group-hover/header:border-brand-primary/30 ${isRecentSessionsOpen ? 'rotate-180 bg-brand-primary/10 border-brand-primary/20' : ''}`}>
                                                 <ChevronDown size={20} className={`transition-colors duration-500 ${isRecentSessionsOpen ? 'text-brand-primary' : 'text-white/40'}`} />
@@ -1138,7 +1129,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                                     });
 
                                                     return (
-                                                        <div key={att.id} className="group relative flex flex-col md:flex-row items-center justify-between p-6 md:p-8 rounded-[2.5rem] bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-500 gap-6 md:gap-12">
+                                                        <div key={att.id} className="group relative flex flex-col md:flex-row items-center justify-between p-3 md:p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all duration-500 gap-3 md:gap-6">
                                                             <div className="flex items-center gap-8 w-full md:w-auto">
                                                                 {/* Status Dot */}
                                                                 <div className={`shrink-0 w-3 h-3 rounded-full shadow-[0_0_12px] ${att.status === 'PRESENT' ? 'bg-brand-accent shadow-brand-accent/50' : 'bg-red-500 shadow-red-500/50'}`} />
@@ -1148,7 +1139,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                                                         {new Date(att.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}
                                                                     </span>
                                                                     <div className="flex items-center gap-4">
-                                                                        <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">
+                                                                        <h4 className="text-sm font-black text-white uppercase italic tracking-tighter">
                                                                             {session?.title || 'REGULAR TRAINING'}
                                                                         </h4>
                                                                         {isMOTM && (
@@ -1191,70 +1182,70 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                     </div>
 
                     {/* Action Row below Hero */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <button onClick={handleDownloadIDCard} className="flex items-center justify-between p-8 rounded-[2.5rem] bg-white/5 border border-white/5 hover:bg-brand-secondary hover:border-brand-accent/30 transition-all shadow-xl group/btn backdrop-blur-xl">
-                            <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover/btn:bg-brand-accent transition-colors">
-                                    <Download size={22} className="text-brand-accent group-hover/btn:text-brand-950 transition-colors" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <button onClick={handleDownloadIDCard} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-brand-secondary hover:border-brand-accent/30 transition-all shadow-lg group/btn backdrop-blur-xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center group-hover/btn:bg-brand-accent transition-colors">
+                                    <Download size={16} className="text-brand-accent group-hover/btn:text-brand-950 transition-colors" />
                                 </div>
                                 <div className="text-left">
-                                    <span className="block text-[10px] font-black text-white/40 group-hover/btn:text-white uppercase tracking-[0.25em] italic">OFFICIAL ID</span>
-                                    <span className="block text-xl font-black text-white uppercase tracking-tighter italic">DOWNLOAD CARD</span>
+                                    <span className="block text-[8px] font-black text-white/40 group-hover/btn:text-white uppercase tracking-[0.2em] italic">OFFICIAL ID</span>
+                                    <span className="block text-sm font-black text-white uppercase tracking-tighter italic">ID CARD</span>
                                 </div>
                             </div>
-                            <ChevronRight size={20} className="text-white/20 group-hover/btn:text-brand-accent group-hover/btn:translate-x-2 transition-all" />
+                            <ChevronRight size={14} className="text-white/20 group-hover/btn:text-brand-accent group-hover/btn:translate-x-1 transition-all" />
                         </button>
 
-                        <button onClick={handleDownloadInvoice} disabled={!feeStatus?.invoice} className={`flex items-center justify-between p-8 rounded-[2.5rem] border transition-all shadow-xl group/btn backdrop-blur-xl ${feeStatus?.status === 'PAID' ? 'bg-white/5 border-white/5 hover:bg-brand-primary hover:border-brand-primary/30' : 'bg-red-500/5 border-red-500/20'}`}>
-                            <div className="flex items-center gap-6">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${feeStatus?.status === 'PAID' ? 'bg-white/5 group-hover/btn:bg-brand-950' : 'bg-red-500/20'}`}>
-                                    <Receipt size={22} className={`${feeStatus?.status === 'PAID' ? 'text-brand-primary group-hover/btn:text-brand-950' : 'text-red-500'}`} />
+                        <button onClick={handleDownloadInvoice} disabled={!feeStatus?.invoice} className={`flex items-center justify-between p-4 rounded-2xl border transition-all shadow-lg group/btn backdrop-blur-xl ${feeStatus?.status === 'PAID' ? 'bg-white/5 border-white/5 hover:bg-brand-primary hover:border-brand-primary/30' : 'bg-red-500/5 border-red-500/20'}`}>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${feeStatus?.status === 'PAID' ? 'bg-white/5 group-hover/btn:bg-brand-950' : 'bg-red-500/20'}`}>
+                                    <Receipt size={16} className={`${feeStatus?.status === 'PAID' ? 'text-brand-primary group-hover/btn:text-brand-950' : 'text-red-500'}`} />
                                 </div>
                                 <div className="text-left">
-                                    <span className={`block text-[10px] font-black uppercase tracking-[0.25em] italic ${feeStatus?.status === 'PAID' ? 'text-white/40 group-hover/btn:text-brand-950' : 'text-red-400'}`}>FEE RECEIPT</span>
-                                    <span className={`block text-xl font-black uppercase tracking-tighter italic ${feeStatus?.status === 'PAID' ? 'text-white group-hover/btn:text-brand-950' : 'text-red-500'}`}>INVOICE PORTAL</span>
+                                    <span className={`block text-[8px] font-black uppercase tracking-[0.2em] italic ${feeStatus?.status === 'PAID' ? 'text-white/40 group-hover/btn:text-brand-950' : 'text-red-400'}`}>FEE RECEIPT</span>
+                                    <span className={`block text-sm font-black uppercase tracking-tighter italic ${feeStatus?.status === 'PAID' ? 'text-white group-hover/btn:text-brand-950' : 'text-red-500'}`}>INVOICE</span>
                                 </div>
                             </div>
-                            <ChevronRight size={20} className={`group-hover/btn:translate-x-2 transition-all ${feeStatus?.status === 'PAID' ? 'text-white/20 group-hover/btn:text-brand-950' : 'text-red-500/20'}`} />
+                            <ChevronRight size={14} className={`group-hover/btn:translate-x-1 transition-all ${feeStatus?.status === 'PAID' ? 'text-white/20 group-hover/btn:text-brand-950' : 'text-red-500/20'}`} />
                         </button>
 
-                        <div className="flex items-center justify-between p-8 rounded-[2.5rem] bg-brand-accent border-2 border-brand-950 shadow-xl group/btn backdrop-blur-xl">
-                            <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-brand-950/10 flex items-center justify-center">
-                                    <Activity size={22} className="text-brand-950" />
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-brand-accent border-2 border-brand-950 shadow-lg group/btn backdrop-blur-xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-brand-950/10 flex items-center justify-center">
+                                    <Activity size={16} className="text-brand-950" />
                                 </div>
                                 <div className="text-left">
-                                    <span className="block text-[10px] font-black text-brand-950/40 uppercase tracking-[0.25em] italic">CURRENT SCALE</span>
-                                    <span className="block text-xl font-black text-brand-950 uppercase tracking-tighter italic leading-none">ATTENDANCE RATE</span>
+                                    <span className="block text-[8px] font-black text-brand-950/40 uppercase tracking-[0.2em] italic">SCALE</span>
+                                    <span className="block text-sm font-black text-brand-950 uppercase tracking-tighter italic leading-none">ATTENDANCE</span>
                                 </div>
                             </div>
-                            <span className="text-3xl font-black text-brand-950 italic tracking-tighter">{attendanceRate}%</span>
+                            <span className="text-2xl font-black text-brand-950 italic tracking-tighter">{attendanceRate}%</span>
                         </div>
 
-                        <button onClick={() => setCertificatesModalOpen(true)} className="flex items-center justify-between p-8 rounded-[2.5rem] bg-white/5 border border-white/5 hover:bg-brand-accent hover:border-brand-accent/30 transition-all shadow-xl group/btn backdrop-blur-xl">
-                            <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover/btn:bg-brand-950 transition-colors">
-                                    <Medal size={22} className="text-brand-accent group-hover/btn:text-brand-950 transition-colors" />
+                        <button onClick={() => setCertificatesModalOpen(true)} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-brand-accent hover:border-brand-accent/30 transition-all shadow-lg group/btn backdrop-blur-xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center group-hover/btn:bg-brand-950 transition-colors">
+                                    <Medal size={16} className="text-brand-accent group-hover/btn:text-brand-950 transition-colors" />
                                 </div>
                                 <div className="text-left">
-                                    <span className="block text-[10px] font-black text-white/40 group-hover/btn:text-brand-950 uppercase tracking-[0.25em] italic">ACCOLADES</span>
-                                    <span className="block text-xl font-black text-white group-hover/btn:text-brand-950 uppercase tracking-tighter italic">CERTIFICATES</span>
+                                    <span className="block text-[8px] font-black text-white/40 group-hover/btn:text-brand-950 uppercase tracking-[0.2em] italic">ACCOLADES</span>
+                                    <span className="block text-sm font-black text-white group-hover/btn:text-brand-950 uppercase tracking-tighter italic">CERTIFICATES</span>
                                 </div>
                             </div>
-                            <ChevronRight size={20} className="text-white/20 group-hover/btn:text-brand-950 group-hover/btn:translate-x-2 transition-all" />
+                            <ChevronRight size={14} className="text-white/20 group-hover/btn:text-brand-950 group-hover/btn:translate-x-1 transition-all" />
                         </button>
                     </div>
 
                     {/* ─── My Progress: Skill Timeline (Digital Stadium Elite) ────────── */}
-                    <div ref={progressRef} className="glass-card rounded-[3rem] p-10 md:p-12 border border-white/5 shadow-2xl relative overflow-hidden bg-brand-900/40 backdrop-blur-3xl">
+                    <div ref={progressRef} className="glass-card rounded-2xl p-5 md:p-6 border border-white/5 shadow-2xl relative overflow-hidden bg-brand-900/40 backdrop-blur-3xl">
                         <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none transition-transform duration-1000">
                             <Activity size={200} className="text-white" />
                         </div>
                         
                         <div className="relative z-10">
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                                 <div>
-                                    <h2 className="text-3xl md:text-4xl font-black text-white italic uppercase tracking-tighter">
+                                    <h2 className="text-lg md:text-xl font-black text-white italic uppercase tracking-tighter">
                                         MY <span className="text-brand-primary">PROGRESS</span>
                                     </h2>
                                     <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mt-2 italic">Skill Evolution // Performance Timeline</p>
@@ -1364,17 +1355,17 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                     </div>
 
                     {/* ─── Command Modules grid ────────────────────────────────────────── */}
-                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                         {/* Highlights Row */}
-                        <div className="xl:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="xl:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Self Check-In Card */}
-                            <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group flex flex-col items-center justify-between gap-6 text-center">
+                            <div className="glass-card rounded-2xl p-5 border border-white/5 relative overflow-hidden group flex flex-col items-center justify-between gap-4 text-center">
                                 <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><UserCheck size={100} className="text-white" /></div>
                                 <div className="relative z-10">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${checkedInToday ? 'bg-brand-accent border-brand-accent text-brand-950' : 'bg-white/5 border-white/10 text-white/20'}`}>
-                                        <Activity size={28} />
+                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-3 ${checkedInToday ? 'bg-brand-accent border-brand-accent text-brand-950' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Activity size={20} />
                                     </div>
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">
+                                    <h3 className="text-base font-black italic uppercase tracking-tighter text-white">
                                         {checkedInToday ? <>CHECK-IN <span className="text-brand-accent">SUCCESS</span></> : <>SESSION <span className="text-brand-primary">CHECK-IN</span></>}
                                     </h3>
                                     <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mt-1 italic">
@@ -1384,7 +1375,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                 <button 
                                     onClick={handleSelfCheckIn}
                                     disabled={checkedInToday || isCheckingIn}
-                                    className={`relative z-10 w-full py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-2xl ${checkedInToday ? 'bg-white/5 text-white/20 border border-white/5' : 'bg-brand-primary text-brand-950 hover:bg-white shadow-brand-primary/20 active:scale-95'}`}
+                                    className={`relative z-10 w-full py-2.5 rounded-xl font-black uppercase text-[9px] tracking-[0.2em] transition-all flex items-center justify-center gap-2 shadow-lg ${checkedInToday ? 'bg-white/5 text-white/20 border border-white/5' : 'bg-brand-primary text-brand-950 hover:bg-white shadow-brand-primary/20 active:scale-95'}`}
                                 >
                                     {isCheckingIn ? <Loader2 size={14} className="animate-spin" /> : checkedInToday ? <CheckCircle2 size={14} /> : <Zap size={14} fill="currentColor" />}
                                     {checkedInToday ? 'PRESENT' : 'CHECK IN'}
@@ -1392,13 +1383,13 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                             </div>
 
                              {/* MOTM Showcase */}
-                            <div className={`glass-card rounded-[2.5rem] p-8 border shadow-2xl relative overflow-hidden group transition-all duration-700 flex flex-col items-center justify-between gap-6 text-center ${motmToday?.playerId === player.id ? 'border-brand-accent/30 bg-brand-accent/5' : 'border-white/5'}`}>
+                            <div className={`glass-card rounded-2xl p-5 border shadow-xl relative overflow-hidden group transition-all duration-700 flex flex-col items-center justify-between gap-4 text-center ${motmToday?.playerId === player.id ? 'border-brand-accent/30 bg-brand-accent/5' : 'border-white/5'}`}>
                                 <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={120} className="text-white" /></div>
                                 <div className="relative z-10">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${motmToday?.playerId === player.id ? 'bg-brand-accent border-brand-accent text-brand-950 shadow-[0_0_20px_rgba(200,255,0,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
-                                        <Trophy size={28} />
+                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-3 ${motmToday?.playerId === player.id ? 'bg-brand-accent border-brand-accent text-brand-950 shadow-[0_0_15px_rgba(200,255,0,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Trophy size={20} />
                                     </div>
-                                    <h3 className={`text-xl font-black italic uppercase tracking-tighter ${motmToday?.playerId === player.id ? 'text-brand-accent' : 'text-white'}`}>
+                                    <h3 className={`text-base font-black italic uppercase tracking-tighter ${motmToday?.playerId === player.id ? 'text-brand-accent' : 'text-white'}`}>
                                         PLAYER OF <span className={motmToday?.playerId === player.id ? 'text-white' : 'text-brand-primary'}>THE DAY</span>
                                     </h3>
                                     <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-1 italic text-white/30">
@@ -1414,10 +1405,10 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                             <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group flex flex-col items-center justify-between gap-6 bg-brand-900/40 text-center">
                                 <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Medal size={100} className="text-white" /></div>
                                 <div className="relative z-10">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${academyRank ? 'bg-amber-400 border-amber-400 text-brand-950 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
-                                        <Crown size={28} />
+                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-3 ${academyRank ? 'bg-amber-400 border-amber-400 text-brand-950 shadow-[0_0_15px_rgba(251,191,36,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Crown size={20} />
                                     </div>
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">
+                                    <h3 className="text-base font-black italic uppercase tracking-tighter text-white">
                                         {academyRank ? <>ACADEMY <span className="text-amber-400">RANK #{academyRank.rank}</span></> : <>RANKING <span className="text-white/20">PENDING</span></>}
                                     </h3>
                                     <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mt-1 italic">
@@ -1435,51 +1426,51 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                         {/* Large Modules Row */}
                         <div className="xl:col-span-7 space-y-8">
                             {/* Operational Schedule */}
-                            <div className="glass-card rounded-[3rem] p-10 sm:p-12 border border-white/5 shadow-2xl relative overflow-hidden">
+                            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-white/5 shadow-xl relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-[6px] h-full bg-brand-primary" />
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                                     <div>
-                                        <h3 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter text-white flex items-center gap-4">
-                                            <Calendar className="text-brand-primary" size={28} /> Schedule
+                                        <h3 className="text-base md:text-lg font-black italic uppercase tracking-tighter text-white flex items-center gap-3">
+                                            <Calendar className="text-brand-primary" size={18} /> Schedule
                                         </h3>
                                         <p className="text-[9px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 italic">Upcoming Academy Sessions</p>
                                     </div>
-                                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                                         {(['training', 'match'] as const).map(t => (
-                                            <button key={t} onClick={() => setEventFilter(t as any)} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all ${eventFilter === t ? 'bg-brand-primary text-brand-950 shadow-xl' : 'text-white/40 hover:text-white'}`}>{t}</button>
+                                            <button key={t} onClick={() => setEventFilter(t as any)} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] italic transition-all ${eventFilter === t ? 'bg-brand-primary text-brand-950 shadow-lg' : 'text-white/40 hover:text-white'}`}>{t}</button>
                                         ))}
                                     </div>
                                 </div>
                                 
-                                <div className="space-y-5">
+                                <div className="space-y-2">
                                     {filteredEvents.length > 0 ? filteredEvents.map(event => (
-                                        <div key={event.id} className="group p-8 rounded-[2.5rem] border border-white/5 bg-white/5 hover:bg-white/10 hover:border-brand-primary/50 transition-all flex flex-col md:flex-row items-center justify-between gap-10 hover:-translate-y-1">
-                                            <div className="flex items-center gap-10">
-                                                <div className="w-20 h-20 bg-brand-950 rounded-3xl flex flex-col items-center justify-center font-black border border-white/10 text-brand-primary shadow-sm transform group-hover:rotate-6 transition-transform">
-                                                    <span className="text-[10px] uppercase tracking-[0.2em] opacity-40">{new Date(event.date).toLocaleDateString(undefined, {month: 'short'})}</span>
-                                                    <span className="text-3xl leading-none font-mono mt-1">{new Date(event.date).getDate()}</span>
+                                        <div key={event.id} className="group p-3 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-brand-primary/50 transition-all flex flex-col md:flex-row items-center justify-between gap-4 hover:-translate-y-0.5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-brand-950 rounded-xl flex flex-col items-center justify-center font-black border border-white/10 text-brand-primary shadow-sm transform group-hover:rotate-6 transition-transform">
+                                                    <span className="text-[8px] uppercase tracking-[0.15em] opacity-40">{new Date(event.date).toLocaleDateString(undefined, {month: 'short'})}</span>
+                                                    <span className="text-lg leading-none font-mono mt-0.5">{new Date(event.date).getDate()}</span>
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-2xl text-white italic uppercase tracking-tight group-hover:text-brand-primary transition-colors">{event.title}</div>
-                                                    <div className="flex flex-wrap gap-8 mt-3 text-white/40 text-[11px] font-black uppercase italic tracking-widest">
-                                                        <span className="flex items-center gap-3"><Clock size={16} className="text-brand-primary" /> {event.time}</span>
-                                                        <span className="flex items-center gap-3"><MapPin size={16} className="text-brand-primary" /> {event.location}</span>
+                                                    <div className="font-black text-sm text-white italic uppercase tracking-tight group-hover:text-brand-primary transition-colors">{event.title}</div>
+                                                    <div className="flex flex-wrap gap-4 mt-1 text-white/40 text-[9px] font-black uppercase italic tracking-widest">
+                                                        <span className="flex items-center gap-1.5"><Clock size={10} className="text-brand-primary" /> {event.time}</span>
+                                                        <span className="flex items-center gap-1.5"><MapPin size={10} className="text-brand-primary" /> {event.location}</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex gap-4 w-full md:w-auto">
+                                            <div className="flex gap-2 w-full md:w-auto">
                                                 <button onClick={() => StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'attending')} 
-                                                    className={`flex-1 md:px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center justify-center gap-3 border ${event.rsvps?.[player.id] === 'attending' ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-xl shadow-brand-accent/20' : 'bg-white/5 text-white/40 border-white/5 hover:border-brand-accent hover:text-brand-accent'}`}>
-                                                    <CheckCircle2 size={18} /> Confirm
+                                                    className={`flex-1 md:px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] italic transition-all flex items-center justify-center gap-2 border ${event.rsvps?.[player.id] === 'attending' ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-lg shadow-brand-accent/20' : 'bg-white/5 text-white/40 border-white/5 hover:border-brand-accent hover:text-brand-accent'}`}>
+                                                    <CheckCircle2 size={12} /> Confirm
                                                 </button>
                                                 <button onClick={() => StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'declined')} 
-                                                    className={`flex-1 md:px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center justify-center gap-3 border ${event.rsvps?.[player.id] === 'declined' ? 'bg-red-500 text-white border-red-500 shadow-xl' : 'bg-white/5 text-white/40 border-white/5 hover:border-red-500 hover:text-red-500'}`}>
-                                                    <XCircle size={18} /> Decline
+                                                    className={`flex-1 md:px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] italic transition-all flex items-center justify-center gap-2 border ${event.rsvps?.[player.id] === 'declined' ? 'bg-red-500 text-white border-red-500 shadow-lg' : 'bg-white/5 text-white/40 border-white/5 hover:border-red-500 hover:text-red-500'}`}>
+                                                    <XCircle size={12} /> Decline
                                                 </button>
                                             </div>
                                         </div>
                                     )) : (
-                                        <div className="py-32 text-center border-4 border-dashed border-white/5 rounded-[3rem] font-black text-white/10 uppercase tracking-[0.5em] italic">
+                                        <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-2xl font-black text-white/10 uppercase tracking-[0.5em] italic">
                                             NO UPCOMING SESSIONS
                                         </div>
                                     )}
@@ -1488,37 +1479,37 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
 
                             {/* Match Performance Tracker */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="glass-card rounded-[3rem] p-6 border border-white/5 shadow-2xl flex flex-col min-h-[450px] relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 -rotate-12"><Activity size={300} className="text-white" /></div>
-                                    <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter flex items-center gap-4 mb-10 text-white">
-                                        <Activity className="text-brand-primary" size={28} /> Match History
+                                <div className="glass-card rounded-2xl p-5 border border-white/5 shadow-xl flex flex-col relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 -rotate-12"><Activity size={150} className="text-white" /></div>
+                                    <h3 className="text-base md:text-lg font-black italic uppercase tracking-tighter flex items-center gap-3 mb-5 text-white">
+                                        <Activity className="text-brand-primary" size={18} /> Match History
                                     </h3>
                                     {myMatchStats.length > 0 ? (
-                                        <div className="space-y-6 flex-1">
+                                        <div className="space-y-2 flex-1">
                                         {myMatchStats.slice(0,3).map(m => (
-                                            <div key={m.id} className="p-6 bg-white/5 rounded-3xl border border-white/10 group/item hover:bg-white/10 transition-all">
-                                                <div className="flex justify-between items-center mb-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-[11px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                                            <div key={m.id} className="p-3 bg-white/5 rounded-xl border border-white/10 group/item hover:bg-white/10 transition-all">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
                                                         {m.playerOfTheMatchId === player.id && (
-                                                            <div className="flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[8px] font-black px-2 py-0.5 rounded-lg">
-                                                                <Trophy size={10} className="fill-amber-500" /> MOTM
+                                                            <div className="flex items-center gap-1 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[7px] font-black px-1.5 py-0.5 rounded">
+                                                                <Trophy size={8} className="fill-amber-500" /> MOTM
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-2">
                                                         {m.myStats?.rating && (
-                                                            <div className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-brand-primary text-brand-950 shadow-[0_0_15px_rgba(0,200,255,0.3)]">
-                                                                <span className="text-[8px] font-black uppercase leading-none opacity-60">RTG</span>
-                                                                <span className="text-xl font-black leading-none italic">{m.myStats.rating}</span>
+                                                            <div className="flex flex-col items-center justify-center w-9 h-9 rounded-xl bg-brand-primary text-brand-950 shadow-[0_0_10px_rgba(0,200,255,0.3)]">
+                                                                <span className="text-[7px] font-black uppercase leading-none opacity-60">RTG</span>
+                                                                <span className="text-sm font-black leading-none italic">{m.myStats.rating}</span>
                                                             </div>
                                                         )}
-                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black italic uppercase tracking-widest border h-fit ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
+                                                        <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black italic uppercase tracking-widest border h-fit ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-between items-center">
-                                                    <div className="font-black text-xl text-white italic uppercase tracking-tighter">vs {m.opponent}</div>
-                                                    <div className="text-3xl font-black text-brand-primary font-mono tracking-tighter">{m.scoreFor}<span className="text-white/20 mx-1">:</span>{m.scoreAgainst}</div>
+                                                    <div className="font-black text-sm text-white italic uppercase tracking-tighter">vs {m.opponent}</div>
+                                                    <div className="text-xl font-black text-brand-primary font-mono tracking-tighter">{m.scoreFor}<span className="text-white/20 mx-1">:</span>{m.scoreAgainst}</div>
                                                 </div>
                                             </div>
                                         ))}
@@ -1530,21 +1521,20 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                     )}
                                 </div>
 
-                                <div className="glass-card rounded-[3rem] p-8 border border-white/5 shadow-2xl space-y-10 relative overflow-hidden flex flex-col justify-center bg-brand-950/20 backdrop-blur-3xl">
-                                    <div className="flex justify-between items-center group gap-6 relative z-10">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 bg-white/5 text-brand-primary rounded-2xl border border-white/10 group-hover:rotate-12 transition-transform shadow-lg"><Star size={20} /></div>
+                                <div className="glass-card rounded-2xl p-5 border border-white/5 shadow-xl space-y-4 relative overflow-hidden flex flex-col justify-center bg-brand-950/20 backdrop-blur-3xl">
+                                    <div className="flex justify-between items-center group gap-4 relative z-10">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-white/5 text-brand-primary rounded-xl border border-white/10 group-hover:rotate-12 transition-transform shadow-md"><Star size={16} /></div>
                                             <div className="text-left font-black italic uppercase leading-none">
-                                                <span className="text-[8px] text-white/20 uppercase tracking-widest mb-1 block">RATING</span>
-                                                <span className="text-lg text-white">AVG PERFORMANCE</span>
+                                                <span className="text-[7px] text-white/20 uppercase tracking-widest mb-0.5 block">RATING</span>
+                                                <span className="text-sm text-white">AVG PERFORMANCE</span>
                                             </div>
                                         </div>
-                                        <div className="text-4xl font-black text-brand-primary font-mono tracking-tighter shrink-0 drop-shadow-[0_0_15px_rgba(0,200,255,0.3)]">{avgRating}</div>
+                                        <div className="text-2xl font-black text-brand-primary font-mono tracking-tighter shrink-0 drop-shadow-[0_0_10px_rgba(0,200,255,0.3)]">{avgRating}</div>
                                     </div>
                                     
-                                    {/* Sparkline of last 10 ratings */}
                                     {myMatchStats.length > 1 && (
-                                        <div className="h-16 w-full mb-2">
+                                        <div className="h-10 w-full mb-1">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <LineChart data={[...myMatchStats].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(-10).map(m => ({ r: m.myStats?.rating || 0 }))}>
                                                     <Line 
@@ -1561,16 +1551,6 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                         </div>
                                     )}
                                     
-                                    <div className="flex justify-between items-center pt-8 border-t border-white/5 group gap-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 bg-white/5 text-brand-primary rounded-2xl border border-white/10 group-hover:rotate-12 transition-transform shadow-lg"><Shirt size={20} /></div>
-                                            <div className="text-left font-black italic uppercase leading-none">
-                                                <span className="text-[8px] text-white/20 uppercase tracking-widest mb-1 block">STARTS</span>
-                                                <span className="text-lg text-white">MATCH STARTS</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-3xl font-black text-white font-mono tracking-tighter shrink-0">{totalStarts}</div>
-                                    </div>
                                     
                                     <div className="flex justify-between items-center pt-8 border-t border-white/5 group gap-6">
                                         <div className="flex items-center gap-4">
@@ -1588,43 +1568,43 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
 
                         {/* Performance Side-Bar (Telemetry) */}
                         <div className="xl:col-span-5 space-y-8">
-                            <div className="bg-brand-900/50 backdrop-blur-2xl p-8 rounded-[3.5rem] shadow-2xl flex flex-col items-center group text-white relative overflow-hidden border border-white/5">
-                                <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={160} /></div>
-                                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 mb-8 transform group-hover:rotate-12 transition-transform shadow-2xl">
-                                    <Trophy className="text-brand-accent" size={48} />
+                            <div className="bg-brand-900/50 backdrop-blur-2xl p-5 rounded-2xl shadow-xl flex flex-col items-center group text-white relative overflow-hidden border border-white/5">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.05] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={100} /></div>
+                                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 mb-4 transform group-hover:rotate-12 transition-transform shadow-xl">
+                                    <Trophy className="text-brand-accent" size={28} />
                                 </div>
                                 <div className="text-center relative z-10">
-                                    <div className="text-[11px] font-black uppercase tracking-[0.4em] text-white/40 mb-2 italic">Career Stats</div>
-                                    <div className="text-6xl md:text-7xl font-black italic leading-none font-mono tracking-tighter text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.3)]">{totalGoals}</div>
-                                    <div className="h-1.5 w-20 bg-brand-accent/20 rounded-full mt-6 mx-auto overflow-hidden">
+                                    <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-1 italic">Career Stats</div>
+                                    <div className="text-4xl md:text-5xl font-black italic leading-none font-mono tracking-tighter text-brand-accent drop-shadow-[0_0_10px_rgba(195,246,41,0.3)]">{totalGoals}</div>
+                                    <div className="h-1 w-16 bg-brand-accent/20 rounded-full mt-3 mx-auto overflow-hidden">
                                         <div className="h-full bg-brand-accent animate-progress" style={{ width: '70%' }} />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Tactical Gear Brief */}
-                            <div className="glass-card rounded-[3.5rem] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
+                            <div className="glass-card rounded-2xl p-5 border border-white/5 shadow-xl relative overflow-hidden group">
                                 <div className="green-light-bar" />
-                                <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><Shirt size={140} className="text-white" /></div>
-                                <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.4em] mb-10 italic">Equipment Checklist</h4>
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><Shirt size={80} className="text-white" /></div>
+                                <h4 className="text-[9px] font-black text-brand-accent uppercase tracking-[0.4em] mb-4 italic">Equipment Checklist</h4>
                                 {upcomingEvents[0] ? (
-                                    <div className="space-y-8 relative z-10">
-                                        <div className="flex items-center gap-8">
-                                            <div className={`p-6 rounded-[2rem] border shadow-2xl transition-all duration-500 group-hover:rotate-6 ${getKitRequirement(upcomingEvents[0].date).style.replace('bg-slate-50', 'bg-white/5').replace('text-slate-400', 'text-white/40').replace('border-slate-200', 'border-white/10')}`}>
-                                                <Shirt size={28} className="animate-pulse" />
+                                    <div className="space-y-3 relative z-10">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`p-3 rounded-2xl border shadow-lg transition-all duration-500 group-hover:rotate-6 ${getKitRequirement(upcomingEvents[0].date).style.replace('bg-slate-50', 'bg-white/5').replace('text-slate-400', 'text-white/40').replace('border-slate-200', 'border-white/10')}`}>
+                                                <Shirt size={18} className="animate-pulse" />
                                             </div>
                                             <div>
-                                                <div className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">REQUIRED UNIFORM</div>
-                                                <div className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">{getKitRequirement(upcomingEvents[0].date).color}</div>
+                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none">REQUIRED UNIFORM</div>
+                                                <div className="text-xl font-black text-white italic uppercase tracking-tighter leading-none">{getKitRequirement(upcomingEvents[0].date).color}</div>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
-                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-3">FOOTWEAR</div>
-                                                <div className="flex items-center gap-3">
-                                                    <Dumbbell size={14} className="text-brand-accent" />
-                                                    <span className="text-[10px] font-black text-white uppercase italic">Firm Ground</span>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-all">
+                                                <div className="text-[7px] font-black text-white/20 uppercase tracking-widest mb-1">FOOTWEAR</div>
+                                                <div className="flex items-center gap-2">
+                                                    <Dumbbell size={12} className="text-brand-accent" />
+                                                    <span className="text-[9px] font-black text-white uppercase italic">Firm Ground</span>
                                                 </div>
                                             </div>
                                             <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
@@ -1636,12 +1616,12 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                             </div>
                                         </div>
 
-                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                                        <div className="pt-3 border-t border-white/5 flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="w-2 h-2 rounded-full bg-brand-accent" />
-                                                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">EQUIPMENT READINESS: VERIFIED</span>
+                                                <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
+                                                <span className="text-[7px] font-black text-white/30 uppercase tracking-[0.2em]">EQUIPMENT READINESS: VERIFIED</span>
                                             </div>
-                                            <Zap size={14} className="text-brand-accent animate-pulse" />
+                                            <Zap size={12} className="text-brand-accent animate-pulse" />
                                         </div>
                                     </div>
                                 ) : (
@@ -1653,28 +1633,27 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
 
                             {/* Weekly Training Tip (Coach Assigned) */}
                             {weeklyTip && (
-                                <div className="bg-brand-primary rounded-[3rem] p-8 border-2 border-brand-950 shadow-2xl relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-8 opacity-[0.1] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Wand2 size={120} className="text-brand-950" /></div>
-                                    <div className="flex items-center gap-4 mb-6 relative z-10">
-                                        <div className="p-3 bg-brand-950 rounded-2xl flex items-center justify-center text-brand-primary">
-                                            <Sparkles size={20} />
+                            <div className="bg-brand-primary rounded-2xl p-5 border-2 border-brand-950 shadow-xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-[0.1] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Wand2 size={80} className="text-brand-950" /></div>
+                                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                                        <div className="p-2 bg-brand-950 rounded-xl flex items-center justify-center text-brand-primary">
+                                            <Sparkles size={14} />
                                         </div>
-                                        <h4 className="text-[11px] font-black text-brand-950 uppercase tracking-[0.3em] italic">This Week's Focus</h4>
+                                        <h4 className="text-[9px] font-black text-brand-950 uppercase tracking-[0.3em] italic">This Week's Focus</h4>
                                     </div>
-                                    
-                                    <div className="relative z-10 space-y-4">
-                                        <p className="text-2xl font-black text-brand-950 uppercase italic tracking-tighter leading-tight">
+                                    <div className="relative z-10 space-y-3">
+                                        <p className="text-base font-black text-brand-950 uppercase italic tracking-tighter leading-tight">
                                             "{weeklyTip.tip}"
                                         </p>
-                                        <div className="pt-6 border-t border-brand-950/20 flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-brand-950/10 flex items-center justify-center border border-brand-950/20 overflow-hidden">
-                                                    <span className="text-[10px] font-black text-brand-950">{weeklyTip.setByCoach[0]}</span>
+                                        <div className="pt-3 border-t border-brand-950/20 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-brand-950/10 flex items-center justify-center border border-brand-950/20 overflow-hidden">
+                                                    <span className="text-[9px] font-black text-brand-950">{weeklyTip.setByCoach[0]}</span>
                                                 </div>
-                                                <span className="text-[9px] font-black text-brand-950/60 uppercase tracking-widest italic">Coach {weeklyTip.setByCoach}</span>
+                                                <span className="text-[8px] font-black text-brand-950/60 uppercase tracking-widest italic">Coach {weeklyTip.setByCoach}</span>
                                             </div>
-                                            <div className="px-3 py-1 rounded-lg bg-brand-950/10 border border-brand-950/20">
-                                                <span className="text-[8px] font-black text-brand-950 uppercase italic tracking-widest">WEEK {weeklyTip.week}</span>
+                                            <div className="px-2 py-0.5 rounded-lg bg-brand-950/10 border border-brand-950/20">
+                                                <span className="text-[7px] font-black text-brand-950 uppercase italic tracking-widest">WEEK {weeklyTip.week}</span>
                                             </div>
                                         </div>
                                     </div>

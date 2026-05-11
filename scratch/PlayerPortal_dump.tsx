@@ -1,0 +1,800 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { StorageService } from '../services/storageService';
+import { GeminiService } from '../services/geminiService';
+import { Player, AttendanceRecord, Match, AttendanceStatus, FeeRecord, ScheduleEvent, AcademySettings, EventType, Drill, User } from '../types';
+import { Trophy, Star, Calendar, Brain, DollarSign, Clock, Activity, Shield, CheckCircle2, XCircle, MapPin, Coffee, Zap, PartyPopper, PlayCircle, Download, Phone, Mail, Globe, X, Shirt, Wand2, Sparkles, Target, ArrowRight, UserCheck, ClipboardList, ChevronDown, ChevronUp, Dumbbell, Play, Youtube, Loader2, Users, Command, Receipt, Medal, Crown } from 'lucide-react';
+import { auth } from '../firebase';
+import { EvaluationCard } from './EvaluationCard';
+import html2canvas from 'html2canvas';
+import { 
+  ResponsiveContainer, 
+  ComposedChart, 
+  Line, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+} from 'recharts';
+
+interface PlayerPortalProps {
+    user: User;
+}
+
+const numberToWords = (num: number): string => {
+    const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+    const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
+    if ((num = num.toString().length > 9 ? parseFloat(num.toString().slice(0, 9)) : num) === 0) return 'Zero';
+    const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return '';
+    let str = '';
+    str += (parseInt(n[1]) !== 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+    str += (parseInt(n[2]) !== 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+    str += (parseInt(n[3]) !== 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+    str += (parseInt(n[4]) !== 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+    str += (parseInt(n[5]) !== 0) ? ((str !== '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+    return str + 'Only';
+};
+
+export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user }) => {
+    const [player, setPlayer] = useState<Player | null>(null);
+    const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+    const [matches, setMatches] = useState<Match[]>([]);
+    const [viewMode, setViewMode] = useState<'overview' | 'scout'>('overview');
+    const [matchAnalysis, setMatchAnalysis] = useState<string | null>(null);
+    const [isAnalyzingMatch, setIsAnalyzingMatch] = useState(false);
+    const [feeStatus, setFeeStatus] = useState<FeeRecord | null>(null);
+    const [upcomingEvents, setUpcomingEvents] = useState<ScheduleEvent[]>([]);
+    const [allSchedule, setAllSchedule] = useState<ScheduleEvent[]>([]);
+    const [drills, setDrills] = useState<Drill[]>([]);
+    const [coaches, setCoaches] = useState<User[]>([]);
+    const [eventFilter, setEventFilter] = useState<EventType>('training');
+    const [settings, setSettings] = useState<AcademySettings>(StorageService.getSettings());
+    const [isAttendanceModalOpen, setAttendanceModalOpen] = useState(false);
+    const [selectedAttendanceDetail, setSelectedAttendanceDetail] = useState<{date: string, record?: AttendanceRecord, event?: ScheduleEvent} | null>(null);
+    const [viewingSessionPlan, setViewingSessionPlan] = useState<ScheduleEvent | null>(null);
+    const [motmToday, setMotmToday] = useState<{playerId: string, timestamp: number} | null>(null);
+    const [checkedInToday, setCheckedInToday] = useState(false);
+    const [isCheckingIn, setIsCheckingIn] = useState(false);
+    const [academyRank, setAcademyRank] = useState<{ rank: number, total: number, pts: number } | null>(null);
+    const invoiceHiddenRef = useRef<HTMLDivElement>(null);
+    const idCardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!user?.linkedPlayerId) return;
+        
+        const refreshData = () => {
+            const allPlayers = StorageService.getPlayers();
+            const p = allPlayers.find(pl => pl.id === user.linkedPlayerId);
+            setPlayer(p || null);
+            if (p) {
+                const allAttendance = StorageService.getAttendance();
+                const myAttendance = allAttendance.filter(a => a.playerId === user?.linkedPlayerId);
+                setAttendance(myAttendance);
+                
+                const today = new Date().toISOString().split('T')[0];
+                const checkedIn = myAttendance.some(a => a.date === today && a.status === AttendanceStatus.PRESENT);
+                setCheckedInToday(checkedIn);
+                
+                setMotmToday(StorageService.getMOTM(today));
+                
+                const allMatches = StorageService.getMatches();
+                setMatches(allMatches.filter(m => m.playerStats.some(s => s.playerId === user?.linkedPlayerId)));
+                
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                const fees = StorageService.getFees();
+                const myFee = fees.find(f => f.playerId === p.id && f.month === currentMonth);
+                setFeeStatus(myFee || null);
+                
+                loadSchedule();
+                loadDrills();
+                loadCoaches();
+
+                // Calculate Rank
+                const allMs = StorageService.getMatches();
+                const allPs = StorageService.getPlayers();
+                const mvpData = JSON.parse(localStorage.getItem('icarus_session_motm') || '{}');
+                
+                const rankings = allPs.map(player => {
+                    const tCount = Object.entries(mvpData).filter(([key, val]) => {
+                        const entryId = typeof val === 'object' ? (val as any).playerId : val;
+                        return entryId === player.id && key.startsWith(currentMonth);
+                    }).length;
+                    const mCount = allMs.filter(m => m.date.startsWith(currentMonth) && m.playerOfTheMatchId === player.id).length;
+                    const rPts = allMs.filter(m => m.date.startsWith(currentMonth))
+                        .reduce((acc, m) => {
+                            const s = m.playerStats?.find(ps => ps.playerId === player.id);
+                            return acc + ((s?.rating || 0) / 2);
+                        }, 0);
+                    const total = parseFloat((tCount * 1 + mCount * 5 + rPts).toFixed(1));
+                    return { id: player.id, pts: total };
+                }).sort((a, b) => b.pts - a.pts);
+
+                const myIdx = rankings.findIndex(r => r.id === p.id);
+                if (myIdx !== -1 && rankings[myIdx].pts > 0) {
+                    setAcademyRank({ rank: myIdx + 1, total: rankings.length, pts: rankings[myIdx].pts });
+                } else {
+                    setAcademyRank(null);
+                }
+            }
+        };
+
+        refreshData();
+        window.addEventListener('academy_data_update', refreshData);
+        const handleSettingsChange = () => setSettings(StorageService.getSettings());
+        window.addEventListener('settingsChanged', handleSettingsChange);
+        
+        return () => {
+            window.removeEventListener('academy_data_update', refreshData);
+            window.removeEventListener('settingsChanged', handleSettingsChange);
+        };
+    }, [user]);
+
+    const loadSchedule = () => {
+        const schedule = StorageService.getSchedule();
+        const now = new Date();
+        setAllSchedule(schedule);
+        const upcoming = schedule
+            .filter(e => new Date(`${e.date}T${e.time}`) > now)
+            .sort((a,b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
+        setUpcomingEvents(upcoming);
+    };
+    const loadDrills = () => setDrills(StorageService.getDrills());
+    const loadCoaches = () => {
+        const allUsers = StorageService.getUsers();
+        setCoaches(allUsers.filter(u => u.role === 'coach'));
+    };
+    const handleSelfCheckIn = async () => {
+        if (!user?.linkedPlayerId || isCheckingIn) return;
+        setIsCheckingIn(true);
+        const today = new Date().toISOString().split('T')[0];
+        try {
+            await StorageService.savePlayerSelfCheckIn(user.linkedPlayerId, today);
+            setCheckedInToday(true);
+        } catch (error) {
+            alert('Check-in failed. Please try again.');
+        } finally {
+            setIsCheckingIn(false);
+        }
+    };
+    const handleDayClick = (date: string, record?: AttendanceRecord) => {
+        const event = allSchedule.find(e => e.date === date);
+        setSelectedAttendanceDetail({ date, record, event });
+    };
+    const getYouTubeEmbedUrl = (url: string | undefined) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}?modestbranding=1&rel=0` : null;
+    };
+    const handleDownloadInvoice = async () => {
+        if (!invoiceHiddenRef.current || !feeStatus?.invoice) return;
+        try {
+            const canvas = await html2canvas(invoiceHiddenRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `Invoice_${feeStatus.invoice.invoiceNo}.png`;
+            link.click();
+        } catch (e) { alert('Could not generate invoice download.'); }
+    };
+    const handleDownloadIDCard = async () => {
+        if (!idCardRef.current) return;
+        try {
+            const canvas = await html2canvas(idCardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff', allowTaint: true });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `ID_Card_${player?.memberId}.png`;
+            link.click();
+        } catch (e) { alert('Could not generate ID Card.'); }
+    };
+
+    const calculateTaxes = (total: number) => {
+      const base = total / 1.18;
+      const cgst = base * 0.09;
+      const sgst = base * 0.09;
+      return { base: Math.round(base), cgst: Math.round(cgst), sgst: Math.round(sgst), total: total };
+    };
+    const getKitRequirement = (dateStr: string) => {
+        const day = new Date(dateStr).getDay();
+        if (day === 1 || day === 3 || day === 5) return { color: 'Blue Kit', style: 'bg-blue-500/5 text-blue-600 border-blue-500/10' };
+        if (day === 2 || day === 4) return { color: 'White Kit', style: 'bg-slate-50 text-slate-400 border-slate-200' };
+        return { color: 'Training Bib', style: 'bg-orange-500/5 text-orange-600 border-orange-500/10' };
+    };
+
+    if (user?.linkedPlayerId && !player) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000 min-h-[60vh]">
+                <div className="glass-card p-12 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group max-w-md w-full">
+                    <div className="relative w-32 h-32 mb-12 mx-auto">
+                        <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-brand-primary animate-spin-slow" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Shield size={32} className="text-brand-primary animate-pulse-slow" />
+                        </div>
+                    </div>
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic mb-4">
+                        LOADING <span className="text-brand-primary">PROFILE</span>
+                    </h2>
+                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mb-6">
+                        <div className="h-full bg-brand-primary animate-progress w-full" />
+                    </div>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] italic leading-relaxed">Connecting to Secure Server<br/>Fetching Athlete Data</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!player) {
+        return (
+            <div className="flex items-center justify-center p-6 min-h-[60vh]">
+                <div className="glass-card p-12 max-w-md w-full text-center space-y-8 relative overflow-hidden group rounded-[3rem]">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity text-white"><Users size={120} /></div>
+                    <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
+                        <Shield size={32} className="text-red-500" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">LINKAGE <span className="text-red-500">REQUIRED</span></h2>
+                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] italic">Athlete Profile Not Found</p>
+                    </div>
+                    <div className="p-6 bg-white/5 rounded-2xl border border-white/5 text-sm text-white/40 leading-relaxed italic">
+                        Your account is currently <span className="text-white font-bold">Unlinked</span>. Please contact an Administrator to link your login to your Player ID.
+                    </div>
+                    <button 
+                        onClick={() => auth.signOut()}
+                        className="w-full py-4 bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/20 transition-all italic active:scale-95"
+                    >
+                        LOG OUT
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const presentCount = attendance.filter(a => a.status === AttendanceStatus.PRESENT || a.status === AttendanceStatus.LATE).length;
+    const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
+    const myMatchStats = matches.map(m => {
+        const stats = m.playerStats.find(s => s.playerId === player.id);
+        return { ...m, myStats: stats };
+    }).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const lastMatch = myMatchStats[0];
+    const totalGoals = myMatchStats.reduce((acc, m) => acc + (m.myStats?.goals || 0), 0);
+    const totalAssists = myMatchStats.reduce((acc, m) => acc + (m.myStats?.assists || 0), 0);
+    const totalStarts = myMatchStats.reduce((acc, m) => acc + (m.myStats?.isStarter ? 1 : 0), 0);
+    const avgRating = myMatchStats.length ? (myMatchStats.reduce((acc, m) => acc + (m.myStats?.rating || 0), 0) / myMatchStats.length).toFixed(1) : '0';
+
+    const handleAnalyzeMatch = async () => {
+        if (!lastMatch || !player) return;
+        setIsAnalyzingMatch(true);
+        const analysis = await GeminiService.analyzeMatchPerformance(player, lastMatch, settings.name);
+        setMatchAnalysis(analysis);
+        setIsAnalyzingMatch(false);
+    };
+
+    const filteredEvents = upcomingEvents.filter(e => e.type === eventFilter);
+    const taxes = feeStatus?.invoice ? calculateTaxes(feeStatus.invoice.amount) : { base: 0, cgst: 0, sgst: 0, total: 0 };
+
+    return (
+        <div className="min-h-[calc(100vh-80px)] selection:bg-brand-primary/20 relative overflow-hidden">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+            <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+
+            {/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ ID Card Generator (Hidden) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */}
+            <div className="fixed left-[-9999px] top-0">
+                <div ref={idCardRef} className="w-[400px] h-[600px] bg-white relative overflow-hidden flex flex-col items-center p-8 text-brand-950 border-[6px] rounded-[3rem] border-brand-950/90">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none"
+                        style={{ backgroundImage: 'repeating-linear-gradient(0deg,#0D1B8A 0,#0D1B8A 1px,transparent 1px,transparent 20px),repeating-linear-gradient(90deg,#0D1B8A 0,#0D1B8A 1px,transparent 1px,transparent 20px)' }} />
+                    
+                    <div className="relative z-10 flex flex-col items-center w-full h-full">
+                        <div className="mt-6 mb-8 text-center">
+                            {settings.logoUrl ? <img src={settings.logoUrl} className="w-16 h-16 object-contain mx-auto mb-3" /> : <Shield className="w-16 h-16 text-brand-500 mx-auto mb-3" />}
+                            <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">{settings.name}</h2>
+                            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-500 mt-1">OFFICIAL PLAYER PASS</p>
+                        </div>
+                        
+                        <div className="relative mb-10">
+                            <div className="absolute -inset-2 bg-brand-500/10 rounded-full blur-xl" />
+                            <img src={player.photoUrl} className="relative w-48 h-48 object-cover rounded-full border-[6px] border-white shadow-2xl" />
+                        </div>
+
+                        <div className="text-center space-y-2 mb-auto">
+                            <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-brand-950">{player.fullName}</h1>
+                            <p className="text-sm text-brand-500 font-mono font-black italic tracking-widest">{player.memberId}</p>
+                        </div>
+
+                        <div className="w-full bg-slate-50 rounded-2xl p-5 border border-slate-100 flex justify-between items-center mt-6">
+                            <div className="text-center"><p className="text-[9px] text-slate-300 uppercase font-black tracking-widest mb-1">Position</p><p className="text-sm font-black text-brand-950 italic">{player.position}</p></div>
+                            <div className="w-px h-8 bg-slate-200" />
+                            <div className="text-center"><p className="text-[9px] text-slate-300 uppercase font-black tracking-widest mb-1">Batch</p><p className="text-sm font-black text-brand-950 italic">{player.batch}</p></div>
+                        </div>
+                        
+                        <div className="mt-8 text-[8px] font-black text-slate-300 uppercase tracking-[0.5em] italic">ICARUS FOOTBALL SCHOOLS</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Navigation HUD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="flex p-1.5 rounded-[1.5rem] bg-white/5 border border-white/5 backdrop-blur-xl gap-1.5 shadow-2xl">
+                    {( [['overview', 'DASHBOARD'], ['scout', 'SCOUT REPORT']] as const).map(([m, label]) => (
+                        <button key={m} onClick={() => setViewMode(m as any)}
+                            className={`px-10 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-2.5 italic
+                                ${viewMode === m
+                                    ? 'bg-brand-secondary text-white shadow-[0_10px_30px_rgba(13,27,138,0.5)] border border-brand-accent/30'
+                                    : 'text-white/40 hover:text-white hover:bg-white/5'}`}>
+                            {m === 'scout' ? <Target size={14} className={viewMode === m ? 'text-brand-accent' : ''} /> : <Command size={14} className={viewMode === m ? 'text-brand-accent' : ''} />}
+                            {label}
+                        </button>
+                    ))}
+                </div>
+                
+                <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                        {coaches.slice(0, 3).map((c, i) => (
+                            <div key={c.id} className="w-10 h-10 rounded-full border-4 border-brand-950 bg-white/5 overflow-hidden shadow-sm" style={{ zIndex: 3-i }}>
+                                <img src={c.photoUrl} className="w-full h-full object-cover" alt="Coach" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">HEAD COACH</p>
+                        <p className="text-[11px] font-black text-white italic uppercase">{coaches[0]?.username || 'Coaching Team'}</p>
+                    </div>
+                </div>
+            </div>
+
+
+            {viewMode === 'scout' ? (
+              <div className="animate-in slide-in-from-right-8 duration-500">
+                <EvaluationCard player={player} settings={settings} attendance={attendance} matches={matches} />
+              </div>
+            ) : (
+                <div className="space-y-10 animate-in slide-in-from-left-8 duration-500">
+                    {/* Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Athlete Hero HUD (Digital Stadium Elite) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */}
+                    <div className="relative rounded-[3rem] p-10 md:p-16 border border-white/5 shadow-2xl overflow-hidden group bg-brand-900/40 backdrop-blur-3xl">
+                        <div className="green-light-bar" />
+                        {/* Background Elements */}
+                        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+                             style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 21px)' }} />
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 pointer-events-none">
+                            <Shield size={400} className="text-white" />
+                        </div>
+                        
+                        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-12 text-white">
+                            <div className="flex flex-col md:flex-row items-center gap-12">
+                                <div className="relative shrink-0">
+                                    <div className="absolute -inset-4 bg-brand-primary/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="relative w-44 h-44 md:w-60 md:h-60 rounded-[2.5rem] p-1.5 bg-white/5 border border-white/10 shadow-2xl overflow-hidden">
+                                        <img src={player.photoUrl} className="w-full h-full rounded-[2rem] object-cover filter saturate-[1.2] contrast-[1.05]" />
+                                    </div>
+                                    <div className="absolute -bottom-4 -right-4 bg-brand-secondary text-white px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl border-2 border-brand-accent/50 italic">
+                                        {player.position}
+                                    </div>
+                                </div>
+                                
+                                <div className="text-center md:text-left">
+                                    <div className="flex items-center gap-4 mb-6 justify-center md:justify-start">
+                                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-brand-accent/10 border border-brand-accent/20 backdrop-blur-md">
+                                            <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_12px_rgba(195,246,41,0.6)]" />
+                                            <span className="text-[9px] font-black text-brand-accent uppercase tracking-[0.2em] italic">Active Status</span>
+                                        </div>
+                                        <span className="text-white/20 text-[11px] font-black tracking-[0.4em] uppercase italic">ID: {player.memberId}</span>
+                                    </div>
+                                    
+                                    <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] mb-8 italic" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                        {player.fullName.split(' ')[0]}<br/>
+                                        <span className="text-brand-primary">{player.fullName.split(' ').slice(1).join(' ')}</span>
+                                    </h1>
+                                    
+                                    <div className="flex flex-wrap items-center gap-10 text-white/40 text-[11px] font-black uppercase tracking-[0.3em] italic">
+                                        <span className="flex items-center gap-3"><MapPin size={18} className="text-brand-primary" /> {player.venue || 'CENTRAL HUB'}</span>
+                                        <span className="flex items-center gap-3"><Calendar size={18} className="text-brand-primary" /> 2024 SEASON</span>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full xl:w-auto mt-10">
+                                        <button onClick={handleDownloadIDCard} className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-brand-secondary hover:border-brand-accent/30 transition-all shadow-xl group/btn backdrop-blur-xl">
+                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover/btn:bg-brand-accent transition-colors">
+                                                <Download size={18} className="text-brand-accent group-hover/btn:text-brand-950 transition-colors" />
+                                            </div>
+                                            <div className="text-left">
+                                                <span className="block text-[8px] font-black text-white/40 group-hover/btn:text-white uppercase tracking-[0.2em] italic">DOWNLOAD</span>
+                                                <span className="block text-[10px] font-black text-white uppercase tracking-tighter italic">ID CARD</span>
+                                            </div>
+                                        </button>
+
+                                        <button onClick={handleDownloadInvoice} disabled={!feeStatus?.invoice} className={`flex items-center gap-4 px-6 py-4 rounded-2xl border transition-all shadow-xl group/btn backdrop-blur-xl ${feeStatus?.status === 'PAID' ? 'bg-white/5 border-white/5 hover:bg-brand-primary' : 'bg-red-500/5 border-red-500/20'}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${feeStatus?.status === 'PAID' ? 'bg-white/5 group-hover/btn:bg-brand-950' : 'bg-red-500/20'}`}>
+                                                <Receipt size={18} className={`${feeStatus?.status === 'PAID' ? 'text-brand-primary group-hover/btn:text-brand-950' : 'text-red-500'}`} />
+                                            </div>
+                                            <div className="text-left">
+                                                <span className={`block text-[8px] font-black uppercase tracking-[0.2em] italic ${feeStatus?.status === 'PAID' ? 'text-white/40 group-hover/btn:text-brand-950' : 'text-red-400'}`}>FEES</span>
+                                                <span className={`block text-[10px] font-black uppercase tracking-tighter italic ${feeStatus?.status === 'PAID' ? 'text-white group-hover/btn:text-brand-950' : 'text-red-500'}`}>INVOICE</span>
+                                            </div>
+                                        </button>
+
+                                        <div className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-brand-accent border-2 border-brand-950 shadow-xl group/btn backdrop-blur-xl">
+                                            <div className="w-10 h-10 rounded-xl bg-brand-950/10 flex items-center justify-center">
+                                                <Activity size={18} className="text-brand-950" />
+                                            </div>
+                                            <div className="text-left">
+                                                <span className="block text-[8px] font-black text-brand-950/40 uppercase tracking-[0.2em] italic">ATTENDANCE</span>
+                                                <span className="block text-2xl font-black text-brand-950 uppercase tracking-tighter italic leading-none">{attendanceRate}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Highlights Row */}
+                        <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group flex flex-col items-center justify-between gap-6 text-center">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><UserCheck size={100} className="text-white" /></div>
+                                <div className="relative z-10">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${checkedInToday ? 'bg-brand-accent border-brand-accent text-brand-950' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Activity size={28} />
+                                    </div>
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">
+                                        {checkedInToday ? <>CHECK-IN <span className="text-brand-accent">SUCCESS</span></> : <>SESSION <span className="text-brand-primary">CHECK-IN</span></>}
+                                    </h3>
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mt-1 italic">
+                                        {checkedInToday ? 'Your attendance recorded' : 'Mark your arrival now'}
+                                    </p>
+                                </div>
+                                <button 
+                                    onClick={handleSelfCheckIn}
+                                    disabled={checkedInToday || isCheckingIn}
+                                    className={`relative z-10 w-full py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-2xl ${checkedInToday ? 'bg-white/5 text-white/20 border border-white/5' : 'bg-brand-primary text-brand-950 hover:bg-white shadow-brand-primary/20 active:scale-95'}`}
+                                >
+                                    {isCheckingIn ? <Loader2 size={14} className="animate-spin" /> : checkedInToday ? <CheckCircle2 size={14} /> : <Zap size={14} fill="currentColor" />}
+                                    {checkedInToday ? 'PRESENT' : 'CHECK IN'}
+                                </button>
+                            </div>
+                             {/* MOTM Showcase */}
+                            <div className={`glass-card rounded-[2.5rem] p-8 border shadow-2xl relative overflow-hidden group transition-all duration-700 flex flex-col items-center justify-between gap-6 text-center ${motmToday?.playerId === player.id ? 'border-brand-accent/30 bg-brand-accent/5' : 'border-white/5'}`}>
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={120} className="text-white" /></div>
+                                <div className="relative z-10">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${motmToday?.playerId === player.id ? 'bg-brand-accent border-brand-accent text-brand-950 shadow-[0_0_20px_rgba(200,255,0,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Trophy size={28} />
+                                    </div>
+                                    <h3 className={`text-xl font-black italic uppercase tracking-tighter ${motmToday?.playerId === player.id ? 'text-brand-accent' : 'text-white'}`}>
+                                        PLAYER OF <span className={motmToday?.playerId === player.id ? 'text-white' : 'text-brand-primary'}>THE DAY</span>
+                                    </h3>
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-1 italic text-white/30">
+                                        {motmToday?.playerId === player.id ? 'Excellent performance' : 'Top performer recognition'}
+                                    </p>
+                                </div>
+                                {motmToday?.playerId === player.id && (
+                                    <div className="relative z-10 w-full py-3 bg-brand-accent text-brand-950 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl animate-pulse">ELITE STATUS</div>
+                                )}
+                            </div>
+                              {/* Academy Ranking Card */}
+                            <div className="glass-card rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group flex flex-col items-center justify-between gap-6 bg-brand-900/40 text-center">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Medal size={100} className="text-white" /></div>
+                                <div className="relative z-10">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 mx-auto mb-4 ${academyRank ? 'bg-amber-400 border-amber-400 text-brand-950 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                        <Crown size={28} />
+                                    </div>
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">
+                                        {academyRank ? <>ACADEMY <span className="text-amber-400">RANK #{academyRank.rank}</span></> : <>RANKING <span className="text-white/20">PENDING</span></>}
+                                    </h3>
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mt-1 italic">
+                                        {academyRank ? `${academyRank.pts} Performance Pts` : 'Establishing establish rank'}
+                                    </p>
+                                </div>
+                                {academyRank && (
+                                    <div className="relative z-10 w-full py-3 bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10">
+                                        TOP {Math.round((academyRank.rank / academyRank.total) * 100)}%
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Large Modules Row */}
+                        <div className="lg:col-span-8 space-y-8">
+                            {/* Operational Schedule */}
+                            <div className="glass-card rounded-[3rem] p-10 sm:p-12 border border-white/5 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-[6px] h-full bg-brand-primary" />
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+                                    <div>
+                                        <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white flex items-center gap-5">
+                                            <Calendar className="text-brand-primary" size={32} /> Schedule
+                                        </h3>
+                                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 italic">Upcoming Academy Sessions</p>
+                                    </div>
+                                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                                        {(['training', 'match'] as const).map(t => (
+                                            <button key={t} onClick={() => setEventFilter(t as any)} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all ${eventFilter === t ? 'bg-brand-primary text-brand-950 shadow-xl' : 'text-white/40 hover:text-white'}`}>{t}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-5">
+                                    {filteredEvents.length > 0 ? filteredEvents.map(event => (
+                                        <div key={event.id} className="group p-8 rounded-[2.5rem] border border-white/5 bg-white/5 hover:bg-white/10 hover:border-brand-primary/50 transition-all flex flex-col md:flex-row items-center justify-between gap-10 hover:-translate-y-1">
+                                            <div className="flex items-center gap-10">
+                                                <div className="w-20 h-20 bg-brand-950 rounded-3xl flex flex-col items-center justify-center font-black border border-white/10 text-brand-primary shadow-sm transform group-hover:rotate-6 transition-transform">
+                                                    <span className="text-[10px] uppercase tracking-[0.2em] opacity-40">{new Date(event.date).toLocaleDateString(undefined, {month: 'short'})}</span>
+                                                    <span className="text-3xl leading-none font-mono mt-1">{new Date(event.date).getDate()}</span>
+                                                </div>
+                                                <div>
+                                                    <div className="font-black text-2xl text-white italic uppercase tracking-tight group-hover:text-brand-primary transition-colors">{event.title}</div>
+                                                    <div className="flex flex-wrap gap-8 mt-3 text-white/40 text-[11px] font-black uppercase italic tracking-widest">
+                                                        <span className="flex items-center gap-3"><Clock size={16} className="text-brand-primary" /> {event.time}</span>
+                                                        <span className="flex items-center gap-3"><MapPin size={16} className="text-brand-primary" /> {event.location}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 w-full md:w-auto">
+                                                <button onClick={() => StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'attending')} 
+                                                    className={`flex-1 md:px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center justify-center gap-3 border ${event.rsvps?.[player.id] === 'attending' ? 'bg-brand-accent text-brand-950 border-brand-accent shadow-xl shadow-brand-accent/20' : 'bg-white/5 text-white/40 border-white/5 hover:border-brand-accent hover:text-brand-accent'}`}>
+                                                    <CheckCircle2 size={18} /> Confirm
+                                                </button>
+                                                <button onClick={() => StorageService.toggleRSVP(event.id, user.linkedPlayerId!, 'declined')} 
+                                                    className={`flex-1 md:px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] italic transition-all flex items-center justify-center gap-3 border ${event.rsvps?.[player.id] === 'declined' ? 'bg-red-500 text-white border-red-500 shadow-xl' : 'bg-white/5 text-white/40 border-white/5 hover:border-red-500 hover:text-red-500'}`}>
+                                                    <XCircle size={18} /> Decline
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="py-32 text-center border-4 border-dashed border-white/5 rounded-[3rem] font-black text-white/10 uppercase tracking-[0.5em] italic">
+                                            NO UPCOMING SESSIONS
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Performance Intelligence */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="glass-card rounded-[3rem] p-12 border border-white/5 shadow-2xl relative overflow-hidden group min-h-[450px] flex flex-col">
+                                    <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.08] transition-opacity duration-1000 -rotate-12"><Brain size={300} className="text-white" /></div>
+                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-white">
+                                        <Brain className="text-brand-primary" size={32} /> AI Coach Analysis
+                                    </h3>
+                                    {matchAnalysis ? (
+                                        <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar flex flex-col">
+                                            <div className="prose prose-invert prose-sm max-w-none text-white/60 italic font-medium leading-relaxed" 
+                                                 dangerouslySetInnerHTML={{ __html: matchAnalysis }} />
+                                            <button onClick={() => setMatchAnalysis(null)} className="mt-8 text-[10px] font-black text-brand-primary uppercase tracking-widest italic hover:text-white transition-colors flex items-center gap-2">
+                                                <X size={14} /> CLEAR ANALYSIS
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col justify-center text-center">
+                                            <div className="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-white/10 group-hover:rotate-12 transition-transform">
+                                                <Sparkles size={40} className="text-white/20" />
+                                            </div>
+                                            <p className="text-[11px] text-white/20 font-black uppercase tracking-[0.3em] mb-12 px-10 italic leading-relaxed">Get a detailed breakdown of your performance from our AI Coach.</p>
+                                            <button onClick={handleAnalyzeMatch} disabled={isAnalyzingMatch} 
+                                                className="w-full bg-brand-primary text-brand-950 font-black py-6 rounded-[2rem] text-[12px] uppercase tracking-[0.2em] italic hover:bg-white active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-5">
+                                                {isAnalyzingMatch ? <Loader2 size={20} className="animate-spin" /> : <><Wand2 size={20} className="text-brand-950" /> ANALYZE PERFORMANCE</>}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="glass-card rounded-[3rem] p-12 border border-white/5 shadow-2xl flex flex-col min-h-[450px] relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000 -rotate-12"><Activity size={300} className="text-white" /></div>
+                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-5 mb-10 text-white">
+                                        <Activity className="text-brand-primary" size={32} /> Match History
+                                    </h3>
+                                    {myMatchStats.length > 0 ? (
+                                        <div className="space-y-6 flex-1">
+                                        {myMatchStats.slice(0,3).map(m => (
+                                            <div key={m.id} className="p-8 bg-white/5 rounded-3xl border border-white/10 group/item hover:bg-white/10 transition-all">
+                                                <div className="flex justify-between items-center mb-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[11px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                                                        {m.playerOfTheMatchId === player.id && (
+                                                            <div className="flex items-center gap-1.5 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[8px] font-black px-2 py-0.5 rounded-lg">
+                                                                <Trophy size={10} className="fill-amber-500" /> MOTM
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        {m.myStats?.rating && (
+                                                            <span className="text-[10px] font-black text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-3 py-1 rounded-lg italic">RTG: {m.myStats.rating}</span>
+                                                        )}
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black italic uppercase tracking-widest border ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="font-black text-2xl text-white italic uppercase tracking-tighter">vs {m.opponent}</div>
+                                                    <div className="text-4xl font-black text-brand-primary font-mono tracking-tighter">{m.scoreFor}<span className="text-white/20 mx-1">:</span>{m.scoreAgainst}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-white/5 font-black italic uppercase tracking-[0.5em] py-12 text-center">
+                                            NO MATCH DATA
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        {/* Performance Side-Bar (Telemetry) */}
+                        <div className="lg:col-span-4 space-y-8">
+                            <div className="bg-brand-900/50 backdrop-blur-2xl p-12 rounded-[4rem] shadow-2xl flex flex-col items-center group text-white relative overflow-hidden border border-white/5">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:scale-110 transition-transform duration-1000 rotate-12"><Trophy size={200} /></div>
+                                <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 mb-10 transform group-hover:rotate-12 transition-transform shadow-2xl">
+                                    <Trophy className="text-brand-accent" size={60} />
+                                </div>
+                                <div className="text-center relative z-10">
+                                    <div className="text-[12px] font-black uppercase tracking-[0.4em] text-white/40 mb-2 italic">Career Stats</div>
+                                    <div className="text-[80px] md:text-[100px] font-black italic leading-none font-mono tracking-tighter text-brand-accent">{totalGoals}</div>
+                                    <div className="h-2 w-24 bg-brand-accent/20 rounded-full mt-6 mx-auto overflow-hidden">
+                                        <div className="h-full bg-brand-accent animate-progress" style={{ width: '70%' }} />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="glass-card rounded-[4rem] border border-white/5 p-12 shadow-2xl space-y-12 relative overflow-hidden">
+                                <div className="flex justify-between items-center group gap-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-4 bg-white/5 text-brand-primary rounded-2xl border border-white/10 group-hover:rotate-12 transition-transform shadow-lg"><Star size={24} /></div>
+                                        <div className="text-left font-black italic uppercase leading-none">
+                                            <span className="text-[9px] text-white/20 uppercase tracking-widest mb-1 block">RATING</span>
+                                            <span className="text-xl text-white">PERFORMANCE</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-5xl font-black text-brand-primary font-mono tracking-tighter shrink-0">{avgRating}</div>
+                                </div>
+                                
+                                <div className="flex justify-between items-center group gap-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-4 bg-white/5 text-brand-primary rounded-2xl border border-white/10 group-hover:rotate-12 transition-transform shadow-lg"><Shirt size={24} /></div>
+                                        <div className="text-left font-black italic uppercase leading-none">
+                                            <span className="text-[9px] text-white/20 uppercase tracking-widest mb-1 block">STARTS</span>
+                                            <span className="text-xl text-white">MATCH STARTS</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-5xl font-black text-white font-mono tracking-tighter shrink-0">{totalStarts}</div>
+                                </div>
+                                
+                                <div className="flex justify-between items-center pt-10 border-t border-white/5 group gap-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-4 bg-white/5 text-brand-primary rounded-2xl border border-white/10 group-hover:rotate-12 transition-transform shadow-lg"><Activity size={24} /></div>
+                                        <div className="text-left font-black italic uppercase leading-none">
+                                            <span className="text-[9px] text-white/20 uppercase tracking-widest mb-1 block">MATCHES</span>
+                                            <span className="text-xl text-white">PLAYED</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-5xl font-black text-white font-mono tracking-tighter shrink-0">{myMatchStats.length}</div>
+                                </div>
+                            </div>
+
+                            {/* Tactical Gear Brief */}
+                            <div className="glass-card rounded-[3.5rem] p-10 border border-white/5 shadow-2xl relative overflow-hidden group">
+                                <div className="green-light-bar" />
+                                <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:scale-110 transition-transform duration-1000"><Shirt size={140} className="text-white" /></div>
+                                <h4 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.4em] mb-10 italic">Equipment Checklist</h4>
+                                {upcomingEvents[0] ? (
+                                    <div className="space-y-8 relative z-10">
+                                        <div className="flex items-center gap-8">
+                                            <div className={`p-6 rounded-[2rem] border shadow-2xl transition-all duration-500 group-hover:rotate-6 ${getKitRequirement(upcomingEvents[0].date).style.replace('bg-slate-50', 'bg-white/5').replace('text-slate-400', 'text-white/40').replace('border-slate-200', 'border-white/10')}`}>
+                                                <Shirt size={36} className="icon-glow-lime" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">REQUIRED UNIFORM</div>
+                                                <div className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">{getKitRequirement(upcomingEvents[0].date).color}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-3">FOOTWEAR</div>
+                                                <div className="flex items-center gap-3">
+                                                    <Dumbbell size={14} className="text-brand-accent" />
+                                                    <span className="text-[10px] font-black text-white uppercase italic">Firm Ground</span>
+                                                </div>
+                                            </div>
+                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                                                <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-3">HYDRATION</div>
+                                                <div className="flex items-center gap-3">
+                                                    <Coffee size={14} className="text-brand-accent" />
+                                                    <span className="text-[10px] font-black text-white uppercase italic">Water (1.5L)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-brand-accent" />
+                                                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">EQUIPMENT READINESS: VERIFIED</span>
+                                            </div>
+                                            <Zap size={14} className="text-brand-accent animate-pulse" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <div className="text-[10px] font-black text-white/10 uppercase tracking-[0.5em] italic">NO UPCOMING EVENTS</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                </div>
+            )}
+
+            {/* Hidden invoice template for download */}
+            {feeStatus?.invoice && (
+                <div className="fixed left-[-9999px] top-0">
+                    <div ref={invoiceHiddenRef} className="bg-white w-[800px] min-h-[1000px] text-brand-950 p-12">
+                         <div className="flex justify-between items-start border-b-4 border-brand-950 pb-12 mb-12">
+                             <div className="flex items-center gap-6">
+                                 {settings.logoUrl ? <img src={settings.logoUrl} className="h-20 object-contain" /> : <Shield className="h-20 w-20" />}
+                                 <div>
+                                     <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">{settings.name}</h1>
+                                     <p className="text-sm font-black uppercase tracking-widest">Official Receipt</p>
+                                 </div>
+                             </div>
+                             <div className="text-right font-black uppercase italic italic text-xs tracking-widest text-brand-300">
+                                 <p>Invoice #: {feeStatus.invoice.invoiceNo}</p>
+                                 <p>Date: {new Date(feeStatus.invoice.date).toLocaleDateString()}</p>
+                             </div>
+                         </div>
+                         <div className="mb-12">
+                             <h3 className="text-xl font-black uppercase italic mb-4">Member Details</h3>
+                             <div className="grid grid-cols-2 gap-8 text-sm font-black uppercase italic tracking-widest text-brand-300">
+                                 <div><p className="opacity-50 font-bold">NAME</p><p className="text-brand-950">{player.fullName}</p></div>
+                                 <div><p className="opacity-50 font-bold">IDENTIFIER</p><p className="text-brand-950">{player.memberId}</p></div>
+                                 <div><p className="opacity-50 font-bold">PROGRAM</p><p className="text-brand-950">Academy Training</p></div>
+                                 <div><p className="opacity-50 font-bold">VENUE</p><p className="text-brand-950">{player.venue}</p></div>
+                             </div>
+                         </div>
+                         <div className="border-2 border-brand-950 rounded-3xl overflow-hidden mb-12">
+                             <table className="w-full text-left font-black uppercase italic">
+                                 <thead className="bg-brand-950 text-white">
+                                     <tr><th className="p-6">Description</th><th className="p-6 text-right">Amount</th></tr>
+                                 </thead>
+                                 <tbody className="text-sm">
+                                     <tr className="border-b border-brand-100"><td className="p-6">Service Fee (Base)</td><td className="p-6 text-right">Ã¢ÂÂ¹ {taxes.base}</td></tr>
+                                     <tr className="border-b border-brand-100"><td className="p-6">Tax Element</td><td className="p-6 text-right">Ã¢ÂÂ¹ {taxes.cgst + taxes.sgst}</td></tr>
+                                     <tr className="bg-brand-50"><td className="p-6 text-lg font-black italic">Total Settled</td><td className="p-6 text-2xl font-black italic text-right">Ã¢ÂÂ¹ {taxes.total}</td></tr>
+                                 </tbody>
+                             </table>
+                         </div>
+                         <div className="pt-20 border-t border-brand-100 flex justify-between items-end">
+                             <div className="text-[10px] font-black uppercase italic tracking-[0.3em] text-brand-300">Automated verification record. No physical signature required.</div>
+                             <div className="text-right">
+                                 <div className="text-2xl font-black italic text-brand-500 mb-2">{settings.name}</div>
+                                 <div className="text-[8px] font-black uppercase tracking-widest text-brand-300">Management Authorization</div>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            )}
+            </div>
+        </div>
+        </div>
+    );
+};
+
+const History = ({ size, className }: { size?: number, className?: string }) => (
+    <svg 
+        width={size || 24} 
+        height={size || 24} 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="3" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className}
+    >
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M12 7v5l4 2" />
+    </svg>
+);

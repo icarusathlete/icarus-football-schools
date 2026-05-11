@@ -58,6 +58,7 @@ export const PlayerManager: React.FC = () => {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [viewingPerformance, setViewingPerformance] = useState<Player | null>(null);
   const [editingCoach, setEditingCoach] = useState<User | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [scoutPreviewUrl, setScoutPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,7 +182,7 @@ export const PlayerManager: React.FC = () => {
       setPreviewUrl(item.photoUrl || null);
       if (type === 'player') {
           const p = item as Player;
-          setScoutPreviewUrl(p.scoutPhoto || null);
+          setScoutPreviewUrl(p.actionPhotoUrl || p.scoutPhoto || null);
           setEditingPlayer({ ...p });
       } else {
           setEditingCoach({ ...item as User });
@@ -206,31 +207,52 @@ export const PlayerManager: React.FC = () => {
       if (file) {
           const reader = new FileReader();
           reader.onloadend = () => {
-              setScoutPreviewUrl(reader.result as string);
-              if (editingPlayer) setEditingPlayer({ ...editingPlayer, scoutPhoto: reader.result as string });
+              const dataUrl = reader.result as string;
+              setScoutPreviewUrl(dataUrl);
+              if (editingPlayer) {
+                  setEditingPlayer({ 
+                      ...editingPlayer, 
+                      scoutPhoto: dataUrl,
+                      actionPhotoUrl: dataUrl // Keep in sync for EvaluationCard
+                  });
+              }
           };
           reader.readAsDataURL(file);
       }
   };
 
-  const savePlayerChanges = (e: React.FormEvent) => {
+  const savePlayerChanges = async (e: React.FormEvent) => {
       e.preventDefault();
       if (editingPlayer) {
-          StorageService.updatePlayer(editingPlayer);
-          loadData();
-          setEditingPlayer(null);
-          setPreviewUrl(null);
-          setScoutPreviewUrl(null);
+          setIsSaving(true);
+          try {
+              await StorageService.updatePlayer(editingPlayer);
+              loadData();
+              setEditingPlayer(null);
+              setPreviewUrl(null);
+              setScoutPreviewUrl(null);
+          } catch (error: any) {
+              alert(`Failed to save player: ${error.message}`);
+          } finally {
+              setIsSaving(false);
+          }
       }
   };
 
-  const saveCoachChanges = (e: React.FormEvent) => {
+  const saveCoachChanges = async (e: React.FormEvent) => {
       e.preventDefault();
       if (editingCoach) {
-          StorageService.updateUser(editingCoach);
-          loadData();
-          setEditingCoach(null);
-          setPreviewUrl(null);
+          setIsSaving(true);
+          try {
+              await StorageService.updateUser(editingCoach);
+              loadData();
+              setEditingCoach(null);
+              setPreviewUrl(null);
+          } catch (error: any) {
+              alert(`Failed to save coach: ${error.message}`);
+          } finally {
+              setIsSaving(false);
+          }
       }
   };
 
@@ -582,9 +604,9 @@ export const PlayerManager: React.FC = () => {
                               <div className="relative group cursor-pointer mx-auto w-full h-40" onClick={() => scoutPhotoInputRef.current?.click()}>
                                   <div className="absolute -inset-2 bg-gradient-to-br from-brand-primary to-brand-accent rounded-[2rem] opacity-10 group-hover:opacity-20 transition-opacity blur-xl"></div>
                                   <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden border-2 border-white/10 group-hover:border-brand-accent/40 z-10 bg-white/5 flex flex-col items-center justify-center transition-all duration-500">
-                                      {scoutPreviewUrl || editingPlayer.scoutPhoto ? (
+                                      {scoutPreviewUrl || editingPlayer.actionPhotoUrl || editingPlayer.scoutPhoto ? (
                                           <div className="relative w-full h-full p-4">
-                                            <img src={scoutPreviewUrl || editingPlayer.scoutPhoto} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
+                                            <img src={scoutPreviewUrl || editingPlayer.actionPhotoUrl || editingPlayer.scoutPhoto} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" />
                                             <div className="absolute inset-0 bg-brand-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <Camera className="text-brand-accent" size={24} />
                                             </div>
@@ -649,7 +671,7 @@ export const PlayerManager: React.FC = () => {
                                 )}
                             </div>
                           ))}
-                          <div className="space-y-3 md:col-span-2">
+                  <div className="space-y-3 md:col-span-2">
                               <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic ml-1">RESIDENTIAL ADDRESS</label>
                               <textarea 
                                 className="w-full p-6 bg-white/5 border border-white/10 rounded-2xl text-[13px] font-black text-white italic outline-none focus:border-brand-accent/40 focus:bg-white/10 transition-all min-h-[100px] uppercase tracking-widest placeholder:text-white/20" 
@@ -662,7 +684,13 @@ export const PlayerManager: React.FC = () => {
                   </form>
                   
                   <div className="p-6 sm:p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
-                      <button onClick={savePlayerChanges} className="w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic">SAVE PLAYER DETAILS</button>
+                      <button 
+                          onClick={savePlayerChanges} 
+                          disabled={isSaving}
+                          className={`w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic ${isSaving ? 'opacity-50 cursor-wait' : ''}`}
+                      >
+                          {isSaving ? 'SAVING PLAYER DATA...' : 'SAVE PLAYER DETAILS'}
+                      </button>
                   </div>
               </div>
           </div>
@@ -732,7 +760,13 @@ export const PlayerManager: React.FC = () => {
                   </form>
 
                   <div className="p-6 sm:p-8 md:p-10 border-t border-white/10 bg-white/5 shrink-0">
-                    <button onClick={saveCoachChanges} className="w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic">SAVE COACH CREDENTIALS</button>
+                     <button 
+                         onClick={saveCoachChanges} 
+                         disabled={isSaving}
+                         className={`w-full py-6 bg-gradient-to-r from-brand-accent to-green-400 text-brand-950 font-black rounded-2xl uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(195,246,41,0.2)] hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(195,246,41,0.3)] active:scale-[0.98] transition-all duration-300 text-xs italic ${isSaving ? 'opacity-50 cursor-wait' : ''}`}
+                     >
+                         {isSaving ? 'SAVING CREDENTIALS...' : 'SAVE COACH CREDENTIALS'}
+                     </button>
                   </div>
                </div>
            </div>
