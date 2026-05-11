@@ -178,6 +178,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
     const [isAttendanceModalOpen, setAttendanceModalOpen] = useState(false);
     const [selectedAttendanceDetail, setSelectedAttendanceDetail] = useState<{date: string, record?: AttendanceRecord, event?: ScheduleEvent} | null>(null);
     const [viewingSessionPlan, setViewingSessionPlan] = useState<ScheduleEvent | null>(null);
+    const [viewingMatch, setViewingMatch] = useState<any | null>(null);
     const [motmToday, setMotmToday] = useState<{playerId: string, timestamp: number} | null>(null);
     const [checkedInToday, setCheckedInToday] = useState(false);
     const [isCheckingIn, setIsCheckingIn] = useState(false);
@@ -292,11 +293,16 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
         
         const myMatches = matches.filter(m => m.playerStats?.some(s => s.playerId === player.id));
         const myMatchStats = myMatches.map(m => ({
+            id: m.id,
             date: m.date,
             opponent: m.opponent,
             result: m.result,
             scoreFor: m.scoreFor,
             scoreAgainst: m.scoreAgainst,
+            playerOfTheMatchId: m.playerOfTheMatchId,
+            events: m.events,
+            highlightsUrl: m.highlightsUrl,
+            report: m.report,
             myStats: m.playerStats.find(s => s.playerId === player.id)
         })).filter(m => m.myStats);
 
@@ -1486,8 +1492,8 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                     </h3>
                                     {myMatchStats.length > 0 ? (
                                         <div className="space-y-2 flex-1">
-                                        {myMatchStats.slice(0,3).map(m => (
-                                            <div key={m.id} className="p-3 bg-white/5 rounded-xl border border-white/10 group/item hover:bg-white/10 transition-all">
+                                        {[...myMatchStats].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0,3).map(m => (
+                                            <div key={m.id} onClick={() => setViewingMatch(m)} className="p-3 bg-white/5 rounded-xl border border-white/10 group/item hover:bg-white/10 transition-all cursor-pointer">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
@@ -1504,7 +1510,7 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                                                                 <span className="text-sm font-black leading-none italic">{m.myStats.rating}</span>
                                                             </div>
                                                         )}
-                                                        <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black italic uppercase tracking-widest border h-fit ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : 'LOST'}</span>
+                                                        <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black italic uppercase tracking-widest border h-fit ${m.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/30' : m.result === 'D' ? 'bg-yellow-400/10 text-yellow-400 border-yellow-400/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>{m.result === 'W' ? 'WON' : m.result === 'D' ? 'DRAW' : 'LOST'}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-between items-center">
@@ -1712,6 +1718,123 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
                 </div>
             )}
             </div>
+
+            {/* Match Details Modal */}
+            {viewingMatch && (
+                <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-8" onClick={() => setViewingMatch(null)}>
+                    <div className="absolute inset-0 bg-brand-950/90 backdrop-blur-2xl" />
+                    <div className="relative w-full max-w-lg bg-brand-900 rounded-t-[3rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300" onClick={e => e.stopPropagation()}>
+                        {/* Result Banner */}
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 ${viewingMatch.result === 'W' ? 'bg-brand-accent' : viewingMatch.result === 'D' ? 'bg-yellow-400' : 'bg-red-500'}`} />
+                        
+                        {/* Header */}
+                        <div className="p-6 pb-4 flex items-center justify-between border-b border-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-xl text-xs font-black italic tracking-widest uppercase px-3 ${viewingMatch.result === 'W' ? 'bg-brand-accent/10 text-brand-accent border border-brand-accent/30' : viewingMatch.result === 'D' ? 'bg-yellow-400/10 text-yellow-400 border border-yellow-400/30' : 'bg-red-500/10 text-red-500 border border-red-500/30'}`}>
+                                    {viewingMatch.result === 'W' ? 'WIN' : viewingMatch.result === 'D' ? 'DRAW' : 'LOSS'}
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] italic">{new Date(viewingMatch.date).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                                    <h2 className="text-lg font-black text-white italic uppercase tracking-tighter leading-none mt-0.5">vs {viewingMatch.opponent}</h2>
+                                </div>
+                            </div>
+                            <button onClick={() => setViewingMatch(null)} className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all shrink-0">
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+
+                            {/* Score */}
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="text-center">
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-1">Icarus</p>
+                                    <span className="text-6xl font-black text-brand-primary font-mono tracking-tighter drop-shadow-[0_0_20px_rgba(0,200,255,0.4)]">{viewingMatch.scoreFor}</span>
+                                </div>
+                                <div className="text-3xl font-black text-white/10 italic">—</div>
+                                <div className="text-center">
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-1">{viewingMatch.opponent}</p>
+                                    <span className="text-6xl font-black text-white/40 font-mono tracking-tighter">{viewingMatch.scoreAgainst}</span>
+                                </div>
+                            </div>
+
+                            {/* MOTM Badge */}
+                            {viewingMatch.playerOfTheMatchId === player?.id && (
+                                <div className="flex items-center justify-center gap-2 bg-amber-400/10 border border-amber-400/20 rounded-2xl py-3 px-4">
+                                    <Trophy size={16} className="text-amber-400 fill-amber-400" />
+                                    <span className="text-amber-400 font-black italic uppercase tracking-widest text-xs">Man of the Match</span>
+                                </div>
+                            )}
+
+                            {/* My Performance */}
+                            {viewingMatch.myStats && (
+                                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-3">My Performance</p>
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {[
+                                            { label: 'Rating', val: viewingMatch.myStats.rating || '—', highlight: true },
+                                            { label: 'Goals', val: viewingMatch.myStats.goals ?? '—' },
+                                            { label: 'Assists', val: viewingMatch.myStats.assists ?? '—' },
+                                            { label: 'Minutes', val: viewingMatch.myStats.minutesPlayed ?? '—' },
+                                        ].map((stat, i) => (
+                                            <div key={i} className="text-center">
+                                                <div className={`text-2xl font-black tracking-tighter font-mono ${stat.highlight ? 'text-brand-primary drop-shadow-[0_0_10px_rgba(0,200,255,0.3)]' : 'text-white'}`}>{stat.val}</div>
+                                                <div className="text-[8px] font-black text-white/30 uppercase tracking-widest italic mt-0.5">{stat.label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {viewingMatch.myStats.isStarter && (
+                                        <div className="mt-3 flex items-center gap-1.5 text-[9px] font-black text-brand-accent/70 uppercase tracking-widest italic">
+                                            <Star size={10} className="fill-brand-accent text-brand-accent" /> Starting XI
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Match Events Timeline */}
+                            {viewingMatch.events && viewingMatch.events.length > 0 && (
+                                <div>
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-3">Match Events</p>
+                                    <div className="space-y-2">
+                                        {[...viewingMatch.events].sort((a: any, b: any) => a.minute - b.minute).map((ev: any) => {
+                                            const isMyEvent = ev.playerId === player?.id || ev.assistantId === player?.id;
+                                            const icon = ev.type === 'goal' ? '⚽' : ev.type === 'yellow_card' ? '🟨' : ev.type === 'red_card' ? '🟥' : '🔄';
+                                            const label = ev.type === 'goal' ? 'Goal' : ev.type === 'yellow_card' ? 'Yellow Card' : ev.type === 'red_card' ? 'Red Card' : 'Substitution';
+                                            return (
+                                                <div key={ev.id} className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${isMyEvent ? 'bg-brand-accent/10 border-brand-accent/20' : 'bg-white/5 border-white/5'}`}>
+                                                    <span className="text-sm">{icon}</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className={`text-xs font-black italic uppercase tracking-tight leading-none ${isMyEvent ? 'text-brand-accent' : 'text-white/60'}`}>{label}</p>
+                                                    </div>
+                                                    <span className="text-[9px] font-black text-white/30 italic shrink-0">{ev.minute}'</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Match Report */}
+                            {viewingMatch.report && (
+                                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] italic mb-2">Match Report</p>
+                                    <p className="text-xs text-white/60 leading-relaxed font-medium">{viewingMatch.report}</p>
+                                </div>
+                            )}
+
+                            {/* Highlights Link */}
+                            {viewingMatch.highlightsUrl && (
+                                <a href={viewingMatch.highlightsUrl} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-red-600/10 border border-red-500/20 hover:bg-red-600/20 transition-all group">
+                                    <PlayCircle size={18} className="text-red-400 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-black italic uppercase tracking-widest text-red-400">Watch Match Highlights</span>
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {isCertificatesModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
                     <div className="absolute inset-0 bg-brand-950/90 backdrop-blur-2xl" onClick={() => setCertificatesModalOpen(false)} />

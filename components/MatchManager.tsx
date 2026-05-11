@@ -701,27 +701,53 @@ export const MatchManager: React.FC = () => {
                                             <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                             <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-amber-500 group-hover:bg-white group-hover:scale-110 transition-all duration-500 relative z-10">
                                                 <div className="w-5 h-7 bg-amber-500 rounded-sm shadow-xl" />
-                                    {/* Unified Action Grid */}
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <button onClick={() => setShowGoalModal(true)} className="p-8 bg-brand-accent/5 border border-brand-accent/20 rounded-[2rem] hover:bg-brand-accent hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
-                                            <Trophy size={24} className="text-brand-accent group-hover:text-brand-950" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RECORD_GOAL</span>
+                                            </div>
+                                            <div className="text-center relative z-10">
+                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">YELLOW_CARD</p>
+                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-white/40 transition-colors">DISCIPLINARY_LOG_01</p>
+                                            </div>
                                         </button>
-                                        <button onClick={() => setShowCardModal({ type: 'yellow_card' })} className="p-8 bg-amber-500/5 border border-amber-500/20 rounded-[2rem] hover:bg-amber-500 text-white transition-all group flex flex-col items-center gap-4">
-                                            <AlertCircle size={24} className="text-amber-500 group-hover:text-white" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">YELLOW_CARD</span>
+
+                                        <button 
+                                            onClick={() => setShowCardModal({type: 'red_card'})} 
+                                            className="group relative overflow-hidden bg-red-500/5 hover:bg-red-500 transition-all duration-500 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-red-500/20 hover:border-red-500 flex flex-col items-center gap-4 shadow-2xl"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-red-500 group-hover:bg-white group-hover:scale-110 transition-all duration-500 relative z-10">
+                                                <div className="w-5 h-7 bg-red-500 rounded-sm shadow-xl" />
+                                            </div>
+                                            <div className="text-center relative z-10">
+                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">RED_CARD</p>
+                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-white/40 transition-colors">DISCIPLINARY_LOG_02</p>
+                                            </div>
                                         </button>
-                                        <button onClick={() => setShowCardModal({ type: 'red_card' })} className="p-8 bg-red-500/5 border border-red-500/20 rounded-[2rem] hover:bg-red-500 text-white transition-all group flex flex-col items-center gap-4">
-                                            <Shield size={24} className="text-red-500 group-hover:text-white" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RED_CARD</span>
+
+                                        <button 
+                                            onClick={() => setShowSubModal(true)} 
+                                            className="group relative overflow-hidden bg-brand-primary/5 hover:bg-brand-primary transition-all duration-500 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-brand-primary/20 hover:border-brand-primary flex flex-col items-center gap-4 shadow-2xl"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-brand-primary group-hover:bg-brand-950 group-hover:scale-110 transition-all duration-500 shadow-glow relative z-10">
+                                                <RefreshCw size={28} />
+                                            </div>
+                                            <div className="text-center relative z-10">
+                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-brand-950 transition-colors">EXECUTE_SUB</p>
+                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-brand-950/40 transition-colors">TACTICAL_ROTATION</p>
+                                            </div>
                                         </button>
-                                        <button onClick={() => setShowSubModal(true)} className="p-8 bg-brand-primary/5 border border-brand-primary/20 rounded-[2rem] hover:bg-brand-primary hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
-                                            <RefreshCw size={24} className="text-brand-primary group-hover:text-brand-950" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">EXECUTE_SUB</span>
-                                        </button>
-                                        <button onClick={() => setShowAttendanceModal(true)} className="col-span-2 lg:col-span-4 p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white hover:text-brand-950 transition-all group flex flex-col items-center gap-4">
-                                            <Users size={24} className="text-white group-hover:text-brand-950" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">RECORD_ATTENDANCE</span>
+
+                                        <button 
+                                            onClick={() => setShowAttendanceModal(true)} 
+                                            className="col-span-2 lg:col-span-4 group relative overflow-hidden bg-white/5 hover:bg-white transition-all duration-500 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-white/10 hover:border-white flex flex-col items-center gap-4 shadow-2xl"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className="w-14 h-14 rounded-2xl bg-brand-950/40 flex items-center justify-center text-white group-hover:bg-brand-950 group-hover:scale-110 transition-all duration-500 relative z-10">
+                                                <Users size={28} />
+                                            </div>
+                                            <div className="text-center relative z-10">
+                                                <p className="text-[11px] font-black uppercase tracking-[0.2em] italic group-hover:text-brand-950 transition-colors">RECORD_ATTENDANCE</p>
+                                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 group-hover:text-brand-950/40 transition-colors">MATCHDAY_ROLLCALL</p>
+                                            </div>
                                         </button>
                                     </div>
 

@@ -97,6 +97,9 @@ const generateSequentialMemberId = (existingPlayers: Player[]): string => {
   return `ICR-${nextId.toString().padStart(4, '0')}`;
 };
 
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { storage } from '../firebase';
+
 let syncUnsubscribers: (() => void)[] = [];
 let currentSessionUser: User | null = null;
 
@@ -115,6 +118,18 @@ function sanitizeObject(obj: any): any {
 }
 
 export const StorageService = {
+  uploadPhoto: async (file: File, path: string): Promise<string> => {
+    try {
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      throw error;
+    }
+  },
+
   init: () => {
     console.log("StorageService v2.1.2 - Identity Systems Active");
     // Basic local init if needed, but we rely on Firebase sync now

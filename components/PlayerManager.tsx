@@ -223,10 +223,22 @@ export const PlayerManager: React.FC = () => {
           try {
               const compressedDataUrl = await compressImage(file, 800, 0.7);
               setPreviewUrl(compressedDataUrl);
-              if (editingPlayer) setEditingPlayer({ ...editingPlayer, photoUrl: compressedDataUrl });
-              if (editingCoach) setEditingCoach({ ...editingCoach, photoUrl: compressedDataUrl });
+              
+              const blob = await fetch(compressedDataUrl).then(res => res.blob());
+              const fileObj = new File([blob], `profile_${Date.now()}.jpg`, { type: 'image/jpeg' });
+              
+              if (editingPlayer) {
+                  const path = `players/${editingPlayer.id || 'new'}/profile_${Date.now()}.jpg`;
+                  const downloadURL = await StorageService.uploadPhoto(fileObj, path);
+                  setEditingPlayer({ ...editingPlayer, photoUrl: downloadURL });
+              }
+              if (editingCoach) {
+                  const path = `coaches/${editingCoach.id || 'new'}/profile_${Date.now()}.jpg`;
+                  const downloadURL = await StorageService.uploadPhoto(fileObj, path);
+                  setEditingCoach({ ...editingCoach, photoUrl: downloadURL });
+              }
           } catch (error) {
-              console.error("Error compressing image:", error);
+              console.error("Error compressing/uploading image:", error);
               alert("Failed to process image. Please try a different photo.");
           }
       }
@@ -238,15 +250,22 @@ export const PlayerManager: React.FC = () => {
           try {
               const compressedDataUrl = await compressImage(file, 1000, 0.7); // Slightly higher quality for scout photo
               setScoutPreviewUrl(compressedDataUrl);
+              
+              const blob = await fetch(compressedDataUrl).then(res => res.blob());
+              const fileObj = new File([blob], `scout_${Date.now()}.jpg`, { type: 'image/jpeg' });
+              const path = `players/${editingPlayer?.id || 'new'}/scout_${Date.now()}.jpg`;
+              
+              const downloadURL = await StorageService.uploadPhoto(fileObj, path);
+
               if (editingPlayer) {
                   setEditingPlayer({ 
                       ...editingPlayer, 
-                      scoutPhoto: compressedDataUrl,
-                      actionPhotoUrl: compressedDataUrl // Keep in sync for EvaluationCard
+                      scoutPhoto: downloadURL,
+                      actionPhotoUrl: downloadURL // Keep in sync for EvaluationCard
                   });
               }
           } catch (error) {
-              console.error("Error compressing image:", error);
+              console.error("Error compressing/uploading image:", error);
               alert("Failed to process image. Please try a different photo.");
           }
       }
