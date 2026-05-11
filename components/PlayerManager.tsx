@@ -189,35 +189,66 @@ export const PlayerManager: React.FC = () => {
       }
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              setPreviewUrl(reader.result as string);
-              if (editingPlayer) setEditingPlayer({ ...editingPlayer, photoUrl: reader.result as string });
-              if (editingCoach) setEditingCoach({ ...editingCoach, photoUrl: reader.result as string });
-          };
-          reader.readAsDataURL(file);
+          try {
+              const compressedDataUrl = await compressImage(file, 800, 0.7);
+              setPreviewUrl(compressedDataUrl);
+              if (editingPlayer) setEditingPlayer({ ...editingPlayer, photoUrl: compressedDataUrl });
+              if (editingCoach) setEditingCoach({ ...editingCoach, photoUrl: compressedDataUrl });
+          } catch (error) {
+              console.error("Error compressing image:", error);
+              alert("Failed to process image. Please try a different photo.");
+          }
       }
   };
 
-  const handleScoutPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScoutPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              const dataUrl = reader.result as string;
-              setScoutPreviewUrl(dataUrl);
+          try {
+              const compressedDataUrl = await compressImage(file, 1000, 0.7); // Slightly higher quality for scout photo
+              setScoutPreviewUrl(compressedDataUrl);
               if (editingPlayer) {
                   setEditingPlayer({ 
                       ...editingPlayer, 
-                      scoutPhoto: dataUrl,
-                      actionPhotoUrl: dataUrl // Keep in sync for EvaluationCard
+                      scoutPhoto: compressedDataUrl,
+                      actionPhotoUrl: compressedDataUrl // Keep in sync for EvaluationCard
                   });
               }
-          };
-          reader.readAsDataURL(file);
+          } catch (error) {
+              console.error("Error compressing image:", error);
+              alert("Failed to process image. Please try a different photo.");
+          }
       }
   };
 
