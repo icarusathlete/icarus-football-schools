@@ -183,7 +183,7 @@ export const PlayerManager: React.FC = () => {
       if (type === 'player') {
           const p = item as Player;
           // Always prefer actionPhotoUrl (Firebase URL) over legacy scoutPhoto
-          setScoutPreviewUrl(p.actionPhotoUrl || null);
+          setScoutPreviewUrl(p.actionPhotoUrl || p.scoutPhoto || null);
           setEditingPlayer({ ...p });
       } else {
           setEditingCoach({ ...item as User });
@@ -218,6 +218,59 @@ export const PlayerManager: React.FC = () => {
     });
   };
 
+  const handleDeletePhoto = async (photoType: 'headshot' | 'action') => {
+      if (!editingPlayer) return;
+      
+      const confirmMsg = photoType === 'headshot' 
+          ? "Are you sure you want to permanently delete the Headshot profile photo?" 
+          : "Are you sure you want to permanently delete the Action photo?";
+          
+      if (window.confirm(confirmMsg)) {
+          try {
+              let updatedPlayer: Player;
+              if (photoType === 'headshot') {
+                  updatedPlayer = {
+                      ...editingPlayer,
+                      photoUrl: ''
+                  };
+                  setPreviewUrl(null);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+              } else {
+                  updatedPlayer = {
+                      ...editingPlayer,
+                      actionPhotoUrl: '',
+                      scoutPhoto: undefined
+                  };
+                  setScoutPreviewUrl(null);
+                  if (scoutPhotoInputRef.current) scoutPhotoInputRef.current.value = '';
+              }
+              
+              setEditingPlayer(updatedPlayer);
+              await StorageService.updatePlayer(updatedPlayer);
+              loadData();
+              alert("Photo deleted permanently. You can now upload a new one.");
+          } catch (error: any) {
+              alert(`Failed to delete photo: ${error.message}`);
+          }
+      }
+  };
+
+  const safeUploadPhoto = async (fileToUpload: File, path: string): Promise<string> => {
+      try {
+          // Attempt Firebase Storage upload
+          return await StorageService.uploadPhoto(fileToUpload, path);
+      } catch (err) {
+          console.warn("Firebase Storage blocked or unavailable. Falling back to secure native Base64 Firestore embedding:", err);
+          // Convert directly to base64 Data URL string so it works guaranteed across all environments
+          return await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(fileToUpload);
+          });
+      }
+  };
+
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -230,17 +283,25 @@ export const PlayerManager: React.FC = () => {
               
               if (editingPlayer) {
                   const path = `players/${editingPlayer.id || 'new'}/profile_${Date.now()}.jpg`;
-                  const downloadURL = await StorageService.uploadPhoto(fileObj, path);
-                  setEditingPlayer({ ...editingPlayer, photoUrl: downloadURL });
+                  const downloadURL = await safeUploadPhoto(fileObj, path);
+                  const updatedPlayer = { ...editingPlayer, photoUrl: downloadURL };
+                  setEditingPlayer(updatedPlayer);
+                  await StorageService.updatePlayer(updatedPlayer);
+                  loadData();
               }
               if (editingCoach) {
                   const path = `coaches/${editingCoach.id || 'new'}/profile_${Date.now()}.jpg`;
-                  const downloadURL = await StorageService.uploadPhoto(fileObj, path);
-                  setEditingCoach({ ...editingCoach, photoUrl: downloadURL });
+                  const downloadURL = await safeUploadPhoto(fileObj, path);
+                  const updatedCoach = { ...editingCoach, photoUrl: downloadURL };
+                  setEditingCoach(updatedCoach);
+                  await StorageService.updateUser(updatedCoach);
+                  loadData();
               }
           } catch (error) {
               console.error("Error compressing/uploading image:", error);
               alert("Failed to process image. Please try a different photo.");
+          } finally {
+              e.target.value = '';
           }
       }
   };
@@ -248,18 +309,27 @@ export const PlayerManager: React.FC = () => {
   const handleScoutPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file || !editingPlayer) return;
+
       try {
           // Show a temporary local preview immediately so the UI feels instant
           const tempBlob = URL.createObjectURL(file);
           setScoutPreviewUrl(tempBlob);
 
-          const compressedDataUrl = await compressImage(file, 1000, 0.8);
-          const blob = await fetch(compressedDataUrl).then(res => res.blob());
-          // Use a fixed filename per player so each upload overwrites the previous file in Storage
-          const path = `players/${editingPlayer.id}/scout_action.jpg`;
-          const fileObj = new File([blob], 'scout_action.jpg', { type: 'image/jpeg' });
+          let fileToUpload: File = file;
+          let ext = file.name.split('.').pop() || 'png';
 
-          const downloadURL = await StorageService.uploadPhoto(fileObj, path);
+          // If the file is larger than 500KB, automatically compress it so the upload succeeds flawlessly
+          if (file.size > 500 * 1024) {
+              const compressedDataUrl = await compressImage(file, 1000, 0.8);
+              const blob = await fetch(compressedDataUrl).then(res => res.blob());
+              fileToUpload = new File([blob], `scout_action_${Date.now()}.jpg`, { type: 'image/jpeg' });
+              ext = 'jpg';
+          }
+
+          // Use unique path with timestamp to permanently bust browser cache of the old photo
+          const path = `players/${editingPlayer.id}/scout_action_${Date.now()}.${ext}`;
+
+          const downloadURL = await safeUploadPhoto(fileToUpload, path);
 
           // Update preview to the permanent Firebase URL
           setScoutPreviewUrl(downloadURL);
@@ -274,11 +344,15 @@ export const PlayerManager: React.FC = () => {
 
           // Auto-persist immediately — don't wait for the Save button
           await StorageService.updatePlayer(updatedPlayer);
+          loadData();
       } catch (error) {
           console.error('Scout photo upload failed:', error);
           // Revert preview on failure
           setScoutPreviewUrl(editingPlayer.actionPhotoUrl || editingPlayer.scoutPhoto || null);
           alert('Failed to upload photo. Please try again.');
+      } finally {
+          // Reset file input value so selecting the same file again triggers onChange reliably
+          e.target.value = '';
       }
   };
 
@@ -638,8 +712,8 @@ export const PlayerManager: React.FC = () => {
                   <form onSubmit={savePlayerChanges} className="p-6 sm:p-8 md:p-12 space-y-8 md:space-y-10 overflow-y-auto custom-scrollbar text-left flex-1">
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                           {/* Profile Photo */}
-                          <div className="space-y-4">
-                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic ml-1 text-center block">Headshot Profile</label>
+                          <div className="space-y-4 flex flex-col items-center">
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic text-center block w-full">Headshot Profile</label>
                               <div className="relative group cursor-pointer mx-auto w-32 h-32" onClick={() => fileInputRef.current?.click()}>
                                   <div className="absolute -inset-2 bg-gradient-to-br from-brand-accent to-brand-primary rounded-[2.5rem] opacity-20 group-hover:opacity-40 transition-opacity blur-xl"></div>
                                   <div className="relative w-full h-full rounded-[2rem] overflow-hidden border-2 border-white/20 z-10">
@@ -650,11 +724,20 @@ export const PlayerManager: React.FC = () => {
                                   </div>
                                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoChange} />
                               </div>
+                              {(previewUrl || editingPlayer.photoUrl) && (
+                                  <button
+                                      type="button"
+                                      onClick={() => handleDeletePhoto('headshot')}
+                                      className="mt-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-xl text-[9px] font-black text-red-400 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-1.5 italic shadow-md"
+                                  >
+                                      <Trash2 size={10} /> Delete Headshot
+                                  </button>
+                              )}
                           </div>
 
                           {/* Scout Action Photo */}
-                          <div className="space-y-4">
-                              <div className="flex items-center justify-between px-1">
+                          <div className="space-y-4 flex flex-col items-center">
+                              <div className="flex items-center justify-between px-1 w-full">
                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] italic">Action Photo (No Background)</label>
                                 <div className="flex items-center gap-2">
                                   <div className="px-2 py-0.5 bg-brand-accent/10 border border-brand-accent/20 rounded-md">
@@ -686,7 +769,16 @@ export const PlayerManager: React.FC = () => {
                                   </div>
                                   <input type="file" ref={scoutPhotoInputRef} className="hidden" accept="image/*" onChange={handleScoutPhotoChange} />
                               </div>
-                              <p className="text-[9px] font-medium text-white/30 italic text-center px-4 leading-relaxed">
+                              {(scoutPreviewUrl || editingPlayer.actionPhotoUrl || editingPlayer.scoutPhoto) && (
+                                  <button
+                                      type="button"
+                                      onClick={() => handleDeletePhoto('action')}
+                                      className="mt-1 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-xl text-[9px] font-black text-red-400 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-1.5 italic shadow-md"
+                                  >
+                                      <Trash2 size={10} /> Delete Action Photo
+                                  </button>
+                              )}
+                              <p className="text-[9px] font-medium text-white/30 italic text-center px-4 leading-relaxed w-full">
                                 Use transparent PNGs or cutouts for the best results in the Scout Report export.
                               </p>
                           </div>

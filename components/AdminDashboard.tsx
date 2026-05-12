@@ -127,6 +127,9 @@ const CentreCard: React.FC<{ stat: CentreStat; onClick: () => void }> = ({ stat,
 export const AdminDashboard: React.FC = () => {
   const [selectedVenue, setSelectedVenue] = useState<string>('all');
   const [selectedBatch, setSelectedBatch] = useState<string>('all');
+  const [rankingMetric, setRankingMetric] = useState<'composite' | 'rating' | 'attendance' | 'skills'>('composite');
+  const [rankingLimit, setRankingLimit] = useState<number>(10);
+  const [activityTypeFilter, setActivityTypeFilter] = useState<'all' | 'player' | 'match' | 'fee'>('all');
 
   // Raw Data State
   const [rawData, setRawData] = useState<{
@@ -415,69 +418,62 @@ export const AdminDashboard: React.FC = () => {
     return AGE_GROUPS.map((g, i) => ({ name: g, value: ac[g] || 0, color: AGE_COLORS[i] }));
   }, [filteredPlayers]);
 
-  // Top Performers
-  const topPerformers = useMemo(() => {
-    return filteredPlayers
-      .filter(p => p.evaluation?.overallRating)
-      .sort((a, b) => (b.evaluation?.overallRating ?? 0) - (a.evaluation?.overallRating ?? 0))
-      .slice(0, 5)
-      .map(p => ({
-        name: p.fullName,
-        rating: p.evaluation?.overallRating || 0,
-        venue: p.venue || '—'
-      }));
-  }, [filteredPlayers]);
-
   // Activity Feed
   const activityFeed = useMemo(() => {
     const feed: { id: string; type: 'player' | 'match' | 'fee'; label: string; sub: string; ts: number }[] = [];
     
     // New Players (Using pre-sorted index)
-    indexedData.sortedPlayersByRegistrationDate
-      .filter(p => (selectedVenue === 'all' || p.venue === selectedVenue) && (selectedBatch === 'all' || p.batch === selectedBatch))
-      .slice(0, 3)
-      .forEach(p => feed.push({ id: `p-${p.id}`, type: 'player', label: `${p.fullName} joined`, sub: p.venue || 'No centre', ts: new Date(p.registeredAt).getTime() }));
+    if (activityTypeFilter === 'all' || activityTypeFilter === 'player') {
+      indexedData.sortedPlayersByRegistrationDate
+        .filter(p => (selectedVenue === 'all' || p.venue === selectedVenue) && (selectedBatch === 'all' || p.batch === selectedBatch))
+        .slice(0, activityTypeFilter === 'player' ? 8 : 3)
+        .forEach(p => feed.push({ id: `p-${p.id}`, type: 'player', label: `${p.fullName} joined`, sub: p.venue || 'No centre', ts: new Date(p.registeredAt).getTime() }));
+    }
 
     // Matches (Pre-sorted index)
-    indexedData.sortedMatches
-      .slice(0, 3)
-      .forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
+    if (activityTypeFilter === 'all' || activityTypeFilter === 'match') {
+      indexedData.sortedMatches
+        .slice(0, activityTypeFilter === 'match' ? 8 : 3)
+        .forEach(m => feed.push({ id: `m-${m.id}`, type: 'match', label: `${m.result === 'W' ? 'Won' : m.result === 'L' ? 'Lost' : 'Drew'} vs ${m.opponent}`, sub: `${m.scoreFor}–${m.scoreAgainst} · ${new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`, ts: new Date(m.date).getTime() }));
+    }
 
     // Fees (Using pre-grouped index)
-    let filteredFees: FeeRecord[] = [];
-    if (selectedVenue !== 'all') {
-      filteredFees = indexedData.feesByVenue[selectedVenue] || [];
-      if (selectedBatch !== 'all') {
-        filteredFees = filteredFees.filter(f => {
-          const p = indexedData.playersById[f.playerId];
-          return p && p.batch === selectedBatch;
-        });
-      }
-    } else if (selectedBatch !== 'all') {
-      filteredFees = indexedData.feesByBatch[selectedBatch] || [];
-    } else {
-      filteredFees = rawData.fees;
-    }
-    
-    [...filteredFees]
-      .filter(f => f.invoice)
-      .sort((a, b) => new Date(b.invoice?.date || 0).getTime() - new Date(a.invoice?.date || 0).getTime())
-      .slice(0, 3)
-      .forEach(f => { 
-        const pl = indexedData.playersById[f.playerId]; 
-        if (pl && f.invoice) {
-          feed.push({ 
-            id: `f-${f.id}`, 
-            type: 'fee', 
-            label: `₹${f.invoice.amount.toLocaleString('en-IN')} collected`, 
-            sub: `${pl.fullName} · Invoice ${f.invoice.invoiceNo}`, 
-            ts: new Date(f.invoice.date).getTime() 
-          }); 
+    if (activityTypeFilter === 'all' || activityTypeFilter === 'fee') {
+      let filteredFees: FeeRecord[] = [];
+      if (selectedVenue !== 'all') {
+        filteredFees = indexedData.feesByVenue[selectedVenue] || [];
+        if (selectedBatch !== 'all') {
+          filteredFees = filteredFees.filter(f => {
+            const p = indexedData.playersById[f.playerId];
+            return p && p.batch === selectedBatch;
+          });
         }
-      });
+      } else if (selectedBatch !== 'all') {
+        filteredFees = indexedData.feesByBatch[selectedBatch] || [];
+      } else {
+        filteredFees = rawData.fees;
+      }
+      
+      [...filteredFees]
+        .filter(f => f.invoice)
+        .sort((a, b) => new Date(b.invoice?.date || 0).getTime() - new Date(a.invoice?.date || 0).getTime())
+        .slice(0, activityTypeFilter === 'fee' ? 8 : 3)
+        .forEach(f => { 
+          const pl = indexedData.playersById[f.playerId]; 
+          if (pl && f.invoice) {
+            feed.push({ 
+              id: `f-${f.id}`, 
+              type: 'fee', 
+              label: `₹${f.invoice.amount.toLocaleString('en-IN')} collected`, 
+              sub: `${pl.fullName} · Invoice ${f.invoice.invoiceNo}`, 
+              ts: new Date(f.invoice.date).getTime() 
+            }); 
+          }
+        });
+    }
 
     return feed.sort((a, b) => b.ts - a.ts).slice(0, 8);
-  }, [indexedData.sortedPlayersByRegistrationDate, indexedData.sortedMatches, indexedData.feesByVenue, indexedData.feesByBatch, indexedData.playersById, rawData.fees, selectedVenue, selectedBatch]);
+  }, [indexedData.sortedPlayersByRegistrationDate, indexedData.sortedMatches, indexedData.feesByVenue, indexedData.feesByBatch, indexedData.playersById, rawData.fees, selectedVenue, selectedBatch, activityTypeFilter]);
 
   // League Rankings
   const leagueRankings = useMemo(() => {
@@ -504,21 +500,34 @@ export const AdminDashboard: React.FC = () => {
           ? p.evaluationHistory[p.evaluationHistory.length - 1]
           : null,
       };
-    }).sort((a, b) => b.compositeScore - a.compositeScore);
+    }).sort((a, b) => {
+      if (rankingMetric === 'rating') return b.overallRating - a.overallRating;
+      if (rankingMetric === 'attendance') return b.attRate - a.attRate;
+      if (rankingMetric === 'skills') return b.scoutScore - a.scoutScore;
+      return b.compositeScore - a.compositeScore;
+    });
 
     const prevScores = playerScores
       .filter(ps => ps.prevEval)
       .map(ps => {
         const prevE = ps.prevEval!;
         const m2 = prevE.metrics || {};
-        return { id: ps.id, prevScore: computeCompositeScore(prevE.overallRating || 0, ps.attRate, m2) };
+        let val = computeCompositeScore(prevE.overallRating || 0, ps.attRate, m2);
+        if (rankingMetric === 'rating') val = prevE.overallRating || 0;
+        else if (rankingMetric === 'attendance') val = ps.attRate;
+        else if (rankingMetric === 'skills') {
+          val = Math.round((
+            ((m2.passing || 0) + (m2.juggling || 0) + (m2.shooting || 0) + (m2.beepTest || 0) + (m2.weakFoot || 0) + (m2.longPass || 0)) / 6
+          ) * 10) / 10;
+        }
+        return { id: ps.id, prevScore: val };
       })
       .sort((a, b) => b.prevScore - a.prevScore);
 
     const prevRankMap: Record<string, number> = {};
     prevScores.forEach((ps, idx) => { prevRankMap[ps.id] = idx + 1; });
 
-    return playerScores.slice(0, 10).map((ps, idx) => {
+    return playerScores.slice(0, rankingLimit).map((ps, idx) => {
       const currentRank = idx + 1;
       const prevRank = prevRankMap[ps.id] ?? 0;
       let trend: LeagueRanking['trend'] = 'new';
@@ -542,7 +551,7 @@ export const AdminDashboard: React.FC = () => {
         posChange: Math.abs(posChange),
       } as LeagueRanking;
     });
-  }, [filteredPlayers, indexedData.recentAttendanceStats]);
+  }, [filteredPlayers, indexedData.recentAttendanceStats, rankingMetric, rankingLimit]);
 
   // Player Roster
   const playerRoster = useMemo(() => {
@@ -715,26 +724,52 @@ export const AdminDashboard: React.FC = () => {
       {leagueRankings.length > 0 && (
         <div className="glass-card rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden ring-1 ring-white/5">
           {/* Header */}
-          <div className="px-5 sm:px-8 py-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center gap-3 bg-black/5">
+          <div className="px-5 sm:px-8 py-5 border-b border-white/10 flex flex-col lg:flex-row lg:items-center gap-4 bg-black/5 justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-2xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-2xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center flex-shrink-0">
                 <Medal size={14} className="text-[#CCFF00]" />
               </div>
               <div>
                 <h3 className="text-[13px] font-black italic uppercase text-white tracking-tight">PERFORMANCE RANKINGS</h3>
                 <p className="text-[8px] font-black italic text-white/45 uppercase tracking-[0.3em]">
-                  TOP 10 PLAYERS · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
+                  TOP {rankingLimit === 1000 ? 'ALL' : rankingLimit} PLAYERS · {selectedBatch !== 'all' ? selectedBatch : selectedVenue !== 'all' ? selectedVenue : 'ALL CENTRES COMBINED'}
                 </p>
               </div>
             </div>
-            <div className="sm:ml-auto flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap items-center">
+              <div className="relative">
+                <select
+                  value={rankingMetric}
+                  onChange={e => setRankingMetric(e.target.value as any)}
+                  className="bg-white/5 hover:bg-white/10 text-white font-bold text-[9px] uppercase tracking-wider px-3 py-1.5 rounded-xl border border-white/10 outline-none cursor-pointer appearance-none pr-7"
+                >
+                  <option value="composite" className="bg-[#0D1B8A]">SORT: COMPOSITE</option>
+                  <option value="rating" className="bg-[#0D1B8A]">SORT: COACH RATING</option>
+                  <option value="attendance" className="bg-[#0D1B8A]">SORT: ATTENDANCE</option>
+                  <option value="skills" className="bg-[#0D1B8A]">SORT: SKILL METRICS</option>
+                </select>
+                <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/40" />
+              </div>
+              <div className="relative">
+                <select
+                  value={rankingLimit}
+                  onChange={e => setRankingLimit(Number(e.target.value))}
+                  className="bg-white/5 hover:bg-white/10 text-white font-bold text-[9px] uppercase tracking-wider px-3 py-1.5 rounded-xl border border-white/10 outline-none cursor-pointer appearance-none pr-7"
+                >
+                  <option value={5} className="bg-[#0D1B8A]">TOP 5</option>
+                  <option value={10} className="bg-[#0D1B8A]">TOP 10</option>
+                  <option value={25} className="bg-[#0D1B8A]">TOP 25</option>
+                  <option value={1000} className="bg-[#0D1B8A]">ALL</option>
+                </select>
+                <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/40" />
+              </div>
               {[
-                { dot: 'bg-[#CCFF00]', label: 'Coach Assessment 40%' },
-                { dot: 'bg-brand-500', label: 'Attendance 35%' },
-                { dot: 'bg-brand-accent', label: 'Skill Metrics 25%' },
+                { dot: 'bg-[#CCFF00]', label: 'Coach 40%' },
+                { dot: 'bg-brand-500', label: 'Att 35%' },
+                { dot: 'bg-brand-accent', label: 'Skills 25%' },
               ].map((l, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-[9px] font-black italic text-white/50 bg-black/20 border border-white/5 px-3 py-1.5 rounded-xl">
-                  <span className={`w-1.5 h-1.5 rounded-full ${l.dot} shadow-[0_0_8px_currentColor]`} />{l.label}
+                <span key={i} className="flex items-center gap-1 text-[8px] font-black italic text-white/50 bg-black/20 border border-white/5 px-2 py-1 rounded-lg">
+                  <span className={`w-1 h-1 rounded-full ${l.dot} shadow-[0_0_8px_currentColor]`} />{l.label}
                 </span>
               ))}
             </div>
@@ -922,10 +957,10 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* ── Analytics Row ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5">
 
         {/* 7-day chart */}
-        <div className="lg:col-span-2 glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden ring-1 ring-white/5">
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl overflow-hidden ring-1 ring-white/5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Clock size={13} className="text-[#CCFF00]" />
@@ -937,41 +972,6 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="h-[200px] sm:h-[240px]">{renderChart(chartAll)}</div>
-        </div>
-
-        {/* Top performers */}
-        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl flex flex-col ring-1 ring-white/5 relative overflow-hiddenGroup">
-          <div className="flex items-center gap-2 mb-5">
-            <Star size={13} className="text-[#CCFF00] icon-glow-lime" />
-            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">ELITE PLATOON</h3>
-          </div>
-          {topPerformers.length > 0 ? (
-            <div className="flex-1 space-y-1">
-              {topPerformers.map((p, i) => (
-                <div key={i} className="flex items-center gap-3 py-3 border-b border-white/[0.04] last:border-0 group/item">
-                  <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-black italic shadow-inner"
-                    style={{ 
-                      background: i === 0 ? '#CCFF00' : i === 1 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
-                      color: i === 0 ? '#0D1B8A' : 'white'
-                    }}>
-                    {i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-black italic text-white truncate group-hover/item:text-[#CCFF00] transition-colors">{p.name}</p>
-                    <p className="text-[8px] font-bold italic text-white/20 truncate uppercase tracking-tighter">{p.venue}</p>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <span className="text-[12px] font-black italic text-[#CCFF00]">{p.rating.toFixed(1)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center gap-2 opacity-25">
-              <Shield size={24} className="text-white/20" />
-              <p className="text-[9px] font-black italic text-white/25 uppercase text-center">Incomplete intel<br />on evaluations</p>
-            </div>
-          )}
         </div>
       </div>
 
@@ -1012,9 +1012,24 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Activity feed */}
         <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] border border-white/10 shadow-xl ring-1 ring-white/5">
-          <div className="flex items-center gap-2 mb-5">
-            <Radio size={13} className="text-[#CCFF00]" />
-            <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">RECENT ACTIVITY</h3>
+          <div className="flex items-center justify-between gap-2 mb-5">
+            <div className="flex items-center gap-2">
+              <Radio size={13} className="text-[#CCFF00]" />
+              <h3 className="text-[11px] font-black italic uppercase text-white tracking-[0.25em]">RECENT ACTIVITY</h3>
+            </div>
+            <div className="relative">
+              <select
+                value={activityTypeFilter}
+                onChange={e => setActivityTypeFilter(e.target.value as any)}
+                className="bg-white/5 hover:bg-white/10 text-white font-bold text-[9px] uppercase tracking-wider px-3 py-1.5 rounded-xl border border-white/10 outline-none cursor-pointer appearance-none pr-7"
+              >
+                <option value="all" className="bg-[#0D1B8A]">ALL TYPES</option>
+                <option value="player" className="bg-[#0D1B8A]">PLAYERS</option>
+                <option value="match" className="bg-[#0D1B8A]">MATCHES</option>
+                <option value="fee" className="bg-[#0D1B8A]">FEES</option>
+              </select>
+              <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/40" />
+            </div>
           </div>
           {activityFeed.length > 0 ? (
             <div className="space-y-0.5">

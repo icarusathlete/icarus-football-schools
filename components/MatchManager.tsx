@@ -176,7 +176,7 @@ export const MatchManager: React.FC = () => {
             window.removeEventListener('settingsChanged', handleSettingsChange);
             window.removeEventListener('academy_data_update', loadData);
         };
-    }, [playerStats, players]);
+    }, []);
 
     // Match Timer Effect
     useEffect(() => {
@@ -1521,9 +1521,9 @@ export const MatchManager: React.FC = () => {
 
                                 <div className="flex flex-col items-center gap-3 relative z-10 shrink-0">
                                     <div className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter flex items-center gap-5">
-                                        <span className={selectedMatchDetails.score.our > selectedMatchDetails.score.their ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.score.our}</span>
+                                        <span className={selectedMatchDetails.scoreFor > selectedMatchDetails.scoreAgainst ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.scoreFor}</span>
                                         <span className="text-white/10 text-3xl sm:text-5xl">:</span>
-                                        <span className={selectedMatchDetails.score.their > selectedMatchDetails.score.our ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.score.their}</span>
+                                        <span className={selectedMatchDetails.scoreAgainst > selectedMatchDetails.scoreFor ? 'text-brand-accent drop-shadow-[0_0_15px_rgba(195,246,41,0.5)]' : 'text-white'}>{selectedMatchDetails.scoreAgainst}</span>
                                     </div>
                                     <div className="px-5 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
                                         <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.5em] italic">FINAL_SCORE</span>
