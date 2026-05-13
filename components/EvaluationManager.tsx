@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StorageService } from '../services/storageService';
+import { processAndSafeUploadImage } from '../utils/imageUtils';
 import { Player, PlayerEvaluation } from '../types';
 import { Search, Save, X, Trash2, Shield, Activity, Target, Zap, Ruler, Weight, Timer, Plus, Minus, ChevronRight, Play, Square, RefreshCcw, SaveAll, Loader2, Camera, Award, Eye, Brain, Sparkles, Check, Trash } from 'lucide-react';
 import { EvaluationCard } from './EvaluationCard';
@@ -424,34 +425,6 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
     setForm(prev => ({ ...prev, developmentAreas: prev.developmentAreas.filter(tag => tag !== tagToRemove) }));
   };
 
-  const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth) {
-            height = (maxWidth / width) * height;
-            width = maxWidth;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleActionPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -466,10 +439,23 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
       }
 
       try {
-        const compressed = await compressImage(file, 1000, 0.6); // Slightly higher for action photo
-        setForm(prev => ({ ...prev, actionImageUrl: compressed }));
+        // Show instant local feedback
+        const tempUrl = URL.createObjectURL(file);
+        setForm(prev => ({ ...prev, actionImageUrl: tempUrl }));
+
+        const safeUrl = await processAndSafeUploadImage(
+          file,
+          `evaluations/${selectedPlayerId || 'general'}`,
+          1000,
+          0.8,
+          'action'
+        );
+        setForm(prev => ({ ...prev, actionImageUrl: safeUrl }));
       } catch (err) {
-        console.error("Compression failed", err);
+        console.error("Action photo upload failed", err);
+        alert("Failed to upload action photo. Please try again.");
+      } finally {
+        e.target.value = '';
       }
     }
   };
@@ -488,10 +474,23 @@ export const EvaluationManager: React.FC<EvaluationManagerProps> = ({ onBreadcru
       }
 
       try {
-        const compressed = await compressImage(file, 400, 0.5); // Smaller for signature
-        setForm(prev => ({ ...prev, coachSignatureUrl: compressed }));
+        // Show instant local feedback
+        const tempUrl = URL.createObjectURL(file);
+        setForm(prev => ({ ...prev, coachSignatureUrl: tempUrl }));
+
+        const safeUrl = await processAndSafeUploadImage(
+          file,
+          `evaluations/${selectedPlayerId || 'general'}`,
+          400,
+          0.8,
+          'signature'
+        );
+        setForm(prev => ({ ...prev, coachSignatureUrl: safeUrl }));
       } catch (err) {
-        console.error("Compression failed", err);
+        console.error("Signature upload failed", err);
+        alert("Failed to upload signature. Please try again.");
+      } finally {
+        e.target.value = '';
       }
     }
   };

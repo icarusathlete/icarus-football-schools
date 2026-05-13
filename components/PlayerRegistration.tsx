@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { StorageService } from '../services/storageService';
 import { Player, Venue, Batch } from '../types';
+import { compressImage, processAndSafeUploadImage } from '../utils/imageUtils';
 import { ConfirmModal } from './ConfirmModal';
 
 /* ─────────────────────────────────────────────────────────────────────────── */
@@ -89,6 +90,7 @@ export const PlayerRegistration: React.FC = () => {
     venue: '',
     batch: ''
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Coach Form State
   const [coachForm, setCoachForm] = useState({
@@ -105,6 +107,7 @@ export const PlayerRegistration: React.FC = () => {
     assignedVenues: [] as string[],
     assignedBatches: [] as string[]
   });
+  const [coachFile, setCoachFile] = useState<File | null>(null);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [coachPreviewUrl, setCoachPreviewUrl] = useState<string | null>(null);
@@ -183,23 +186,29 @@ export const PlayerRegistration: React.FC = () => {
     setNextId(`ICR-${(maxId + 1).toString().padStart(4, '0')}`);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
-      const reader = new FileReader();
-      reader.onloadend = () => setFormData(prev => ({ ...prev, photoUrl: reader.result as string }));
-      reader.readAsDataURL(file);
+      try {
+        const tempUrl = URL.createObjectURL(file);
+        setPreviewUrl(tempUrl);
+        setSelectedFile(file);
+      } catch (err) {
+        console.error("Error processing image:", err);
+      }
     }
   };
 
-  const handleCoachFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoachFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setCoachPreviewUrl(URL.createObjectURL(file));
-      const reader = new FileReader();
-      reader.onloadend = () => setCoachForm(prev => ({ ...prev, photoUrl: reader.result as string }));
-      reader.readAsDataURL(file);
+      try {
+        const tempUrl = URL.createObjectURL(file);
+        setCoachPreviewUrl(tempUrl);
+        setCoachFile(file);
+      } catch (err) {
+        console.error("Error processing image:", err);
+      }
     }
   };
 
@@ -227,19 +236,34 @@ export const PlayerRegistration: React.FC = () => {
     e.preventDefault();
     if (!validatePlayer()) { setStatus('error'); setStatusMsg('Please fill in all required fields.'); setTimeout(() => setStatus('idle'), 3000); return; }
     setStatus('submitting');
+    
     setTimeout(async () => {
       try {
+        let finalPhotoUrl = formData.photoUrl;
+        
+        if (selectedFile) {
+          finalPhotoUrl = await processAndSafeUploadImage(
+            selectedFile,
+            'profile_photos/players',
+            800,
+            0.7,
+            'profile'
+          );
+        }
+
         await StorageService.addPlayer({
           ...formData,
-          photoUrl: formData.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName)}&background=0ea5e9&color=fff`
+          photoUrl: finalPhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName)}&background=0ea5e9&color=fff`
         });
         window.dispatchEvent(new CustomEvent('academy_data_update'));
         setStatus('success');
         setStatusMsg('Athlete registered successfully.');
         setFormData({ fullName: '', dateOfBirth: '', parentName: '', contactNumber: '', address: '', position: 'POSITION', photoUrl: '', venue: venues.length > 0 ? venues[0].name : '', batch: batches.length > 0 ? batches[0].name : '' });
         setPreviewUrl(null);
+        setSelectedFile(null);
         refreshData();
-      } catch {
+      } catch (err) {
+        console.error("Registration error:", err);
         setStatus('error');
         setStatusMsg('Failed to save profile. Please try again.');
       }
@@ -250,21 +274,35 @@ export const PlayerRegistration: React.FC = () => {
     e.preventDefault();
     if (!validateCoach()) { setStatus('error'); setStatusMsg('Please fill in all required fields.'); setTimeout(() => setStatus('idle'), 3000); return; }
     setStatus('submitting');
+    
     setTimeout(async () => {
       try {
+        let finalPhotoUrl = coachForm.photoUrl;
+
+        if (coachFile) {
+          finalPhotoUrl = await processAndSafeUploadImage(
+            coachFile,
+            'profile_photos/coaches',
+            800,
+            0.7,
+            'coach_profile'
+          );
+        }
+
         await StorageService.addUser({
-          username: coachForm.username, fullName: coachForm.fullName, password: coachForm.password,
-          role: 'coach', photoUrl: coachForm.photoUrl, employeeNumber: coachForm.employeeNumber,
-          contactNumber: coachForm.contactNumber, email: coachForm.email, dateOfBirth: coachForm.dateOfBirth,
-          address: coachForm.address, assignedVenues: coachForm.assignedVenues, assignedBatches: coachForm.assignedBatches
+          ...coachForm,
+          photoUrl: finalPhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(coachForm.fullName)}&background=0ea5e9&color=fff`
         });
+
         window.dispatchEvent(new CustomEvent('academy_data_update'));
         setStatus('success');
         setStatusMsg('Coach account created successfully.');
-        setCoachForm({ username: '', fullName: '', contactNumber: '', email: '', dateOfBirth: '', address: '', password: '', employeeNumber: '', photoUrl: '', role: 'coach', assignedVenues: [], assignedBatches: [] });
+        setCoachForm(INITIAL_COACH_FORM);
         setCoachPreviewUrl(null);
+        setCoachFile(null);
         refreshData();
       } catch (err: any) {
+        console.error("Coach registration error:", err);
         setStatus('error');
         setStatusMsg(err.message || 'Failed to create account.');
       }

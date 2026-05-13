@@ -31,5 +31,11 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "scratch/**/*",
+    "node_modules",
+    "dist",
+    "dist-desktop"
+  ]
 }

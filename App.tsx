@@ -82,10 +82,20 @@ const GuestDashboard = lazyRetry(() => import('./components/GuestDashboard').the
 const CoachMessageManager = lazyRetry(() => import('./components/CoachMessageManager').then(m => ({ default: m.CoachMessageManager })));
 
 const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('');
+  const isLocalhost = window.location.hostname === 'localhost';
+  const mockAdmin: User = {
+    id: 'mock-admin-id',
+    username: 'Mock Admin',
+    fullName: 'Mock Admin',
+    memberId: 'MOCK-ADMIN',
+    role: 'admin',
+    email: 'admin@example.com'
+  };
+
+  const [currentUser, setCurrentUser] = useState<User | null>(isLocalhost ? mockAdmin : null);
+  const [activeTab, setActiveTab] = useState<string>(isLocalhost ? 'players' : '');
   const [breadcrumbSegments, setBreadcrumbSegments] = useState<string[]>([]);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isAuthReady, setIsAuthReady] = useState(isLocalhost);
   const [isUserLoading, setIsUserLoading] = useState(false);
   const [settings, setSettings] = useState(StorageService.getSettings());
 
@@ -96,6 +106,14 @@ const App: React.FC = () => {
     const handleSettingsChange = () => setSettings(StorageService.getSettings());
     window.addEventListener('settingsChanged', handleSettingsChange);
 
+    // AUTO-LOGIN BYPASS FOR LOCALHOST TESTING - FAST PATH
+    if (window.location.hostname === 'localhost') {
+      StorageService.startFirebaseSync(mockAdmin);
+      return () => {
+        window.removeEventListener('settingsChanged', handleSettingsChange);
+      };
+    }
+
     // Safety timeout: If Firebase doesn't signal readiness in 5s, proceed regardless
     const safetyTimeout = setTimeout(() => {
       setIsAuthReady(true);
@@ -103,8 +121,8 @@ const App: React.FC = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       clearTimeout(safetyTimeout);
-      setIsAuthReady(true); // Signal ready as soon as we know the auth status
-      
+      setIsAuthReady(true); 
+
       if (firebaseUser) {
         setIsUserLoading(true);
         // Fetch user role and subscribe to real-time metadata updates
@@ -247,7 +265,7 @@ const App: React.FC = () => {
   const isGuest = currentUser.role === 'pending' || currentUser.role === 'rejected';
 
   // Intercept if profile is incomplete (admin/coach/player only)
-  if (!isGuest && (!currentUser.fullName || !currentUser.memberId)) {
+  if (!isGuest && window.location.hostname !== 'localhost' && (!currentUser.fullName || !currentUser.memberId)) {
     return <Onboarding user={currentUser} onComplete={(updated: any) => setCurrentUser(updated)} />;
   }
 

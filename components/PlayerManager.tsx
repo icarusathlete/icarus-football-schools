@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StorageService } from '../services/storageService';
+import { compressImage, processAndSafeUploadImage } from '../utils/imageUtils';
 import { Player, Venue, Batch, User } from '../types';
 import { 
     Search, Edit2, Trash2, Save, X, User as UserIcon, 
@@ -190,33 +191,6 @@ export const PlayerManager: React.FC = () => {
       }
   };
 
-  const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth) {
-            height = (maxWidth / width) * height;
-            width = maxWidth;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
 
   const handleDeletePhoto = async (photoType: 'headshot' | 'action') => {
       if (!editingPlayer) return;
@@ -255,50 +229,44 @@ export const PlayerManager: React.FC = () => {
       }
   };
 
-  const safeUploadPhoto = async (fileToUpload: File, path: string): Promise<string> => {
-      try {
-          // Attempt Firebase Storage upload
-          return await StorageService.uploadPhoto(fileToUpload, path);
-      } catch (err) {
-          console.warn("Firebase Storage blocked or unavailable. Falling back to secure native Base64 Firestore embedding:", err);
-          // Convert directly to base64 Data URL string so it works guaranteed across all environments
-          return await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = reject;
-              reader.readAsDataURL(fileToUpload);
-          });
-      }
-  };
-
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
           try {
-              const compressedDataUrl = await compressImage(file, 800, 0.7);
-              setPreviewUrl(compressedDataUrl);
-              
-              const blob = await fetch(compressedDataUrl).then(res => res.blob());
-              const fileObj = new File([blob], `profile_${Date.now()}.jpg`, { type: 'image/jpeg' });
+              // Show a temporary local preview immediately so the UI feels instant
+              const tempBlob = URL.createObjectURL(file);
+              setPreviewUrl(tempBlob);
               
               if (editingPlayer) {
-                  const path = `players/${editingPlayer.id || 'new'}/profile_${Date.now()}.jpg`;
-                  const downloadURL = await safeUploadPhoto(fileObj, path);
+                  const downloadURL = await processAndSafeUploadImage(
+                      file,
+                      `players/${editingPlayer.id || 'new'}`,
+                      800,
+                      0.7,
+                      'profile'
+                  );
+                  setPreviewUrl(downloadURL);
                   const updatedPlayer = { ...editingPlayer, photoUrl: downloadURL };
                   setEditingPlayer(updatedPlayer);
                   await StorageService.updatePlayer(updatedPlayer);
                   loadData();
               }
               if (editingCoach) {
-                  const path = `coaches/${editingCoach.id || 'new'}/profile_${Date.now()}.jpg`;
-                  const downloadURL = await safeUploadPhoto(fileObj, path);
+                  const downloadURL = await processAndSafeUploadImage(
+                      file,
+                      `coaches/${editingCoach.id || 'new'}`,
+                      800,
+                      0.7,
+                      'profile'
+                  );
+                  setPreviewUrl(downloadURL);
                   const updatedCoach = { ...editingCoach, photoUrl: downloadURL };
                   setEditingCoach(updatedCoach);
                   await StorageService.updateUser(updatedCoach);
                   loadData();
               }
           } catch (error) {
-              console.error("Error compressing/uploading image:", error);
+              console.error("Error processing/uploading image:", error);
               alert("Failed to process image. Please try a different photo.");
           } finally {
               e.target.value = '';
@@ -315,21 +283,13 @@ export const PlayerManager: React.FC = () => {
           const tempBlob = URL.createObjectURL(file);
           setScoutPreviewUrl(tempBlob);
 
-          let fileToUpload: File = file;
-          let ext = file.name.split('.').pop() || 'png';
-
-          // If the file is larger than 500KB, automatically compress it so the upload succeeds flawlessly
-          if (file.size > 500 * 1024) {
-              const compressedDataUrl = await compressImage(file, 1000, 0.8);
-              const blob = await fetch(compressedDataUrl).then(res => res.blob());
-              fileToUpload = new File([blob], `scout_action_${Date.now()}.jpg`, { type: 'image/jpeg' });
-              ext = 'jpg';
-          }
-
-          // Use unique path with timestamp to permanently bust browser cache of the old photo
-          const path = `players/${editingPlayer.id}/scout_action_${Date.now()}.${ext}`;
-
-          const downloadURL = await safeUploadPhoto(fileToUpload, path);
+          const downloadURL = await processAndSafeUploadImage(
+              file,
+              `players/${editingPlayer.id || 'new'}`,
+              1000,
+              0.8,
+              'scout_action'
+          );
 
           // Update preview to the permanent Firebase URL
           setScoutPreviewUrl(downloadURL);
@@ -925,7 +885,7 @@ export const PlayerManager: React.FC = () => {
            </div>
       )}
 
-      {viewingPerformance && <PlayerPerformanceModal player={viewingPerformance} onCancel={() => setViewingPerformance(null)} onUpdate={() => loadData()} />}
+      {viewingPerformance && <PlayerPerformanceModal player={viewingPerformance} onClose={() => setViewingPerformance(null)} onUpdate={() => loadData()} />}
       
       <ConfirmModal isOpen={deleteModalOpen} title={`DELETE PLAYER`} message={`Are you sure you want to permanently delete this player? This action cannot be undone.`} onConfirm={confirmDelete} onCancel={() => {setDeleteModalOpen(false); setItemToDelete(null);}} requireTypeToConfirm="delete" />
     </div>
