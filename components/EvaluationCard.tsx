@@ -200,7 +200,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
 
         // Adjust scale based on screen size to prevent memory crashes on mobile
         const isMobile = window.innerWidth < 768;
-        const canvasScale = isMobile ? 1.2 : 2;
+        const canvasScale = isMobile ? 1 : 2;
 
         const canvas = await html2canvas(element, {
             scale: canvasScale,
@@ -226,6 +226,16 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                     clonedElement.style.top = '0';
                     clonedElement.style.width = '1600px';
                     clonedElement.style.height = '1000px';
+                    
+                    // Remove overflow hidden from all ancestors to prevent clipping on mobile
+                    let parent = clonedElement.parentElement;
+                    while (parent && parent !== clonedDoc.body) {
+                        parent.style.overflow = 'visible';
+                        parent.style.overflowX = 'visible';
+                        parent.style.overflowY = 'visible';
+                        parent.style.transform = 'none';
+                        parent = parent.parentElement;
+                    }
                 }
             }
         });
@@ -240,27 +250,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         pdf.addImage(imgData, 'JPEG', 0, 0, 1600, 1000, undefined, 'FAST');
         const fileName = `${player?.fullName?.replace(/\s+/g, '_') || 'Player'}_SCOUT_REPORT.pdf`;
 
-        // Use Blob approach for mobile compatibility (prevents base64 URL too large issues)
-        const blob = pdf.output('blob');
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        
-        // Trigger download
-        a.click();
+        // Use native jsPDF save which handles mobile fallbacks gracefully
+        pdf.save(fileName);
 
-        // Cleanup
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 1000);
-
-    } catch (error) {
+    } catch (error: any) {
         console.error("PDF Generation failed:", error);
-        alert("Failed to generate PDF. Please ensure all assets are loaded and try again.");
+        alert(`Failed to generate PDF: ${error?.message || 'Unknown error'}. Please try again.`);
     } finally {
         setIsGenerating(false);
         window.scrollTo(0, originalScrollPos);
@@ -761,50 +756,64 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     <div className="space-y-6">
         {/* Controls Header - Elite Command Console */}
         {/* Controls Header - Elite Tactical Command Center */}
-        <div className="flex justify-between items-center bg-slate-900/40 backdrop-blur-3xl p-3 px-6 rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/40 backdrop-blur-3xl p-4 md:px-6 rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
             {/* Left: System Status & Identity */}
-            <div className="flex items-center gap-6">
-                <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-[#00C8FF] to-[#0044FF] rounded-xl blur opacity-25 group-hover:opacity-50 transition-all duration-500"></div>
-                    <div className="relative w-11 h-11 bg-[#0A1535] rounded-xl flex items-center justify-center border border-white/10">
-                        <Shield className="text-[#00C8FF]" size={22} />
+            <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto justify-between md:justify-start">
+                <div className="flex items-center gap-4 md:gap-6">
+                    <div className="relative group shrink-0">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#00C8FF] to-[#0044FF] rounded-xl blur opacity-25 group-hover:opacity-50 transition-all duration-500"></div>
+                        <div className="relative w-10 h-10 md:w-11 md:h-11 bg-[#0A1535] rounded-xl flex items-center justify-center border border-white/10">
+                            <Shield className="text-[#00C8FF]" size={20} />
+                        </div>
+                    </div>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <h2 className="text-[11px] md:text-[12px] font-black text-white uppercase tracking-[0.3em] leading-tight font-heading">SCOUT REPORT</h2>
+                            <span className="px-1.5 py-0.5 rounded-md bg-[#00C8FF]/10 border border-[#00C8FF]/20 text-[#00C8FF] text-[7px] md:text-[8px] font-black tracking-widest shrink-0">LIVE</span>
+                        </div>
+                        <p className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-[0.1em] md:tracking-[0.15em] mt-1.5 flex items-center gap-1.5 md:gap-2 font-mono truncate max-w-[150px] md:max-w-none">
+                            <span className="w-1 h-1 md:w-1.5 md:h-1.5 bg-[#CCFF00] rounded-full animate-pulse shadow-[0_0_8px_#CCFF00] shrink-0" />
+                            PERFORMANCE ANALYSIS <span className="opacity-30">|</span> {player.fullName?.split(' ')[0]} ANALYSIS
+                        </p>
                     </div>
                 </div>
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-[12px] font-black text-white uppercase tracking-[0.3em] leading-tight font-heading">SCOUT REPORT</h2>
-                        <span className="px-2 py-0.5 rounded-md bg-[#00C8FF]/10 border border-[#00C8FF]/20 text-[#00C8FF] text-[8px] font-black tracking-widest">LIVE</span>
-                    </div>
-                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.15em] mt-1.5 flex items-center gap-2 font-mono">
-                        <span className="w-1.5 h-1.5 bg-[#CCFF00] rounded-full animate-pulse shadow-[0_0_8px_#CCFF00]" />
-                        PERFORMANCE ANALYSIS <span className="opacity-30">|</span> {player.fullName?.split(' ')[0]} ANALYSIS
-                    </p>
-                </div>
+                
+                {/* Close Button on Mobile (Shows on right side of top row) */}
+                {onClose && (
+                    <button 
+                        onClick={onClose} 
+                        className="md:hidden w-8 h-8 flex items-center justify-center text-white/20 hover:text-white hover:bg-red-500/10 rounded-xl transition-all active:scale-90 border border-transparent hover:border-red-500/20 shrink-0"
+                    >
+                        <X size={18} />
+                    </button>
+                )}
             </div>
             
             {/* Center: Action Console (Coach Controls) */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
                 {isCoach && (
-                    <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5 backdrop-blur-xl">
+                    <div className="flex items-center justify-between gap-1 bg-black/40 p-1.5 rounded-xl border border-white/5 backdrop-blur-xl w-full md:w-auto">
                         <button 
                             onClick={() => handleGenerateAIReport(true)} 
                             disabled={isLoadingAI} 
-                            className="flex items-center gap-2.5 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] text-white/60 hover:text-[#00C8FF] hover:bg-white/5 transition-all disabled:opacity-30 active:scale-95 group"
+                            className="flex-1 md:flex-none flex justify-center items-center gap-2 px-2 md:px-4 py-2.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.15em] text-white/60 hover:text-[#00C8FF] hover:bg-white/5 transition-all disabled:opacity-30 active:scale-95 group whitespace-nowrap"
                         >
                             {isLoadingAI ? <Loader2 className="animate-spin" size={14}/> : <RefreshCcw size={14} className="group-hover:rotate-180 transition-transform duration-500" />} 
-                            REFRESH ANALYSIS
+                            <span className="hidden sm:inline">REFRESH ANALYSIS</span>
+                            <span className="sm:hidden">REFRESH</span>
                         </button>
-                        <div className="w-[1px] h-4 bg-white/10 mx-1" />
+                        <div className="w-[1px] h-5 bg-white/10 mx-1" />
                         <button 
                             onClick={() => setIsEditingRemarks(!isEditingRemarks)} 
-                            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 ${
+                            className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-2 md:px-4 py-2.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.15em] transition-all active:scale-95 whitespace-nowrap ${
                                 isEditingRemarks 
                                 ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
                                 : 'text-white/60 hover:text-[#00C8FF] hover:bg-white/5'
                             }`}
                         >
                             {isEditingRemarks ? <X size={14}/> : <Edit2 size={14} />} 
-                            {isEditingRemarks ? 'CANCEL' : 'EDIT ASSESSMENT'}
+                            <span className="hidden sm:inline">{isEditingRemarks ? 'CANCEL' : 'EDIT ASSESSMENT'}</span>
+                            <span className="sm:hidden">{isEditingRemarks ? 'CANCEL' : 'EDIT'}</span>
                         </button>
                     </div>
                 )}
@@ -813,18 +822,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                 <button 
                     onClick={handleDownloadPDF} 
                     disabled={isGenerating} 
-                    className="group relative flex items-center gap-3 bg-[#CCFF00] text-[#050E25] px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(204,255,0,0.2)] disabled:opacity-50 overflow-hidden"
+                    className="w-full md:w-auto group relative flex justify-center items-center gap-2 md:gap-3 bg-[#CCFF00] text-[#050E25] px-4 md:px-8 py-3.5 md:py-2.5 rounded-xl text-[11px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_30px_rgba(204,255,0,0.2)] disabled:opacity-50 overflow-hidden whitespace-nowrap"
                 >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                    {isGenerating ? <Loader2 className="animate-spin" size={15}/> : <Download size={15} className="group-hover:-translate-y-0.5 transition-transform" />} 
-                    GENERATE PDF REPORT
+                    {isGenerating ? <Loader2 className="animate-spin" size={16}/> : <Download size={16} className="group-hover:-translate-y-0.5 transition-transform" />} 
+                    GENERATE PDF
                 </button>
 
-        {/* Close Button */}
+                {/* Close Button on Desktop */}
                 {onClose && (
                     <button 
                         onClick={onClose} 
-                        className="w-10 h-10 flex items-center justify-center text-white/20 hover:text-white hover:bg-red-500/10 rounded-xl transition-all active:scale-90 border border-transparent hover:border-red-500/20"
+                        className="hidden md:flex w-10 h-10 items-center justify-center text-white/20 hover:text-white hover:bg-red-500/10 rounded-xl transition-all active:scale-90 border border-transparent hover:border-red-500/20 shrink-0"
                     >
                         <X size={20} />
                     </button>
