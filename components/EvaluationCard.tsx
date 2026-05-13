@@ -175,6 +175,10 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
     const element = pdfRef.current;
     if (!element) return;
     
+    // Ensure the element is scrolled to top before capturing to avoid cutting/blank regions
+    const originalScrollPos = window.scrollY;
+    window.scrollTo(0, 0);
+
     setIsGenerating(true);
 
     try {
@@ -197,8 +201,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
             allowTaint: false,
             backgroundColor: '#080C28',
             logging: false,
+            windowWidth: 1600,
+            windowHeight: 1000,
             width: 1600,
             height: 1000,
+            x: 0,
+            y: 0,
             onclone: (clonedDoc) => {
                 const clonedElement = clonedDoc.getElementById('premium-dossier-capture');
                 if (clonedElement) {
@@ -209,6 +217,8 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                     clonedElement.style.position = 'relative';
                     clonedElement.style.left = '0';
                     clonedElement.style.top = '0';
+                    clonedElement.style.width = '1600px';
+                    clonedElement.style.height = '1000px';
                 }
             }
         });
@@ -217,8 +227,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         const pdf = new jsPDF({
             orientation: 'landscape',
             unit: 'px',
-            format: [1600, 1000],
-            hotfixes: ['px_scaling']
+            format: [1600, 1000]
         });
 
         pdf.addImage(imgData, 'JPEG', 0, 0, 1600, 1000, undefined, 'FAST');
@@ -228,6 +237,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         alert("Failed to generate PDF. Please ensure all assets are loaded and try again.");
     } finally {
         setIsGenerating(false);
+        window.scrollTo(0, originalScrollPos);
     }
   };
 
@@ -814,6 +824,27 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
         {/* --- THE DOSSIER (1600x1000 LANDSCAPE AREA) --- */}
         <div ref={wrapperRef} className="w-full flex justify-center overflow-hidden rounded-2xl border" style={{ height: `${1000 * scale}px`, background: '#080C28', borderColor: 'rgba(60,100,255,0.2)' }}>
             <div style={{ width: `${1600 * scale}px`, height: `${1000 * scale}px`, position: 'relative' }}>
+                {/* Securely positioned export container directly behind the visible one, sharing the exact same standard viewport context to prevent html2canvas black/blank generation */}
+                <div 
+                    ref={pdfRef} 
+                    id="premium-dossier-capture"
+                    style={{ 
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top left',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '1600px', 
+                        height: '1000px', 
+                        background: '#080C28',
+                        zIndex: 0,
+                        opacity: 0.001,
+                        pointerEvents: 'none'
+                    }}
+                >
+                    {renderDossierContent(true)}
+                </div>
+
                 <div 
                     ref={cardRef} 
                     data-report-container="true"
@@ -822,27 +853,12 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ player, settings
                         transformOrigin: 'top left',
                         position: 'absolute',
                         top: 0,
-                        left: 0
+                        left: 0,
+                        zIndex: 1
                     }}
                 >
                     {renderDossierContent(false)}
                 </div>
-            </div>
-        </div>
-
-        {/* HIDDEN PREMIUM PDF TEMPLATE - html2canvas needs it to be in DOM and NOT invisible/display:none */}
-        <div className="fixed -left-[4000px] top-0 pointer-events-none z-[-100]" aria-hidden="true">
-            <div 
-                ref={pdfRef} 
-                id="premium-dossier-capture"
-                style={{ 
-                    width: '1600px', 
-                    height: '1000px', 
-                    background: '#080C28',
-                    position: 'relative'
-                }}
-            >
-                {renderDossierContent(true)}
             </div>
         </div>
     </div>
