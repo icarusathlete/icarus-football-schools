@@ -493,14 +493,31 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
         } catch (e) { alert('Could not generate invoice download.'); }
     };
     const handleDownloadIDCard = async () => {
-        if (!idCardRef.current) return;
+        if (!idCardRef.current) {
+            console.error('ID Card ref not found');
+            return;
+        }
         try {
-            const canvas = await html2canvas(idCardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff', allowTaint: true });
+            const canvas = await html2canvas(idCardRef.current, { 
+                scale: 3, 
+                useCORS: true, 
+                backgroundColor: '#080C28', 
+                logging: true, // Enable logging to help debug
+                allowTaint: false, // Usually false when using CORS
+                imageTimeout: 15000,
+                onclone: (clonedDoc) => {
+                    const el = clonedDoc.querySelector('[ref="idCardRef"]');
+                    if (el) (el as HTMLElement).style.display = 'block';
+                }
+            });
             const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `ID_Card_${player?.memberId}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.download = `OFFICIAL_PASS_${player?.fullName.replace(/\s+/g, '_') || 'ATHLETE'}_${player?.memberId || 'ID'}.png`;
             link.click();
-        } catch (e) { alert('Could not generate ID Card.'); }
+        } catch (e) { 
+            console.error('ID Card Generation Error:', e);
+            alert(`Could not generate ID Card. Error: ${e instanceof Error ? e.message : 'Unknown error'}`); 
+        }
     };
 
     const calculateTaxes = (total: number) => {
@@ -584,35 +601,142 @@ export const PlayerPortal: React.FC<PlayerPortalProps> = ({ user, initialSection
             <div className="max-w-7xl mx-auto space-y-6 relative z-10">
 
             {/* ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ ID Card Generator (Hidden) ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ */}
+            {/* ─── ID Card Generator (Hidden Premium Version) ────────────────── */}
             <div className="fixed left-[-9999px] top-0">
-                <div ref={idCardRef} className="w-[400px] h-[600px] bg-white relative overflow-hidden flex flex-col items-center p-8 text-brand-950 border-[6px] rounded-[3rem] border-brand-950/90">
-                    <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none"
-                        style={{ backgroundImage: 'repeating-linear-gradient(0deg,#0D1B8A 0,#0D1B8A 1px,transparent 1px,transparent 20px),repeating-linear-gradient(90deg,#0D1B8A 0,#0D1B8A 1px,transparent 1px,transparent 20px)' }} />
+                <div ref={idCardRef} 
+                    style={{ 
+                        width: '450px', 
+                        height: '650px', 
+                        backgroundColor: '#080C28', 
+                        position: 'relative', 
+                        overflow: 'hidden', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        color: '#FFFFFF', 
+                        border: '8px solid #050A1F', 
+                        borderRadius: '3.5rem'
+                    }}>
+                    {/* Background Textures */}
+                    <div style={{ 
+                        position: 'absolute', 
+                        inset: 0, 
+                        opacity: 0.05, 
+                        pointerEvents: 'none',
+                        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 21px)' 
+                    }} />
                     
-                    <div className="relative z-10 flex flex-col items-center w-full h-full">
-                        <div className="mt-6 mb-8 text-center">
-                            {settings.logoUrl ? <img src={settings.logoUrl} className="w-16 h-16 object-contain mx-auto mb-3" /> : <Shield className="w-16 h-16 text-brand-500 mx-auto mb-3" />}
-                            <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">{settings.name}</h2>
-                            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-500 mt-1">OFFICIAL PLAYER PASS</p>
+                    <div style={{ 
+                        position: 'absolute', 
+                        width: '120%', 
+                        height: '80%', 
+                        bottom: '-10%', 
+                        right: '-10%', 
+                        opacity: 0.08, 
+                        pointerEvents: 'none',
+                        backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100%25\' height=\'100%25\' viewBox=\'0 0 100 65\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Crect x=\'0\' y=\'0\' width=\'100\' height=\'65\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Cline x1=\'50\' y1=\'0\' x2=\'50\' y2=\'65\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Ccircle cx=\'50\' cy=\'32.5\' r=\'9.15\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Crect x=\'0\' y=\'13.84\' width=\'16.5\' height=\'37.32\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Crect x=\'83.5\' y=\'13.84\' width=\'16.5\' height=\'37.32\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Crect x=\'0\' y=\'24.84\' width=\'5.5\' height=\'15.32\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3Crect x=\'94.5\' y=\'24.84\' width=\'5.5\' height=\'15.32\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")',
+                        backgroundSize: 'cover',
+                        transform: 'rotate(12deg)'
+                    }} />
+
+                    {/* Lighting Blooms (Simplified for html2canvas) */}
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(0,200,255,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(195,246,41,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+                    {/* Corner Markers */}
+                    <div style={{ position: 'absolute', top: '40px', left: '40px', width: '32px', height: '32px', borderTop: '2px solid rgba(0,200,255,0.3)', borderLeft: '2px solid rgba(0,200,255,0.3)' }} />
+                    <div style={{ position: 'absolute', top: '40px', right: '40px', width: '32px', height: '32px', borderTop: '2px solid rgba(0,200,255,0.3)', borderRight: '2px solid rgba(0,200,255,0.3)' }} />
+                    <div style={{ position: 'absolute', bottom: '40px', left: '40px', width: '32px', height: '32px', borderBottom: '2px solid rgba(0,200,255,0.3)', borderLeft: '2px solid rgba(0,200,255,0.3)' }} />
+                    <div style={{ position: 'absolute', bottom: '40px', right: '40px', width: '32px', height: '32px', borderBottom: '2px solid rgba(0,200,255,0.3)', borderRight: '2px solid rgba(0,200,255,0.3)' }} />
+
+                    <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%', padding: '32px' }}>
+                        {/* Header */}
+                        <div style={{ marginTop: '16px', marginBottom: '32px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ position: 'relative', marginBottom: '16px' }}>
+                                <div style={{ position: 'absolute', inset: '-8px', backgroundColor: 'rgba(0,200,255,0.2)', borderRadius: '9999px' }} />
+                                {settings.logoUrl ? (
+                                    <img src={settings.logoUrl} style={{ position: 'relative', width: '56px', height: '56px', objectFit: 'contain', margin: '0 auto' }} />
+                                ) : (
+                                    <Shield style={{ position: 'relative', width: '56px', height: '56px', color: '#00C8FF', margin: '0 auto' }} />
+                                )}
+                            </div>
+                            <h2 style={{ fontSize: '20px', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.05em', textTransform: 'uppercase', lineHeight: 1, color: '#FFFFFF' }}>{settings.name}</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                                <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(0,200,255,0.3)' }} />
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.4em', color: '#C3F629' }}>OFFICIAL PLAYER PASS</p>
+                                <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(0,200,255,0.3)' }} />
+                            </div>
                         </div>
                         
-                        <div className="relative mb-10">
-                            <div className="absolute -inset-2 bg-brand-500/10 rounded-full blur-xl" />
-                            <img src={player.photoUrl} className="relative w-48 h-48 object-cover rounded-full border-[6px] border-white shadow-2xl" />
+                        {/* Profile Image */}
+                        <div style={{ position: 'relative', marginBottom: '40px' }}>
+                            <div style={{ position: 'absolute', inset: '-16px', backgroundColor: 'rgba(0,200,255,0.2)', borderRadius: '9999px', opacity: 0.5 }} />
+                            <div style={{ 
+                                position: 'relative', 
+                                width: '176px', 
+                                height: '176px', 
+                                borderRadius: '9999px', 
+                                padding: '4px', 
+                                background: 'linear-gradient(to bottom right, #00C8FF, #C3F629)',
+                                overflow: 'hidden',
+                                border: '2px solid rgba(255,255,255,0.1)'
+                            }}>
+                                <img src={player.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '9999px' }} />
+                            </div>
+                            <div style={{ 
+                                position: 'absolute', 
+                                bottom: '-8px', 
+                                right: '-8px', 
+                                backgroundColor: '#C3F629', 
+                                color: '#080C28', 
+                                padding: '6px 16px', 
+                                borderRadius: '12px', 
+                                fontSize: '10px', 
+                                fontWeight: 900, 
+                                textTransform: 'uppercase', 
+                                letterSpacing: '0.1em', 
+                                fontStyle: 'italic',
+                                border: '1px solid rgba(255,255,255,0.2)'
+                            }}>
+                                {player.position}
+                            </div>
                         </div>
 
-                        <div className="text-center space-y-2 mb-auto">
-                            <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-brand-950">{player.fullName}</h1>
-                            <p className="text-sm text-brand-500 font-mono font-black italic tracking-widest">{player.memberId}</p>
+                        {/* Identity */}
+                        <div style={{ textAlign: 'center', marginBottom: 'auto', width: '100%' }}>
+                            <h1 style={{ fontSize: '40px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.05em', lineHeight: 1, color: '#FFFFFF', fontStyle: 'italic', fontFamily: 'Oswald, sans-serif' }}>
+                                {player.fullName.split(' ')[0]}<br/>
+                                <span style={{ color: '#00C8FF', textShadow: '0 0 10px rgba(0,200,255,0.4)' }}>
+                                    {player.fullName.split(' ').slice(1).join(' ')}
+                                </span>
+                            </h1>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '4px 16px', borderRadius: '9999px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', marginTop: '16px' }}>
+                                <span style={{ width: '6px', height: '6px', borderRadius: '9999px', backgroundColor: '#C3F629' }} />
+                                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace', fontWeight: 900, fontStyle: 'italic', letterSpacing: '0.1em' }}>{player.memberId}</p>
+                            </div>
                         </div>
 
-                        <div className="w-full bg-slate-50 rounded-2xl p-5 border border-slate-100 flex justify-between items-center mt-6">
-                            <div className="text-center"><p className="text-[9px] text-slate-300 uppercase font-black tracking-widest mb-1">Position</p><p className="text-sm font-black text-brand-950 italic">{player.position}</p></div>
-                            <div className="w-px h-8 bg-slate-200" />
-                            <div className="text-center"><p className="text-[9px] text-slate-300 uppercase font-black tracking-widest mb-1">Batch</p><p className="text-sm font-black text-brand-950 italic">{player.batch}</p></div>
+                        {/* Tactical Data Grid */}
+                        <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px', marginTop: '32px' }}>
+                            <div style={{ padding: '16px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <p style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginBottom: '4px' }}>BATCH</p>
+                                <p style={{ fontSize: '14px', fontWeight: 900, color: '#FFFFFF', fontStyle: 'italic', letterSpacing: '-0.025em' }}>{player.batch}</p>
+                            </div>
+                            <div style={{ padding: '16px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <p style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em', marginBottom: '4px' }}>VENUE</p>
+                                <p style={{ fontSize: '14px', fontWeight: 900, color: '#FFFFFF', fontStyle: 'italic', letterSpacing: '-0.025em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'center' }}>{player.venue || 'CENTRAL'}</p>
+                            </div>
                         </div>
                         
-                        <div className="mt-8 text-[8px] font-black text-slate-300 uppercase tracking-[0.5em] italic">ICARUS FOOTBALL SCHOOLS</div>
+                        {/* Footer */}
+                        <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            <div style={{ height: '1px', width: '48px', backgroundColor: 'rgba(255,255,255,0.1)', marginBottom: '16px' }} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '7px', fontWeight: 900, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.5em', fontStyle: 'italic' }}>
+                                <span>ICARUS ELITE SYSTEM</span>
+                                <div style={{ width: '4px', height: '4px', borderRadius: '9999px', backgroundColor: 'rgba(0,200,255,0.4)' }} />
+                                <span>v2.0 AUTHENTICATED</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
