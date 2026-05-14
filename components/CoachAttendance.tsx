@@ -35,12 +35,18 @@ export const CoachAttendance: React.FC = () => {
       
       const assignedVenues = isAdmin ? allVenues : allVenues.filter(v => (user.assignedVenues || []).includes(v.name));
       setVenues(assignedVenues);
-      if (assignedVenues.length > 0) setSelectedVenue(assignedVenues[0].name);
+      if (assignedVenues.length > 0) {
+        const defaultVenue = assignedVenues.find(v => v.name.toLowerCase() === 'gaur city') || assignedVenues[0];
+        setSelectedVenue(defaultVenue.name);
+      }
 
       const allBatches = StorageService.getBatches();
       const assignedBatches = isAdmin ? allBatches : allBatches.filter(b => (user.assignedBatches || []).includes(b.name));
       setBatches(assignedBatches);
-      if (assignedBatches.length > 0) setSelectedBatch(assignedBatches[0].name);
+      if (assignedBatches.length > 0) {
+        const defaultBatch = assignedBatches.find(b => b.name.toLowerCase() === '6-7 pm') || assignedBatches[0];
+        setSelectedBatch(defaultBatch.name);
+      }
     }
   }, []);
 
